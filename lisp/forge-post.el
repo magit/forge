@@ -47,6 +47,12 @@
     ;;(define-key map [remap magit-edit-thing]   'forge-edit-post)
     map))
 
+;;; Utilities
+
+(cl-defmethod forge--format-url ((post forge-post) slot &optional spec)
+  (forge--format-url (forge-get-topic post) slot
+                     `(,@spec (?I . ,(oref post number)))))
+
 ;;; Mode
 
 (defvar forge-post-mode-map

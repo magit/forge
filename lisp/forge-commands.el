@@ -123,8 +123,14 @@
     (cl-etypecase post
       (forge-issue   (forge-browse-issue post))
       (forge-pullreq (forge-browse-pullreq post))
-      (forge-post    (browse-url (forge--format-url post 'post-url-format))
-                     (oset (forge-get-topic post) unread-p nil)))))
+      (forge-post
+       (let ((topic (forge-get-topic post)))
+         (browse-url
+          (forge--format-url post
+                             (cl-etypecase topic
+                               (forge-issue   'issue-post-url-format)
+                               (forge-pullreq 'pullreq-post-url-format))))
+         (oset topic unread-p nil))))))
 
 ;;; Visit
 
