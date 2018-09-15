@@ -161,20 +161,23 @@ repositories.
         (oset issue locked-p   .locked)
         (oset issue milestone  .milestone)
         (oset issue body       (forge--sanitize-string .body))
-        (dolist (c .comments)
-          (let-alist c
-            (closql-insert
-             (forge-db)
-             (forge-issue-post
-              :id      (forge--object-id issue-id .databaseId)
-              :issue   issue-id
-              :number  .databaseId
-              :author  .author.login
-              :created .createdAt
-              :updated .updatedAt
-              :body    (forge--sanitize-string .body))
-             t)))
+        (mapc (lambda (c) (forge--update-issue-insert-comment issue-id c))
+              .comments)
         issue))))
+
+(defun forge--update-issue-insert-comment (issue-id comment)
+  (let-alist comment
+    (closql-insert
+     (forge-db)
+     (forge-issue-post
+      :id      (forge--object-id issue-id .databaseId)
+      :issue   issue-id
+      :number  .databaseId
+      :author  .author.login
+      :created .createdAt
+      :updated .updatedAt
+      :body    (forge--sanitize-string .body))
+     t)))
 
 (cl-defmethod forge--update-labels ((repo forge-github-repository) data)
   (magit-msg "Storing labels...")
@@ -220,20 +223,23 @@ repositories.
         (oset pullreq head-repo    .headRef.repository.nameWithOwner)
         (oset pullreq milestone    .milestone)
         (oset pullreq body         (forge--sanitize-string .body))
-        (dolist (p .comments)
-          (let-alist p
-            (closql-insert
-             (forge-db)
-             (forge-pullreq-post
-              :id      (forge--object-id pullreq-id .databaseId)
-              :pullreq pullreq-id
-              :number  .databaseId
-              :author  .author.login
-              :created .createdAt
-              :updated .updatedAt
-              :body    (forge--sanitize-string .body))
-             t)))
+        (mapc (lambda (p) (forge--update-pullreq-insert-comment pullreq-id p))
+              .comments)
         pullreq))))
+
+(defun forge--update-pullreq-insert-comment (pullreq-id comment)
+  (let-alist comment
+    (closql-insert
+     (forge-db)
+     (forge-pullreq-post
+      :id      (forge--object-id pullreq-id .databaseId)
+      :pullreq pullreq-id
+      :number  .databaseId
+      :author  .author.login
+      :created .createdAt
+      :updated .updatedAt
+      :body    (forge--sanitize-string .body))
+     t)))
 
 (cl-defmethod forge--update-revnotes ((repo forge-github-repository) data)
   (emacsql-with-transaction (forge-db)
