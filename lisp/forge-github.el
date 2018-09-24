@@ -102,6 +102,21 @@ repositories.
        (pullRequests-until . ,(forge--topics-until repo 'pullreq)))
      :auth 'forge)))
 
+(cl-defmethod forge--pull-pullreq ((repo forge-github-repository) pullreq)
+  ;; This function is only required because of a Github bug:
+  ;; https://platform.github.community/t/7284
+  (let ((buffer (current-buffer)))
+    (ghub-fetch-pullreq
+     (oref repo owner)
+     (oref repo name)
+     (oref pullreq number)
+     (lambda (data)
+       (forge--update-pullreq repo data nil)
+       (with-current-buffer
+           (if (buffer-live-p buffer) buffer (current-buffer))
+         (magit-refresh)))
+     nil :auth 'forge)))
+
 (cl-defmethod forge--topics-until ((repo forge-github-repository) table)
   (and (not (oref repo sparse-p))
        (caar (forge-sql [:select [updated] :from $s1

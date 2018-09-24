@@ -124,9 +124,11 @@
     (error "forge--submit-post-function is nil")))
 
 (defun forge--post-submit-callback ()
-  (let ((file    buffer-file-name)
-        (editbuf (current-buffer))
-        (prevbuf forge--pre-post-buffer))
+  (let* ((file    buffer-file-name)
+         (editbuf (current-buffer))
+         (prevbuf forge--pre-post-buffer)
+         (topic   (ignore-errors (forge-get-topic forge--buffer-post-object)))
+         (repo    (forge-get-repository topic)))
     (lambda (&rest _)
       (delete-file file t)
       (let ((dir (file-name-directory file)))
@@ -137,7 +139,11 @@
           (magit-mode-bury-buffer 'kill)))
       (with-current-buffer
           (if (buffer-live-p prevbuf) prevbuf (current-buffer))
-        (forge-pull)))))
+        (if (and topic
+                 (fboundp 'forge-pullreq-p)
+                 (forge-pullreq-p topic))
+            (forge--pull-pullreq repo topic)
+          (forge-pull))))))
 
 (defun forge--post-submit-errorback ()
   (lambda (&rest _)
