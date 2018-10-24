@@ -21,6 +21,7 @@
 ;;; Code:
 
 (require 'magit)
+(require 'magit-popup)
 (require 'eieio)
 
 (require 'forge-db)
