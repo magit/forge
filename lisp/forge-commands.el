@@ -316,7 +316,7 @@ Please see the manual for more information."
             (unless (magit-branch-p tracking)
               (magit-call-git "fetch" upstream))
             (let ((inhibit-magit-refresh t))
-              (magit-branch branch tracking))
+              (magit-branch-create branch tracking))
             (magit-set upstream "branch" branch "pushRemote")
             (magit-set upstream "branch" branch "pullRequestRemote"))
         (if (magit-remote-p remote)
