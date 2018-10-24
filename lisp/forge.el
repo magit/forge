@@ -62,17 +62,19 @@
 (define-key magit-remote-section-map [remap magit-browse-thing] 'forge-browse-remote)
 (define-key magit-branch-section-map [remap magit-browse-thing] 'forge-browse-branch)
 
-(magit-define-popup-action 'magit-fetch-popup          ?i "forge" 'forge-pull)
-(magit-define-popup-action 'magit-pull-and-fetch-popup ?i "forge" 'forge-pull)
+(when (boundp 'magit-fetch-popup)
+  (magit-define-popup-action 'magit-fetch-popup          ?i "forge" 'forge-pull)
+  (magit-define-popup-action 'magit-pull-and-fetch-popup ?i "forge" 'forge-pull)
 
-(magit-define-popup-action 'magit-branch-popup
-  ?Y "Create from pull-request" 'forge-branch-pullreq)
+  (magit-define-popup-action 'magit-branch-popup
+    ?Y "Create from pull-request" 'forge-branch-pullreq)
 
-(magit-define-popup-action 'magit-branch-popup
-  ?y "Checkout pull-request" 'forge-checkout-pullreq)
+  (magit-define-popup-action 'magit-branch-popup
+    ?y "Checkout pull-request" 'forge-checkout-pullreq)
 
-(magit-define-popup-action 'magit-worktree-popup
-  ?p "Create new worktree from pull-request" 'forge-checkout-worktree ?c)
+  (magit-define-popup-action 'magit-worktree-popup
+    ?p "Create new worktree from pull-request" 'forge-checkout-worktree ?c)
+  )
 
 (cl-pushnew (cons 'forge-topic-mode #'car) magit-buffer-lock-functions)
 
