@@ -1,4 +1,4 @@
-;;; forge-github.el --- github support            -*- lexical-binding: t -*-
+;;; forge-github.el --- Github support            -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

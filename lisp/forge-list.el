@@ -1,4 +1,4 @@
-;;; forge-list.el ---                             -*- lexical-binding: t -*-
+;;; forge-list.el --- Tabulated-list interface     -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

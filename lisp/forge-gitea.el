@@ -1,4 +1,4 @@
-;;; forge-gitea.el --- gitea support              -*- lexical-binding: t -*-
+;;; forge-gitea.el --- Gitea support              -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

@@ -1,4 +1,4 @@
-;;; forge-revnote.el --- forge revnote support    -*- lexical-binding: t -*-
+;;; forge-revnote.el --- Revnote support          -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

@@ -1,4 +1,4 @@
-;;; forge-pullreq.el --- forge pullreq support    -*- lexical-binding: t -*-
+;;; forge-pullreq.el --- Pullreq support          -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

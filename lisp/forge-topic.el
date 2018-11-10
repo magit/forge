@@ -1,4 +1,4 @@
-;;; forge-topic.el --- forge topics support       -*- lexical-binding: t -*-
+;;; forge-topic.el --- Topics support              -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

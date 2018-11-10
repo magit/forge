@@ -1,4 +1,4 @@
-;;; forge-db.el --- forge database                -*- lexical-binding: t -*-
+;;; forge-db.el --- Database implementation       -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

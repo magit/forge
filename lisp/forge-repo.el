@@ -1,4 +1,4 @@
-;;; forge-repo.el ---                             -*- lexical-binding: t -*-
+;;; forge-repo.el --- Repository support          -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

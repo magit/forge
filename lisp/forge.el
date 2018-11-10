@@ -1,4 +1,4 @@
-;;; forge.el --- access Git forges from Magit     -*- lexical-binding: t -*-
+;;; forge.el --- Access Git forges from Magit     -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

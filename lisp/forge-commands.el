@@ -1,4 +1,4 @@
-;;; forge-commands.el --- forge commands          -*- lexical-binding: t -*-
+;;; forge-commands.el --- Commands                 -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

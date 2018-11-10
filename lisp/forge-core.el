@@ -1,4 +1,4 @@
-;;; forge-core.el ---                             -*- lexical-binding: t -*-
+;;; forge-core.el --- Core functionality           -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

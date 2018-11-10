@@ -1,4 +1,4 @@
-;;; forge-gitlab.el --- gitlab support            -*- lexical-binding: t -*-
+;;; forge-gitlab.el --- Gitlab support            -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

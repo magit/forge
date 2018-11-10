@@ -1,4 +1,4 @@
-;;; forge-notify.el --- forge notify support      -*- lexical-binding: t -*-
+;;; forge-notify.el --- Notify support             -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

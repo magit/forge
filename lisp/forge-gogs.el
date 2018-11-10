@@ -1,4 +1,4 @@
-;;; forge-gogs.el --- gogs support                -*- lexical-binding: t -*-
+;;; forge-gogs.el --- Gogs support                -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

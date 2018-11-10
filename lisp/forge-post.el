@@ -1,4 +1,4 @@
-;;; forge-post.el --- forge post support          -*- lexical-binding: t -*-
+;;; forge-post.el --- Post support                 -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 

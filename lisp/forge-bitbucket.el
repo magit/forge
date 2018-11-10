@@ -1,4 +1,4 @@
-;;; forge-bitbucket.el --- bitbucket support      -*- lexical-binding: t -*-
+;;; forge-bitbucket.el --- Bitbucket support      -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 
