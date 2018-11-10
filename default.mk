@@ -21,12 +21,14 @@ ELCS  = $(ELS:.el=.elc)
 
 DEPS  = closql
 DEPS += dash
+DEPS += hydra # for lv.el
 DEPS += emacsql
 DEPS += ghub
 DEPS += graphql
 DEPS += magit/lisp
 DEPS += magit-popup
 DEPS += markdown-mode
+DEPS += transient
 DEPS += treepy
 DEPS += with-editor
 
