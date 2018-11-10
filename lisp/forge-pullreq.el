@@ -114,7 +114,7 @@
              'forge-pullreq))
 
 (cl-defmethod forge-get-pullreq ((number integer))
-  (and-let* ((repo (forge-get-repository nil)))
+  (when-let ((repo (forge-get-repository nil)))
     (forge-get-pullreq repo number)))
 
 (cl-defmethod forge-get-pullreq ((post forge-pullreq-post))
@@ -193,9 +193,9 @@
     map))
 
 (defun forge-insert-pullreqs ()
-  (when-let* ((repo (forge-get-repository nil))
-              (- (not (oref repo sparse-p)))
-              (pullreqs (forge-list-recent-topics repo 'pullreq)))
+  (when-let ((repo (forge-get-repository nil))
+             (- (not (oref repo sparse-p)))
+             (pullreqs (forge-list-recent-topics repo 'pullreq)))
     (magit-insert-section section (pullreqs nil t)
       (magit-insert-heading
         (format "%s (%s)"

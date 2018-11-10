@@ -85,7 +85,7 @@
               'forge-issue))
 
 (cl-defmethod forge-get-issue ((number integer))
-  (and-let* ((repo (forge-get-repository nil)))
+  (when-let ((repo (forge-get-repository nil)))
     (forge-get-issue repo number)))
 
 (cl-defmethod forge-get-issue ((post forge-issue-post))
@@ -144,9 +144,9 @@
     map))
 
 (defun forge-insert-issues ()
-  (when-let* ((repo (forge-get-repository nil))
-              (- (not (oref repo sparse-p)))
-              (issues (forge-list-recent-topics repo 'issue)))
+  (when-let ((repo (forge-get-repository nil))
+             (- (not (oref repo sparse-p)))
+             (issues (forge-list-recent-topics repo 'issue)))
     (magit-insert-section section (issues nil t)
       (magit-insert-heading
         (format "%s (%s)"
