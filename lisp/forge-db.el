@@ -54,7 +54,7 @@
       (cond
        ((> version forge--db-version)
         (emacsql-close forge--db-connection)
-        (user-error "BUG: forge-db-version is to low"))
+        (user-error "BUG: forge-db-version is too low"))
        ((< version forge--db-version)
         (emacsql-close forge--db-connection)
         (if (yes-or-no-p "The database scheme changed. Reset database now? ")
