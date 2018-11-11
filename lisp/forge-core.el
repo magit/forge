@@ -22,9 +22,13 @@
 
 (require 'magit)
 (require 'magit-popup)
+(require 'cl-lib)
 (require 'eieio)
 
 (require 'forge-db)
+
+(eval-when-compile
+  (cl-pushnew 'id eieio--known-slot-names))
 
 ;;; Options
 

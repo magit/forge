@@ -167,6 +167,7 @@ repositories.
         (oset issue locked-p   .locked)
         (oset issue milestone  .milestone)
         (oset issue body       (forge--sanitize-string .body))
+        .databaseId ; Silence Emacs 25 byte-compiler.
         (dolist (c .comments)
           (let-alist c
             (closql-insert
@@ -217,6 +218,7 @@ repositories.
         (oset pullreq head-repo    .headRef.repository.nameWithOwner)
         (oset pullreq milestone    .milestone)
         (oset pullreq body         (forge--sanitize-string .body))
+        .databaseId ; Silence Emacs 25 byte-compiler.
         (dolist (p .comments)
           (let-alist p
             (closql-insert
