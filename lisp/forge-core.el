@@ -21,7 +21,7 @@
 ;;; Code:
 
 (require 'magit)
-(require 'magit-popup)
+
 (require 'cl-lib)
 (require 'eieio)
 

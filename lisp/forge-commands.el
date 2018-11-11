@@ -22,11 +22,15 @@
 
 (require 'forge)
 
-;;; Popup
+;;; Dispatch
 
-;;;###autoload (autoload 'forge-popup "forge-commands" nil t)
-(magit-define-popup forge-popup
-  "Popup console for forge commands."
+;; We'll soon start using `transient' instead.
+
+(require 'magit-popup)
+
+;;;###autoload (autoload 'forge-dispatch "forge-commands" nil t)
+(magit-define-popup forge-dispatch
+  "Dispatch a forge command."
   nil nil nil
   :actions '((?f "Fetch forge"         forge-pull)
              (?p "Create pull-request" forge-create-pullreq)

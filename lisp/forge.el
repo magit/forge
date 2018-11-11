@@ -54,7 +54,7 @@
 (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-pullreqs nil t)
 (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-issues   nil t)
 
-(define-key magit-mode-map "*" 'forge-popup)
+(define-key magit-mode-map "*" 'forge-dispatch)
 
 (define-key magit-mode-map (kbd "C-c C-e") 'magit-edit-thing)
 
