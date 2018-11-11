@@ -424,9 +424,10 @@ The following %-sequences are supported:
     (add-hook 'completion-at-point-functions
               'forge-topic-completion-at-point nil t)))
 
-(add-hook 'find-file-hook        #'forge-bug-reference-setup)
-(add-hook 'git-commit-setup-hook #'forge-bug-reference-setup)
-(add-hook 'magit-mode-hook       #'forge-bug-reference-setup)
+(unless noninteractive
+  (add-hook 'find-file-hook        #'forge-bug-reference-setup)
+  (add-hook 'git-commit-setup-hook #'forge-bug-reference-setup)
+  (add-hook 'magit-mode-hook       #'forge-bug-reference-setup))
 
 ;;; _
 (provide 'forge-topic)
