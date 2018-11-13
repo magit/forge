@@ -141,9 +141,7 @@ to guess the remote."
                         (magit-get "forge.remote")
                         (cond ((and (not (cdr remotes)) (car remotes)))
                               ((member "origin" remotes) "origin")))))
-      (if-let ((url (or (magit-get "forge.url")
-                        (and remote
-                             (magit-git-string "remote" "get-url" remote)))))
+      (if-let ((url (and remote (magit-git-string "remote" "get-url" remote))))
           (forge-get-repository url remote demand)
         (when demand
           (error "Cannot determine forge repository.  %s"
