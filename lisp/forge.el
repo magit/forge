@@ -74,6 +74,4 @@
     ?p "Create new worktree from pull-request" 'forge-checkout-worktree ?c)
   )
 
-(cl-pushnew (cons 'forge-topic-mode #'car) magit-buffer-lock-functions)
-
 ;;; forge.el ends here
