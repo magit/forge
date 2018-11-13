@@ -137,10 +137,11 @@ to guess the remote."
   (magit--with-refresh-cache
       (list default-directory 'forge-get-repository demand)
     (let* ((remotes (magit-list-remotes))
-           (remote  (or remote
-                        (magit-get "forge.remote")
-                        (cond ((and (not (cdr remotes)) (car remotes)))
-                              ((member "origin" remotes) "origin")))))
+           (remote (or remote
+                       (if (cdr remotes)
+                           (car (member (or (magit-get "forge.remote") "origin")
+                                        remotes))
+                         (car remotes)))))
       (if-let ((url (and remote (magit-git-string "remote" "get-url" remote))))
           (forge-get-repository url remote demand)
         (when demand
