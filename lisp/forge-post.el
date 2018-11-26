@@ -42,7 +42,21 @@
   (magit-section-value-if '(issue pullreq post)))
 
 (defun forge-topic-at-point ()
-  (magit-section-value-if '(issue pullreq)))
+  (or (magit-section-value-if '(issue pullreq))
+      (when-let ((branch (magit-branch-at-point)))
+        (when-let ((n (magit-get "branch" branch "pullRequest")))
+          (forge-get-pullreq (string-to-number n))))
+      (when-let ((rev (magit-commit-at-point)))
+        (forge--pullreq-from-rev rev))))
+
+(defun forge--pullreq-from-rev (rev)
+  (when-let ((repo (forge-get-repository nil)))
+    (when-let ((name (magit-rev-name
+                      rev
+                      (cadr (split-string (oref repo pullreq-refspec) ":")))))
+      (save-match-data
+        (when (string-match "[0-9]*\\'" name)
+          (forge-get-pullreq (string-to-number (match-string 0 name))))))))
 
 ;;; Utilities
 
