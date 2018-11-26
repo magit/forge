@@ -56,7 +56,7 @@
 
 (define-key magit-mode-map "*" 'forge-dispatch)
 
-(define-key magit-commit-section-map [remap magit-browse-thing] 'forge-browse-commit)
+(define-key magit-commit-section-map [remap magit-browse-thing] 'forge-browse-dwim)
 (define-key magit-remote-section-map [remap magit-browse-thing] 'forge-browse-remote)
 (define-key magit-branch-section-map [remap magit-browse-thing] 'forge-browse-branch)
 

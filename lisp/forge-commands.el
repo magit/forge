@@ -70,6 +70,19 @@
 ;;; Browse
 
 ;;;###autoload
+(defun forge-browse-dwim ()
+  "Visit a topic, branch or commit using a browser.
+Prefer a topic over a branch and that over a commit."
+  (interactive)
+  (if-let ((topic (forge-topic-at-point)))
+      (if (forge-issue-p topic)
+          (forge-browse-issue topic)
+        (forge-browse-pullreq topic))
+    (if-let ((branch (magit-branch-at-point)))
+        (forge-browse-branch branch)
+      (call-interactively 'forge-browse-commit))))
+
+;;;###autoload
 (defun forge-browse-commit (rev)
   "Visit the url corresponding to REV using a browser."
   (interactive
