@@ -28,7 +28,7 @@ DEPS += graphql
 DEPS += magit/lisp
 DEPS += magit-popup
 DEPS += markdown-mode
-DEPS += transient
+DEPS += transient/lisp
 DEPS += treepy
 DEPS += with-editor
 
