@@ -96,7 +96,7 @@
                  rev "You might have to push it first.")))
     (browse-url
      (forge--format-url repo 'commit-url-format
-                        `((?r . ,(magit-rev-verify-commit rev)))))))
+                        `((?r . ,(magit-commit-p rev)))))))
 
 ;;;###autoload
 (defun forge-browse-branch (branch)
