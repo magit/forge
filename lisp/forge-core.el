@@ -24,6 +24,7 @@
 
 (require 'cl-lib)
 (require 'eieio)
+(require 'subr-x)
 
 (require 'forge-db)
 
