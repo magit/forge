@@ -354,7 +354,7 @@ repositories.
                        (ghub-fetch-pullreq
                         owner name number
                         (lambda (data)
-                          (oset (forge--update-pullreq repo data)
+                          (oset (forge--update-pullreq repo data nil)
                                 unread-p .unread))
                         nil :auth 'forge))))))
                ((not (or srepo (member repoid pulled)))
