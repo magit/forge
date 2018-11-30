@@ -215,7 +215,7 @@
 
 (defun forge-insert-pullreq (pullreq &optional width prefix)
   (with-slots (number title unread-p closed merged) pullreq
-    (magit-insert-section section (pullreq pullreq t)
+    (magit-insert-section (pullreq pullreq t)
       (magit-insert-heading
        (format (if width
                    (format "%%-%is %%s\n" (1+ width))
@@ -229,16 +229,11 @@
                                 (cond (unread-p 'forge-topic-unread)
                                       (closed   'forge-topic-closed)
                                       (t        'forge-topic-open))))))
-      (if (oref section hidden)
-          (oset section washer
-                (apply-partially 'forge--insert-pullreq pullreq))
-        (forge--insert-pullreq pullreq)))))
-
-(defun forge--insert-pullreq (pullreq)
-  (when-let ((ref (forge--pullreq-ref pullreq)))
-    (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
-      (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
-                        magit-log-section-arguments))))
+      (when-let ((ref (forge--pullreq-ref pullreq)))
+        (magit-insert-section-body
+          (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
+            (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
+                              magit-log-section-arguments)))))))
 
 ;;; _
 (provide 'forge-pullreq)
