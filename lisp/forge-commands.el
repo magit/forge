@@ -72,6 +72,17 @@
       (user-error "Fetching notifications not supported for forge %S"
                   (oref repo forge)))))
 
+;;;###autoload
+(defun forge-pull-pullreq (pullreq)
+  "Pull a single pull-request from the forge repository.
+Normally you wouldn't want to pull a single pull-request by
+itself, but due to a bug in the Github API you might sometimes
+have to do so.  See https://platform.github.community/t/7284."
+  (interactive (list (forge-read-pullreq "Pull pull-request")))
+  (forge--pull-pullreq (forge-get-repository pullreq) pullreq))
+
+(cl-defmethod forge--pull-pullreq ((_repo forge-repository) _pullreq)) ; NOOP
+
 ;;; Browse
 
 ;;;###autoload
