@@ -83,7 +83,7 @@
       (magit-insert-heading "Notifications:")
       (pcase-dolist (`(,_ . ,ns) (--group-by (oref it repository) ns))
         (let ((repo (forge-get-repository (car ns))))
-          (magit-insert-section (forge-repository repo)
+          (magit-insert-section (forge-repo repo)
             (magit-insert-heading
               (propertize (format "%s/%s:" (oref repo owner) (oref repo name))
                           'face 'bold))
