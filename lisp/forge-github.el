@@ -178,8 +178,9 @@ repositories.
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--set-id-slot repo issue 'assignees .assignees)
-        (forge--set-id-slot repo issue 'labels .labels)
+        (when bump
+          (forge--set-id-slot repo issue 'assignees .assignees)
+          (forge--set-id-slot repo issue 'labels .labels))
         issue))))
 
 (cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data bump)
@@ -229,8 +230,9 @@ repositories.
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--set-id-slot repo pullreq 'assignees .assignees)
-        (forge--set-id-slot repo pullreq 'labels .labels)
+        (when bump
+          (forge--set-id-slot repo pullreq 'assignees .assignees)
+          (forge--set-id-slot repo pullreq 'labels .labels))
         pullreq))))
 
 (cl-defmethod forge--update-revnotes ((repo forge-github-repository) data)
