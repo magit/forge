@@ -70,8 +70,7 @@ repositories.
 (cl-defmethod forge--pull ((repo forge-github-repository))
   (forge--pull-repository repo))
 
-(cl-defmethod forge--pull-repository ((repo forge-github-repository)
-                                      &optional skip-notifications)
+(cl-defmethod forge--pull-repository ((repo forge-github-repository))
   (let ((buffer (current-buffer)))
     (ghub-fetch-repository
      (oref repo owner)
@@ -88,10 +87,8 @@ repositories.
            (forge--update-pullreqs   repo .pullRequests t)
            (forge--update-revnotes   repo .commitComments))
          (message "Storing in forge database...done"))
-       (unless skip-notifications
-         (forge--pull-notifications (eieio-object-class repo)
-                                    (oref repo githost)
-                                    repo))
+       (forge--pull-notifications (eieio-object-class repo)
+                                  (oref repo githost))
        (with-current-buffer
            (if (buffer-live-p buffer) buffer (current-buffer))
          (magit-refresh))
@@ -295,88 +292,81 @@ repositories.
 ;;;; Notifications
 
 (cl-defmethod forge--pull-notifications
-  ((_class (subclass forge-github-repository))
-   githost &optional (repo nil srepo))
-  (message "Pulling forge notifications...")
-  (emacsql-with-transaction (forge-db)
-    (if repo
-        (forge-sql [:delete-from notification :where (= repository $s1)]
-                   (oref repo id))
-      (forge-sql [:drop-table-if-exists notification])
-      (forge-sql [:create-table notification $S1]
-                 (cdr (assq 'notification forge--db-table-schemata)))))
-  (let (pulled)
-  (if-let ((spec (assoc githost forge-alist)))
-      (pcase-let ((`(,_ ,apihost ,forge ,_) spec))
-        (dolist (n (forge--ghub-get
-                    nil (if repo
-                            (format "/repos/%s/%s/notifications"
-                                    (oref repo owner)
-                                    (oref repo name))
-                          "/notifications")
-                    '((all . "true"))
-                    :host apihost :unpaginate t))
-          (let-alist n
-            (let* ((type   (intern (downcase .subject.type)))
-                   (type   (if (eq type 'pullrequest) 'pullreq type))
-                   (repoid (list githost
-                                 .repository.owner.login
-                                 .repository.name))
-                   (repo   (forge-get-repository repoid nil t))
-                   (owner  (oref repo owner))
-                   (name   (oref repo name))
-                   (number (and (string-match "[0-9]*\\'" .subject.url)
-                                (string-to-number
-                                 (match-string 0 .subject.url)))))
-              (cond
-               ((oref repo sparse-p)
-                (pcase type
-                  ('issue
-                   (if-let ((issue (forge-get-issue repo number)))
-                       (oset issue unread-p .unread)
-                     (when (or (not issue)
-                               (string< (oref issue updated) .updated_at))
-                       (message "Pulling forge issue %s/%s#%s..."
-                                owner name number)
-                       (ghub-fetch-issue
-                        owner name number
-                        (lambda (data)
-                          (oset (forge--update-issue repo data)
-                                unread-p .unread))
-                        nil :auth 'forge))))
-                  ('pullreq
-                   (if-let ((pullreq (forge-get-pullreq repo number)))
-                       (oset pullreq unread-p .unread)
-                     (when (or (not pullreq)
-                               (string< (oref pullreq updated) .updated_at))
-                       (message "Pulling forge pullreq %s/%s#%s..."
-                                owner name number)
-                       (ghub-fetch-pullreq
-                        owner name number
-                        (lambda (data)
-                          (oset (forge--update-pullreq repo data nil)
-                                unread-p .unread))
-                        nil :auth 'forge))))))
-               ((not (or srepo (member repoid pulled)))
-                (push repoid pulled)
-                (forge--pull-repository repo)))
-              (closql-insert
-               (forge-db)
-               (forge-notification
-                :id           (forge--object-id (oref repo id) .id)
-                :repository   (oref repo id)
-                :forge        forge
-                :reason       (intern (downcase .reason))
-                :unread-p     .unread
-                :last-read    .last_read_at
-                :updated      .updated_at
-                :title        .subject.title
-                :type         type
-                :topic        number
-                :url          .subject.url)
-               t)))))
-    (error "No entry for %S in forge-alist" githost)))
-  (message "Pulling forge notifications...done"))
+  ((_class (subclass forge-github-repository)) githost)
+  ;; The GraphQL API doesn't support notifications,
+  ;; so we have to perform a major rain dance.
+  (let ((spec (assoc githost forge-alist)))
+    (unless spec
+      (error "No entry for %S in forge-alist" githost))
+    (message "Pulling %s notifications..." githost)
+    (pcase-let*
+        ((`(,_ ,apihost ,forge ,_) spec)
+         (notifs (--map (forge--ghub-massage-notification it forge githost)
+                        (forge--ghub-get nil "/notifications"
+                                         '((all . "true"))
+                                         :host apihost :unpaginate t))))
+      (ghub--graphql-vacuum
+       (cons 'query (-keep #'caddr notifs))
+       nil
+       (lambda (&optional data _headers _status _req)
+         (message "Pulling %s notifications...done" githost)
+         (message "Storing %s notifications..." githost)
+         (setq data (cdr data))
+         (emacsql-with-transaction (forge-db)
+           (forge-sql [:delete-from notification :where (= forge $s1)] forge)
+           (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
+             (closql-insert (forge-db) obj)
+             (when query
+               (funcall (if (eq (oref obj type) 'issue)
+                            #'forge--update-issue
+                          #'forge--update-pullreq)
+                        repo (cdr (cadr (assq key data))) nil))))
+         (message "Storing %s notifications...done" githost))
+       nil :auth 'forge))))
+
+(defun forge--ghub-massage-notification (data forge githost)
+  (let-alist data
+    (let* ((type   (intern (downcase .subject.type)))
+           (type   (if (eq type 'pullrequest) 'pullreq type))
+           (number (and (string-match "[0-9]*\\'" .subject.url)
+                        (string-to-number (match-string 0 .subject.url))))
+           (repo   (forge-get-repository
+                    (list githost
+                          .repository.owner.login
+                          .repository.name)
+                    nil t))
+           (repoid (oref repo id))
+           (owner  (oref repo owner))
+           (name   (oref repo name))
+           (id     (forge--object-id repoid .id))
+           (key    (intern (concat "_" (replace-regexp-in-string "=" "_" id)))))
+      (list key repo
+            (and (memq type '(pullreq issue))
+                 `(,key
+                   [(:alias t)]
+                   (repository
+                    [(name ,name)
+                     (owner ,owner)]
+                    ,@(cddr
+                       (caddr
+                        (ghub--graphql-prepare-query
+                         ghub-fetch-repository
+                         (if (eq type 'issue)
+                             `(repository issues (issue . ,number))
+                           `(repository pullRequest (pullRequest . ,number)))
+                         ))))))
+            (forge-notification
+             :id           id
+             :repository   repoid
+             :forge        forge
+             :reason       (intern (downcase .reason))
+             :unread-p     .unread
+             :last-read    .last_read_at
+             :updated      .updated_at
+             :title        .subject.title
+             :type         type
+             :topic        number
+             :url          .subject.url)))))
 
 ;;; Mutations
 
