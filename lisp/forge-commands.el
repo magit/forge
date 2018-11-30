@@ -63,9 +63,14 @@
 
 ;;;###autoload
 (defun forge-pull-notifications ()
+  "Fetch notifications for all repositories from the current forge."
   (interactive)
-  (pcase-dolist (`(,githost ,_ ,_ ,class) forge-alist)
-    (forge--pull-notifications class githost)))
+  (let* ((repo  (forge-get-repository 'stub))
+         (class (eieio-object-class repo)))
+    (if (eq class 'forge-github-repository)
+        (forge--pull-notifications class (oref repo githost))
+      (user-error "Fetching notifications not supported for forge %S"
+                  (oref repo forge)))))
 
 ;;; Browse
 
