@@ -213,7 +213,6 @@ The following %-sequences are supported:
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-browse-thing] 'forge-browse-post)
     (define-key map [remap magit-edit-thing]   'forge-edit-post)
-    (define-key map [remap magit-delete-thing] 'forge-delete-post)
     map))
 
 (defun forge-topic-refresh-buffer (topic)

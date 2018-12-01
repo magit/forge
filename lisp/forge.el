@@ -54,15 +54,22 @@
 (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-pullreqs nil t)
 (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-issues   nil t)
 
-(define-key magit-mode-map "*" 'forge-dispatch)
+(define-key magit-mode-map "'" 'forge-dispatch)
 
 (define-key magit-commit-section-map [remap magit-browse-thing] 'forge-browse-dwim)
 (define-key magit-remote-section-map [remap magit-browse-thing] 'forge-browse-remote)
 (define-key magit-branch-section-map [remap magit-browse-thing] 'forge-browse-branch)
 
 (when (boundp 'magit-fetch-popup)
-  (magit-define-popup-action 'magit-fetch-popup          ?i "forge" 'forge-pull)
-  (magit-define-popup-action 'magit-pull-and-fetch-popup ?i "forge" 'forge-pull)
+  (magit-define-popup-action 'magit-pull-and-fetch-popup
+    ?y "forge topics" 'forge-pull)
+  (magit-define-popup-action 'magit-pull-popup
+    ?y "forge fopics" 'forge-pull)
+
+  (magit-define-popup-action 'magit-pull-and-fetch-popup
+    ?Y "forge notifications" 'forge-pull-notifications)
+  (magit-define-popup-action 'magit-pull-popup
+    ?Y "forge notifications" 'forge-pull-notifications)
 
   (magit-define-popup-action 'magit-branch-popup
     ?Y "Create from pull-request" 'forge-branch-pullreq)

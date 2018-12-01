@@ -32,9 +32,11 @@
 (magit-define-popup forge-dispatch
   "Dispatch a forge command."
   nil nil nil
-  :actions '((?f "Fetch forge"         forge-pull)
+  :actions '((?f "Fetch topics"        forge-pull)
+             (?n "Fetch notifications" forge-pull-notifications)
              (?p "Create pull-request" forge-create-pullreq)
              (?i "Create issue"        forge-create-issue)
+             (?N "List notifications"  forge-list-notifications)
              (?P "List pull-requests"  forge-list-pullreqs)
              (?I "List issues"         forge-list-issues))
   :max-action-columns 1)
