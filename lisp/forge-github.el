@@ -434,12 +434,10 @@ repositories.
   ((_repo forge-github-repository) topic assignees)
   (let ((value (mapcar #'car (closql--iref topic 'assignees))))
     (when-let ((add (cl-set-difference assignees value :test #'equal)))
-      (message "+ %S" (ghub--encode-payload add))
       (forge--ghub-post
        topic "/repos/:owner/:repo/issues/:number/assignees"
        `((assignees . ,add))))
     (when-let ((remove (cl-set-difference value assignees :test #'equal)))
-      (message "- %S" (ghub--encode-payload remove))
       (forge--ghub-delete
        topic "/repos/:owner/:repo/issues/:number/assignees"
        `((assignees . ,remove)))))
