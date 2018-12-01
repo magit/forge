@@ -81,6 +81,7 @@
 
 ;;;###autoload
 (defun forge-list-issues (repo)
+  "List issues in a separate buffer."
   (interactive (list (forge-get-repository t)))
   (forge--list-topics 'forge-issue-list-mode "*Issues*"
     (forge-sql [:select $i1 :from issue :where (= repository $s2)]
@@ -88,6 +89,7 @@
                (oref repo id))))
 
 (defun forge-list-visit-issue ()
+  "View the issue at point in a separate buffer."
   (interactive)
   (forge-visit-issue (forge-get-issue (tabulated-list-get-id))))
 
@@ -95,6 +97,7 @@
 
 ;;;###autoload
 (defun forge-list-pullreqs (repo)
+  "List pull-requests in a separate buffer."
   (interactive (list (forge-get-repository t)))
   (forge--list-topics 'forge-pullreq-list-mode "*Pull-Requests*"
     (forge-sql [:select $i1 :from pullreq :where (= repository $s2)]
@@ -102,6 +105,7 @@
                (oref repo id))))
 
 (defun forge-list-visit-pullreq ()
+  "View the pull-request at point in a separate buffer."
   (interactive)
   (forge-visit-pullreq (forge-get-pullreq (tabulated-list-get-id))))
 

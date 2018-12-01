@@ -195,7 +195,7 @@ Prefer a topic over a branch and that over a commit."
 
 ;;;###autoload
 (defun forge-visit-pullreq (pullreq)
-  "View PULLREQ in a buffer."
+  "View the pull-request at point in a separate buffer."
   (interactive (list (forge-read-pullreq "View pull-request")))
   (let ((magit-generate-buffer-name-function 'forge-topic-buffer-name))
     (magit-mode-setup-internal #'forge-topic-mode (list pullreq) t))
@@ -203,7 +203,7 @@ Prefer a topic over a branch and that over a commit."
 
 ;;;###autoload
 (defun forge-visit-issue (issue)
-  "View ISSUE in a buffer."
+  "View the issue at point in a separate buffer."
   (interactive (list (forge-read-issue "View issue")))
   (let ((magit-generate-buffer-name-function 'forge-topic-buffer-name))
     (magit-mode-setup-internal #'forge-topic-mode (list issue) t))
@@ -212,7 +212,7 @@ Prefer a topic over a branch and that over a commit."
 ;;; Create
 
 (defun forge-create-pullreq (source target)
-  "Create a new pull-request."
+  "Create a new pull-request for the current repository."
   (interactive
    (let* ((atpoint  (magit-branch-at-point))
           (current  (magit-get-current-branch))
@@ -248,7 +248,7 @@ Prefer a topic over a branch and that over a commit."
     (forge--display-post-buffer buf)))
 
 (defun forge-create-issue ()
-  "Create a new issue."
+  "Create a new issue for the current repository."
   (interactive)
   (let ((buf (forge--prepare-post-buffer "new-issue")))
     (with-current-buffer buf
