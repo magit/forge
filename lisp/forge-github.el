@@ -68,7 +68,8 @@ repositories.
 ;;;; Repository
 
 (cl-defmethod forge--pull ((repo forge-github-repository))
-  (let ((buffer (current-buffer)))
+  (let ((buf (current-buffer))
+        (dir default-directory))
     (ghub-fetch-repository
      (oref repo owner)
      (oref repo name)
@@ -82,16 +83,15 @@ repositories.
            (forge--update-labels     repo .labels)
            (forge--update-issues     repo .issues t)
            (forge--update-pullreqs   repo .pullRequests t)
-           (forge--update-revnotes   repo .commitComments)))
-       (with-current-buffer
-           (if (buffer-live-p buffer) buffer (current-buffer))
-         (magit-refresh))
+           (forge--update-revnotes   repo .commitComments))
+         (oset repo sparse-p nil))
        (message "Storing in forge database...done")
        (message "Pulling forge repository %s/%s...done"
                 (oref repo owner)
                 (oref repo name))
        (forge--pull-notifications (eieio-object-class repo)
-                                  (oref repo githost)))
+                                  (oref repo githost)
+                                  (lambda () (forge--git-fetch buf dir repo))))
      `((issues-until       . ,(forge--topics-until repo 'issue))
        (pullRequests-until . ,(forge--topics-until repo 'pullreq)))
      :auth 'forge)))
@@ -283,7 +283,7 @@ repositories.
 ;;;; Notifications
 
 (cl-defmethod forge--pull-notifications
-  ((_class (subclass forge-github-repository)) githost)
+  ((_class (subclass forge-github-repository)) githost callback)
   ;; The GraphQL API doesn't support notifications,
   ;; so we have to perform a major rain dance.
   (let ((spec (assoc githost forge-alist)))
@@ -312,7 +312,8 @@ repositories.
                             #'forge--update-issue
                           #'forge--update-pullreq)
                         repo (cdr (cadr (assq key data))) nil))))
-         (message "Storing %s notifications...done" githost))
+         (message "Storing %s notifications...done" githost)
+         (funcall callback))
        nil :auth 'forge))))
 
 (defun forge--ghub-massage-notification (data forge githost)

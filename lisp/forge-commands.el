@@ -49,19 +49,25 @@
   (interactive)
   (unless repo
     (setq repo (forge-get-repository t)))
-  (with-slots (owner name) repo
-    (message "Pulling forge repository %s/%s..." owner name)
-    (forge--pull repo)
-    (oset repo sparse-p nil)
-    (when-let ((remote  (oref repo remote))
-               (refspec (oref-default repo pullreq-refspec)))
-      (unless (member refspec (magit-get-all "remote" remote "fetch"))
-        (magit-call-git "config" "--add"
-                        (format "remote.%s.fetch" remote)
-                        refspec))
-      (magit-git-fetch remote (magit-fetch-arguments)))))
+  (when-let ((remote  (oref repo remote))
+             (refspec (oref-default repo pullreq-refspec)))
+    (unless (member refspec (magit-get-all "remote" remote "fetch"))
+      (magit-call-git "config" "--add"
+                      (format "remote.%s.fetch" remote)
+                      refspec)))
+  (message "Pulling forge repository %s/%s..."
+           (oref repo owner)
+           (oref repo name))
+  (forge--pull repo))
 
 (cl-defmethod forge--pull ((_repo forge-repository))) ; NOOP
+
+(defun forge--git-fetch (buf dir repo)
+  (if (buffer-live-p buf)
+      (with-current-buffer buf
+        (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
+    (let ((default-directory dir))
+      (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))))
 
 ;;;###autoload
 (defun forge-pull-notifications ()
