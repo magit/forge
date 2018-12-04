@@ -38,7 +38,7 @@ it is all or nothing.")
 
 ;;; Class
 
-;; The `forge-gitlab-repository' class is defined in ghub-repo.el.
+;; The `forge-gitlab-repository' class is defined in forge-repo.el.
 
 ;;; _
 (provide 'forge-gitlab)
