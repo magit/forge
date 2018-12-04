@@ -111,14 +111,6 @@ repositories.
          (magit-refresh)))
      nil :auth 'forge)))
 
-(cl-defmethod forge--topics-until ((repo forge-github-repository) table)
-  (and (not (oref repo sparse-p))
-       (caar (forge-sql [:select [updated] :from $s1
-                         :where (= repository $s2)
-		         :order-by [(desc updated)]
-                         :limit 1]
-                        table (oref repo id)))))
-
 (cl-defmethod forge--update-repository ((repo forge-github-repository) data)
   (let-alist data
     (oset repo created        .createdAt)

@@ -200,6 +200,14 @@ to guess the remote."
 
 ;;; Utilities
 
+(cl-defmethod forge--topics-until ((repo forge-repository) table)
+  (and (not (oref repo sparse-p))
+       (caar (forge-sql [:select [updated] :from $s1
+                         :where (= repository $s2)
+		         :order-by [(desc updated)]
+                         :limit 1]
+                        table (oref repo id)))))
+
 (cl-defmethod forge--format-url ((repo forge-repository) slot &optional spec)
   (format-spec
    (eieio-oref-default repo slot)
