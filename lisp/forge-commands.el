@@ -196,6 +196,16 @@ Prefer a topic over a branch and that over a commit."
 ;;; Visit
 
 ;;;###autoload
+(defun forge-visit-topic ()
+  "View the topic at point in a separate buffer."
+  (interactive)
+  (if-let ((topic (forge-topic-at-point)))
+      (if (forge-issue-p topic)
+          (forge-visit-issue topic)
+        (forge-visit-pullreq topic))
+    (user-error "There is no topic at point")))
+
+;;;###autoload
 (defun forge-visit-pullreq (pullreq)
   "View the pull-request at point in a separate buffer."
   (interactive (list (forge-read-pullreq "View pull-request")))
