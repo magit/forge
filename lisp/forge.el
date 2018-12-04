@@ -72,10 +72,10 @@
     ?Y "forge notifications" 'forge-pull-notifications)
 
   (magit-define-popup-action 'magit-branch-popup
-    ?Y "Create from pull-request" 'forge-branch-pullreq)
+    ?y "Checkout pull-request" 'forge-checkout-pullreq)
 
   (magit-define-popup-action 'magit-branch-popup
-    ?y "Checkout pull-request" 'forge-checkout-pullreq)
+    ?Y "Create from pull-request" 'forge-branch-pullreq)
 
   (magit-define-popup-action 'magit-worktree-popup
     ?p "Create new worktree from pull-request" 'forge-checkout-worktree ?c)
