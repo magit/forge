@@ -74,7 +74,8 @@ repositories.
      (oref repo owner)
      (oref repo name)
      (lambda (data)
-       (message "Storing in forge database...")
+       (forge--msg repo t t   "Pulling REPO")
+       (forge--msg repo t nil "Storing REPO")
        (emacsql-with-transaction (forge-db)
          (let-alist data
            (forge--update-repository repo data)
@@ -85,10 +86,7 @@ repositories.
            (forge--update-pullreqs   repo .pullRequests t)
            (forge--update-revnotes   repo .commitComments))
          (oset repo sparse-p nil))
-       (message "Storing in forge database...done")
-       (message "Pulling forge repository %s/%s...done"
-                (oref repo owner)
-                (oref repo name))
+       (forge--msg repo t t   "Storing REPO")
        (forge--pull-notifications (eieio-object-class repo)
                                   (oref repo githost)
                                   (lambda () (forge--git-fetch buf dir repo))))
@@ -136,7 +134,6 @@ repositories.
   (emacsql-with-transaction (forge-db)
     (let-alist data
       (let* ((issue-id (forge--object-id 'forge-issue repo .number))
-             (_ (magit-msg "Storing %s..." issue-id))
              (issue (or (forge-get-issue repo .number)
                         (closql-insert
                          (forge-db)
@@ -180,7 +177,6 @@ repositories.
   (emacsql-with-transaction (forge-db)
     (let-alist data
       (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .number))
-             (_ (magit-msg "Storing %s..." pullreq-id))
              (pullreq (or (forge-get-pullreq repo .number)
                           (closql-insert
                            (forge-db)
@@ -244,7 +240,6 @@ repositories.
        t))))
 
 (cl-defmethod forge--update-assignees ((repo forge-github-repository) data)
-  (magit-msg "Storing assignees...")
   (oset repo assignees
         (with-slots (id) repo
           (mapcar (lambda (row)
@@ -255,7 +250,6 @@ repositories.
                   data))))
 
 (cl-defmethod forge--update-forks ((repo forge-github-repository) data)
-  (magit-msg "Storing forks...")
   (oset repo forks
         (with-slots (id) repo
           (mapcar (lambda (row)
@@ -269,7 +263,6 @@ repositories.
                   data))))
 
 (cl-defmethod forge--update-labels ((repo forge-github-repository) data)
-  (magit-msg "Storing labels...")
   (oset repo labels
         (with-slots (id) repo
           (mapcar (lambda (row)
@@ -289,7 +282,7 @@ repositories.
   (let ((spec (assoc githost forge-alist)))
     (unless spec
       (error "No entry for %S in forge-alist" githost))
-    (message "Pulling %s notifications..." githost)
+    (forge--msg nil t nil "Pulling notifications")
     (pcase-let*
         ((`(,_ ,apihost ,forge ,_) spec)
          (notifs (--map (forge--ghub-massage-notification it forge githost)
@@ -300,9 +293,9 @@ repositories.
        (cons 'query (-keep #'caddr notifs))
        nil
        (lambda (&optional data _headers _status _req)
-         (message "Pulling %s notifications...done" githost)
-         (message "Storing %s notifications..." githost)
          (setq data (cdr data))
+         (forge--msg nil t t   "Pulling notifications")
+         (forge--msg nil t nil "Storing notifications")
          (emacsql-with-transaction (forge-db)
            (forge-sql [:delete-from notification :where (= forge $s1)] forge)
            (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
@@ -312,7 +305,7 @@ repositories.
                             #'forge--update-issue
                           #'forge--update-pullreq)
                         repo (cdr (cadr (assq key data))) nil))))
-         (message "Storing %s notifications...done" githost)
+         (forge--msg nil t t "Storing notifications")
          (funcall callback))
        nil :auth 'forge))))
 

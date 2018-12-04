@@ -216,6 +216,23 @@ to guess the remote."
      (?o . ,(oref repo owner))
      (?n . ,(oref repo name)))))
 
+(defvar forge--mode-line-buffer nil)
+
+(defun forge--msg (repo echo done format &rest args)
+  (let ((msg (apply #'format format args)))
+    (when repo
+      (setq msg (replace-regexp-in-string
+                 "REPO"
+                 (concat (oref repo owner) "/" (oref repo name))
+                 msg t)))
+    (when (and echo msg)
+      (message "%s%s" msg (if done "...done" "...")))
+    (when (buffer-live-p forge--mode-line-buffer)
+      (with-current-buffer forge--mode-line-buffer
+        (setq mode-line-process
+              (concat " " (propertize msg 'face 'magit-mode-line-process))))
+      (force-mode-line-update t))))
+
 ;;; _
 (provide 'forge-repo)
 ;;; forge-repo.el ends here

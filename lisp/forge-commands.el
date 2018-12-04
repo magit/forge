@@ -49,15 +49,14 @@
   (interactive)
   (unless repo
     (setq repo (forge-get-repository t)))
+  (setq forge--mode-line-buffer (current-buffer))
   (when-let ((remote  (oref repo remote))
              (refspec (oref-default repo pullreq-refspec)))
     (unless (member refspec (magit-get-all "remote" remote "fetch"))
       (magit-call-git "config" "--add"
                       (format "remote.%s.fetch" remote)
                       refspec)))
-  (message "Pulling forge repository %s/%s..."
-           (oref repo owner)
-           (oref repo name))
+  (forge--msg repo t nil "Pulling REPO")
   (forge--pull repo))
 
 (cl-defmethod forge--pull ((_repo forge-repository))) ; NOOP
