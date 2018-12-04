@@ -68,9 +68,6 @@ repositories.
 ;;;; Repository
 
 (cl-defmethod forge--pull ((repo forge-github-repository))
-  (forge--pull-repository repo))
-
-(cl-defmethod forge--pull-repository ((repo forge-github-repository))
   (let ((buffer (current-buffer)))
     (ghub-fetch-repository
      (oref repo owner)
