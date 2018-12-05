@@ -160,8 +160,8 @@
           (forge-pull))))))
 
 (defun forge--post-submit-errorback ()
-  (lambda (&rest _)
-    (error "Failed to submit post")))
+  (lambda (error &rest _)
+    (error "Failed to submit post: %S" error)))
 
 ;;; _
 (provide 'forge-post)
