@@ -169,9 +169,16 @@ For other objects return nil.")
            ":\\([^/]+\\)"
            (lambda (str)
              (let ((slot (intern (substring str 1))))
-               (or (ignore-errors
-                     (format "%s" (eieio-oref object
-                                              (if (eq slot 'repo) 'name slot))))
+               (or (when-let
+                       ((v (ignore-errors
+                             (cl-case slot
+                               (repo    (oref object name))
+                               (project (concat (oref object owner) "%2F"
+                                                (oref object name)))
+                               (topic   (and (forge--childp object 'forge-topic)
+                                             (oref object number)))
+                               (t       (eieio-oref object slot))))))
+                       (format "%s" v))
                    str)))
            resource t t))
     (if (string-match ":[^/]*" resource)
