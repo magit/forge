@@ -331,8 +331,8 @@ The following %-sequences are supported:
     (and number
          (if (equal (match-string 1 choice) "!")
              (forge-get-pullreq repo number)
-           (or (forge-get-pullreq repo number)
-               (forge-get-issue repo number))))))
+           (or (forge-get-issue repo number)
+               (forge-get-pullreq repo number))))))
 
 (defun forge-topic-completion-at-point ()
   (when-let ((repo (forge-get-repository nil)))
