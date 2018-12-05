@@ -175,7 +175,7 @@ For other objects return nil.")
                    str)))
            resource t t))
     (if (string-match ":[^/]*" resource)
-        (if-let ((parent (forge-get-parent object)))
+        (if-let ((parent (ignore-errors (forge-get-parent object))))
             (forge--format-resource parent resource)
           (error "Cannot resolve %s for a %s"
                  (match-string 0 resource)
