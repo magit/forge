@@ -311,15 +311,13 @@ The following %-sequences are supported:
                            (car magit-refresh-args))))
          (repo    (forge-get-repository (or default t)))
          (format  (lambda (topic)
-                    (format "%s%s  %s"
-                            (if (cl-typep repo 'forge-gitlab-repository)
-                                (if (and (fboundp 'forge-pullreq-p)
-                                         (forge-pullreq-p topic))
-                                    "!"
-                                  "#")
-                              "")
-                            (oref topic number)
-                            (oref topic title))))
+                    (format
+                     "%s%s  %s"
+                     (if (forge--childp repo 'forge-gitlab-repository)
+                         (if (forge--childp topic 'forge-pullreq) "!" "#")
+                       "")
+                     (oref topic number)
+                     (oref topic title))))
          (choices (append (oref repo pullreqs)
                           (oref repo issues)))
          (choice  (magit-completing-read
@@ -340,7 +338,7 @@ The following %-sequences are supported:
   (when-let ((repo (forge-get-repository nil)))
     (when (and (or (not bug-reference-prog-mode)
 	           (nth 8 (syntax-ppss))) ; inside comment or string
-               (looking-back (if (cl-typep repo 'forge-gitlab-repository)
+               (looking-back (if (forge--childp repo 'forge-gitlab-repository)
                                  "\\(?3:[!#]\\)\\(?2:[0-9]*\\)"
                                "#\\(?2:[0-9]*\\)")
                              (line-beginning-position)))
@@ -349,7 +347,7 @@ The following %-sequences are supported:
             (mapcar (lambda (row)
                       (propertize (number-to-string (car row))
                                   :title (format " %s" (cadr row))))
-                    (if (cl-typep repo 'forge-gitlab-repository)
+                    (if (forge--childp repo 'forge-gitlab-repository)
                         (forge-sql [:select [number title]
                                     :from $i1
                                     :where (= repository $s2)
@@ -405,7 +403,7 @@ The following %-sequences are supported:
   (when-let ((repo (ignore-errors (forge-get-repository 'stub))))
     (unless bug-reference-url-format
       (setq-local bug-reference-url-format
-                  (if (cl-typep repo 'forge-gitlab-repository)
+                  (if (forge--childp repo 'forge-gitlab-repository)
                       (lambda ()
                         (forge--format-url repo
                                            (if (equal (match-string 3) "#")
@@ -414,7 +412,7 @@ The following %-sequences are supported:
                                            `((?i . ,(match-string 2)))))
                     (forge--format-url repo 'issue-url-format '((?i . "%s")))))
       (setq-local bug-reference-bug-regexp
-                  (if (cl-typep repo 'forge-gitlab-repository)
+                  (if (forge--childp repo 'forge-gitlab-repository)
                       "\\(?3:[!#]\\)\\(?2:[0-9]+\\)"
                     "#\\(?2:[0-9]+\\)")))
     (if (derived-mode-p 'prog-mode)

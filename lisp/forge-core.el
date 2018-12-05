@@ -182,6 +182,14 @@ For other objects return nil.")
                  (eieio-object-class object)))
       resource)))
 
+(defmacro forge--childp (obj type)
+  "Somewhat similar to `cl-typep' but only for (possibly unknown) classes.
+TYPE is evaluated at macro-expansion time but unlike with
+`cl-typep' the respective class does not have to be defined
+at that time."
+  (let ((fn (intern (concat (symbol-name (eval type)) "--eieio-childp"))))
+    `(and (fboundp ',fn) (,fn ,obj))))
+
 ;;; _
 (provide 'forge-core)
 ;;; forge-core.el ends here

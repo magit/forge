@@ -208,7 +208,7 @@
 
 (defun forge--insert-pullreqs (pullreqs repo)
   (let ((width (length (number-to-string (oref (car pullreqs) number))))
-        (prefix (if (cl-typep repo 'forge-gitlab-repository) "!" "#")))
+        (prefix (if (forge--childp repo 'forge-gitlab-repository) "!" "#")))
     (dolist (pullreq pullreqs)
       (forge-insert-pullreq pullreq width prefix)))
   (insert ?\n))
