@@ -154,6 +154,7 @@
       (with-current-buffer
           (if (buffer-live-p prevbuf) prevbuf (current-buffer))
         (if (and topic
+                 (forge--childp repo 'forge-github-repository)
                  (fboundp 'forge-pullreq-p)
                  (forge-pullreq-p topic))
             (forge--pull-pullreq repo topic)
