@@ -405,13 +405,13 @@ repositories.
   (forge--ghub-patch topic
                      "/repos/:owner/:repo/issues/:number"
                      `((title . ,title))
-                     :callback (forge--ghub-set-callback)))
+                     :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--set-topic-labels
   ((_repo forge-github-repository) topic labels)
   (forge--ghub-put topic "/repos/:owner/:repo/issues/:number/labels" nil
                    :payload labels
-                   :callback (forge--ghub-set-callback)))
+                   :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--set-topic-assignees
   ((_repo forge-github-repository) topic assignees)
@@ -499,13 +499,6 @@ repositories.
                :silent silent :unpaginate unpaginate
                :noerror noerror :reader reader
                :callback callback :errorback errorback))
-
-(defun forge--ghub-set-callback ()
-  (let ((buf (current-buffer)))
-    (lambda (&rest _)
-      (with-current-buffer
-          (or buf (current-buffer))
-        (forge-pull)))))
 
 ;;; _
 (provide 'forge-github)
