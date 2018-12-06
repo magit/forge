@@ -63,6 +63,8 @@
 (define-key magit-commit-section-map (kbd "C-c C-v") 'forge-visit-topic)
 (define-key magit-branch-section-map (kbd "C-c C-v") 'forge-visit-topic)
 
+(require 'magit-fetch)
+
 (when (boundp 'magit-fetch-popup)
   (magit-define-popup-action 'magit-pull-and-fetch-popup
     ?y "forge topics" 'forge-pull)
