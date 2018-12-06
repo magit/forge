@@ -109,7 +109,8 @@
      [(repository :not-null)
       (id :not-null :primary-key)
       login
-      name]
+      name
+      forge-id] ; Needed for Gitlab.
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))

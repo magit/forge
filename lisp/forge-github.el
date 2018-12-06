@@ -246,7 +246,8 @@ repositories.
                     (let-alist row
                       (list (forge--object-id id .id)
                             .login
-                            .name)))
+                            .name
+                            .id)))
                   data))))
 
 (cl-defmethod forge--update-forks ((repo forge-github-repository) data)
