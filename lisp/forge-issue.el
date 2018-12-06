@@ -147,21 +147,16 @@
   (when-let ((repo (forge-get-repository nil))
              (- (not (oref repo sparse-p)))
              (issues (forge-list-recent-topics repo 'issue)))
-    (magit-insert-section section (issues nil t)
+    (magit-insert-section (issues nil t)
       (magit-insert-heading
         (format "%s (%s)"
                 (propertize "Issues" 'face 'magit-section-heading)
                 (length issues)))
-      (if (oref section hidden)
-          (oset section washer
-                (apply-partially 'forge--insert-issues issues))
-        (forge--insert-issues issues)))))
-
-(defun forge--insert-issues (issues)
-  (let ((width (length (number-to-string (oref (car issues) number)))))
-    (dolist (issue issues)
-      (forge-insert-issue issue width)))
-  (insert ?\n))
+      (magit-insert-section-body
+        (let ((width (length (number-to-string (oref (car issues) number)))))
+          (dolist (issue issues)
+            (forge-insert-issue issue width)))
+        (insert ?\n)))))
 
 (defun forge-insert-issue (issue &optional width)
   (with-slots (number title unread-p closed) issue

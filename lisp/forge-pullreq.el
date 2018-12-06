@@ -196,22 +196,17 @@
   (when-let ((repo (forge-get-repository nil))
              (- (not (oref repo sparse-p)))
              (pullreqs (forge-list-recent-topics repo 'pullreq)))
-    (magit-insert-section section (pullreqs nil t)
+    (magit-insert-section (pullreqs nil t)
       (magit-insert-heading
         (format "%s (%s)"
                 (propertize "Pull requests" 'face 'magit-section-heading)
                 (length pullreqs)))
-      (if (oref section hidden)
-          (oset section washer
-                (apply-partially 'forge--insert-pullreqs pullreqs))
-        (forge--insert-pullreqs pullreqs)))))
-
-(defun forge--insert-pullreqs (pullreqs)
-  (let ((width (length (number-to-string (oref (car pullreqs) number))))
-        (prefix (forge--topic-type-prefix (car pullreqs))))
-    (dolist (pullreq pullreqs)
-      (forge-insert-pullreq pullreq width prefix)))
-  (insert ?\n))
+      (magit-insert-section-body
+        (let ((width (length (number-to-string (oref (car pullreqs) number))))
+              (prefix (forge--topic-type-prefix (car pullreqs))))
+          (dolist (pullreq pullreqs)
+            (forge-insert-pullreq pullreq width prefix)))
+        (insert ?\n)))))
 
 (defun forge-insert-pullreq (pullreq &optional width prefix)
   (with-slots (number title unread-p closed merged) pullreq
