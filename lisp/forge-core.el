@@ -111,8 +111,9 @@ For other objects return nil.")
   (let ((repo-id (oref repo id)))
     (closql-oset
      object slot
-     (mapcar (lambda (alist)
-               (forge--object-id repo-id (cdr (assq 'id alist))))
+     (mapcar (lambda (val)
+               (forge--object-id repo-id
+                                 (if (atom val) val (alist-get 'id val))))
              rows))))
 
 (cl-defgeneric forge--format-url (object slot &optional spec))
