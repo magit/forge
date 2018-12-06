@@ -334,7 +334,7 @@ Prefer a topic over a branch and that over a commit."
      repo topic (magit-completing-read-multiple*
                  "Assignees: "
                  (mapcar #'cadr (oref repo assignees))
-                 nil t
+                 nil 'confirm
                  (mapconcat #'car (closql--iref topic 'assignees) ",")))))
 
 ;;; Branch
