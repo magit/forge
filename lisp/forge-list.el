@@ -26,6 +26,7 @@
 
 (defcustom forge-topic-list-mode-hook '(hl-line-mode)
   "Hook run after entering Forge-Topic-List mode."
+  :package-version '(forge . "0.1.0")
   :group 'forge
   :type 'hook
   :options '(hl-line-mode))
