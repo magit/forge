@@ -328,14 +328,25 @@ Prefer a topic over a branch and that over a commit."
 (defun forge-edit-topic-assignees (topic)
   "Edit the assignees of TOPIC."
   (interactive (list (forge-read-topic "Edit assignees of")))
-  (let ((repo (forge-get-repository topic))
-        (crm-separator ","))
+  (let* ((repo (forge-get-repository topic))
+         (value (closql--iref topic 'assignees))
+         (choices (mapcar #'cadr (oref repo assignees)))
+         (crm-separator ","))
     (forge--set-topic-assignees
-     repo topic (magit-completing-read-multiple*
-                 "Assignees: "
-                 (mapcar #'cadr (oref repo assignees))
-                 nil 'confirm
-                 (mapconcat #'car (closql--iref topic 'assignees) ",")))))
+     repo topic
+     (if (and (forge--childp topic 'forge-pullreq)
+              (forge--childp repo  'forge-gitlab-repository))
+         (list ; Gitlab merge-requests can only be assigned to a single user.
+          (magit-completing-read
+           "Assignee" choices nil
+           nil ; Empty input removes assignee.
+           (car value)))
+       (magit-completing-read-multiple*
+        "Assignees: " choices nil
+        (if (forge--childp repo 'forge-gitlab-repository)
+            t ; Selecting something else would fail later on.
+          'confirm)
+        (mapconcat #'car value ","))))))
 
 ;;; Branch
 
