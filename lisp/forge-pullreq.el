@@ -203,12 +203,12 @@
                 (length pullreqs)))
       (if (oref section hidden)
           (oset section washer
-                (apply-partially 'forge--insert-pullreqs pullreqs repo))
-        (forge--insert-pullreqs pullreqs repo)))))
+                (apply-partially 'forge--insert-pullreqs pullreqs))
+        (forge--insert-pullreqs pullreqs)))))
 
-(defun forge--insert-pullreqs (pullreqs repo)
+(defun forge--insert-pullreqs (pullreqs)
   (let ((width (length (number-to-string (oref (car pullreqs) number))))
-        (prefix (if (forge--childp repo 'forge-gitlab-repository) "!" "#")))
+        (prefix (forge--topic-type-prefix (car pullreqs))))
     (dolist (pullreq pullreqs)
       (forge-insert-pullreq pullreq width prefix)))
   (insert ?\n))

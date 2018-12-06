@@ -303,6 +303,18 @@ The following %-sequences are supported:
       (fill-region (point-min) (point-max)))
     (buffer-string)))
 
+(defun forge--topic-type-prefix (topic)
+  (and (forge--childp (forge-get-repository topic) 'forge-gitlab-repository)
+       (if (forge--childp topic 'forge-pullreq) "!" "#")))
+
+(defun forge--topic-buffer-lock-value (args)
+  (and (derived-mode-p 'forge-topic-mode)
+       (let ((topic (car args)))
+         (concat (forge--topic-type-prefix topic)
+                 (number-to-string (oref topic number))))))
+
+(add-hook 'magit-buffer-lock-functions 'forge--topic-buffer-lock-value)
+
 ;;; Completion
 
 (defun forge-read-topic (prompt)
@@ -311,13 +323,10 @@ The following %-sequences are supported:
                            (car magit-refresh-args))))
          (repo    (forge-get-repository (or default t)))
          (format  (lambda (topic)
-                    (format
-                     "%s%s  %s"
-                     (if (forge--childp repo 'forge-gitlab-repository)
-                         (if (forge--childp topic 'forge-pullreq) "!" "#")
-                       "")
-                     (oref topic number)
-                     (oref topic title))))
+                    (format "%s%s  %s"
+                            (or (forge--topic-type-prefix topic) "")
+                            (oref topic number)
+                            (oref topic title))))
          (choices (append (oref repo pullreqs)
                           (oref repo issues)))
          (choice  (magit-completing-read
