@@ -24,6 +24,15 @@
 
 (require 'forge)
 
+;;; Options
+
+(defcustom forge-post-mode-hook '(visual-line-mode)
+  "Hook run after entering Forge-Post mode."
+  :package-version '(forge . "0.1.0")
+  :group 'forge
+  :type 'hook
+  :options '(visual-line-mode))
+
 ;;; Class
 
 (defclass forge-post (forge-object) () :abstract t)
