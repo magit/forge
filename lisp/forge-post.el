@@ -117,7 +117,7 @@
       buf)))
 
 (defun forge--display-post-buffer (buf)
-  (magit-display-buffer buf))
+  (magit-display-buffer buf #'display-buffer))
 
 (defun forge-post-cancel ()
   "Cancel the post that is being edited in the current buffer."
