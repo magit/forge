@@ -67,14 +67,14 @@
 
 (when (boundp 'magit-fetch-popup)
   (magit-define-popup-action 'magit-pull-and-fetch-popup
+    ?Y "forge notifications" 'forge-pull-notifications)
+  (magit-define-popup-action 'magit-pull-popup
+    ?Y "forge notifications" 'forge-pull-notifications)
+
+  (magit-define-popup-action 'magit-pull-and-fetch-popup
     ?y "forge topics" 'forge-pull)
   (magit-define-popup-action 'magit-pull-popup
     ?y "forge fopics" 'forge-pull)
-
-  (magit-define-popup-action 'magit-pull-and-fetch-popup
-    ?Y "forge notifications" 'forge-pull-notifications)
-  (magit-define-popup-action 'magit-pull-popup
-    ?Y "forge notifications" 'forge-pull-notifications)
 
   (magit-define-popup-action 'magit-branch-popup
     ?y "Checkout pull-request" 'forge-checkout-pullreq)
