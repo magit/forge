@@ -43,6 +43,7 @@
    (create-pullreq-url-format :allocation :class)
    (pullreq-refspec           :allocation :class)
    (id                        :initarg :id)
+   (forge-id                  :initarg :forge-id)
    (forge                     :initarg :forge)
    (owner                     :initarg :owner)
    (name                      :initarg :name)
@@ -76,32 +77,37 @@
 (cl-defmethod forge--object-id ((class (subclass forge-repository))
                                 host owner name &optional id-type)
   "Return the id of the specified repository.
-This method has to make an API request."
-  (pcase-let ((`(,_githost ,apihost ,id ,_class)
-               (or (assoc host forge-alist)
-                   (error "No entry for %S in forge-alist" host))))
-    (base64-encode-string
-     (format
-      "%s:%s" id
-      (pcase (or id-type forge--object-id-type)
-        ('forge
-         (let ((i (ghub-repository-id
-                   owner name
-                   :host apihost
-                   :auth 'forge
-                   :forge (cl-ecase class
-                            (forge-github-repository    'ghub)
-                            (forge-gitlab-repository    'glab)
-                            (forge-gitea-repository     'gtea)
-                            (forge-bitbucket-repository 'buck)))))
-           (if (eq class 'forge-github-repository)
-               (base64-decode-string i)
-             i)))
-        ('name
-         (format "%s/%s" owner name))
-        (_
-         (error "Unknown forge--object-id-type: %s" forge--object-id-type))))
-     t)))
+This method has to make an API request and actually returns two
+ids: (OUR-ID . THEIR-ID).  For some forges THEIR-ID is required
+and we wouldn't want to make the same request again at a later
+time just to get THEIR-ID without immediately transforming it
+into OUR-ID."
+  (pcase-let* ((`(,_githost ,apihost ,id ,_class)
+                (or (assoc host forge-alist)
+                    (error "No entry for %S in forge-alist" host)))
+               (forge-id (ghub-repository-id
+                          owner name
+                          :host apihost
+                          :auth 'forge
+                          :forge (cl-ecase class
+                                   (forge-github-repository    'ghub)
+                                   (forge-gitlab-repository    'glab)
+                                   (forge-gitea-repository     'gtea)
+                                   (forge-bitbucket-repository 'buck)))))
+    (cons (base64-encode-string
+           (format
+            "%s:%s" id
+            (pcase (or id-type forge--object-id-type)
+              ('forge
+               (if (eq class 'forge-github-repository)
+                   (base64-decode-string forge-id)
+                 forge-id))
+              ('name
+               (format "%s/%s" owner name))
+              (_
+               (error "Unknown forge--object-id-type: %s" forge--object-id-type))))
+           t)
+          forge-id)))
 
 ;;; Core
 
@@ -162,16 +168,17 @@ to guess the remote."
               (oset repo remote  remote)
               repo)
           (and demand
-               (if-let ((id (forge--object-id class host owner name
-                                              (and (eq demand 'stub) 'name))))
+               (if-let ((ids (forge--object-id class host owner name
+                                               (and (eq demand 'stub) 'name))))
                    (let ((repo (funcall class
-                                        :id      id
-                                        :forge   forge
-                                        :owner   owner
-                                        :name    name
-                                        :apihost apihost
-                                        :githost githost
-                                        :remote  remote)))
+                                        :id       (car ids)
+                                        :forge-id (cdr ids)
+                                        :forge    forge
+                                        :owner    owner
+                                        :name     name
+                                        :apihost  apihost
+                                        :githost  githost
+                                        :remote   remote)))
                      (unless (eq demand 'stub)
                        (closql-insert (forge-db) repo))
                      repo)

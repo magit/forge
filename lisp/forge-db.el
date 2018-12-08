@@ -40,7 +40,7 @@
 (defclass forge-database (closql-database)
   ((object-class :initform forge-repository)))
 
-(defconst forge--db-version 1)
+(defconst forge--db-version 2)
 
 (defvar forge--db-connection nil
   "The EmacSQL database connection.")
@@ -75,6 +75,7 @@
   '((repository
      [(class :not-null)
       (id :not-null :primary-key)
+      forge-id
       forge
       owner
       name

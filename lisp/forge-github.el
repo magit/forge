@@ -255,12 +255,12 @@ repositories.
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
-                      (list (forge--object-id (eieio-object-class repo)
-                                              (oref repo githost)
-                                              .owner.login
-                                              .name)
-                            .owner.login
-                            .name)))
+                      (nconc (forge--object-id (eieio-object-class repo)
+                                               (oref repo githost)
+                                               .owner.login
+                                               .name)
+                             (list .owner.login
+                                   .name))))
                   data))))
 
 (cl-defmethod forge--update-labels ((repo forge-github-repository) data)
