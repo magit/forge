@@ -52,6 +52,477 @@ it is all or nothing.")
    (create-pullreq-url-format :initform "https://%h/%o/%n/merge_requests/new")
    (pullreq-refspec :initform "+refs/merge-requests/*/head:refs/pullreqs/*")))
 
+;;; Pull
+;;;; Repository
+
+(cl-defmethod forge--pull ((repo forge-gitlab-repository))
+  (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
+                            (current-buffer)))
+                  (dir default-directory)
+                  (val nil))
+              (lambda (cb &optional v)
+                (when v
+                  (push v val))
+                (cond
+                 ((not (assq 'assignees val)) (forge--fetch-assignees repo cb))
+                 ((not (assq 'forks     val)) (forge--fetch-forks     repo cb))
+                 ((not (assq 'labels    val)) (forge--fetch-labels    repo cb))
+                 ((not (assq 'issues    val)) (forge--fetch-issues    repo cb))
+                 ((not (assq 'pullreqs  val)) (forge--fetch-pullreqs  repo cb))
+                 (t
+                  (forge--msg repo t t   "Pulling REPO")
+                  (forge--msg repo t nil "Storing REPO")
+                  (emacsql-with-transaction (forge-db)
+                    (forge--update-assignees repo (alist-get 'assignees val))
+                    (forge--update-labels    repo (alist-get 'labels    val))
+                    (dolist (v (alist-get 'issues val))
+                      (forge--update-issue repo v))
+                    (dolist (v (alist-get 'pullreqs val))
+                      (forge--update-pullreq repo v))
+                    (oset repo sparse-p nil))
+                  (forge--msg repo t t "Storing REPO")
+                  (forge--git-fetch buf dir repo)))))))
+    (funcall cb cb)))
+
+;;;; Issues
+
+(cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback)
+  (let ((cb (let (val cur cnt pos)
+              (lambda (cb &optional v)
+                (cond
+                 ((not pos)
+                  (if (setq cur (setq val v))
+                      (progn
+                        (setq pos 1)
+                        (setq cnt (length val))
+                        (forge--msg nil nil nil "Pulling issue %s/%s" pos cnt)
+                        (forge--fetch-issue-posts repo cur cb))
+                    (forge--msg repo t t "Pulling REPO issues")
+                    (funcall callback callback (cons 'issues val))))
+                 (t
+                  (if (setq cur (cdr cur))
+                      (progn
+                        (cl-incf pos)
+                        (forge--msg nil nil nil "Pulling issue %s/%s" pos cnt)
+                        (forge--fetch-issue-posts repo cur cb))
+                    (forge--msg repo t t "Pulling REPO issues")
+                    (funcall callback callback (cons 'issues val)))))))))
+    (forge--msg repo t nil "Pulling REPO issues")
+    (forge--glab-get repo
+      (format "/projects/%s%%2F%s/issues"
+              (oref repo owner)
+              (oref repo name))
+      `((per_page . 100)
+        (order_by . "updated_at")
+        (updated_after . ,(forge--topics-until repo 'issue)))
+      :unpaginate t
+      :callback (lambda (value _headers _status _req)
+                  (funcall cb cb value)))))
+
+(cl-defmethod forge--fetch-issue-posts ((repo forge-gitlab-repository) cur cb)
+  (let-alist (car cur)
+    (forge--glab-get repo
+      (format "/projects/%s/issues/%s/notes" .project_id .iid)
+      '((per_page . 100))
+      :unpaginate t
+      :callback (lambda (value _headers _status _req)
+                  (setf (alist-get 'notes (car cur)) value)
+                  (funcall cb cb)))))
+
+(cl-defmethod forge--update-issue ((repo forge-gitlab-repository) data)
+  (emacsql-with-transaction (forge-db)
+    (let-alist data
+      (let* ((issue-id (forge--object-id 'forge-issue repo .iid))
+             (issue
+              (forge-issue
+               :id           issue-id
+               :repository   (oref repo id)
+               :number       .iid
+               :state        (intern .state)
+               :author       .author.username
+               :title        .title
+               :created      .created_at
+               :updated      .updated_at
+               ;; `.closed_at' may be nil even though the issues is
+               ;; closed.  In such cases use 1, so that this slots
+               ;; at least can serve as a boolean.
+               :closed       (or .closed_at (and (equal .state "closed") 1))
+               :locked-p     .discussion_locked
+               :milestone    .milestone.iid
+               :body         (forge--sanitize-string .description))))
+        (closql-insert (forge-db) issue t)
+        (forge--set-id-slot repo issue 'assignees .assignees)
+        (forge--set-id-slot repo issue 'labels .labels)
+        .body .id ; Silence Emacs 25 byte-compiler.
+        (dolist (c .notes)
+          (unless (forge--glab-ignore-note-p c)
+            (let-alist c
+              (let ((post
+                     (forge-issue-post
+                      :id      (forge--object-id issue-id .id)
+                      :issue   issue-id
+                      :number  .id
+                      :author  .author.username
+                      :created .created_at
+                      :updated .updated_at
+                      :body    (forge--sanitize-string .body))))
+                (closql-insert (forge-db) post t)))))))))
+
+;;;; Pullreqs
+
+(cl-defmethod forge--fetch-pullreqs ((repo forge-gitlab-repository) callback)
+  (let ((cb (let (val cur cnt pos)
+              (lambda (cb &optional v)
+                (cond
+                 ((not pos)
+                  (if (setq cur (setq val v))
+                      (progn
+                        (setq pos 1)
+                        (setq cnt (length val))
+                        (forge--msg nil nil nil "Pulling pullreq %s/%s" pos cnt)
+                        (forge--fetch-pullreq-posts repo cur cb))
+                    (forge--msg repo t t "Pulling REPO pullreqs")
+                    (funcall callback callback (cons 'pullreqs val))))
+                 ((not (assq 'source_project (car cur)))
+                  (forge--fetch-pullreq-source-repo repo cur cb))
+                 ((not (assq 'target_project (car cur)))
+                  (forge--fetch-pullreq-target-repo repo cur cb))
+                 (t
+                  (if (setq cur (cdr cur))
+                      (progn
+                        (cl-incf pos)
+                        (forge--msg nil nil nil "Pulling pullreq %s/%s" pos cnt)
+                        (forge--fetch-pullreq-posts repo cur cb))
+                    (forge--msg repo t t "Pulling REPO pullreqs")
+                    (funcall callback callback (cons 'pullreqs val)))))))))
+    (forge--msg repo t nil "Pulling REPO pullreqs")
+    (forge--glab-get repo
+      (format "/projects/%s%%2F%s/merge_requests"
+              (oref repo owner)
+              (oref repo name))
+      `((per_page . 100)
+        (order_by . "updated_at")
+        (updated_after . ,(forge--topics-until repo 'pullreq)))
+      :unpaginate t
+      :callback (lambda (value _headers _status _req)
+                  (funcall cb cb value)))))
+
+(cl-defmethod forge--fetch-pullreq-posts
+  ((repo forge-gitlab-repository) cur cb)
+  (let-alist (car cur)
+    (forge--glab-get repo
+      (format "/projects/%s/merge_requests/%s/notes" .target_project_id .iid)
+      '((per_page . 100))
+      :unpaginate t
+      :callback (lambda (value _headers _status _req)
+                  (setf (alist-get 'notes (car cur)) value)
+                  (funcall cb cb)))))
+
+(cl-defmethod forge--fetch-pullreq-source-repo
+  ((repo forge-gitlab-repository) cur cb)
+  ;; If the fork no longer exists, then `.source_project_id' is nil.
+  ;; This will lead to difficulties later on but there is nothing we
+  ;; can do about it.
+  (let-alist (car cur)
+    (if .source_project_id
+        (forge--glab-get repo (format "/projects/%s" .source_project_id) nil
+          :callback (lambda (value _headers _status _req)
+                      (setf (alist-get 'source_project (car cur)) value)
+                      (funcall cb cb)))
+      (setf (alist-get 'source_project (car cur)) nil)
+      (funcall cb cb))))
+
+(cl-defmethod forge--fetch-pullreq-target-repo
+  ((repo forge-gitlab-repository) cur cb)
+  (let-alist (car cur)
+    (forge--glab-get repo (format "/projects/%s" .target_project_id) nil
+      :callback (lambda (value _headers _status _req)
+                  (setf (alist-get 'target_project (car cur)) value)
+                  (funcall cb cb)))))
+
+(cl-defmethod forge--update-pullreq ((repo forge-gitlab-repository) data)
+  (emacsql-with-transaction (forge-db)
+    (let-alist data
+      (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .iid))
+             (pullreq
+              (forge-pullreq
+               :id           pullreq-id
+               :repository   (oref repo id)
+               :number       .iid
+               :state        (intern .state)
+               :author       .author.username
+               :title        .title
+               :created      .created_at
+               :updated      .updated_at
+               ;; `.merged_at' and `.closed_at' may both be nil even
+               ;; though the pullreq is merged or otherwise closed.
+               ;; In such cases use 1, so that these slots at least
+               ;; can serve as booleans.
+               :closed       (or .closed_at
+                                 (and (member .state '("closed" "merged")) 1))
+               :merged       (or .merged_at
+                                 (and (equal .state "merged") 1))
+               :locked-p     .discussion_locked
+               :editable-p   .allow_maintainer_to_push
+               :cross-repo-p (not (equal .source_project_id
+                                         .target_project_id))
+               :base-ref     .target_branch
+               :base-repo    .target_project.path_with_namespace
+               :head-ref     .source_branch
+               :head-user    .source_project.owner.username
+               :head-repo    .source_project.path_with_namespace
+               :milestone    .milestone.iid
+               :body         (forge--sanitize-string .description))))
+        (closql-insert (forge-db) pullreq t)
+        (forge--set-id-slot repo pullreq 'assignees (list .assignee))
+        (forge--set-id-slot repo pullreq 'labels .labels)
+        .body .id ; Silence Emacs 25 byte-compiler.
+        (dolist (c .notes)
+          (unless (forge--glab-ignore-note-p c)
+            (let-alist c
+              (let ((post
+                     (forge-pullreq-post
+                      :id      (forge--object-id pullreq-id .id)
+                      :pullreq pullreq-id
+                      :number  .id
+                      :author  .author.username
+                      :created .created_at
+                      :updated .updated_at
+                      :body    (forge--sanitize-string .body))))
+                (closql-insert (forge-db) post t)))))))))
+
+;;;; Other
+
+;; The extend of the documentation for "GET /projects/:id/users" is
+;; "Get the users list of a project."  I don't know what that means,
+;; but it stands to reason that this must at least overlap with the
+;; set of users that can be assigned to topics.
+
+(cl-defmethod forge--fetch-assignees ((repo forge-gitlab-repository) callback)
+  (forge--glab-get repo "/projects/:project/users"
+    '((per_page . 100))
+    :unpaginate t
+    :callback (lambda (value _headers _status _req)
+                (funcall callback callback (cons 'assignees value)))))
+
+(cl-defmethod forge--update-assignees ((repo forge-gitlab-repository) data)
+  (oset repo assignees
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      ;; For other forges we don't need to store `id'
+                      ;; but here we do because that's what has to be
+                      ;; used when assigning issues.
+                      (list (forge--object-id id .id)
+                            .username
+                            .name
+                            .id)))
+                  data))))
+
+(cl-defmethod forge--fetch-forks ((repo forge-gitlab-repository) callback)
+  (forge--glab-get repo "/projects/:project/forks"
+    '((per_page . 100)
+      (simple . "true"))
+    :unpaginate t
+    :callback (lambda (value _headers _status _req)
+                (funcall callback callback (cons 'forks value)))))
+
+(cl-defmethod forge--update-forks ((repo forge-gitlab-repository) data)
+  (oset repo forks
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      (nconc (forge--object-id (eieio-object-class repo)
+                                               (oref repo githost)
+                                               .namespace.path
+                                               .path)
+                             (list .namespace.path
+                                   .path))))
+                  data))))
+
+(cl-defmethod forge--fetch-labels ((repo forge-gitlab-repository) callback)
+  (forge--glab-get repo "/projects/:project/labels"
+    '((per_page . 100))
+    :unpaginate t
+    :callback (lambda (value _headers _status _req)
+                (funcall callback callback (cons 'labels value)))))
+
+(cl-defmethod forge--update-labels ((repo forge-gitlab-repository) data)
+  (oset repo labels
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      ;; We should use the label's `id' instead of its
+                      ;; `name' but a topic's `labels' field is a list
+                      ;; of names instead of a list of ids or an alist.
+                      ;; If a label is renamed, then things break.
+                      (list (forge--object-id id .name)
+                            .name
+                            (downcase .color)
+                            .description)))
+                  data))))
+
+;;;; Notifications
+
+;; The closest to notifications that Gitlab provides are "events" as
+;; described at https://docs.gitlab.com/ee/api/events.html.  This
+;; allows us to see the last events that took place, but that is not
+;; good enough because we are mostly interested in events we haven't
+;; looked at yet.  Gitlab doesn't make a distinction between unread
+;; and read events, so this is rather useless and we don't use it for
+;; the time being.
+
+;;; Mutations
+
+(cl-defmethod forge--submit-create-pullreq ((_ forge-gitlab-repository) base-repo)
+  (pcase-let* ((`(,title ,body) (forge--topic-title-and-body))
+               (`(,base-remote . ,base-branch)
+                (magit-split-branch-name forge--buffer-base-branch))
+               (`(,head-remote . ,head-branch)
+                (magit-split-branch-name forge--buffer-head-branch))
+               (head-repo (forge-get-repository 'stub head-remote)))
+    (forge--glab-post head-repo "/projects/:project/merge_requests"
+      `(,@(and (not (equal head-remote base-remote))
+               `((target_project_id . ,(oref base-repo forge-id))))
+        (target_branch . ,base-branch)
+        (source_branch . ,head-branch)
+        (title         . ,title)
+        (description   . ,body)
+        (allow_collaboration . t))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback))))
+
+(cl-defmethod forge--submit-create-issue ((_ forge-gitlab-repository) repo)
+  (pcase-let ((`(,title ,body) (forge--topic-title-and-body)))
+    (forge--glab-post repo "/projects/:project/issues"
+      `((title       . ,title)
+        (description . ,body))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback))))
+
+(cl-defmethod forge--submit-create-post ((_ forge-gitlab-repository) topic)
+  (forge--glab-post topic
+    (if (forge-issue-p topic)
+        "/projects/:project/issues/:number/notes"
+      "/projects/:project/merge_requests/:number/notes")
+    `((body . ,(string-trim (buffer-string))))
+    :callback  (forge--post-submit-callback)
+    :errorback (forge--post-submit-errorback)))
+
+(cl-defmethod forge--submit-edit-post ((_ forge-gitlab-repository) post)
+  (forge--glab-put post
+    (cl-typecase post
+      (forge-pullreq "/projects/:project/merge_requests/:number")
+      (forge-issue   "/projects/:project/issues/:number")
+      (forge-post
+       (if (forge-issue-p (forge-get-topic post))
+           "/projects/:project/issues/:topic/notes/:number"
+         "/projects/:project/merge_requests/:topic/notes/:number")))
+    (if (cl-typep post 'forge-topic)
+        (pcase-let ((`(,title ,body)
+                     (forge--topic-title-and-body)))
+          ;; Keep Gitlab from claiming that the user
+          ;; changed the description when that isn't
+          ;; true.  The same isn't necessary for the
+          ;; title; in that case Gitlab performs the
+          ;; necessary check itself.
+          `((title . ,title)
+            ,@(and (not (equal body (oref post body)))
+                   `((description . ,body)))))
+      `((body . ,(string-trim (buffer-string)))))
+    :callback  (forge--post-submit-callback)
+    :errorback (forge--post-submit-errorback)))
+
+(cl-defmethod forge--set-topic-field
+  ((_repo forge-gitlab-repository) topic field value)
+  (forge--glab-put topic
+    (cl-typecase topic
+      (forge-pullreq "/projects/:project/merge_requests/:number")
+      (forge-issue   "/projects/:project/issues/:number"))
+    `((,field . ,value))
+    :callback (forge--set-field-callback)))
+
+(cl-defmethod forge--set-topic-title
+  ((repo forge-gitlab-repository) topic title)
+  (forge--set-topic-field repo topic 'title title))
+
+(cl-defmethod forge--set-topic-labels
+  ((repo forge-gitlab-repository) topic labels)
+  (forge--set-topic-field repo topic 'labels
+                          (mapconcat #'identity labels ",")))
+
+(cl-defmethod forge--set-topic-assignees
+  ((repo forge-gitlab-repository) topic assignees)
+  (let ((users (mapcar #'cdr (oref repo assignees))))
+    (cl-typecase topic
+      (forge-pullreq ; Can only be assigned to a single user.
+       (forge--set-topic-field repo topic 'assignee_id
+                               (caddr (assoc (car assignees) users))))
+      (forge-issue
+       (forge--set-topic-field repo topic 'assignee_ids
+                               (--map (caddr (assoc it users)) assignees))))))
+
+;;; Utilities
+
+(cl-defun forge--glab-get (obj resource
+                               &optional params
+                               &key query payload headers
+                               silent unpaginate noerror reader
+                               host callback errorback)
+  (declare (indent defun))
+  (glab-get (if obj (forge--format-resource obj resource) resource)
+            params
+            :host (or host (oref (forge-get-repository obj) apihost))
+            :auth 'forge
+            :query query :payload payload :headers headers
+            :silent silent :unpaginate unpaginate
+            :noerror noerror :reader reader
+            :callback callback
+            :errorback (or errorback (and callback t))))
+
+(cl-defun forge--glab-put (obj resource
+                               &optional params
+                               &key query payload headers
+                               silent unpaginate noerror reader
+                               host callback errorback)
+  (declare (indent defun))
+  (glab-put (if obj (forge--format-resource obj resource) resource)
+            params
+            :host (or host (oref (forge-get-repository obj) apihost))
+            :auth 'forge
+            :query query :payload payload :headers headers
+            :silent silent :unpaginate unpaginate
+            :noerror noerror :reader reader
+            :callback callback
+            :errorback (or errorback (and callback t))))
+
+(cl-defun forge--glab-post (obj resource
+                                &optional params
+                                &key query payload headers
+                                silent unpaginate noerror reader
+                                host callback errorback)
+  (declare (indent defun))
+  (glab-post (forge--format-resource obj resource)
+             params
+             :host (or host (oref (forge-get-repository obj) apihost))
+             :auth 'forge
+             :query query :payload payload :headers headers
+             :silent silent :unpaginate unpaginate
+             :noerror noerror :reader reader
+             :callback callback
+             :errorback (or errorback (and callback t))))
+
+(defun forge--glab-ignore-note-p (data)
+  "Return non-nil if we are fairly sure that DATA is not a post."
+  ;; This uses a blacklist, which we have to extend over time as we
+  ;; run into other none-post "notes", because neither does the API
+  ;; expose posts seperately nor do "notes" have a "type" field.
+  (let-alist data
+    (let ((body (forge--sanitize-string .body)))
+      (or (string-equal    "changed the description" body)
+          (string-prefix-p "changed title from" body)
+          ))))
+
 ;;; _
 (provide 'forge-gitlab)
 ;;; forge-gitlab.el ends here
