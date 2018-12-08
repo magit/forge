@@ -206,6 +206,7 @@ The following %-sequences are supported:
 
 (defvar forge-topic-headers-hook
   '(forge-insert-topic-title
+    forge-insert-topic-state
     forge-insert-topic-labels
     forge-insert-topic-assignees))
 
@@ -253,6 +254,13 @@ The following %-sequences are supported:
     (&optional (topic (car magit-refresh-args)))
   (magit-insert-section (topic-title)
     (insert (format "%-11s" "Title: ") (oref topic title) "\n")))
+
+(cl-defun forge-insert-topic-state
+    (&optional (topic (car magit-refresh-args)))
+  (magit-insert-section (topic-state)
+    (insert (format "%-11s" "State: ")
+            (symbol-name (oref topic state))
+            "\n")))
 
 (defvar forge-topic-labels-section-map
   (let ((map (make-sparse-keymap)))
