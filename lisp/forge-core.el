@@ -111,8 +111,6 @@ For other objects return nil.")
 (cl-defgeneric forge--repository-ids (class host owner name &optional stub)
   "Return the database and forge ids for the specified CLASS object.")
 
-(defvar forge--object-id-type 'forge)
-
 ;;; Utilities
 
 (defun forge--set-id-slot (repo object slot rows)

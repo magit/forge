@@ -78,16 +78,18 @@
 ;;; Core
 
 (cl-defmethod forge--repository-ids ((class (subclass forge-repository))
-                                     host owner name &optional id-type)
+                                     host owner name &optional stub)
   "Return (OUR-ID . THEIR-ID) of the specified repository.
-This method has to make an API request to retrieve THEIR-ID, the
-repository's id on the forge.  OUR-ID derives from THEIR-ID but
-is unique across all forges and hosts."
+If optional STUB is non-nil, then the IDs are not guaranteed to
+be unique.  Otherwise this method has to make an API request to
+retrieve THEIR-ID, the repository's ID on the forge.  In that
+case OUR-ID derives from THEIR-ID and is unique across all
+forges and hosts.  "
   (pcase-let* ((`(,_githost ,apihost ,id ,_class)
                 (or (assoc host forge-alist)
                     (error "No entry for %S in forge-alist" host)))
                (path (format "%s/%s" owner name))
-               (their-id (and (not (eq id-type 'stub))
+               (their-id (and (not stub)
                               (ghub-repository-id
                                owner name
                                :host apihost
@@ -99,16 +101,11 @@ is unique across all forges and hosts."
                                         (forge-gogs-repository      'gogs)
                                         (forge-bitbucket-repository 'buck))))))
     (cons (base64-encode-string
-           (format
-            "%s:%s" id
-            (cl-case (or id-type forge--object-id-type)
-              (forge
-               (if (eq class 'forge-github-repository)
-                   (base64-decode-string their-id)
-                 their-id))
-              ((name stub) path)
-              (t (error "Unknown forge--object-id-type: %s"
-                        forge--object-id-type))))
+           (format "%s:%s" id
+                   (cond (stub path)
+                         ((eq class 'forge-github-repository)
+                          (base64-decode-string their-id))
+                         (t their-id)))
            t)
           (or their-id path))))
 
@@ -166,9 +163,8 @@ to guess the remote."
               (oset repo remote  remote)
               repo)
           (and demand
-               (if-let ((ids (forge--repository-ids
-                              class host owner name
-                              (and (eq demand 'stub) 'stub))))
+               (if-let ((ids (forge--repository-ids class host owner name
+                                                    (and (eq demand 'stub)))))
                    (let ((repo (funcall class
                                         :id       (car ids)
                                         :forge-id (cdr ids)
