@@ -52,6 +52,14 @@ classes.  See their definitions in \"forge-semi.el\".")
 Different hosts use different url schemata, so we need multiple
 classes.  See their definitions in \"forge-semi.el\".")
 
+(defclass forge-stagit-repository (forge-noapi-repository)
+  ((commit-url-format :initform "https://%h/%n/commit/%r.html")
+   (branch-url-format :initform "https://%h/%n/refs.html")
+   (remote-url-format :initform "https://%h/%n/file/README.html"))
+  "Stagit from https://codemadness.org/git/stagit/file/README.html.
+Only the history of \"master\" can be shown, so this links to the
+list of refs instead of the log of the specified branch.")
+
 ;;; _
 (provide 'forge-semi)
 ;;; forge-semi.el ends here

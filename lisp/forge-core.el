@@ -64,6 +64,8 @@
      "git.kernel.org" forge-cgit-repository)
     ("repo.or.cz" nil
      "repo.or.cz" forge-repoorcz-repository)
+    ("git.suckless.org" nil
+     "git.suckless.org" forge-stagit-repository)
     )
   "List of Git forges.
 
