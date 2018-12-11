@@ -48,6 +48,8 @@
      "github.com" forge-github-repository)
     ("gitlab.com" "gitlab.com/api/v4"
      "gitlab.com" forge-gitlab-repository)
+    ("salsa.debian.org" "salsa.debian.org/api/v4"
+     "salsa.debian.org" forge-gitlab-repository)
     ;; Forges (API unsupported)
     ("gitea.local" "localhost:3000/api/v1"
      "gitea.local" forge-gitea-repository)
