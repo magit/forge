@@ -51,7 +51,7 @@
     (setq repo (forge-get-repository t)))
   (setq forge--mode-line-buffer (current-buffer))
   (when-let ((remote  (oref repo remote))
-             (refspec (oref-default repo pullreq-refspec)))
+             (refspec (oref repo pullreq-refspec)))
     (unless (member refspec (magit-get-all "remote" remote "fetch"))
       (magit-call-git "config" "--add"
                       (format "remote.%s.fetch" remote)
@@ -477,7 +477,7 @@ upstream remote.  Also fetch from REMOTE."
   (let* ((repo    (forge-get-repository t))
          (remote  (oref repo remote))
          (fetch   (magit-get-all "remote" remote "fetch"))
-         (refspec (oref-default repo pullreq-refspec)))
+         (refspec (oref repo pullreq-refspec)))
     (if (member refspec fetch)
         (message "Pull-request refspec is already active")
       (magit-call-git "config" "--add"

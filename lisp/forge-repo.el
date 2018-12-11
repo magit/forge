@@ -203,7 +203,7 @@ to guess the remote."
 
 (cl-defmethod forge--format-url ((repo forge-repository) slot &optional spec)
   (format-spec
-   (eieio-oref-default repo slot)
+   (eieio-oref repo slot)
    `(,@spec
      (?h . ,(oref repo githost))
      (?o . ,(oref repo owner))
