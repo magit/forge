@@ -72,7 +72,8 @@
    (issues          :closql-class forge-issue)
    (labels          :closql-table label)
    (pullreqs        :closql-class forge-pullreq)
-   (revnotes        :closql-class forge-revnote)))
+   (revnotes        :closql-class forge-revnote))
+  :abstract t)
 
 (cl-defmethod forge--object-id ((class (subclass forge-repository))
                                 host owner name &optional id-type)
