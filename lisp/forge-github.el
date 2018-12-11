@@ -277,7 +277,7 @@ repositories.
 ;;;; Notifications
 
 (cl-defmethod forge--pull-notifications
-  ((_class (subclass forge-github-repository)) githost callback)
+  ((_class (subclass forge-github-repository)) githost &optional callback)
   ;; The GraphQL API doesn't support notifications,
   ;; so we have to perform a major rain dance.
   (let ((spec (assoc githost forge-alist)))
@@ -307,7 +307,8 @@ repositories.
                           #'forge--update-pullreq)
                         repo (cdr (cadr (assq key data))) nil))))
          (forge--msg nil t t "Storing notifications")
-         (funcall callback))
+         (when callback
+           (funcall callback)))
        nil :auth 'forge))))
 
 (defun forge--ghub-massage-notification (data forge githost)
