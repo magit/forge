@@ -23,7 +23,7 @@
 (require 'forge)
 (require 'eieio)
 
-;;; Class
+;;; Classes
 
 (defclass forge-repository (forge-object)
   ((closql-class-prefix       :initform "forge-")
@@ -75,6 +75,8 @@
    (revnotes        :closql-class forge-revnote))
   :abstract t)
 
+(defclass forge-noapi-repository (forge-repository) () :abstract t)
+
 ;;; Core
 
 (cl-defmethod forge--repository-ids ((class (subclass forge-repository))
@@ -108,6 +110,17 @@ forges and hosts.  "
                          (t their-id)))
            t)
           (or their-id path))))
+
+(cl-defmethod forge--repository-ids ((_class (subclass forge-noapi-repository))
+                                     host owner name &optional _stub)
+  (let ((their-id (if owner (concat owner "/" name) name)))
+    (cons (base64-encode-string
+           (format "%s:%s"
+                   (nth 3 (or (assoc host forge-alist)
+                              (error "No entry for %S in forge-alist" host)))
+                   their-id)
+           t)
+          their-id)))
 
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
   "Return the forge repository for the current Git repository."
@@ -190,10 +203,14 @@ forges and hosts.  "
 (cl-defmethod forge--format-url ((repo forge-repository) slot &optional spec)
   (format-spec
    (eieio-oref repo slot)
-   `(,@spec
-     (?h . ,(oref repo githost))
-     (?o . ,(oref repo owner))
-     (?n . ,(oref repo name)))))
+   (with-slots (githost owner name) repo
+     (let ((path (if owner (concat owner "/" name) name)))
+       `(,@spec
+         (?h . ,githost)
+         (?o . ,owner)
+         (?n . ,name)
+         (?p . ,path)
+         (?P . ,(replace-regexp-in-string "/" "%2F" path)))))))
 
 (defun forge--set-field-callback ()
   (let ((buf (current-buffer)))

@@ -81,7 +81,8 @@ ID, and vice-versa."
   :group 'forge
   :type '(repeat (list (string :tag "Git host")
                        (string :tag "ID")
-                       (string :tag "API endpoint")
+                       (choice (or (string :tag "API endpoint")
+                                   (const  :tag "No API" nil)))
                        (symbol :tag "Repository class"))))
 
 ;;; Core
@@ -157,11 +158,16 @@ argument.")
 
 (cl-defmethod forge--format-url ((remote string) slot &optional spec)
   (if-let ((parts (forge--split-remote-url remote)))
-      (forge--format-url (forge-get-repository 'stub remote) slot
-                         `(,@spec
-                           (?h . ,(nth 0 parts))
-                           (?o . ,(nth 1 parts))
-                           (?n . ,(nth 2 parts))))
+      (forge--format-url
+       (forge-get-repository 'stub remote) slot
+       (pcase-let* ((`(,host ,owner ,name) parts)
+                    (path (if owner (concat owner "/" name) name)))
+         `(,@spec
+           (?h . ,host)
+           (?o . ,owner)
+           (?n . ,name)
+           (?p . ,path)
+           (?P . ,(replace-regexp-in-string "/" "%2F" path)))))
     (user-error "Cannot browse non-forge remote %s" remote)))
 
 (defun forge--url-regexp ()
@@ -186,6 +192,12 @@ argument.")
 (cl-defmethod forge--split-url-path
   ((_class (subclass forge-repository)) path)
   (and (string-match "\\`\\([^/]+\\)/\\([^/]+?\\)\\'" path)
+       (list (match-string 1 path)
+             (match-string 2 path))))
+
+(cl-defmethod forge--split-url-path
+  ((_class (subclass forge-noapi-repository)) path)
+  (and (string-match "\\`\\(?:~?\\(.+\\)/\\)?\\([^/]+?\\)\\'" path)
        (list (match-string 1 path)
              (match-string 2 path))))
 

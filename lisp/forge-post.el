@@ -59,13 +59,12 @@
         (forge--pullreq-from-rev rev))))
 
 (defun forge--pullreq-from-rev (rev)
-  (when-let ((repo (forge-get-repository nil)))
-    (when-let ((name (magit-rev-name
-                      rev
-                      (cadr (split-string (oref repo pullreq-refspec) ":")))))
-      (save-match-data
-        (when (string-match "[0-9]*\\'" name)
-          (forge-get-pullreq (string-to-number (match-string 0 name))))))))
+  (when-let ((repo    (forge-get-repository nil))
+             (refspec (oref repo pullreq-refspec))
+             (name    (magit-rev-name rev (cadr (split-string refspec ":")))))
+    (save-match-data
+      (when (string-match "[0-9]*\\'" name)
+        (forge-get-pullreq (string-to-number (match-string 0 name)))))))
 
 ;;; Utilities
 

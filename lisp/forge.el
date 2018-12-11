@@ -50,6 +50,7 @@
 (require 'forge-gitea)
 (require 'forge-gogs)
 (require 'forge-bitbucket)
+(require 'forge-semi)
 
 (require 'forge-commands)
 (require 'forge-list)

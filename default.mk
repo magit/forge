@@ -15,6 +15,7 @@ ELS  += $(PKG)-gitlab.el
 ELS  += $(PKG)-gitea.el
 ELS  += $(PKG)-gogs.el
 ELS  += $(PKG)-bitbucket.el
+ELS  += $(PKG)-semi.el
 ELS  += $(PKG)-commands.el
 ELS  += $(PKG)-list.el
 ELCS  = $(ELS:.el=.elc)
