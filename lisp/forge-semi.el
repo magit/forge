@@ -22,6 +22,12 @@
 
 (require 'forge)
 
+(defclass forge-gitweb-repository (forge-noapi-repository)
+  ((commit-url-format :initform "https://%h/gitweb/?p=%P.git;a=commitdiff;h=%r")
+   (branch-url-format :initform "https://%h/gitweb/?p=%P.git;a=log;h=refs/heads/%r")
+   (remote-url-format :initform "https://%h/gitweb/?p=%P.git;a=summary"))
+  "Gitweb from https://git-scm.com/docs/gitweb.")
+
 ;;; _
 (provide 'forge-semi)
 ;;; forge-semi.el ends here
