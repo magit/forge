@@ -255,10 +255,11 @@ repositories.
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
-                      (nconc (forge--object-id (eieio-object-class repo)
-                                               (oref repo githost)
-                                               .owner.login
-                                               .name)
+                      (nconc (forge--repository-ids
+                              (eieio-object-class repo)
+                              (oref repo githost)
+                              .owner.login
+                              .name)
                              (list .owner.login
                                    .name))))
                   data))))

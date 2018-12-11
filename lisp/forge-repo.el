@@ -75,18 +75,18 @@
    (revnotes        :closql-class forge-revnote))
   :abstract t)
 
-(cl-defmethod forge--object-id ((class (subclass forge-repository))
-                                host owner name &optional id-type)
-  "Return the id of the specified repository.
-This method has to make an API request and actually returns two
-ids: (OUR-ID . THEIR-ID).  For some forges THEIR-ID is required
-and we wouldn't want to make the same request again at a later
-time just to get THEIR-ID without immediately transforming it
-into OUR-ID."
+;;; Core
+
+(cl-defmethod forge--repository-ids ((class (subclass forge-repository))
+                                     host owner name &optional id-type)
+  "Return (OUR-ID . THEIR-ID) of the specified repository.
+This method has to make an API request to retrieve THEIR-ID, the
+repository's id on the forge.  OUR-ID derives from THEIR-ID but
+is unique across all forges and hosts."
   (pcase-let* ((`(,_githost ,apihost ,id ,_class)
                 (or (assoc host forge-alist)
                     (error "No entry for %S in forge-alist" host)))
-               (forge-id (ghub-repository-id
+               (their-id (ghub-repository-id
                           owner name
                           :host apihost
                           :auth 'forge
@@ -101,16 +101,14 @@ into OUR-ID."
             (pcase (or id-type forge--object-id-type)
               ('forge
                (if (eq class 'forge-github-repository)
-                   (base64-decode-string forge-id)
-                 forge-id))
+                   (base64-decode-string their-id)
+                 their-id))
               ('name
                (format "%s/%s" owner name))
               (_
                (error "Unknown forge--object-id-type: %s" forge--object-id-type))))
            t)
-          forge-id)))
-
-;;; Core
+          their-id)))
 
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
   "Return the forge repository for the current Git repository.
@@ -166,8 +164,9 @@ to guess the remote."
               (oset repo remote  remote)
               repo)
           (and demand
-               (if-let ((ids (forge--object-id class host owner name
-                                               (and (eq demand 'stub) 'name))))
+               (if-let ((ids (forge--repository-ids
+                              class host owner name
+                              (and (eq demand 'stub) 'name))))
                    (let ((repo (funcall class
                                         :id       (car ids)
                                         :forge-id (cdr ids)

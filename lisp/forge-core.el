@@ -108,6 +108,9 @@ For other objects return nil.")
 (cl-defgeneric forge--object-id (class &rest args)
   "Return the database id for the CLASS object specified by ARGS.")
 
+(cl-defgeneric forge--repository-ids (class host owner name &optional stub)
+  "Return the database and forge ids for the specified CLASS object.")
+
 (defvar forge--object-id-type 'forge)
 
 ;;; Utilities

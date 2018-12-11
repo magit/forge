@@ -332,10 +332,11 @@ it is all or nothing.")
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
-                      (nconc (forge--object-id (eieio-object-class repo)
-                                               (oref repo githost)
-                                               .namespace.path
-                                               .path)
+                      (nconc (forge--repository-ids
+                              (eieio-object-class repo)
+                              (oref repo githost)
+                              .namespace.path
+                              .path)
                              (list .namespace.path
                                    .path))))
                   data))))
