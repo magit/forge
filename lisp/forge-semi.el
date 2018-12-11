@@ -60,6 +60,14 @@ classes.  See their definitions in \"forge-semi.el\".")
 Only the history of \"master\" can be shown, so this links to the
 list of refs instead of the log of the specified branch.")
 
+(defclass forge-srht-repository (forge-noapi-repository)
+  ((commit-url-format :initform "https://%h/~%o/%n/commit/%r")
+   (branch-url-format :initform "https://%h/~%o/%n")
+   (remote-url-format :initform "https://%h/~%o/%n"))
+  "See https://meta.sr.ht.
+Only the history of \"master\" can be shown, so this links to the
+list of refs instead of the log of the specified branch.")
+
 ;;; _
 (provide 'forge-semi)
 ;;; forge-semi.el ends here

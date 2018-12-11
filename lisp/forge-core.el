@@ -66,7 +66,8 @@
      "repo.or.cz" forge-repoorcz-repository)
     ("git.suckless.org" nil
      "git.suckless.org" forge-stagit-repository)
-    )
+    ("git.sr.ht" nil
+     "git.sr.ht" forge-srht-repository))
   "List of Git forges.
 
 Each entry has the form (GITHOST APIHOST ID CLASS).
