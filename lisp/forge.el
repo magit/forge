@@ -47,6 +47,9 @@
 
 (require 'forge-github)
 (require 'forge-gitlab)
+(require 'forge-gitea)
+(require 'forge-gogs)
+(require 'forge-bitbucket)
 
 (require 'forge-commands)
 (require 'forge-list)
