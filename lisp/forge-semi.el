@@ -28,6 +28,30 @@
    (remote-url-format :initform "https://%h/gitweb/?p=%P.git;a=summary"))
   "Gitweb from https://git-scm.com/docs/gitweb.")
 
+(defclass forge-cgit-repository (forge-noapi-repository)
+  ((commit-url-format :initform "https://%h/%p.git/commit/?id=%r")
+   (branch-url-format :initform "https://%h/%p.git/log/?h=%r")
+   (remote-url-format :initform "https://%h/%p.git/about"))
+  "Cgit from https://git.zx2c4.com/cgit/about.
+Different hosts use different url schemata, so we need multiple
+classes.  See their definitions in \"forge-semi.el\".")
+
+(defclass forge-cgit*-repository (forge-cgit-repository)
+  ((commit-url-format :initform "https://%h/cgit/%p.git/commit/?id=%r")
+   (branch-url-format :initform "https://%h/cgit/%p.git/log/?h=%r")
+   (remote-url-format :initform "https://%h/cgit/%p.git/about"))
+  "Cgit from https://git.zx2c4.com/cgit/about.
+Different hosts use different url schemata, so we need multiple
+classes.  See their definitions in \"forge-semi.el\".")
+
+(defclass forge-repoorcz-repository (forge-cgit-repository)
+  ((commit-url-format :initform "https://%h/%p.git/commit/%r")
+   (branch-url-format :initform "https://%h/%p.git/log/%r")
+   (remote-url-format :initform "https://%h/%p.git"))
+  "Cgit fork used on https://repo.or.cz/cgit.git.
+Different hosts use different url schemata, so we need multiple
+classes.  See their definitions in \"forge-semi.el\".")
+
 ;;; _
 (provide 'forge-semi)
 ;;; forge-semi.el ends here

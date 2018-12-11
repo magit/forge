@@ -57,6 +57,13 @@
      "code.orgmode.org" forge-gogs-repository)
     ("bitbucket.org" "api.bitbucket.org/2.0"
      "bitbucket.org" forge-bitbucket-repository)
+    ;; Semi-Forges
+    ("git.savannah.gnu.org" nil
+     "git.savannah.gnu.org" forge-cgit*-repository)
+    ("git.kernel.org" nil
+     "git.kernel.org" forge-cgit-repository)
+    ("repo.or.cz" nil
+     "repo.or.cz" forge-repoorcz-repository)
     )
   "List of Git forges.
 
