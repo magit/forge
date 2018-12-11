@@ -12,9 +12,9 @@ ELS  += $(PKG)-notify.el
 ELS  += $(PKG)-revnote.el
 ELS  += $(PKG)-github.el
 ELS  += $(PKG)-gitlab.el
-ELS  += $(PKG)-bitbucket.el
 ELS  += $(PKG)-gitea.el
 ELS  += $(PKG)-gogs.el
+ELS  += $(PKG)-bitbucket.el
 ELS  += $(PKG)-commands.el
 ELS  += $(PKG)-list.el
 ELCS  = $(ELS:.el=.elc)

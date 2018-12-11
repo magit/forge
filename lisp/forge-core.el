@@ -43,16 +43,19 @@
   :group 'magit-faces)
 
 (defcustom forge-alist
-  '(("github.com" "api.github.com"
+  '(;; Forges
+    ("github.com" "api.github.com"
      "github.com" forge-github-repository)
     ("gitlab.com" "gitlab.com/api/v4"
      "gitlab.com" forge-gitlab-repository)
-    ("bitbucket.org" "api.bitbucket.org/2.0"
-     "bitbucket.org" forge-bitbucket-repository)
+    ;; Forges (API unsupported)
+    ("gitea.local" "localhost:3000/api/v1"
+     "gitea.local" forge-gitea-repository)
     ("code.orgmode.org" "code.orgmode.org/api/v1"
      "code.orgmode.org" forge-gogs-repository)
-    ("gitea.local" "localhost:3000/api/v1"
-     "gitea.local" forge-gitea-repository))
+    ("bitbucket.org" "api.bitbucket.org/2.0"
+     "bitbucket.org" forge-bitbucket-repository)
+    )
   "List of Git forges.
 
 Each entry has the form (GITHOST APIHOST ID CLASS).
