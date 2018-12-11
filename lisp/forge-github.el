@@ -322,7 +322,7 @@ repositories.
                     (list githost
                           .repository.owner.login
                           .repository.name)
-                    nil t))
+                    nil 'create))
            (repoid (oref repo id))
            (owner  (oref repo owner))
            (name   (oref repo name))

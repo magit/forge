@@ -114,7 +114,7 @@
              'forge-pullreq))
 
 (cl-defmethod forge-get-pullreq ((number integer))
-  (when-let ((repo (forge-get-repository nil)))
+  (when-let ((repo (forge-get-repository t)))
     (forge-get-pullreq repo number)))
 
 (cl-defmethod forge-get-pullreq ((post forge-pullreq-post))

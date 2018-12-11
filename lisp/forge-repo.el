@@ -110,20 +110,7 @@ forges and hosts.  "
           (or their-id path))))
 
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
-  "Return the forge repository for the current Git repository.
-
-If DEMAND is nil and the forge repository for the current Git
-repository cannot be determined or the corresponding object does
-not exist in the forge database, then return nil.
-
-If DEMAND is non-nil and the repositorty object does not exist
-in the forge database yet, then create and return a new object.
-If the required information cannot be determined, then raise an
-error.  Unless DEMAND is `stub', this involves an API call and
-results in the object being stored in the database.
-
-If optional REMOTE is non-nil, then use that instead of trying
-to guess the remote."
+  "Return the forge repository for the current Git repository."
   (magit--with-refresh-cache
       (list default-directory 'forge-get-repository demand)
     (let* ((remotes (magit-list-remotes))
@@ -152,33 +139,37 @@ to guess the remote."
   "Return the repository identified by HOST, OWNER and NAME."
   (if-let ((spec (assoc host forge-alist)))
       (pcase-let ((`(,githost ,apihost ,forge ,class) spec))
-        (if-let ((row (car (forge-sql [:select * :from repository
-                                       :where (and (= forge $s1)
-                                                   (= owner $s2)
-                                                   (= name  $s3))]
-                                      forge owner name))))
-            (let ((repo (closql--remake-instance class (forge-db) row)))
-              (oset repo apihost apihost)
-              (oset repo githost githost)
-              (oset repo remote  remote)
-              repo)
-          (and demand
-               (if-let ((ids (forge--repository-ids class host owner name
-                                                    (and (eq demand 'stub)))))
-                   (let ((repo (funcall class
-                                        :id       (car ids)
-                                        :forge-id (cdr ids)
-                                        :forge    forge
-                                        :owner    owner
-                                        :name     name
-                                        :apihost  apihost
-                                        :githost  githost
-                                        :remote   remote)))
-                     (unless (eq demand 'stub)
-                       (closql-insert (forge-db) repo))
-                     repo)
-                 (error "Cannot determine forge repository.  %s"
-                        "Cannot retrieve repository id")))))
+        (let* ((row (car (forge-sql [:select * :from repository
+                                     :where (and (= forge $s1)
+                                                 (= owner $s2)
+                                                 (= name  $s3))]
+                                    forge owner name)))
+               (obj (and row (closql--remake-instance class (forge-db) row))))
+          (when obj
+            (if (and (eq demand t)
+                     (oref obj sparse-p))
+                (error "Cannot use `%s' in %S yet.\n%s"
+                       this-command (magit-toplevel)
+                       "Use `M-x forge-pull' before trying again.")
+              (oset obj apihost apihost)
+              (oset obj githost githost)
+              (oset obj remote  remote)))
+          (when (and demand (not obj))
+            (pcase-let ((`(,id . ,forge-id)
+                         (forge--repository-ids class host owner name
+                                                (eq demand 'stub))))
+              (setq obj (funcall class
+                                 :id       id
+                                 :forge-id forge-id
+                                 :forge    forge
+                                 :owner    owner
+                                 :name     name
+                                 :apihost  apihost
+                                 :githost  githost
+                                 :remote   remote)))
+            (when (eq demand 'create)
+              (closql-insert (forge-db) obj)))
+          obj))
     (when demand
       (error "Cannot determine forge repository.  No entry for %S in %s"
              host 'forge-alist))))

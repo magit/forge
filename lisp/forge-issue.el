@@ -85,7 +85,7 @@
               'forge-issue))
 
 (cl-defmethod forge-get-issue ((number integer))
-  (when-let ((repo (forge-get-repository nil)))
+  (when-let ((repo (forge-get-repository t)))
     (forge-get-issue repo number)))
 
 (cl-defmethod forge-get-issue ((post forge-issue-post))

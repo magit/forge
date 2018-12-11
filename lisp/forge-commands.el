@@ -48,7 +48,7 @@
   "Pull topics from the forge repository."
   (interactive)
   (unless repo
-    (setq repo (forge-get-repository t)))
+    (setq repo (forge-get-repository 'create)))
   (setq forge--mode-line-buffer (current-buffer))
   (when-let ((remote  (oref repo remote))
              (refspec (oref repo pullreq-refspec)))
@@ -114,7 +114,7 @@ Prefer a topic over a branch and that over a commit."
                                     nil nil nil 'magit-revision-history
                                     (magit-branch-or-commit-at-point))
              (user-error "Nothing selected"))))
-  (let* ((repo (forge-get-repository t))
+  (let* ((repo (forge-get-repository 'stub))
          (remote (oref repo remote))
          (branches (magit-list-remote-branch-names remote))
          (available (-any-p (lambda (branch)
@@ -158,7 +158,7 @@ Prefer a topic over a branch and that over a commit."
 ;;;###autoload
 (defun forge-browse-pullreqs (repo)
   "Visit the url corresponding to REPO's pull-requests using a browser."
-  (interactive (list (forge-get-repository t)))
+  (interactive (list (forge-get-repository 'stub)))
   (browse-url (forge--format-url repo 'pullreqs-url-format)))
 
 ;;;###autoload
@@ -171,7 +171,7 @@ Prefer a topic over a branch and that over a commit."
 ;;;###autoload
 (defun forge-browse-issues (repo)
   "Visit the url corresponding to REPO's issues using a browser."
-  (interactive (list (forge-get-repository t)))
+  (interactive (list (forge-get-repository 'stub)))
   (browse-url (forge--format-url repo 'issues-url-format)))
 
 ;;;###autoload
@@ -359,7 +359,7 @@ Please see the manual for more information."
                       base-ref base-repo
                       head-ref head-repo head-user)
       pullreq
-    (let* ((host (oref (forge-get-repository nil) githost))
+    (let* ((host (oref (forge-get-repository t) githost))
            (upstream-url (format "git@%s:%s.git" host base-repo))
            (upstream (or (--first (forge--url-equal
                                    (magit-git-string "remote" "get-url" it)
@@ -474,7 +474,7 @@ This is done by adding \"+refs/pull/*/head:refs/pullreqs/*\"
 to the value of `remote.REMOTE.fetch', where REMOTE is the
 upstream remote.  Also fetch from REMOTE."
   (interactive)
-  (let* ((repo    (forge-get-repository t))
+  (let* ((repo    (forge-get-repository 'stub))
          (remote  (oref repo remote))
          (fetch   (magit-get-all "remote" remote "fetch"))
          (refspec (oref repo pullreq-refspec)))

@@ -352,7 +352,7 @@ The following %-sequences are supported:
                (forge-get-pullreq repo number))))))
 
 (defun forge-topic-completion-at-point ()
-  (when-let ((repo (forge-get-repository nil)))
+  (when-let ((repo (forge-get-repository t)))
     (when (and (or (not bug-reference-prog-mode)
 	           (nth 8 (syntax-ppss))) ; inside comment or string
                (looking-back (if (forge--childp repo 'forge-gitlab-repository)

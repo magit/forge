@@ -94,7 +94,38 @@ The hierarchy is repository > topic > post.
 For other objects return nil.")
 
 (cl-defgeneric forge-get-repository ()
-  "Return a forge repository object.")
+  "Return a forge repository object or nil, or signal an error.
+
+The DEMAND argument controls what to do when the object isn't
+stored in the database yet, or if it is marked as sparse.  The
+valid values are:
+
+* `nil' If the repository isn't stored in the database, then
+  return nil.  If the object is sparse, then return it anyway.
+
+* `t' If the repository isn't stored in the database or if the
+   object is sparse, then signal an error, informing the user
+   that `this-command' cannot be run until the repository has
+   been pulled.
+
+* `stub' If the repository is stored in the database, then return
+  it, regardless of whether it is sparse or no.  Otherwise create
+  a new object and return it, but do not store it in the database.
+  In the latter case it is assumed that the caller does not need
+  the `id' and `forge-id' slots whose value differ from what they
+  would be used if the object were retrieved from the database.
+
+* `create' This value is only intended to be used by commands
+  that fetch data from the API.  If the repository is stored in
+  the database, then return that, regardless of whether the
+  object is sparse or no.  If the repository is not store in the
+  database, then make an API request to determine the ID used on
+  the forge, derive our own ID from that, and store a new sparse
+  object in the database and return it.
+
+Also update the object's `apihost', `githost' and `remote' slots
+according to the respective entry in `forge-alist' and the REMOTE
+argument.")
 
 (cl-defgeneric forge-get-topic ()
   "Return a forge issue or pullreq object.")
