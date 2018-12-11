@@ -20,6 +20,7 @@
 
 ;;; Code:
 
+(require 'gtea)
 (require 'forge)
 
 ;;; Class
