@@ -64,16 +64,18 @@ it is all or nothing.")
                 (when v
                   (push v val))
                 (cond
-                 ((not (assq 'assignees val)) (forge--fetch-assignees repo cb))
-                 ((not (assq 'forks     val)) (forge--fetch-forks     repo cb))
-                 ((not (assq 'labels    val)) (forge--fetch-labels    repo cb))
-                 ((not (assq 'issues    val)) (forge--fetch-issues    repo cb))
-                 ((not (assq 'pullreqs  val)) (forge--fetch-pullreqs  repo cb))
+                 ((not val)                   (forge--fetch-repository repo cb))
+                 ((not (assq 'assignees val)) (forge--fetch-assignees  repo cb))
+                 ((not (assq 'forks     val)) (forge--fetch-forks      repo cb))
+                 ((not (assq 'labels    val)) (forge--fetch-labels     repo cb))
+                 ((not (assq 'issues    val)) (forge--fetch-issues     repo cb))
+                 ((not (assq 'pullreqs  val)) (forge--fetch-pullreqs   repo cb))
                  (t
                   (forge--msg repo t t   "Pulling REPO")
                   (forge--msg repo t nil "Storing REPO")
                   (emacsql-with-transaction (forge-db)
                     (let-alist val
+                      (forge--update-repository repo val)
                       (forge--update-assignees  repo .assignees)
                       (forge--update-labels     repo .labels)
                       (dolist (v .issues)   (forge--update-issue repo v))
@@ -82,6 +84,28 @@ it is all or nothing.")
                   (forge--msg repo t t "Storing REPO")
                   (forge--git-fetch buf dir repo)))))))
     (funcall cb cb)))
+
+(cl-defmethod forge--fetch-repository ((repo forge-gitlab-repository) callback)
+  (forge--glab-get repo "/projects/:project" nil
+    :callback (lambda (value _headers _status _req)
+                (funcall callback callback value))))
+
+(cl-defmethod forge--update-repository ((repo forge-gitlab-repository) data)
+  (let-alist data
+    (oset repo created        .created_at)
+    (oset repo updated        .last_activity_at)
+    (oset repo pushed         nil)
+    (oset repo parent         .forked_from_project.path_with_namespace)
+    (oset repo description    .description)
+    (oset repo homepage       nil)
+    (oset repo default-branch .default_branch)
+    (oset repo archived-p     .archived)
+    (oset repo fork-p         (and .forked_from_project.path_with_namespace t))
+    (oset repo locked-p       nil)
+    (oset repo mirror-p       .mirror)
+    (oset repo private-p      (equal .visibility "private"))
+    (oset repo stars          .star_count)
+    (oset repo watchers       .star_count)))
 
 ;;;; Issues
 
