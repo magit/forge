@@ -94,6 +94,7 @@ is unique across all forges and hosts."
                                    (forge-github-repository    'ghub)
                                    (forge-gitlab-repository    'glab)
                                    (forge-gitea-repository     'gtea)
+                                   (forge-gogs-repository      'gogs)
                                    (forge-bitbucket-repository 'buck)))))
     (cons (base64-encode-string
            (format
