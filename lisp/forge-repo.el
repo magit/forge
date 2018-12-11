@@ -144,11 +144,8 @@ to guess the remote."
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
-  (if (string-match forge--url-regexp url)
-      (forge-get-repository (list (match-string 1 url)
-                                  (match-string 3 url)
-                                  (match-string 4 url))
-                            remote demand)
+  (if-let ((parts (forge--split-url url)))
+      (forge-get-repository parts remote demand)
     (when demand
       (error "Cannot determine forge repository.  %s isn't a forge url" url))))
 

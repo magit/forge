@@ -140,10 +140,13 @@ For other objects return nil.")
 
 (defun forge--split-remote-url (remote)
   (when-let ((url (magit-git-string "remote" "get-url" remote)))
-    (and (string-match forge--url-regexp url)
-         (list (match-string 1 url)
-               (match-string 3 url)
-               (match-string 4 url)))))
+    (forge--split-url url)))
+
+(defun forge--split-url (url)
+  (and (string-match forge--url-regexp url)
+       (list (match-string 1 url)
+             (match-string 3 url)
+             (match-string 4 url))))
 
 (defun forge--url-p (url)
   (save-match-data
