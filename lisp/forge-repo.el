@@ -86,30 +86,31 @@ is unique across all forges and hosts."
   (pcase-let* ((`(,_githost ,apihost ,id ,_class)
                 (or (assoc host forge-alist)
                     (error "No entry for %S in forge-alist" host)))
-               (their-id (ghub-repository-id
-                          owner name
-                          :host apihost
-                          :auth 'forge
-                          :forge (cl-ecase class
-                                   (forge-github-repository    'ghub)
-                                   (forge-gitlab-repository    'glab)
-                                   (forge-gitea-repository     'gtea)
-                                   (forge-gogs-repository      'gogs)
-                                   (forge-bitbucket-repository 'buck)))))
+               (path (format "%s/%s" owner name))
+               (their-id (and (not (eq id-type 'stub))
+                              (ghub-repository-id
+                               owner name
+                               :host apihost
+                               :auth 'forge
+                               :forge (cl-ecase class
+                                        (forge-github-repository    'ghub)
+                                        (forge-gitlab-repository    'glab)
+                                        (forge-gitea-repository     'gtea)
+                                        (forge-gogs-repository      'gogs)
+                                        (forge-bitbucket-repository 'buck))))))
     (cons (base64-encode-string
            (format
             "%s:%s" id
-            (pcase (or id-type forge--object-id-type)
-              ('forge
+            (cl-case (or id-type forge--object-id-type)
+              (forge
                (if (eq class 'forge-github-repository)
                    (base64-decode-string their-id)
                  their-id))
-              ('name
-               (format "%s/%s" owner name))
-              (_
-               (error "Unknown forge--object-id-type: %s" forge--object-id-type))))
+              ((name stub) path)
+              (t (error "Unknown forge--object-id-type: %s"
+                        forge--object-id-type))))
            t)
-          their-id)))
+          (or their-id path))))
 
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
   "Return the forge repository for the current Git repository.
@@ -167,7 +168,7 @@ to guess the remote."
           (and demand
                (if-let ((ids (forge--repository-ids
                               class host owner name
-                              (and (eq demand 'stub) 'name))))
+                              (and (eq demand 'stub) 'stub))))
                    (let ((repo (funcall class
                                         :id       (car ids)
                                         :forge-id (cdr ids)
