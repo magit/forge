@@ -132,26 +132,35 @@ For other objects return nil.")
                            (?n . ,(nth 2 parts))))
     (user-error "Cannot browse non-forge remote %s" remote)))
 
-(defconst forge--url-regexp "\
-\\`\\(?:git://\\|git@\\|ssh://git@\\|https://\\)\
-\\(.*?\\)[/:]\
-\\(\\([^:/]+\\)/\\([^/]+?\\)\\)\
-\\(?:\\.git\\)?\\'")
+(defun forge--url-regexp ()
+  (concat "\\`\\(?:git://\\|git@\\|ssh://git@\\|https://\\)"
+          (regexp-opt (mapcar #'car forge-alist) t)
+          "[:/]\\(.+?\\)"
+          "\\(?:\\.git\\)?\\'"))
 
 (defun forge--split-remote-url (remote)
   (when-let ((url (magit-git-string "remote" "get-url" remote)))
     (forge--split-url url)))
 
 (defun forge--split-url (url)
-  (and (string-match forge--url-regexp url)
-       (list (match-string 1 url)
-             (match-string 3 url)
-             (match-string 4 url))))
+  (and (string-match (forge--url-regexp) url)
+       (when-let ((host (match-string 1 url))
+                  (path (match-string 2 url))
+                  (path (forge--split-url-path
+                         (nth 3 (assoc host forge-alist))
+                         path)))
+         (cons host path))))
+
+(cl-defmethod forge--split-url-path
+  ((_class (subclass forge-repository)) path)
+  (and (string-match "\\`\\([^/]+\\)/\\([^/]+?\\)\\'" path)
+       (list (match-string 1 path)
+             (match-string 2 path))))
 
 (defun forge--url-p (url)
   (save-match-data
-    (and (string-match forge--url-regexp url)
-         (cl-caddr (assoc (match-string 1 url) forge-alist)))))
+    (and (string-match (forge--url-regexp) url)
+         (nth 2 (assoc (match-string 1 url) forge-alist)))))
 
 (defun forge--forge-remote-p (remote)
   (when-let ((url (magit-git-string "remote" "get-url" remote)))
@@ -160,11 +169,12 @@ For other objects return nil.")
 (defun forge--url-equal (urlA urlB)
   (or (equal urlA urlB)
       (save-match-data
-        (let (hostA repoA hostB repoB)
-          (and (when (string-match forge--url-regexp urlA)
+        (let ((re (forge--url-regexp))
+              hostA repoA hostB repoB)
+          (and (when (string-match re urlA)
                  (setq hostA (match-string 1 urlA))
                  (setq repoA (match-string 2 urlA)))
-               (when (string-match forge--url-regexp urlB)
+               (when (string-match re urlB)
                  (setq hostB (match-string 1 urlB))
                  (setq repoB (match-string 2 urlB)))
                (equal repoA repoB)
