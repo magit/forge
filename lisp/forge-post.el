@@ -58,6 +58,11 @@
       (when-let ((rev (magit-commit-at-point)))
         (forge--pullreq-from-rev rev))))
 
+(defun forge-current-topic ()
+  (or (forge-topic-at-point)
+      (and (derived-mode-p 'forge-topic-mode)
+           (car magit-refresh-args))))
+
 (defun forge--pullreq-from-rev (rev)
   (when-let ((repo    (forge-get-repository nil))
              (refspec (oref repo pullreq-refspec))

@@ -326,9 +326,7 @@ The following %-sequences are supported:
 ;;; Completion
 
 (defun forge-read-topic (prompt)
-  (let* ((default (or (forge-topic-at-point)
-                      (and (derived-mode-p 'forge-topic-mode)
-                           (car magit-refresh-args))))
+  (let* ((default (forge-current-topic))
          (repo    (forge-get-repository (or default t)))
          (format  (lambda (topic)
                     (format "%s%s  %s"
