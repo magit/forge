@@ -140,7 +140,9 @@ repositories.
                          (forge-issue :id         issue-id
                                       :repository (oref repo id)
                                       :number     .number)))))
-        (oset issue state      (intern (downcase .state)))
+        (oset issue state      (pcase-exhaustive .state
+                                 ("CLOSED" 'closed)
+                                 ("OPEN"   'open)))
         (oset issue author     .author.login)
         (oset issue title      .title)
         (oset issue created    .createdAt)
@@ -183,7 +185,10 @@ repositories.
                            (forge-pullreq :id           pullreq-id
                                           :repository   (oref repo id)
                                           :number       .number)))))
-        (oset pullreq state        (intern (downcase .state)))
+        (oset pullreq state        (pcase-exhaustive .state
+                                     ("MERGED" 'merged)
+                                     ("CLOSED" 'closed)
+                                     ("OPEN"   'open)))
         (oset pullreq author       .author.login)
         (oset pullreq title        .title)
         (oset pullreq created      .createdAt)

@@ -161,7 +161,9 @@ it is all or nothing.")
                :id           issue-id
                :repository   (oref repo id)
                :number       .iid
-               :state        (intern .state)
+               :state        (pcase-exhaustive .state
+                               ("closed" 'closed)
+                               ("opened" 'open))
                :author       .author.username
                :title        .title
                :created      .created_at
@@ -272,7 +274,10 @@ it is all or nothing.")
                :id           pullreq-id
                :repository   (oref repo id)
                :number       .iid
-               :state        (intern .state)
+               :state        (pcase-exhaustive .state
+                               ("merged" 'merged)
+                               ("closed" 'closed)
+                               ("opened" 'open))
                :author       .author.username
                :title        .title
                :created      .created_at
