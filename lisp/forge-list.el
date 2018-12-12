@@ -114,20 +114,22 @@
 
 (defun forge--list-topics (mode buffer-name rows)
   (declare (indent 2))
-  (with-current-buffer (get-buffer-create buffer-name)
-    (funcall mode)
-    (setq tabulated-list-entries
-          (mapcar (lambda (row)
-                    (list (car row)
-                          (vconcat
-                           (cl-mapcar (lambda (val col)
-                                        (if-let ((pp (nth 5 col)))
-                                            (funcall pp val)
-                                          (if val (format "%s" val) "")))
-                                      row forge-topic-list-columns))))
-                  rows))
-    (tabulated-list-print)
-    (switch-to-buffer (current-buffer))))
+  (let ((topdir (magit-toplevel)))
+    (with-current-buffer (get-buffer-create buffer-name)
+      (setq default-directory topdir)
+      (funcall mode)
+      (setq tabulated-list-entries
+            (mapcar (lambda (row)
+                      (list (car row)
+                            (vconcat
+                             (cl-mapcar (lambda (val col)
+                                          (if-let ((pp (nth 5 col)))
+                                              (funcall pp val)
+                                            (if val (format "%s" val) "")))
+                                        row forge-topic-list-columns))))
+                    rows))
+      (tabulated-list-print)
+      (switch-to-buffer (current-buffer)))))
 
 (defvar forge-topic-list-columns
   '(("#" 5
