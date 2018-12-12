@@ -199,6 +199,7 @@ The following %-sequences are supported:
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-c C-n") 'forge-create-post)
     (define-key map (kbd "C-c C-r") 'forge-create-post)
+    (define-key map [remap magit-browse-thing] 'forge-browse-topic)
     map))
 
 (define-derived-mode forge-topic-mode magit-mode "View Topic"

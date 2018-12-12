@@ -156,6 +156,16 @@ Prefer a topic over a branch and that over a commit."
   (browse-url (forge--format-url remote 'remote-url-format)))
 
 ;;;###autoload
+(defun forge-browse-topic ()
+  "Visit the current topic using a browser."
+  (interactive)
+  (if-let ((topic (forge-current-topic)))
+      (if (forge-issue-p topic)
+          (forge-browse-issue topic)
+        (forge-browse-pullreq topic))
+    (user-error "There is no topic at point")))
+
+;;;###autoload
 (defun forge-browse-pullreqs (repo)
   "Visit the url corresponding to REPO's pull-requests using a browser."
   (interactive (list (forge-get-repository 'stub)))
