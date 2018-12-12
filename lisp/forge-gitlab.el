@@ -557,6 +557,10 @@ it is all or nothing.")
     (let ((body (forge--sanitize-string .body)))
       (or (string-equal    "changed the description" body)
           (string-prefix-p "changed title from" body)
+          (string-prefix-p "assigned to" body)
+          (string-prefix-p "unassigned" body)
+          (string-prefix-p "closed" body)
+          (string-prefix-p "reopened" body)
           ))))
 
 ;;; _
