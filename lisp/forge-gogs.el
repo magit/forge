@@ -33,7 +33,7 @@
    (pullreq-url-format        :initform "https://%h/%o/%n/pulls/%i")
    (pullreq-post-url-format   :initform "https://%h/%o/%n/pulls/%i#issuecomment-%I")
    (commit-url-format         :initform "https://%h/%o/%n/commit/%r")
-   (branch-url-format         :initform "https://%h/%o/%n/src/%r")
+   (branch-url-format         :initform "https://%h/%o/%n/commits/%r")
    (remote-url-format         :initform "https://%h/%o/%n")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/pulls") ; sic
