@@ -328,19 +328,15 @@ The following %-sequences are supported:
 (defun forge-read-topic (prompt)
   (let* ((default (forge-current-topic))
          (repo    (forge-get-repository (or default t)))
-         (format  (lambda (topic)
-                    (format "%s%s  %s"
-                            (or (forge--topic-type-prefix topic) "")
-                            (oref topic number)
-                            (oref topic title))))
          (choices (append (oref repo pullreqs)
                           (oref repo issues)))
          (choice  (magit-completing-read
                    prompt
-                   (sort (mapcar format choices) #'string>)
+                   (sort (mapcar #'forge--topic-format-choice choices)
+                         #'string>)
                    nil nil nil nil
                    (and default
-                        (funcall format default))))
+                        (forge--topic-format-choice default))))
          (number  (and (string-match "\\`\\([!#]*\\)\\([0-9]+\\)" choice)
                        (string-to-number (match-string 2 choice)))))
     (and number
@@ -348,6 +344,12 @@ The following %-sequences are supported:
              (forge-get-pullreq repo number)
            (or (forge-get-issue repo number)
                (forge-get-pullreq repo number))))))
+
+(defun forge--topic-format-choice (topic)
+  (format "%s%s  %s"
+          (or (forge--topic-type-prefix topic) "")
+          (oref topic number)
+          (oref topic title)))
 
 (defun forge-topic-completion-at-point ()
   (when-let ((repo (forge-get-repository t)))
