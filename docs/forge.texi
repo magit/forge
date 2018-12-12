@@ -1,0 +1,913 @@
+\input texinfo    @c -*- texinfo -*-
+@c %**start of header
+@setfilename forge.info
+@settitle Forge User and Developer Manual
+@documentencoding UTF-8
+@documentlanguage en
+@c %**end of header
+
+@copying
+@quotation
+Copyright (C) 2018 Jonas Bernoulli <jonas@@bernoul.li>
+
+You can redistribute this document and/or modify it under the terms
+of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE@.  See the GNU
+General Public License for more details.
+
+@end quotation
+@end copying
+
+@dircategory Emacs
+@direntry
+* Forge: (forge).       Access Git Forges from Magit.
+@end direntry
+
+@finalout
+@titlepage
+@title Forge User and Developer Manual
+@subtitle for version 0 (v0-93-g2e0bdcf+1)
+@author Jonas Bernoulli
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top
+@top Forge User and Developer Manual
+
+Forge allows you to work with Git forges, such as Github and Gitlab,
+from the comfort of Magit and the rest of Emacs.
+
+@noindent
+This manual is for Forge version 0 (v0-93-g2e0bdcf+1).
+
+@quotation
+Copyright (C) 2018 Jonas Bernoulli <jonas@@bernoul.li>
+
+You can redistribute this document and/or modify it under the terms
+of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any
+later version.
+
+This document is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE@.  See the GNU
+General Public License for more details.
+
+@end quotation
+@end ifnottex
+
+@menu
+* Introduction::
+* Supported Forges and Hosts::
+* Getting Started::
+* Usage::
+
+@detailmenu
+--- The Detailed Node Listing ---
+
+Getting Started
+
+* Initial Pull::
+* Token Creation::
+
+Usage
+
+* Pulling::
+* Branching::
+* Working with Topics::
+* Miscellanous::
+
+Working with Topics
+
+* Visiting Topics::
+* Listing Topics and Notifications::
+* Creating Topics::
+* Editing Topics and Posts::
+
+
+@end detailmenu
+@end menu
+
+@node Introduction
+@chapter Introduction
+
+Forge allows you to work with Git forges, such as Github and Gitlab,
+from the comfort of Magit and the rest of Emacs.
+
+Forge fetches issues, pull-requests and other data using the forge's
+API and stores that in a local database.  Additionally it fetches the
+pull-request references using Git.  Forge implements various features
+that use this data but the database and pull-request refs can also be
+used by third-party packages.
+
+@node Supported Forges and Hosts
+@chapter Supported Forges and Hosts
+
+Currently Forge supports two forges and three more forges partially.
+Additionally it supports four semi-forges.  Support for more forges
+and semi-forges can and will be added.
+
+Both forges and semi-forges provide web interfaces for Git
+repositories.  Forges additionally support pull-requests and issues
+and make those and other information available using an API@.
+
+When a forge is only partially supported, then that means that only
+the functionality that does not require the API is implemented, or
+in other words, that the forge is only supported as a semi-forge.
+
+A host is a particular instance of a forge.  For example the hosts
+@uref{https://gitlab.com} and @uref{https://salsa.debian.org} are both instances of
+the Gitlab forge.  Forge supports some well known hosts out of the box
+and additional hosts can easily be supported by adding entries to the
+option @code{forge-alist}.
+
+For more details about the caveats mentioned below (and some others)
+also see @ref{Getting Started}.
+
+@section Supported Forges
+
+@itemize
+@item
+Github
+
+Forge's support for Github can be considered the "reference
+implementation".  Support for other forges can lag behind a bit.
+
+Github Caveats
+
+@itemize
+@item
+Forge uses the Github GraphQl API when possible but has to fall
+back to use the REST API in many cases because the former is still
+rather incomplete.
+
+
+@item
+Forge depends on the @code{updated_at} field being updated when
+appropriate.  For Github pull-requests at least, that is not always
+done.
+@end itemize
+
+Github Hosts
+
+@itemize
+@item
+@uref{https://github.com}
+@end itemize
+
+
+@item
+Gitlab
+
+Gitlab Caveats
+
+@itemize
+@item
+Forge cannot use Ghub's setup wizard to create the API token
+because the Gitlab API does not support doing that.
+
+
+@item
+Forge cannot provide notifications because the Gitlab API does not
+expose those.
+@end itemize
+
+Gitlab Hosts
+
+@itemize
+@item
+@uref{https://gitlab.com}
+
+@item
+@uref{https://salsa.debian.org}
+@end itemize
+@end itemize
+
+@section Partially Supported Forges
+
+@itemize
+@item
+Gitea @uref{https://gitea.io/en-us}
+
+This is the next forge whose API will to be supported.
+
+Gitea Hosts
+
+@itemize
+@item
+@uref{https://localhost:3000}
+@end itemize
+
+
+@item
+Gogs @uref{https://gogs.io}
+
+Once Gitea is supported it should be fairly simple to support Gogs
+too, because the former is a fork of the latter and the APIs seem to
+still be very similar.
+
+Gogs Hosts
+
+@itemize
+@item
+@uref{https://code.orgmode.org}
+@end itemize
+
+
+@item
+Bitbucket
+
+I don't plan to support Bitbucket's API any time soon.
+
+Bitbucket Caveats
+
+@itemize
+@item
+The API documentation is poor and initial tests indicated that the
+implementation is buggy.
+
+
+@item
+Atlassian's offering contains two very distinct implementations
+that are both called "Bitbucket".  Forge only supports the
+implementation whose only instance is available at
+@uref{https://bitbucket.org}, because I only have access to that.
+@end itemize
+
+Bitbucket Hosts
+
+@itemize
+@item
+@uref{https://bitbucket.org}
+@end itemize
+@end itemize
+
+@section Supported Semi-Forges
+
+@itemize
+@item
+Gitweb @uref{https://git-scm.com/docs/gitweb}
+
+Gitweb Caveats
+
+@itemize
+@item
+I could find only one public installation
+(@uref{https://git.savannah.gnu.org}), which gives users the choice
+between Gitweb and Cgit.  The latter seems more popular (not
+just on this site).
+@end itemize
+
+
+@item
+Cgit @uref{https://git.zx2c4.com/cgit/about}
+
+Cgit Caveats
+
+@itemize
+@item
+Different sites use different URL schemata and some of the bigger
+sites use a fork.  For this reason Forge has to provide several
+classes to support different variations of Cgit and you have to
+look at their definitions to figure out which on is the correct
+one for a particular installation.
+@end itemize
+
+Cgit Hosts
+
+@itemize
+@item
+@uref{https://git.savannah.gnu.org/cgit}
+
+@item
+@uref{https://git.kernel.org}
+
+@item
+@uref{https://repo.or.cz}
+@end itemize
+
+
+@item
+Stgit @uref{https://codemadness.org/git/stagit/file/README.html}
+
+Stgit Caveats
+
+@itemize
+@item
+Stgit cannot show logs for branches beside "master".  For that
+reason Forge takes users to a page listing the branches when they
+request a log a particular branch (even for "master" whose log is
+just one click away from there).
+@end itemize
+
+Stgit Hosts
+
+@itemize
+@item
+@uref{https://git.suckless.org}
+@end itemize
+
+
+@item
+Stht @uref{https://meta.sr.ht}
+
+Stht Caveats
+
+@itemize
+@item
+Stht cannot show logs for branches beside "master".  For that
+reason Forge takes users to a page listing the branches when they
+request a log a particular branch (even for "master" whose log is
+just one click away from there).
+@end itemize
+
+Stht Hosts
+
+@itemize
+@item
+@uref{https://git.sr.ht}
+@end itemize
+@end itemize
+
+@node Getting Started
+@chapter Getting Started
+
+Getting started using Forge should be fairly easy, but there are a few
+caveats you should be aware of:
+
+@itemize
+@item
+Forge uses the Ghub package to access forge APIs.  That package
+comes with a setup wizard that should make it easy to create and
+store a Github API token.  Unfortunately the same cannot be done for
+other forges and in the past it has failed for some users for Github
+too, in particular when using two-factor authentication.  See @ref{Token Creation} for more information.
+
+
+@item
+Fetched information is stored in a database.  The table schemata of
+that database have not been finalized yet.  Until that has happened
+it will occasionally have to be discard.  That isn't such a huge
+deal because for now the database does not contain any information
+that cannot simply be fetched again, see @ref{Initial Pull}.
+
+
+@item
+Fetching is implemented under the assumption that the API can be
+asked to list the things that have changed since we last checked.
+Unfortunately the APIs are not bug-free, so this is not always the
+case.  Issues such as @uref{https://platform.github.community/t/7284} can
+take years to get addresses (in closed-source software), so I am no
+longer delaying the initial Forge release because of that.  If in
+doubt, then re-fetch an individual pull-request to ensure it is
+up-to-date using the command @code{forge-pull-pullreq}.
+
+
+@item
+Some other, forge-specific, caveats are mentioned in @ref{Supported Forges and Hosts}.
+@end itemize
+
+@menu
+* Initial Pull::
+* Token Creation::
+@end menu
+
+@node Initial Pull
+@section Initial Pull
+
+To start using Forge in a certain repository visit the Magit status
+buffer for that repository and type @code{F y} (@code{forge-pull}).
+
+The first time you do that for any repository from @uref{https://github.com}
+you will be guided through the process of creating the API token.  For
+other forges as well as for other Github instances some additional
+setup is required @strong{before} you do so.  See @ref{Token Creation}.
+
+The first time @code{forge-pull} is run in a repository, an entry for that
+repository is added to the database and a new value is added to the
+Git variable @code{remote.<remote>.fetch}, which fetches all pull-requests.
+(@code{+refs/pull/*/head:refs/pullreqs/*} for Github)
+
+@code{forge-pull} then fetches topics and other information using the forge's
+API and pull-request references using Git.
+
+The initial fetch can take a while but most of that is done
+asynchronously.  Storing the information in the database is done
+synchronously though, so there can be a noticeable hang at the end.
+Subsequent fetches are much faster.
+
+Fetching issues from Github is much faster than fetching from other
+forges because making a handful of GraphQl requests is much faster
+than making hundreds of REST requests.
+
+@node Token Creation
+@section Token Creation
+
+Forge uses the Ghub package to access the APIs of supported Git
+forges.  Ghub comes with a setup wizard that guides the user through
+the process of creating an API token for Github.com.  When accessing a
+Github Enterprise instance, then some manual setup is required before
+the wizard can be used.  Other forges don't support creating tokens
+using the API at all.  Before accessing such a forge you have to
+create a token using the respective web interface.
+
+Please consult Ghub's manual to learn more about token creation.  See
+@ref{Getting Started,,,ghub,} in particular.
+
+Ghub does @strong{not} associate a given local repository with a repository on
+a forge.  The Forge package itself takes care of this.  In doing so it
+ignores the Git variable @code{ghub.host} and other @code{FORGE.host} variables used
+by Ghub.  (But @code{github.user} and other variables used to specify the
+user are honored).  Forge associates the local repository with a forge
+repository by first determining which remote is associated with the
+upstream repository and then looking that up in @code{forge-alist}.
+
+If only one remote exists, then Forge uses that unconditionally.
+If several remotes exist, then a remote may be selected based on its
+name.
+
+The convention is to name the upstream remote @code{origin}.  If you follow
+this convention, then you have to do nothing else and the remote by
+that name is automatically used, provided it exists and regardless of
+whether other remotes exist.  If it does not exist, then no other
+remotes are tried.
+
+If you do not follow the naming convention, then you have to inform
+Forge about that by setting the Git variable @code{forge.remote} to the name
+that you instead use for upstream remotes.  If this variable is set,
+then Forge uses the remote by that name, if it exists, the same way
+it may have used @code{origin} if the the variable were undefined.  I.e. it
+does not fall through to try @code{origin} if no remote by your chosen name
+exists.
+
+Once the upstream remote has been determined, Forge looks it up in
+@code{forge-alist}, using the host part of the url as the key.  For example
+the key for @code{git@@github.com:magit/forge.git} is @code{github.com}.
+
+@node Usage
+@chapter Usage
+
+Once information has been fetched from a repository's forge, Forge
+adds two additional sections named "Pull requests" and "Issues" to
+Magit's status buffer.  Some of Forge's commands are only bound when
+point is within one of these sections but other commands are also
+available elsewhere in Magit's status buffer and/or from Magit's popup
+commands.
+
+@table @asis
+@kindex '
+@cindex forge-dispatch-popup
+@item @kbd{'} @tie{}@tie{}@tie{}@tie{}(@code{forge-dispatch-popup})
+
+This prefix command is available in any Magit buffer and provides
+access to several of the available Forge commands.  Most of these
+commands are also bound elsewhere, but some or not.  See the
+following sections for information about the available commands.
+@end table
+
+@menu
+* Pulling::
+* Branching::
+* Working with Topics::
+* Miscellanous::
+@end menu
+
+@node Pulling
+@section Pulling
+
+The commands that pull forge data are available from the same popup
+(@code{magit-pull-popup} on @code{F}) that is used to pull Git data.
+
+@table @asis
+@kindex F y
+@cindex forge-pull
+@item @kbd{F y} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull})
+
+This command uses a forge's API to fetch topics and other
+information about the current repository and stores the fetched
+information in the database.  It also fetches notifications for all
+repositories from the same forge host.  (Currently this is limitted
+to Github.)  Finally it fetches pull-request references using Git.
+
+After using this command for the first time in a given repository
+the status buffer for that repository always lists the pull-requests
+and issues.  See @ref{Initial Pull}.
+
+@kindex F Y
+@cindex forge-pull-notifications
+@item @kbd{F Y} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull-notifications})
+
+This command uses a forge's API to fetch all notifications from that
+forge, including but not limited to the notifications for the current
+repository.
+
+Fetching all notifications fetches associated topics even if you
+have not started fetching @strong{all} topics for the respective repositories
+(using @code{forge-pull}), but it does not cause the topics to be listed in
+the status buffer of such "uninitialized" repositories.
+@end table
+
+Note how pulling data from a forge's API works the same way as pulling
+Git data does; you do it explicitly when you want to see the work done
+by others.
+
+This is less disruptive, more reliable and easier to understand than
+if Forge did the pulling by itself at random intervals.  It might
+however mean that you occasionally invoke a command expecting the most
+recent data to be available and then having to abort to pull first.
+The same can happen with Git, e.g. you might attempt to merge a branch
+that you know exists but haven't actually pulled yet.
+
+@table @asis
+@kindex M-x forge-pull-pullreq
+@cindex forge-pull-pullreq
+@item @kbd{M-x forge-pull-pullreq} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull-pullreq})
+
+This command uses a forge's API to fetch a single pull-request and
+stores it in the database.
+
+Normally you wouldn't want to pull a single pull-request by itself,
+but due to a bug in the Github API you might sometimes have to do
+so.
+
+Fetching is implemented under the assumption that the API can be
+asked to list the things that have changed since we last checked.
+Unfortunately the APIs are not bug-free, so this is not always the
+case.  Issues such as @uref{https://platform.github.community/t/7284} can
+take years to get addresses (in closed-source software), so I am no
+longer delaying the initial Forge release because of that.  If in
+doubt, then re-fetch an individual pull-request to ensure it is
+up-to-date using this command.
+@end table
+
+@node Branching
+@section Branching
+
+Forge provides commands for creating and checking out a new branch or
+worktree from a pull-request.  These commands are available from the
+same popups as the commands used to create and check out branches and
+worktrees in a more generic fashion (@code{magit-branch-popup} on @code{b} and
+@code{magit-worktree-popup} on @code{%}).
+
+@table @asis
+@kindex b Y
+@cindex forge-branch-pullreq
+@item @kbd{b Y} @tie{}@tie{}@tie{}@tie{}(@code{forge-branch-pullreq})
+
+This command creates and configures a new branch from a pull-request,
+creating and configuring a new remote if necessary.
+
+The name of the local branch is the same as the name of the remote
+branch that you are being asked to merge, unless the contributor
+could not be bother to properly name the branch before opening the
+pull-request.  The most likely such case is when you are being asked
+to merge something like "fork/master" into "origin/master".  In such
+cases the local branch will be named "pr-N", where @code{N} is the
+pull-request number.
+
+These variables are always set by this command:
+
+@itemize
+@item
+@code{branch.<name>.pullRequest} is set to the pull-request number.
+
+@item
+@code{branch.<name>.pullRequestRemote} is set to the remote on which the
+pull-request branch is located.
+
+@item
+@code{branch.<name>.pushRemote} is set to the same remote as
+@code{branch.<name>.pullRequestRemote} if that is possible, otherwise
+it is set to the upstream remote.
+
+@item
+@code{branch.<name>.description} is set to the pull-request title.
+
+@item
+@code{branch.<name>.rebase} is set to @code{true} because there should be no
+merge commits among the commits in a pull-request.
+@end itemize
+
+This command also configures the upstream and the push-remote of the
+local branch that it creates.
+
+The branch against which the pull-request was opened, is always used
+as the upstream.  This makes it easy to see what commits you are
+being asked to merge in the section titled something like "Unmerged
+into origin/master".
+
+Like for other commands that create a branch it depends on the
+option @code{magit-branch-prefer-remote-upstream} whether the remote branch
+itself or the respective local branch is used as the upstream, so
+this section may also be titled e.g. "Unmerged into master".
+
+When necessary and possible, then the remote pull-request branch is
+configured to be used as the push-target.  This makes it easy to see
+what further changes the contributor has made since you last
+reviewed their changes in the section titled something like
+"Unpulled from origin/new-feature" or "Unpulled from
+fork/new-feature".
+
+@itemize
+@item
+If the pull-request branch is located in the upstream repository,
+then you probably have set @code{remote.pushDefault} to that repository.
+However some users like to set that variable to their personal
+fork, even if they have push access to the upstream, so
+@code{branch.<name>.pushRemote} is set anyway.
+
+
+@item
+If the pull-request branch is located inside a fork, then you are
+usually able to push to that branch, because Github by default
+allows the recipient of a pull-request to push to the remote
+pull-request branch even if it is located in a fork.  The
+contributor has to explicitly disable this.
+
+@itemize
+@item
+If you are not allowed to push to the pull-request branch on
+the fork, then a branch by the same name located in the
+upstream repository is configured as the push-target.
+
+
+@item
+A—sadly rather common—special case is when the contributor
+didn't bother to use a dedicated branch for the pull-request.
+
+The most likely such case is when you are being asked to merge
+something like "fork/master" into "origin/master".  The special
+push permission mentioned above is never granted for the branch
+that is the repository's default branch, and that would almost
+certainly be the case in this scenario.
+
+To enable you to easily push somewhere anyway, the local branch
+is named "pr-N" (where @code{N} is the pull-request number) and the
+upstream repository is used as the push-remote.
+
+
+@item
+Finally, if you are allowed to push to the pull-request branch
+and the contributor had the foresight to use a dedicated branch,
+then the fork is configured as the push-remote.
+@end itemize
+
+The push-remote is configured using @code{branch.<name>.pushRemote}, even
+if the used value is identical to that of @code{remote.pushDefault}, just
+in case you change the value of the latter later on.  Additionally
+the variable @code{branch.<name>.pullRequestRemote} is set to the remote
+on which the pull-request branch is located.
+@end itemize
+
+@kindex b y
+@cindex forge-checkout-pullreq
+@item @kbd{b y} @tie{}@tie{}@tie{}@tie{}(@code{forge-checkout-pullreq})
+
+This command creates and configures a new branch from a pull-request
+the same way @code{forge-branch-pullreq} does.  Additionally it checks out
+the new branch.
+
+@kindex % y
+@cindex forge-checkout-worktree
+@item @kbd{% y} @tie{}@tie{}@tie{}@tie{}(@code{forge-checkout-worktree})
+
+This command creates and configures a new branch from a pull-request
+the same way @code{forge-branch-pullreq} does.  Additionally it checks out
+the new branch using a new working tree.
+@end table
+
+When you delete a pull-request branch, which was created using one of
+the above three commands, then @code{magit-branch-delete} usually offers to
+also delete the corresponding remote.  It does not offer to delete a
+remote if (1) the remote is the upstream remote, and/or (2) if other
+branches are being fetched from the remote.
+
+Note that you have to delete the local branch (e.g. "feature") for
+this to work.  If you delete the tracking branch (e.g "fork/feature"),
+then the remote is never removed.
+
+@node Working with Topics
+@section Working with Topics
+
+We call both issues and pull-requests "topics".  The contributions to
+the conversation are called "posts".
+
+@menu
+* Visiting Topics::
+* Listing Topics and Notifications::
+* Creating Topics::
+* Editing Topics and Posts::
+@end menu
+
+@node Visiting Topics
+@subsection Visiting Topics
+
+Magit's status buffer contains lists of issues and pull-requests.
+Topics are ordered by last modification time.  All open issues and
+some recently edited and closed topics are listed.
+
+Forge provides some commands that act on the listed topics.  These
+commands can also be used in other contexts, such as when point is
+on a commit or branch section.
+
+@table @asis
+@kindex C-c C-w
+@cindex forge-browse-TYPE
+@item @kbd{C-c C-w} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-TYPE})
+@kindex C-c C-w
+@cindex forge-browse-dwim
+@item @kbd{C-c C-w} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-dwim})
+
+These commands visit the pull-request(s), issue(s), post, branch,
+commit or remote at point in a browser.
+
+This is implemented using various commands named @code{forge-browse-TYPE},
+and the key binding is defined by remapping @code{magit-browse-thing} (as
+defined in @code{magit-mode-map)}.  For commit sections this key is bound
+to @code{forge-browse-dwim}, which prefers a topic over a branch and a
+branch over a commit.
+
+@kindex RET
+@cindex forge-visit-TYPE
+@item @kbd{RET} @tie{}@tie{}@tie{}@tie{}(@code{forge-visit-TYPE})
+@kindex C-c C-v
+@cindex forge-visit-topic
+@item @kbd{C-c C-v} @tie{}@tie{}@tie{}@tie{}(@code{forge-visit-topic})
+
+These commands visit the pull-request or issue at point in a
+separate buffer.
+
+The @code{RET} binding is only available when point is on a issue or
+pull-request section because that key is already bound to something
+else for most of Magit's own sections.  @code{C-c C-v} however is also
+available on regular commit (e.g. in a log) and branch sections.
+
+This is implemented using various commands named @code{forge-visit-TYPE}
+and the key binding is defined by remapping @code{magit-visit-thing} (as
+defined in @code{magit-mode-map}).
+@end table
+
+@node Listing Topics and Notifications
+@subsection Listing Topics and Notifications
+
+Magit's status buffer contains lists of issues and pull-requests, but
+you can also list topics as well as notifications in separate buffers.
+
+@table @asis
+@kindex ' l
+@cindex forge-list-notifications
+@item @kbd{' l} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-notifications})
+
+This command lists all notifications for all forges in a separate
+buffer.
+
+@kindex ' P
+@cindex forge-list-pull-requests
+@item @kbd{' P} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-pull-requests})
+
+This command lists the current repository's pull-requests in a
+separate buffer.
+
+@kindex ' I
+@cindex forge-list-issues
+@item @kbd{' I} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-issues})
+
+This command lists the current repository's issues in a separate
+buffer.
+@end table
+
+@node Creating Topics
+@subsection Creating Topics
+
+@table @asis
+@kindex ' p
+@cindex forge-create-pullreq
+@item @kbd{' p} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
+@kindex C-n C-n [on "Pull requests" section]
+@cindex forge-create-pullreq
+@item @kbd{C-n C-n [on "Pull requests" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
+
+This command creates a new pull-request for the current repository.
+
+@kindex ' i
+@cindex forge-create-issue
+@item @kbd{' i} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-issue})
+@kindex C-n C-n [on "Issues" section]
+@cindex forge-create-pullreq
+@item @kbd{C-n C-n [on "Issues" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
+
+This command creates a new issue for the current repository.
+@end table
+
+@node Editing Topics and Posts
+@subsection Editing Topics and Posts
+
+We call both issues and pull-requests "topics".  The contributions to
+the conversation are called "posts".  The post that initiated the
+conversation is also called a post.
+
+These commands are available only from the topic buffer (i.e. from the
+buffer that shows the posts on a topic).  Other commands that also
+work in other buffers are available here also.  For example @code{C-c C-w} on
+a post visits that post in a browser.
+
+@table @asis
+@kindex C-c C-n
+@cindex forge-create-post
+@item @kbd{C-c C-n} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-post})
+@kindex C-c C-r
+@cindex forge-create-post
+@item @kbd{C-c C-r} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-post})
+
+This command allows users to create a new post on an existing topic.
+It opens a buffer in which the user can write the post.  When the
+post is done, then the user has to sumbit using @code{C-c C-c}.
+
+@kindex C-c C-e [on a post section]
+@cindex forge-edit-post
+@item @kbd{C-c C-e [on a post section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-post})
+
+This command visits an existing post in a separate buffer.  When the
+changes to the post are done, then the user has to sumbit using @code{C-c
+  C-c}.
+
+@kindex C-c C-e [on "Title" section]
+@cindex forge-edit-topic-title
+@item @kbd{C-c C-e [on "Title" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-title})
+
+This command reads a new title for an existing topic in the
+minibuffer.
+
+@kindex C-c C-e [on "State" section]
+@cindex forge-edit-topic-state
+@item @kbd{C-c C-e [on "State" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-state})
+
+This command toggles the state of an existing topic between "open"
+and "closed".
+
+@kindex C-c C-e [on "Labels" section]
+@cindex forge-edit-topic-labels
+@item @kbd{C-c C-e [on "Labels" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-labels})
+
+This command reads a list of labels for an existing topic in the
+minibuffer.
+
+@kindex C-c C-e [on "Assignees" section]
+@cindex forge-edit-topic-assignees
+@item @kbd{C-c C-e [on "Assignees" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-assignees})
+
+This command reads a list of assignees for an existing topic in the
+minibuffer.
+@end table
+
+Creating a new post and editing an existing post are similar to
+creating a new commit and editing the message of an existing commit.
+In both cases the message has to be written in a separate buffer.
+And then the process has to be finished or canceled using a separate
+command.
+
+The following commands are available in buffers used to edit posts:
+
+@table @asis
+@kindex C-c C-c
+@cindex forge-post-submit
+@item @kbd{C-c C-c} @tie{}@tie{}@tie{}@tie{}(@code{forge-post-submit})
+
+This command submits the post that is being edited in the current
+buffer.
+
+@kindex C-c C-k
+@cindex forge-post-cancel
+@item @kbd{C-c C-k} @tie{}@tie{}@tie{}@tie{}(@code{forge-post-cancel})
+
+This command cancels the post that is being edited in the current
+buffer.
+@end table
+
+@node Miscellanous
+@section Miscellanous
+
+@table @asis
+@kindex M-x forge-reset-database
+@cindex forge-reset-database
+@item @kbd{M-x forge-reset-database} @tie{}@tie{}@tie{}@tie{}(@code{forge-reset-database})
+
+This command moves the current database file to the trash and
+creates a new empty database.
+
+This is useful after the database's table schemata have changed,
+which will happen a few times while the Forge functionality is still
+under heavy development.
+@end table
+
+@bye
