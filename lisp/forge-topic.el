@@ -255,6 +255,11 @@ The following %-sequences are supported:
   (magit-insert-section (topic-title)
     (insert (format "%-11s" "Title: ") (oref topic title) "\n")))
 
+(defvar forge-topic-state-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-edit-thing] 'forge-edit-topic-state)
+    map))
+
 (cl-defun forge-insert-topic-state
     (&optional (topic (car magit-refresh-args)))
   (magit-insert-section (topic-state)

@@ -475,6 +475,13 @@ it is all or nothing.")
   ((repo forge-gitlab-repository) topic title)
   (forge--set-topic-field repo topic 'title title))
 
+(cl-defmethod forge--set-topic-state
+  ((repo forge-gitlab-repository) topic)
+  (forge--set-topic-field repo topic 'state_event
+                          (cl-ecase (oref topic state)
+                            (closed "reopen")
+                            (open   "close"))))
+
 (cl-defmethod forge--set-topic-labels
   ((repo forge-gitlab-repository) topic labels)
   (forge--set-topic-field repo topic 'labels

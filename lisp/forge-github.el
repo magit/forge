@@ -415,6 +415,15 @@ repositories.
                      `((title . ,title))
                      :callback (forge--set-field-callback)))
 
+(cl-defmethod forge--set-topic-state
+  ((_repo forge-github-repository) topic)
+  (forge--ghub-patch topic
+                     "/repos/:owner/:repo/issues/:number"
+                     `((state . ,(cl-ecase (oref topic state)
+                                   (closed "OPEN")
+                                   (open   "CLOSED"))))
+                     :callback (forge--set-field-callback)))
+
 (cl-defmethod forge--set-topic-labels
   ((_repo forge-github-repository) topic labels)
   (forge--ghub-put topic "/repos/:owner/:repo/issues/:number/labels" nil

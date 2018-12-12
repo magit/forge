@@ -313,6 +313,21 @@ Prefer a topic over a branch and that over a commit."
    (forge-get-repository topic) topic
    (read-string "Title: " (oref topic title))))
 
+(defun forge-edit-topic-state (topic)
+  "Close or reopen TOPIC."
+  (interactive
+   (let ((topic (forge-read-topic "Close/reopen")))
+     (if (magit-y-or-n-p
+          (format "%s %S"
+                  (cl-ecase (oref topic state)
+                    (merged (error "Merged pull-requests cannot be reopened"))
+                    (closed "Reopen")
+                    (open   "Close"))
+                  (forge--topic-format-choice topic)))
+         (list topic)
+       (user-error "Abort"))))
+  (forge--set-topic-state (forge-get-repository topic) topic))
+
 (defun forge-edit-topic-labels (topic)
   "Edit the labels of TOPIC."
   (interactive (list (forge-read-topic "Edit labels of")))
