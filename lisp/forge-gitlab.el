@@ -409,7 +409,7 @@ it is all or nothing.")
 ;;; Mutations
 
 (cl-defmethod forge--submit-create-pullreq ((_ forge-gitlab-repository) base-repo)
-  (let-alist (forge--topic-title-and-body)
+  (let-alist (forge--topic-parse-buffer)
     (pcase-let* ((`(,base-remote . ,base-branch)
                   (magit-split-branch-name forge--buffer-base-branch))
                  (`(,head-remote . ,head-branch)
@@ -427,7 +427,7 @@ it is all or nothing.")
         :errorback (forge--post-submit-errorback)))))
 
 (cl-defmethod forge--submit-create-issue ((_ forge-gitlab-repository) repo)
-  (let-alist (forge--topic-title-and-body)
+  (let-alist (forge--topic-parse-buffer)
     (forge--glab-post repo "/projects/:project/issues"
       `((title       . , .title)
         (description . , .body))
@@ -453,7 +453,7 @@ it is all or nothing.")
            "/projects/:project/issues/:topic/notes/:number"
          "/projects/:project/merge_requests/:topic/notes/:number")))
     (if (cl-typep post 'forge-topic)
-        (let-alist (forge--topic-title-and-body)
+        (let-alist (forge--topic-parse-buffer)
           ;; Keep Gitlab from claiming that the user
           ;; changed the description when that isn't
           ;; true.  The same isn't necessary for the

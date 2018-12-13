@@ -392,7 +392,7 @@ The following %-sequences are supported:
 
 ;;; Parse
 
-(defun forge--topic-title-and-body ()
+(defun forge--topic-parse-buffer ()
   (let (title body)
     (save-excursion
       (goto-char (point-min))

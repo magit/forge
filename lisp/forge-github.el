@@ -364,7 +364,7 @@ repositories.
 ;;; Mutations
 
 (cl-defmethod forge--submit-create-pullreq ((_ forge-github-repository) _repo)
-  (let-alist (forge--topic-title-and-body)
+  (let-alist (forge--topic-parse-buffer)
     (pcase-let* ((`(,base-remote . ,base-branch)
                   (magit-split-branch-name forge--buffer-base-branch))
                  (`(,head-remote . ,head-branch)
@@ -382,7 +382,7 @@ repositories.
                         :errorback (forge--post-submit-errorback)))))
 
 (cl-defmethod forge--submit-create-issue ((_ forge-github-repository) repo)
-  (let-alist (forge--topic-title-and-body)
+  (let-alist (forge--topic-parse-buffer)
     (forge--ghub-post repo "/repos/:owner/:repo/issues"
                       `((title . , .title)
                         (body  . , .body))
@@ -402,7 +402,7 @@ repositories.
                        (forge-issue   "/repos/:owner/:repo/issues/:number")
                        (forge-post    "/repos/:owner/:repo/issues/comments/:number"))
                      (if (cl-typep post 'forge-topic)
-                         (let-alist (forge--topic-title-and-body)
+                         (let-alist (forge--topic-parse-buffer)
                            `((title . , .title)
                              (body  . , .body)))
                        `((body . ,(string-trim (buffer-string)))))
