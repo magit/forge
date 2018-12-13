@@ -77,20 +77,6 @@
   (forge--format-url (forge-get-topic post) slot
                      `(,@spec (?I . ,(oref post number)))))
 
-(defun forge--topic-title-and-body ()
-  (let (title body)
-    (save-excursion
-      (goto-char (point-min))
-      (when (looking-at "\\`#* *")
-        (goto-char (match-end 0)))
-      (setq title (buffer-substring-no-properties (point) (line-end-position)))
-      (forward-line)
-      (when (looking-at "\n")
-        (forward-line))
-      (setq body (buffer-substring-no-properties (point) (point-max))))
-    (list (string-trim title)
-          (string-trim body))))
-
 ;;; Mode
 
 (defvar forge-post-mode-map

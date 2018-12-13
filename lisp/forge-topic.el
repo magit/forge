@@ -390,6 +390,22 @@ The following %-sequences are supported:
                        #'string> :key #'cl-caddr)))
             :annotation-function (lambda (c) (get-text-property 0 :title c))))))
 
+;;; Parse
+
+(defun forge--topic-title-and-body ()
+  (let (title body)
+    (save-excursion
+      (goto-char (point-min))
+      (when (looking-at "\\`#* *")
+        (goto-char (match-end 0)))
+      (setq title (buffer-substring-no-properties (point) (line-end-position)))
+      (forward-line)
+      (when (looking-at "\n")
+        (forward-line))
+      (setq body (buffer-substring-no-properties (point) (point-max))))
+    (list (string-trim title)
+          (string-trim body))))
+
 ;;; Bug-Reference
 
 (defun bug-reference-fontify (start end)
