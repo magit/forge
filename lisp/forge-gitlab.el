@@ -409,28 +409,28 @@ it is all or nothing.")
 ;;; Mutations
 
 (cl-defmethod forge--submit-create-pullreq ((_ forge-gitlab-repository) base-repo)
-  (pcase-let* ((`(,title ,body) (forge--topic-title-and-body))
-               (`(,base-remote . ,base-branch)
-                (magit-split-branch-name forge--buffer-base-branch))
-               (`(,head-remote . ,head-branch)
-                (magit-split-branch-name forge--buffer-head-branch))
-               (head-repo (forge-get-repository 'stub head-remote)))
-    (forge--glab-post head-repo "/projects/:project/merge_requests"
-      `(,@(and (not (equal head-remote base-remote))
-               `((target_project_id . ,(oref base-repo forge-id))))
-        (target_branch . ,base-branch)
-        (source_branch . ,head-branch)
-        (title         . ,title)
-        (description   . ,body)
-        (allow_collaboration . t))
-      :callback  (forge--post-submit-callback)
-      :errorback (forge--post-submit-errorback))))
+  (let-alist (forge--topic-title-and-body)
+    (pcase-let* ((`(,base-remote . ,base-branch)
+                  (magit-split-branch-name forge--buffer-base-branch))
+                 (`(,head-remote . ,head-branch)
+                  (magit-split-branch-name forge--buffer-head-branch))
+                 (head-repo (forge-get-repository 'stub head-remote)))
+      (forge--glab-post head-repo "/projects/:project/merge_requests"
+        `(,@(and (not (equal head-remote base-remote))
+                 `((target_project_id . ,(oref base-repo forge-id))))
+          (target_branch . ,base-branch)
+          (source_branch . ,head-branch)
+          (title         . , .title)
+          (description   . , .body)
+          (allow_collaboration . t))
+        :callback  (forge--post-submit-callback)
+        :errorback (forge--post-submit-errorback)))))
 
 (cl-defmethod forge--submit-create-issue ((_ forge-gitlab-repository) repo)
-  (pcase-let ((`(,title ,body) (forge--topic-title-and-body)))
+  (let-alist (forge--topic-title-and-body)
     (forge--glab-post repo "/projects/:project/issues"
-      `((title       . ,title)
-        (description . ,body))
+      `((title       . , .title)
+        (description . , .body))
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
@@ -453,16 +453,15 @@ it is all or nothing.")
            "/projects/:project/issues/:topic/notes/:number"
          "/projects/:project/merge_requests/:topic/notes/:number")))
     (if (cl-typep post 'forge-topic)
-        (pcase-let ((`(,title ,body)
-                     (forge--topic-title-and-body)))
+        (let-alist (forge--topic-title-and-body)
           ;; Keep Gitlab from claiming that the user
           ;; changed the description when that isn't
           ;; true.  The same isn't necessary for the
           ;; title; in that case Gitlab performs the
           ;; necessary check itself.
-          `((title . ,title)
-            ,@(and (not (equal body (oref post body)))
-                   `((description . ,body)))))
+          `((title . , .title)
+            ,@(and (not (equal .body (oref post body)))
+                   `((description . , .body)))))
       `((body . ,(string-trim (buffer-string)))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))

@@ -403,8 +403,8 @@ The following %-sequences are supported:
       (when (looking-at "\n")
         (forward-line))
       (setq body (buffer-substring-no-properties (point) (point-max))))
-    (list (string-trim title)
-          (string-trim body))))
+    `((title . ,(string-trim title))
+      (body  . ,(string-trim body)))))
 
 ;;; Bug-Reference
 
