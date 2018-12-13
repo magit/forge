@@ -502,6 +502,16 @@ it is all or nothing.")
        (forge--set-topic-field repo topic 'assignee_ids
                                (--map (caddr (assoc it users)) assignees))))))
 
+(cl-defmethod forge--topic-templates ((repo forge-gitlab-repository)
+                                      (_ (subclass forge-issue)))
+  (--filter (string-match-p "\\`\\.gitlab/issue_templates/.+\\.md\\'" it)
+            (magit-revision-files (oref repo default-branch))))
+
+(cl-defmethod forge--topic-templates ((repo forge-gitlab-repository)
+                                      (_ (subclass forge-pullreq)))
+  (--filter (string-match-p "\\`\\.gitlab/merge_request_templates/.+\\.md\\'" it)
+            (magit-revision-files (oref repo default-branch))))
+
 ;;; Utilities
 
 (cl-defun forge--glab-get (obj resource

@@ -105,14 +105,19 @@
       (with-current-buffer buf
         (forge-post-mode)
         (setq forge--pre-post-buffer prevbuf)
-        (unless resume
-          (pcase filename
-            ("new-pullreq"
-             (insert "# ")
-             (save-excursion (insert "\n\n")))
-            ("new-issue"
-             (insert "# ")
-             (save-excursion (insert "\n\n"))))))
+        (when resume
+          (forge--display-post-buffer buf)
+          (when (yes-or-no-p "This is an old draft.  Discard and start over? ")
+            (erase-buffer)
+            (setq resume nil)))
+        (when (and (not resume) (string-prefix-p "new" filename))
+          (let-alist (forge--topic-template
+                      (forge-get-repository t)
+                      (if (string-suffix-p "issue" filename)
+                          'forge-issue
+                        'forge-pullreq))
+            (insert .text)
+            (goto-char (or .position (point-min))))))
       buf)))
 
 (defun forge--display-post-buffer (buf)

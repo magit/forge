@@ -392,19 +392,109 @@ The following %-sequences are supported:
 
 ;;; Parse
 
-(defun forge--topic-parse-buffer ()
-  (let (title body)
-    (save-excursion
-      (goto-char (point-min))
-      (when (looking-at "\\`#* *")
-        (goto-char (match-end 0)))
-      (setq title (buffer-substring-no-properties (point) (line-end-position)))
+(defun forge--topic-parse-buffer (&optional file)
+  (save-match-data
+    (let ((alist `((file   . ,file)
+                   (text   . ,(magit--buffer-string nil nil ?\n))
+                   (prompt . ,(and file (file-name-sans-extension
+                                         (file-name-nondirectory file)))))))
+      (save-excursion
+        (goto-char (point-min))
+        ;; Unlike for issues, Github ignores the yaml front-matter for
+        ;; pull-requests.  We just assume that nobody tries to use it
+        ;; anyway.  If that turned out to be wrong, we would have to
+        ;; deal with it by complicating matters around here.
+        (nconc alist (or (and (forge--childp (forge-get-repository t)
+                                             'forge-github-repository)
+                              (save-excursion (forge--topic-parse-yaml)))
+                         (save-excursion (forge--topic-parse-plain))))))))
+
+(defun forge--topic-parse-yaml ()
+  (let (alist beg end)
+    (when (looking-at "^---[\s\t]*$")
       (forward-line)
-      (when (looking-at "\n")
-        (forward-line))
-      (setq body (buffer-substring-no-properties (point) (point-max))))
+      (setq beg (point))
+      (when (re-search-forward "^---[\s\t]*$" nil t)
+        (setq end (match-end 0))
+        (push (cons 'head (magit--buffer-string nil end ?\n)) alist)
+        ;; Appending a newline would be correct, but Github does it
+        ;; too, regardless of whether one is there already or not.
+        (push (cons 'body (magit--buffer-string end nil t)) alist)
+        (goto-char beg)
+        (while (re-search-forward "^\\([a-zA-Z]*\\):[\s\t]\\(.+\\)" end t)
+          (push (cons (intern (match-string-no-properties 1))
+                      (let ((v (match-string-no-properties 2)))
+                        ;; This works if the template generator was
+                        ;; used, but yaml allows for other formats.
+                        ;; Do you want to implement a yaml parser?
+                        (cond
+                         ((string-match "^\\([\"']\\)\\1[\s\t]*$" v) nil)
+                         ((string-match "^\\([\"']\\)\\(.+\\)\\1[\s\t]*$" v)
+                          (string-trim (match-string 2 v)))
+                         ((string-match "," v)
+                          (split-string v ",[\s\t]+"))
+                         (t (string-trim v)))))
+                alist))
+        (let-alist alist
+          (setf (alist-get 'prompt alist)
+                (format "[%s] %s" .name .about))
+          (when (and .labels (atom .labels))
+            (setf (alist-get 'labels alist) (list .labels)))
+          (when (and .assignees (atom .assignees))
+            (setf (alist-get 'assignees alist) (list .assignees))))
+        alist))))
+
+(defun forge--topic-parse-plain ()
+  (let (title body)
+    (when (looking-at "\\`#*")
+      (goto-char (match-end 0)))
+    (setq title (magit--buffer-string (point) (line-end-position) t))
+    (forward-line)
+    (setq body (magit--buffer-string (point) nil ?\n))
     `((title . ,(string-trim title))
       (body  . ,(string-trim body)))))
+
+;;; Templates
+
+(cl-defgeneric forge--topic-templates (repo class)
+  "Return a list of topic template files for REPO and a topic of CLASS.")
+
+(cl-defgeneric forge--topic-template (repo class)
+  "Return a topic template alist for REPO and a topic of CLASS.
+If there are multiple templates, then the user is asked to select
+one of them.  It there are no templates, then return a very basic
+alist, containing just `text' and `position'.")
+
+(cl-defmethod forge--topic-template ((repo forge-repository)
+                                     (class (subclass forge-topic)))
+  (let* ((branch  (oref repo default-branch))
+         (choices (mapcar (lambda (f)
+                            (with-temp-buffer
+                              (magit-git-insert "cat-file" "-p"
+                                                (concat branch ":" f))
+                              (forge--topic-parse-buffer f)))
+                          (forge--topic-templates repo class)))
+         (choice  (if (cdr choices)
+                      (--first (equal (alist-get 'prompt it)
+                                      (magit-completing-read
+                                       (if (eq class 'forge-pullreq)
+                                           "Select pull-request template"
+                                         "Select issue template")
+                                       (--map (alist-get 'prompt it) choices)
+                                       nil t))
+                               choices)
+                    (car choices))))
+    (cond ((assq 'name choice)
+           (when (string-match "^title: .?" (alist-get 'text choice))
+             (setf (alist-get 'position choice) (match-end 0))))
+          (choice
+           (let ((text (alist-get 'text choice)))
+             (if (string-match "\\`#+[\s\t]+.?" text)
+                 (setf (alist-get 'position choice) (match-end 0))
+               (setf (alist-get 'text choice) (concat "# \n\n" text))
+               (setf (alist-get 'position choice) 3))))
+          (t (setq choice '((text . "# \n\n\n") (position . 3)))))
+    choice))
 
 ;;; Bug-Reference
 

@@ -385,7 +385,9 @@ repositories.
   (let-alist (forge--topic-parse-buffer)
     (forge--ghub-post repo "/repos/:owner/:repo/issues"
                       `((title . , .title)
-                        (body  . , .body))
+                        (body  . , .body)
+                        ,@(and .labels    (list (cons 'labels    .labels)))
+                        ,@(and .assignees (list (cons 'assignees .assignees))))
                       :callback  (forge--post-submit-callback)
                       :errorback (forge--post-submit-errorback))))
 
@@ -443,6 +445,29 @@ repositories.
        topic "/repos/:owner/:repo/issues/:number/assignees"
        `((assignees . ,remove)))))
   (forge-pull))
+
+(cl-defmethod forge--topic-templates ((repo forge-github-repository)
+                                      (_ (subclass forge-issue)))
+  (when-let ((files (magit-revision-files (oref repo default-branch))))
+    (if-let ((file (--first (string-match-p "\
+\\`\\(\\|docs/\\|\\.github/\\)issue_template\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
+                            files)))
+        (list file)
+      (--filter (string-match-p "\\`\\.github/ISSUE_TEMPLATE/[^/]*" it)
+                files))))
+
+(cl-defmethod forge--topic-templates ((repo forge-github-repository)
+                                      (_ (subclass forge-pullreq)))
+  (when-let ((files (magit-revision-files (oref repo default-branch))))
+    (if-let ((file (--first (string-match-p "\
+\\`\\(\\|docs/\\|\\.github/\\)pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
+                              files)))
+        (list file)
+      ;; Unlike for issues, the web interface does not support
+      ;; multiple pull-request templates.  The API does though,
+      ;; but due to this limitation I doubt many people use them,
+      ;; so Forge doesn't support them either.
+      )))
 
 ;;; Utilities
 
