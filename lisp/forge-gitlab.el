@@ -61,8 +61,7 @@ it is all or nothing.")
                   (dir default-directory)
                   (val nil))
               (lambda (cb &optional v)
-                (when v
-                  (push v val))
+                (when v (if val (push v val) (setq val v)))
                 (cond
                  ((not val)                   (forge--fetch-repository repo cb))
                  ((not (assq 'assignees val)) (forge--fetch-assignees  repo cb))
