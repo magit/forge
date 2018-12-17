@@ -119,6 +119,9 @@ valid values are:
   that `this-command' cannot be run until the repository has
   been pulled.
 
+* `full' If the repository is stored in the database and the
+  object isn't sparse, then return it.  Otherwise return nil.
+
 * `stub' If the repository is stored in the database, then return
   it, regardless of whether it is sparse or no.  Otherwise create
   a new object and return it, but do not store it in the database.

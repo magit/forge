@@ -159,15 +159,20 @@ forges and hosts.  "
                                     forge owner name)))
                (obj (and row (closql--remake-instance class (forge-db) row))))
           (when obj
-            (if (and (eq demand t)
-                     (oref obj sparse-p))
-                (error "Cannot use `%s' in %S yet.\n%s"
-                       this-command (magit-toplevel)
-                       "Use `M-x forge-pull' before trying again.")
-              (oset obj apihost apihost)
-              (oset obj githost githost)
-              (oset obj remote  remote)))
-          (when (and demand (not obj))
+            (oset obj apihost apihost)
+            (oset obj githost githost)
+            (oset obj remote  remote))
+          (cond ((and (eq demand t)
+                      (or (not obj)
+                          (oref obj sparse-p)))
+                 (error "Cannot use `%s' in %S yet.\n%s"
+                        this-command (magit-toplevel)
+                        "Use `M-x forge-pull' before trying again."))
+                ((and (eq demand 'full) obj
+                      (oref obj sparse-p))
+                 (setq obj nil)))
+          (when (and (memq demand '(stub create))
+                     (not obj))
             (pcase-let ((`(,id . ,forge-id)
                          (forge--repository-ids class host owner name
                                                 (eq demand 'stub))))
