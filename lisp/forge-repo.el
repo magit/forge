@@ -122,6 +122,8 @@ forges and hosts.  "
            t)
           their-id)))
 
+(defconst forge--signal-no-entry '(t stub create))
+
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
   "Return the forge repository for the current Git repository."
   (magit--with-refresh-cache
@@ -134,7 +136,7 @@ forges and hosts.  "
                          (car remotes)))))
       (if-let ((url (and remote (magit-git-string "remote" "get-url" remote))))
           (forge-get-repository url remote demand)
-        (when demand
+        (when (memq demand forge--signal-no-entry)
           (error "Cannot determine forge repository.  %s"
                  (cond (remote  (format "No url configured for %S" remote))
                        (remotes "Cannot decide on remote to use")
@@ -144,7 +146,7 @@ forges and hosts.  "
   "Return the repository at URL."
   (if-let ((parts (forge--split-url url)))
       (forge-get-repository parts remote demand)
-    (when demand
+    (when (memq demand forge--signal-no-entry)
       (error "Cannot determine forge repository.  %s isn't a forge url" url))))
 
 (cl-defmethod forge-get-repository (((host owner name) list)
@@ -188,7 +190,7 @@ forges and hosts.  "
             (when (eq demand 'create)
               (closql-insert (forge-db) obj)))
           obj))
-    (when demand
+    (when (memq demand forge--signal-no-entry)
       (error "Cannot determine forge repository.  No entry for %S in %s"
              host 'forge-alist))))
 

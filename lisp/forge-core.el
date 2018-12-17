@@ -140,6 +140,10 @@ valid values are:
   the forge, derive our own ID from that, and store a new sparse
   object in the database and return it.
 
+If DEMAND is t, `stub' or `create', then also signal an error if
+the repository cannot be determined because there is no matching
+entry in `forge-alist'.
+
 Also update the object's `apihost', `githost' and `remote' slots
 according to the respective entry in `forge-alist' and the REMOTE
 argument.")
