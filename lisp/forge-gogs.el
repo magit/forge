@@ -37,7 +37,7 @@
    (remote-url-format         :initform "https://%h/%o/%n")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/pulls") ; sic
-   (pullreq-refspec :initform "+refs/pull-requests/*/from:refs/pullreqs/*")))
+   (pullreq-refspec :initform "+refs/pull/*/head:refs/pullreqs/*")))
 
 ;;; _
 (provide 'forge-gogs)
