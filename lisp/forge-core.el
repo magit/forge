@@ -158,6 +158,14 @@ argument.")
 
 ;;; Utilities
 
+(defmacro forge--childp (obj type)
+  "Somewhat similar to `cl-typep' but only for (possibly unknown) classes.
+TYPE is evaluated at macro-expansion time but unlike with
+`cl-typep' the respective class does not have to be defined
+at that time."
+  (let ((fn (intern (concat (symbol-name (eval type)) "--eieio-childp"))))
+    `(and (fboundp ',fn) (,fn ,obj))))
+
 (defun forge--set-id-slot (repo object slot rows)
   (let ((repo-id (oref repo id)))
     (closql-oset
@@ -264,14 +272,6 @@ argument.")
                  (match-string 0 resource)
                  (eieio-object-class object)))
       resource)))
-
-(defmacro forge--childp (obj type)
-  "Somewhat similar to `cl-typep' but only for (possibly unknown) classes.
-TYPE is evaluated at macro-expansion time but unlike with
-`cl-typep' the respective class does not have to be defined
-at that time."
-  (let ((fn (intern (concat (symbol-name (eval type)) "--eieio-childp"))))
-    `(and (fboundp ',fn) (,fn ,obj))))
 
 ;;; _
 (provide 'forge-core)
