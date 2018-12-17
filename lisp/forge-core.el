@@ -29,7 +29,10 @@
 (require 'forge-db)
 
 (eval-when-compile
-  (cl-pushnew 'id eieio--known-slot-names))
+  (cl-pushnew 'id     eieio--known-slot-names)
+  (cl-pushnew 'name   eieio--known-slot-names)
+  (cl-pushnew 'owner  eieio--known-slot-names)
+  (cl-pushnew 'number eieio--known-slot-names))
 
 ;;; Options
 
