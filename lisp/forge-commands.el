@@ -379,7 +379,7 @@ Prefer a topic over a branch and that over a commit."
 (defun forge-branch-pullreq (pullreq)
   "Create and configure a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (forge-read-pullreq "* Branch pull request")))
+  (interactive (list (forge-read-pullreq "Branch pull request")))
   (with-slots (number title editable-p cross-repo-p
                       base-ref base-repo
                       head-ref head-repo head-user)
