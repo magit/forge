@@ -111,25 +111,25 @@ The DEMAND argument controls what to do when the object isn't
 stored in the database yet, or if it is marked as sparse.  The
 valid values are:
 
-* `nil' If the repository isn't stored in the database, then
-  return nil.  If the object is sparse, then return it anyway.
+* `nil' If the repository is stored in the database then return
+  it, even if it is sparse.  Otherwise return nil.
 
 * `t' If the repository isn't stored in the database or if the
-   object is sparse, then signal an error, informing the user
-   that `this-command' cannot be run until the repository has
-   been pulled.
+  object is sparse, then signal an error, informing the user
+  that `this-command' cannot be run until the repository has
+  been pulled.
 
 * `stub' If the repository is stored in the database, then return
   it, regardless of whether it is sparse or no.  Otherwise create
   a new object and return it, but do not store it in the database.
   In the latter case it is assumed that the caller does not need
   the `id' and `forge-id' slots whose value differ from what they
-  would be used if the object were retrieved from the database.
+  would be if the object were retrieved from the database.
 
 * `create' This value is only intended to be used by commands
   that fetch data from the API.  If the repository is stored in
   the database, then return that, regardless of whether the
-  object is sparse or no.  If the repository is not store in the
+  object is sparse or not.  If the repository is not store in the
   database, then make an API request to determine the ID used on
   the forge, derive our own ID from that, and store a new sparse
   object in the database and return it.
