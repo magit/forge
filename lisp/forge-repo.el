@@ -136,9 +136,9 @@ forges and hosts.  "
           (forge-get-repository url remote demand)
         (when demand
           (error "Cannot determine forge repository.  %s"
-                 (cond (remote  (format "No url configured for %s" remote))
+                 (cond (remote  (format "No url configured for %S" remote))
                        (remotes "Cannot decide on remote to use")
-                       (t       "No remote or explicit configuration"))))))))
+                       (t       "No remote configured"))))))))
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
