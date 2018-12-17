@@ -423,7 +423,7 @@ The following %-sequences are supported:
                              (funcall bug-reference-url-format))))))))))
 
 (defun forge-bug-reference-setup ()
-  (when-let ((repo (ignore-errors (forge-get-repository t)))
+  (when-let ((repo (forge-get-repository 'full))
              (format (oref repo issue-url-format)))
     (unless bug-reference-url-format
       (setq-local bug-reference-url-format
