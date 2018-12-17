@@ -126,7 +126,7 @@ valid values are:
   object isn't sparse, then return it.  Otherwise return nil.
 
 * `stub' If the repository is stored in the database, then return
-  it, regardless of whether it is sparse or no.  Otherwise create
+  it, regardless of whether it is sparse or not.  Otherwise create
   a new object and return it, but do not store it in the database.
   In the latter case it is assumed that the caller does not need
   the `id' and `forge-id' slots whose value differ from what they
