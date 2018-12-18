@@ -153,6 +153,15 @@
     (and number
          (forge-get-pullreq repo number))))
 
+(defun forge-read-pullreq-or-number (prompt)
+  (if (forge--childp (forge-get-repository t) 'forge-unusedapi-repository)
+      (let* ((num (read-number (concat prompt ": ")))
+             (ref (forge--pullreq-ref-1 num)))
+        (unless (magit-ref-exists-p ref)
+          (user-error "Reference `%s' doesn't exist.  Maybe pull first?" ref))
+        num)
+    (forge-read-pullreq prompt)))
+
 (defun forge--pullreq-branch (pullreq &optional assert-new)
   (with-slots (head-ref number cross-repo-p editable-p) pullreq
     (let ((branch head-ref))
