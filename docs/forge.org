@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0 (v0-109-g713f6ef+1)
+#+SUBTITLE: for version 0 (v0-110-gea8761d+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -18,7 +18,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0 (v0-109-g713f6ef+1).
+This manual is for Forge version 0 (v0-110-gea8761d+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -118,7 +118,13 @@ also see [[*Getting Started]].
 
   Gitea Hosts
 
-  - https://localhost:3000
+  - https://teahub.io Note that this host is in pre-alpha and that it
+    is not clear whether the operators are trustworthy.  I have only
+    added this to ~forge-alist~ because I couldn't find any other more
+    trustworthy *and* persistent public instances but needed something
+    for testing purposes.  The Gitea maintainers plan to create their
+    own instance, see https://github.com/go-gitea/gitea/issues/1029.
+    Once that is available, I will probably remove teahub.io again.
 
 - Gogs https://gogs.io
 

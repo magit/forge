@@ -54,8 +54,8 @@
     ("salsa.debian.org" "salsa.debian.org/api/v4"
      "salsa.debian.org" forge-gitlab-repository)
     ;; Forges (API unsupported)
-    ("gitea.local" "localhost:3000/api/v1"
-     "gitea.local" forge-gitea-repository)
+    ("teahub.io" "teahub.io/api/v1"
+     "teahub.io" forge-gitea-repository)
     ("code.orgmode.org" "code.orgmode.org/api/v1"
      "code.orgmode.org" forge-gogs-repository)
     ("bitbucket.org" "api.bitbucket.org/2.0"
@@ -199,7 +199,7 @@ at that time."
     (user-error "Cannot browse non-forge remote %s" remote)))
 
 (defun forge--url-regexp ()
-  (concat "\\`\\(?:git://\\|git@\\|ssh://git@\\|https://\\)"
+  (concat "\\`\\(?:git://\\|git@\\|teahub@\\|ssh://git@\\|https://\\)"
           (regexp-opt (mapcar #'car forge-alist) t)
           "[:/]\\(.+?\\)"
           "\\(?:\\.git\\)?\\'"))
