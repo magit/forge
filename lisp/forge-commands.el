@@ -59,7 +59,11 @@
   (forge--msg repo t nil "Pulling REPO")
   (forge--pull repo))
 
-(cl-defmethod forge--pull ((_repo forge-repository))) ; NOOP
+(cl-defmethod forge--pull ((_repo forge-noapi-repository))) ; NOOP
+
+(cl-defmethod forge--pull ((repo forge-unusedapi-repository))
+  (oset repo sparse-p nil)
+  (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
 
 (defun forge--git-fetch (buf dir repo)
   (if (buffer-live-p buf)
