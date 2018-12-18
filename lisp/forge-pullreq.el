@@ -164,11 +164,14 @@
         (user-error "Branch `%s' already exists" branch))
       branch)))
 
+(defun forge--pullreq-ref-1 (number)
+  (let ((ref (format "refs/pullreqs/%s" number)))
+    (and (magit-rev-verify ref) ref)))
+
 (defun forge--pullreq-ref (pullreq)
   (let ((branch (forge--pullreq-branch pullreq)))
     (or (and branch (magit-rev-verify branch) branch)
-        (let ((ref (format "refs/pullreqs/%s" (oref pullreq number))))
-          (and (magit-rev-verify ref) ref)))))
+        (forge--pullreq-ref-1 (oref pullreq number)))))
 
 ;;; Sections
 
