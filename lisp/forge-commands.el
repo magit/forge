@@ -383,12 +383,27 @@ Prefer a topic over a branch and that over a commit."
 (defun forge-branch-pullreq (pullreq)
   "Create and configure a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (forge-read-pullreq "Branch pull request")))
+  (interactive (list (forge-read-pullreq-or-number "Branch pull request")))
+  (forge--branch-pullreq (forge-get-repository t) pullreq))
+
+(cl-defmethod forge--branch-pullreq ((_repo forge-unusedapi-repository) number)
+  ;; We don't know enough to do a good job.
+  (let ((branch (format "pr-%s" number)))
+    (when (magit-branch-p branch)
+      (user-error "Branch `%s' already exists" branch))
+    (magit-git "branch" branch (forge--pullreq-ref-1 number))
+    ;; More often than not this is the correct target branch.
+    (magit-call-git "branch" branch "--set-upstream-to=master")
+    (magit-set (number-to-string number) "branch" branch "pullRequest")
+    (magit-refresh)
+    branch))
+
+(cl-defmethod forge--branch-pullreq ((repo forge-repository) pullreq)
   (with-slots (number title editable-p cross-repo-p
                       base-ref base-repo
                       head-ref head-repo head-user)
       pullreq
-    (let* ((host (oref (forge-get-repository t) githost))
+    (let* ((host (oref repo githost))
            (upstream-url (format "git@%s:%s.git" host base-repo))
            (upstream (or (--first (forge--url-equal
                                    (magit-git-string "remote" "get-url" it)
@@ -453,7 +468,7 @@ Please see the manual for more information."
 (defun forge-checkout-pullreq (pullreq)
   "Create, configure and checkout a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (forge-read-pullreq "Checkout pull request")))
+  (interactive (list (forge-read-pullreq-or-number "Checkout pull request")))
   (magit-checkout
    (let ((inhibit-magit-refresh t))
      (forge-branch-pullreq pullreq))))
@@ -465,7 +480,7 @@ This is like `magit-checkout-pull-request', except that it
 also creates a new worktree. Please see the manual for more
 information."
   (interactive
-   (let ((pullreq (forge-read-pullreq "Checkout pull request")))
+   (let ((pullreq (forge-read-pullreq-or-number "Checkout pull request")))
      (with-slots (number head-ref) pullreq
        (let ((path (let ((branch (forge--pullreq-branch pullreq t)))
                      (read-directory-name
