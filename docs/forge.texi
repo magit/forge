@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0 (v0-93-g2e0bdcf+1)
+@subtitle for version 0 (v0-109-g713f6ef+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0 (v0-93-g2e0bdcf+1).
+This manual is for Forge version 0 (v0-109-g713f6ef+1).
 
 @quotation
 Copyright (C) 2018 Jonas Bernoulli <jonas@@bernoul.li>
@@ -227,7 +227,8 @@ Gogs Hosts
 @item
 Bitbucket
 
-I don't plan to support Bitbucket's API any time soon.
+I don't plan to support Bitbucket's API any time soon, and it gets
+less likely that I will every do it every time I look at it.
 
 Bitbucket Caveats
 
@@ -242,6 +243,16 @@ Atlassian's offering contains two very distinct implementations
 that are both called "Bitbucket".  Forge only supports the
 implementation whose only instance is available at
 @uref{https://bitbucket.org}, because I only have access to that.
+
+
+@item
+Unlike all other forges, Bitbucket does not expose pull-requests
+as references in the upstream repository.  For that reason Forge
+actually treats it as a semi-forge, not as forge whose API is not
+supported yet.  This means that you cannot checkout pull-requests
+locally.  There is little hope that this will ever get fixed; the
+respective issue was opened six years ago and there has been no
+progress since: @uref{https://bitbucket.org/site/master/issues/5814}.
 @end itemize
 
 Bitbucket Hosts
