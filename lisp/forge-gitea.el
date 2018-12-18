@@ -25,7 +25,7 @@
 
 ;;; Class
 
-(defclass forge-gitea-repository (forge-repository)
+(defclass forge-gitea-repository (forge-unusedapi-repository)
   ((issues-url-format         :initform "https://%h/%o/%n/issues")
    (issue-url-format          :initform "https://%h/%o/%n/issues/%i")
    ;; The anchor for the issue itself is .../%i#issue-%i

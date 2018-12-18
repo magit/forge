@@ -25,7 +25,7 @@
 
 ;;; Class
 
-(defclass forge-gogs-repository (forge-repository)
+(defclass forge-gogs-repository (forge-unusedapi-repository)
   ((issues-url-format         :initform "https://%h/%o/%n/issues")
    (issue-url-format          :initform "https://%h/%o/%n/issues/%i")
    (issue-post-url-format     :initform "https://%h/%o/%n/issues/%i#issuecomment-%I")

@@ -75,6 +75,8 @@
    (revnotes        :closql-class forge-revnote))
   :abstract t)
 
+(defclass forge-unusedapi-repository (forge-repository) () :abstract t)
+
 (defclass forge-noapi-repository (forge-repository) () :abstract t)
 
 ;;; Core
