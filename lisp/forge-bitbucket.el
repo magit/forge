@@ -37,8 +37,7 @@
    (branch-url-format         :initform "https://%h/%o/%n/branch/%r")
    (remote-url-format         :initform "https://%h/%o/%n/src")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
-   (create-pullreq-url-format :initform "https://%h/%o/%n/pull-requests/new")
-   (pullreq-refspec :initform "+refs/pull-requests/*/from:refs/pullreqs/*")))
+   (create-pullreq-url-format :initform "https://%h/%o/%n/pull-requests/new")))
 
 ;;; _
 (provide 'forge-bitbucket)
