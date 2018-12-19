@@ -21,7 +21,7 @@
 ;;; Code:
 
 (require 'bug-reference)
-(require 'markdown-mode nil t)
+(require 'markdown-mode)
 
 (require 'forge)
 (require 'forge-post)
@@ -308,9 +308,7 @@ The following %-sequences are supported:
 (defun forge--fontify-markdown (text)
   (with-temp-buffer
     (delay-mode-hooks
-      (if (fboundp 'gfm-mode)
-          (gfm-mode)
-        (text-mode)))
+      (gfm-mode))
     (insert text)
     (font-lock-ensure)
     (when forge-post-fill-region

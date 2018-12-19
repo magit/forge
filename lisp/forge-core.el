@@ -23,6 +23,7 @@
 (require 'magit)
 
 (require 'cl-lib)
+(require 'dash)
 (require 'eieio)
 (require 'subr-x)
 

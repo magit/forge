@@ -20,8 +20,6 @@
 
 ;;; Code:
 
-(require 'treepy)
-
 (require 'ghub)
 
 (require 'forge)
