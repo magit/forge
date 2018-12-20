@@ -78,7 +78,7 @@
   (magit-define-popup-action 'magit-pull-and-fetch-popup
     ?y "forge topics" 'forge-pull)
   (magit-define-popup-action 'magit-pull-popup
-    ?y "forge fopics" 'forge-pull)
+    ?y "forge topics" 'forge-pull)
 
   (magit-define-popup-action 'magit-branch-popup
     ?y "Checkout pull-request" 'forge-checkout-pullreq)
