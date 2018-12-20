@@ -220,9 +220,9 @@ at that time."
 
 (cl-defmethod forge--split-url-path
   ((_class (subclass forge-repository)) path)
-  (and (string-match "\\`\\([^/]+\\)/\\([^/]+?\\)\\'" path)
+  (and (string-match "\\`\\([^/]+\\)/\\(.+?\\)\\'" path)
        (list (match-string 1 path)
-             (match-string 2 path))))
+             (replace-regexp-in-string "/" "%2F" (match-string 2 path)))))
 
 (cl-defmethod forge--split-url-path
   ((_class (subclass forge-noapi-repository)) path)
