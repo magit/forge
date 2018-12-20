@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0
+#+SUBTITLE: for version 0.1.0 (v0.1.0-1-gad946ba+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -18,7 +18,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0.
+This manual is for Forge version 0.1.0 (v0.1.0-1-gad946ba+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018 Jonas Bernoulli <jonas@bernoul.li>
@@ -206,16 +206,16 @@ also see [[*Getting Started]].
 
   - https://git.suckless.org
 
-- Stht https://meta.sr.ht
+- Srht https://meta.sr.ht
 
-  Stht Caveats
+  Srht Caveats
 
-  - Stht cannot show logs for branches beside "master".  For that
+  - Srht cannot show logs for branches beside "master".  For that
     reason Forge takes users to a page listing the branches when they
     request a log a particular branch (even for "master" whose log is
     just one click away from there).
 
-  Stht Hosts
+  Srht Hosts
 
   - https://git.sr.ht
 
