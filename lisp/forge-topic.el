@@ -394,20 +394,22 @@ The following %-sequences are supported:
 
 (defun forge--topic-parse-buffer (&optional file)
   (save-match-data
-    (let ((alist `((file   . ,file)
-                   (text   . ,(magit--buffer-string nil nil ?\n))
-                   (prompt . ,(and file (file-name-sans-extension
-                                         (file-name-nondirectory file)))))))
-      (save-excursion
-        (goto-char (point-min))
-        ;; Unlike for issues, Github ignores the yaml front-matter for
-        ;; pull-requests.  We just assume that nobody tries to use it
-        ;; anyway.  If that turned out to be wrong, we would have to
-        ;; deal with it by complicating matters around here.
-        (nconc alist (or (and (forge--childp (forge-get-repository t)
-                                             'forge-github-repository)
-                              (save-excursion (forge--topic-parse-yaml)))
-                         (save-excursion (forge--topic-parse-plain))))))))
+    (save-excursion
+      (goto-char (point-min))
+      ;; Unlike for issues, Github ignores the yaml front-matter for
+      ;; pull-requests.  We just assume that nobody tries to use it
+      ;; anyway.  If that turned out to be wrong, we would have to
+      ;; deal with it by complicating matters around here.
+      (let ((alist (or (and (forge--childp (forge-get-repository t)
+                                           'forge-github-repository)
+                            (save-excursion (forge--topic-parse-yaml)))
+                       (save-excursion (forge--topic-parse-plain)))))
+        (setf (alist-get 'file alist) file)
+        (setf (alist-get 'text alist) (magit--buffer-string nil nil ?\n))
+        (when (and file (not (alist-get 'prompt alist)))
+          (setf (alist-get 'prompt alist)
+                (file-name-sans-extension (file-name-nondirectory file))))
+        alist))))
 
 (defun forge--topic-parse-yaml ()
   (let (alist beg end)
