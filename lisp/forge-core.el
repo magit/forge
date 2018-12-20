@@ -193,7 +193,7 @@ at that time."
                     (path (if owner (concat owner "/" name) name)))
          `(,@spec
            (?h . ,host)
-           (?o . ,owner)
+           (?o . ,(replace-regexp-in-string "/" "%2F" owner))
            (?n . ,name)
            (?p . ,path)
            (?P . ,(replace-regexp-in-string "/" "%2F" path)))))
@@ -265,7 +265,9 @@ at that time."
                        ((v (ignore-errors
                              (cl-case slot
                                (repo    (oref object name))
-                               (project (concat (oref object owner) "%2F"
+                               (project (concat (replace-regexp-in-string
+                                                 "/" "%2F" (oref object owner))
+                                                "%2F"
                                                 (oref object name)))
                                (topic   (and (forge--childp object 'forge-topic)
                                              (oref object number)))

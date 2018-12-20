@@ -216,7 +216,7 @@ forges and hosts.  "
      (let ((path (if owner (concat owner "/" name) name)))
        `(,@spec
          (?h . ,githost)
-         (?o . ,owner)
+         (?o . ,(replace-regexp-in-string "/" "%2F" owner))
          (?n . ,name)
          (?p . ,path)
          (?P . ,(replace-regexp-in-string "/" "%2F" path)))))))

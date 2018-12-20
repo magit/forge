@@ -106,6 +106,12 @@ it is all or nothing.")
     (oset repo stars          .star_count)
     (oset repo watchers       .star_count)))
 
+(cl-defmethod forge--split-url-path
+  ((_class (subclass forge-gitlab-repository)) path)
+  (and (string-match "\\`\\(?:~?\\(.+\\)/\\)?\\([^/]+?\\)\\'" path)
+       (list (match-string 1 path)
+             (match-string 2 path))))
+
 ;;;; Issues
 
 (cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback)
@@ -132,7 +138,7 @@ it is all or nothing.")
     (forge--msg repo t nil "Pulling REPO issues")
     (forge--glab-get repo
       (format "/projects/%s%%2F%s/issues"
-              (oref repo owner)
+              (replace-regexp-in-string "/" "%2F" (oref repo owner))
               (oref repo name))
       `((per_page . 100)
         (order_by . "updated_at")
@@ -220,10 +226,7 @@ it is all or nothing.")
                     (forge--msg repo t t "Pulling REPO pullreqs")
                     (funcall callback callback (cons 'pullreqs val)))))))))
     (forge--msg repo t nil "Pulling REPO pullreqs")
-    (forge--glab-get repo
-      (format "/projects/%s%%2F%s/merge_requests"
-              (oref repo owner)
-              (oref repo name))
+    (forge--glab-get repo "/projects/:project/merge_requests"
       `((per_page . 100)
         (order_by . "updated_at")
         (updated_after . ,(forge--topics-until repo 'pullreq)))
