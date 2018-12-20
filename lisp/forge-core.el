@@ -95,8 +95,8 @@ ID, and vice-versa."
   :group 'forge
   :type '(repeat (list (string :tag "Git host")
                        (string :tag "ID")
-                       (choice (or (string :tag "API endpoint")
-                                   (const  :tag "No API" nil)))
+                       (choice (string :tag "API endpoint")
+                               (const  :tag "No API" nil))
                        (symbol :tag "Repository class"))))
 
 ;;; Core
