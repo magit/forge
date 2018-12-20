@@ -136,10 +136,7 @@ it is all or nothing.")
                     (forge--msg repo t t "Pulling REPO issues")
                     (funcall callback callback (cons 'issues val)))))))))
     (forge--msg repo t nil "Pulling REPO issues")
-    (forge--glab-get repo
-      (format "/projects/%s%%2F%s/issues"
-              (replace-regexp-in-string "/" "%2F" (oref repo owner))
-              (oref repo name))
+    (forge--glab-get repo "/projects/:project/issues"
       `((per_page . 100)
         (order_by . "updated_at")
         (updated_after . ,(forge--topics-until repo 'issue)))
