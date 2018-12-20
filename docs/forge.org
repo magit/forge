@@ -206,16 +206,16 @@ also see [[*Getting Started]].
 
   - https://git.suckless.org
 
-- Stht https://meta.sr.ht
+- sr.ht https://meta.sr.ht
 
-  Stht Caveats
+  sr.ht Caveats
 
-  - Stht cannot show logs for branches beside "master".  For that
+  - sr.ht cannot show logs for branches beside "master".  For that
     reason Forge takes users to a page listing the branches when they
     request a log a particular branch (even for "master" whose log is
     just one click away from there).
 
-  Stht Hosts
+  sr.ht Hosts
 
   - https://git.sr.ht
 
