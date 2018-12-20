@@ -409,6 +409,12 @@ The following %-sequences are supported:
         (when (and file (not (alist-get 'prompt alist)))
           (setf (alist-get 'prompt alist)
                 (file-name-sans-extension (file-name-nondirectory file))))
+        ;; If there is a yaml front-matter, then it is supposed
+        ;; to have a `title' field, but this may not be the case.
+        (when (and (not file)
+                   (not (alist-get 'title alist)))
+          (setf (alist-get 'title alist)
+                (read-string "Title: ")))
         alist))))
 
 (defun forge--topic-parse-yaml ()
