@@ -332,13 +332,20 @@ The following %-sequences are supported:
 (defun forge-read-topic (prompt)
   (let* ((default (forge-current-topic))
          (repo    (forge-get-repository (or default t)))
-         (choices (append (oref repo pullreqs)
-                          (oref repo issues)))
+         (gitlabp (forge--childp repo 'forge-gitlab-repository))
+         (choices (sort
+                   (nconc
+                    (let ((prefix (if gitlabp "!" "")))
+                      (mapcar (lambda (topic)
+                                (forge--topic-format-choice topic prefix))
+                              (oref repo pullreqs)))
+                    (let ((prefix (if gitlabp "#" "")))
+                      (mapcar (lambda (topic)
+                                (forge--topic-format-choice topic prefix))
+                              (oref repo issues))))
+                   #'string>))
          (choice  (magit-completing-read
-                   prompt
-                   (sort (mapcar #'forge--topic-format-choice choices)
-                         #'string>)
-                   nil nil nil nil
+                   prompt choices nil nil nil nil
                    (and default
                         (forge--topic-format-choice default))))
          (number  (and (string-match "\\`\\([!#]*\\)\\([0-9]+\\)" choice)
@@ -349,9 +356,9 @@ The following %-sequences are supported:
            (or (forge-get-issue repo number)
                (forge-get-pullreq repo number))))))
 
-(defun forge--topic-format-choice (topic)
+(defun forge--topic-format-choice (topic &optional prefix)
   (format "%s%s  %s"
-          (or (forge--topic-type-prefix topic) "")
+          (or prefix (forge--topic-type-prefix topic) "")
           (oref topic number)
           (oref topic title)))
 
