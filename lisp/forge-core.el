@@ -207,7 +207,7 @@ at that time."
     (user-error "Cannot browse non-forge remote %s" remote)))
 
 (defun forge--url-regexp ()
-  (concat "\\`\\(?:git://\\|git@\\|teahub@\\|ssh://git@\\|https://\\)"
+  (concat "\\`\\(?:git://\\|git@\\|teahub@\\|ssh://\\(?:[a-zA-Z0-9-]*@\\)*\\|https://\\)"
           (regexp-opt (mapcar #'car forge-alist) t)
           "[:/]\\(.+?\\)"
           "\\(?:\\.git\\)?\\'"))
