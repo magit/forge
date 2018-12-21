@@ -380,7 +380,7 @@ repositories.
                           (base  . ,base-branch)
                           (head  . ,(if (equal head-remote base-remote)
                                         head-branch
-                                      (concat (oref repo name) ":" head-branch)))
+                                      (concat (oref (forge-get-repository 'stub head-remote) owner) ":" head-branch)))
                           (maintainer_can_modify . t))
                         :callback  (forge--post-submit-callback)
                         :errorback (forge--post-submit-errorback)))))
