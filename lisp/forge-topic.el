@@ -193,7 +193,10 @@ The following %-sequences are supported:
                      `(,@spec (?i . ,(oref topic number)))))
 
 (defun forge--sanitize-string (string)
-  (replace-regexp-in-string "\r\n" "\n" string t t))
+  ;; For Gitlab this may also be nil.
+  (if string
+      (replace-regexp-in-string "\r\n" "\n" string t t)
+    ""))
 
 ;;; Mode
 
