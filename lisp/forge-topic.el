@@ -179,7 +179,9 @@ The following %-sequences are supported:
                         :limit $s3]
                        table id closed-limit)))
     (cl-sort (mapcar (lambda (row)
-                       (closql--remake-instance 'forge-issue (forge-db) row))
+                       (closql--remake-instance
+                        (if (eq table 'pullreq) 'forge-pullreq 'forge-issue)
+                        (forge-db) row))
                      issues)
              (cdr forge-topic-list-order)
              :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
