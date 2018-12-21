@@ -87,7 +87,7 @@
 (defun forge-pull-pullreq (pullreq)
   "Pull a single pull-request from the forge repository.
 Normally you wouldn't want to pull a single pull-request by
-itself, but due to a bug in the Github API you might sometimes
+itself, but due to a bug in the GitHub API you might sometimes
 have to do so.  See https://platform.github.community/t/7284."
   (interactive (list (forge-read-pullreq "Pull pull-request")))
   (forge--pull-pullreq (forge-get-repository pullreq) pullreq))

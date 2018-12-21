@@ -20,7 +20,7 @@
 
 ;;; Commentary:
 
-;; Work with Git forges, such as Github and Gitlab, from the comfort
+;; Work with Git forges, such as GitHub and Gitlab, from the comfort
 ;; of Magit and the rest of Emacs.
 
 ;; The schema of the database has not been finalized yet.  Until that

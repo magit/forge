@@ -1,4 +1,4 @@
-;;; forge-github.el --- Github support            -*- lexical-binding: t -*-
+;;; forge-github.el --- GitHub support            -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2018  Jonas Bernoulli
 
@@ -29,7 +29,7 @@
 ;;; Variables
 
 (defvar forge-github-token-scopes '(repo)
-  "The Github API scopes needed by Magit.
+  "The GitHub API scopes needed by Magit.
 
 `repo' is the only required scope.  Without this scope none of
 Magit's features that use the API work.  Instead of this scope
@@ -95,7 +95,7 @@ repositories.
      :auth 'forge)))
 
 (cl-defmethod forge--pull-pullreq ((repo forge-github-repository) pullreq)
-  ;; This function is only required because of a Github bug:
+  ;; This function is only required because of a GitHub bug:
   ;; https://platform.github.community/t/7284
   (let ((buffer (current-buffer)))
     (ghub-fetch-pullreq

@@ -14,7 +14,7 @@
 #+OPTIONS: H:4 num:4 toc:2
 #+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
 
-Forge allows you to work with Git forges, such as Github and Gitlab,
+Forge allows you to work with Git forges, such as GitHub and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
@@ -36,7 +36,7 @@ General Public License for more details.
 :END:
 * Introduction
 
-Forge allows you to work with Git forges, such as Github and Gitlab,
+Forge allows you to work with Git forges, such as GitHub and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 Forge fetches issues, pull-requests and other data using the forge's
@@ -73,22 +73,22 @@ also see [[*Getting Started]].
 :NONODE: t
 :END:
 
-- Github
+- GitHub
 
-  Forge's support for Github can be considered the "reference
+  Forge's support for GitHub can be considered the "reference
   implementation".  Support for other forges can lag behind a bit.
 
-  Github Caveats
+  GitHub Caveats
 
-  - Forge uses the Github GraphQl API when possible but has to fall
+  - Forge uses the GitHub GraphQl API when possible but has to fall
     back to use the REST API in many cases because the former is still
     rather incomplete.
 
   - Forge depends on the ~updated_at~ field being updated when
-    appropriate.  For Github pull-requests at least, that is not always
+    appropriate.  For GitHub pull-requests at least, that is not always
     done.
 
-  Github Hosts
+  GitHub Hosts
 
   - https://github.com
 
@@ -227,8 +227,8 @@ caveats you should be aware of:
 
 - Forge uses the Ghub package to access forge APIs.  That package
   comes with a setup wizard that should make it easy to create and
-  store a Github API token.  Unfortunately the same cannot be done for
-  other forges and in the past it has failed for some users for Github
+  store a GitHub API token.  Unfortunately the same cannot be done for
+  other forges and in the past it has failed for some users for GitHub
   too, in particular when using two-factor authentication.  See [[*Token
   Creation]] for more information.
 
@@ -257,13 +257,13 @@ buffer for that repository and type ~F y~ (~forge-pull~).
 
 The first time you do that for any repository from https://github.com
 you will be guided through the process of creating the API token.  For
-other forges as well as for other Github instances some additional
+other forges as well as for other GitHub instances some additional
 setup is required *before* you do so.  See [[*Token Creation]].
 
 The first time ~forge-pull~ is run in a repository, an entry for that
 repository is added to the database and a new value is added to the
 Git variable ~remote.<remote>.fetch~, which fetches all pull-requests.
-(~+refs/pull/*/head:refs/pullreqs/*~ for Github)
+(~+refs/pull/*/head:refs/pullreqs/*~ for GitHub)
 
 ~forge-pull~ then fetches topics and other information using the forge's
 API and pull-request references using Git.
@@ -273,7 +273,7 @@ asynchronously.  Storing the information in the database is done
 synchronously though, so there can be a noticeable hang at the end.
 Subsequent fetches are much faster.
 
-Fetching issues from Github is much faster than fetching from other
+Fetching issues from GitHub is much faster than fetching from other
 forges because making a handful of GraphQl requests is much faster
 than making hundreds of REST requests.
 
@@ -281,8 +281,8 @@ than making hundreds of REST requests.
 
 Forge uses the Ghub package to access the APIs of supported Git
 forges.  Ghub comes with a setup wizard that guides the user through
-the process of creating an API token for Github.com.  When accessing a
-Github Enterprise instance, then some manual setup is required before
+the process of creating an API token for github.com.  When accessing a
+GitHub Enterprise instance, then some manual setup is required before
 the wizard can be used.  Other forges don't support creating tokens
 using the API at all.  Before accessing such a forge you have to
 create a token using the respective web interface.
@@ -348,7 +348,7 @@ The commands that pull forge data are available from the same popup
   information about the current repository and stores the fetched
   information in the database.  It also fetches notifications for all
   repositories from the same forge host.  (Currently this is limitted
-  to Github.)  Finally it fetches pull-request references using Git.
+  to GitHub.)  Finally it fetches pull-request references using Git.
 
   After using this command for the first time in a given repository
   the status buffer for that repository always lists the pull-requests
@@ -382,7 +382,7 @@ that you know exists but haven't actually pulled yet.
   stores it in the database.
 
   Normally you wouldn't want to pull a single pull-request by itself,
-  but due to a bug in the Github API you might sometimes have to do
+  but due to a bug in the GitHub API you might sometimes have to do
   so.
 
   Fetching is implemented under the assumption that the API can be
@@ -454,7 +454,7 @@ worktrees in a more generic fashion (~magit-branch-popup~ on ~b~ and
     ~branch.<name>.pushRemote~ is set anyway.
 
   - If the pull-request branch is located inside a fork, then you are
-    usually able to push to that branch, because Github by default
+    usually able to push to that branch, because GitHub by default
     allows the recipient of a pull-request to push to the remote
     pull-request branch even if it is located in a fork.  The
     contributor has to explicitly disable this.

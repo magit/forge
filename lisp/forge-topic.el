@@ -403,7 +403,7 @@ The following %-sequences are supported:
   (save-match-data
     (save-excursion
       (goto-char (point-min))
-      ;; Unlike for issues, Github ignores the yaml front-matter for
+      ;; Unlike for issues, GitHub ignores the yaml front-matter for
       ;; pull-requests.  We just assume that nobody tries to use it
       ;; anyway.  If that turned out to be wrong, we would have to
       ;; deal with it by complicating matters around here.
@@ -432,7 +432,7 @@ The following %-sequences are supported:
       (when (re-search-forward "^---[\s\t]*$" nil t)
         (setq end (match-end 0))
         (push (cons 'head (magit--buffer-string nil end ?\n)) alist)
-        ;; Appending a newline would be correct, but Github does it
+        ;; Appending a newline would be correct, but GitHub does it
         ;; too, regardless of whether one is there already or not.
         (push (cons 'body (magit--buffer-string end nil t)) alist)
         (goto-char beg)
