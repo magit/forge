@@ -404,14 +404,7 @@ Please see the manual for more information."
                       head-ref head-repo head-user)
       pullreq
     (let* ((host (oref repo githost))
-           (upstream-url (format "git@%s:%s.git" host base-repo))
-           (upstream (or (--first (forge--url-equal
-                                   (magit-git-string "remote" "get-url" it)
-                                   upstream-url)
-                                  (magit-list-remotes))
-                         (user-error
-                          "Upstream repository %s not available as a remote"
-                          upstream-url)))
+           (upstream (oref repo remote))
            (upstream-url (magit-git-string "remote" "get-url" upstream))
            (remote head-user)
            (branch (forge--pullreq-branch pullreq t))
