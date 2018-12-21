@@ -238,11 +238,14 @@
                                       (t        'forge-topic-open))))))
       (unless merged
         (magit-insert-heading)
-        (when-let ((ref (forge--pullreq-ref pullreq)))
-          (magit-insert-section-body
-            (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
-              (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
-                                magit-log-section-arguments))))))))
+        (forge--insert-pullreq-commits pullreq)))))
+
+(defun forge--insert-pullreq-commits (pullreq)
+  (when-let ((ref (forge--pullreq-ref pullreq)))
+    (magit-insert-section-body
+      (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
+        (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
+                          magit-log-section-arguments)))))
 
 ;;; _
 (provide 'forge-pullreq)

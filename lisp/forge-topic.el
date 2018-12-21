@@ -228,6 +228,11 @@ The following %-sequences are supported:
            (oref topic title)))
   (magit-insert-section (topicbuf)
     (magit-insert-headers 'forge-topic-headers-hook)
+    (when (and (forge-pullreq-p topic)
+               (not (oref topic merged)))
+      (magit-insert-section (pullreq topic)
+        (magit-insert-heading "Commits")
+        (forge--insert-pullreq-commits topic)))
     (dolist (post (cons topic (oref topic posts)))
       (with-slots (author created body) post
         (magit-insert-section section (post post)
