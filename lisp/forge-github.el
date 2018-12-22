@@ -367,20 +367,21 @@ repositories.
 
 ;;; Mutations
 
-(cl-defmethod forge--submit-create-pullreq ((_ forge-github-repository) _repo)
+(cl-defmethod forge--submit-create-pullreq ((_ forge-github-repository) repo)
   (let-alist (forge--topic-parse-buffer)
     (pcase-let* ((`(,base-remote . ,base-branch)
                   (magit-split-branch-name forge--buffer-base-branch))
                  (`(,head-remote . ,head-branch)
                   (magit-split-branch-name forge--buffer-head-branch))
-                 (repo (forge-get-repository 'stub base-remote)))
+                 (head-repo (forge-get-repository 'stub head-remote)))
       (forge--ghub-post repo "/repos/:owner/:repo/pulls"
                         `((title . , .title)
                           (body  . , .body)
                           (base  . ,base-branch)
                           (head  . ,(if (equal head-remote base-remote)
                                         head-branch
-                                      (concat (oref repo name) ":" head-branch)))
+                                      (concat (oref head-repo owner) ":"
+                                              head-branch)))
                           (maintainer_can_modify . t))
                         :callback  (forge--post-submit-callback)
                         :errorback (forge--post-submit-errorback)))))
