@@ -207,10 +207,11 @@ at that time."
     (user-error "Cannot browse non-forge remote %s" remote)))
 
 (defun forge--url-regexp ()
-  (concat "\\`\\(?:git://\\|git@\\|teahub@\\|ssh://git@\\|https://\\)"
-          (regexp-opt (mapcar #'car forge-alist) t)
-          "[:/]\\(.+?\\)"
-          "\\(?:\\.git\\)?\\'"))
+  (let* ((scheme-regexp "\\(?:git://\\|git@\\|teahub@\\|ssh://git@\\|https://\\)")
+          (host-regexp (regexp-opt (mapcar #'car forge-alist) t))
+          (path-regexp "[:/]\\(.+?\\)")
+          (suffix-regexp "\\(?:\\.git\\)?"))
+    (concat "\\`" scheme-regexp host-regexp path-regexp suffix-regexp "\\'")))
 
 (defun forge--split-remote-url (remote)
   (when-let ((url (magit-git-string "remote" "get-url" remote)))
