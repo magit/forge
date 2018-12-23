@@ -207,7 +207,9 @@ at that time."
     (user-error "Cannot browse non-forge remote %s" remote)))
 
 (defun forge--url-regexp ()
-  (let* ((scheme-regexp "\\(?:git://\\|git@\\|teahub@\\|ssh://git@\\|https://\\)")
+  (let* ((username-regexp "\\(?:[a-zA-Z0-9-]*@\\)*")
+          (ssh-scheme-regexp (concat "ssh://" username-regexp))
+          (scheme-regexp (concat "\\(?:git://\\|" username-regexp "\\|" ssh-scheme-regexp "\\|https://\\)"))
           (host-regexp (regexp-opt (mapcar #'car forge-alist) t))
           (path-regexp "[:/]\\(.+?\\)")
           (suffix-regexp "\\(?:\\.git\\)?"))
