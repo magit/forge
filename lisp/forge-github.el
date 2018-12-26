@@ -257,7 +257,7 @@ repositories.
                             .login
                             .name
                             .id)))
-                  data))))
+                  (delete-dups data)))))
 
 (cl-defmethod forge--update-forks ((repo forge-github-repository) data)
   (oset repo forks
@@ -271,7 +271,7 @@ repositories.
                               .name)
                              (list .owner.login
                                    .name))))
-                  data))))
+                  (delete-dups data)))))
 
 (cl-defmethod forge--update-labels ((repo forge-github-repository) data)
   (oset repo labels
@@ -282,7 +282,7 @@ repositories.
                             .name
                             (concat "#" (downcase .color))
                             .description)))
-                  data))))
+                  (delete-dups data)))))
 
 ;;;; Notifications
 
