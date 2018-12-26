@@ -26,12 +26,15 @@
 
 ;;; Options
 
-(defcustom forge-post-mode-hook '(visual-line-mode)
+(defcustom forge-post-mode-hook
+  '(visual-line-mode
+    turn-on-flyspell)
   "Hook run after entering Forge-Post mode."
-  :package-version '(forge . "0.1.0")
+  :package-version '(forge . "0.2.0")
   :group 'forge
   :type 'hook
-  :options '(visual-line-mode))
+  :options '(visual-line-mode
+             turn-on-flyspell))
 
 ;;; Class
 
