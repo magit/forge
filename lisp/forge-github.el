@@ -288,8 +288,9 @@ repositories.
 
 (cl-defmethod forge--pull-notifications
   ((_class (subclass forge-github-repository)) githost &optional callback)
-  ;; The GraphQL API doesn't support notifications,
-  ;; so we have to perform a major rain dance.
+  ;; The GraphQL API doesn't support notifications and also likes to
+  ;; timeout for handcrafted requests, forcing us to perform a major
+  ;; rain dance.
   (let ((spec (assoc githost forge-alist)))
     (unless spec
       (error "No entry for %S in forge-alist" githost))
@@ -299,27 +300,39 @@ repositories.
          (notifs (--map (forge--ghub-massage-notification it forge githost)
                         (forge--ghub-get nil "/notifications"
                                          '((all . "true"))
-                                         :host apihost :unpaginate t))))
-      (ghub--graphql-vacuum
-       (cons 'query (-keep #'caddr notifs))
-       nil
-       (lambda (&optional data _headers _status _req)
-         (setq data (cdr data))
-         (forge--msg nil t t   "Pulling notifications")
-         (forge--msg nil t nil "Storing notifications")
-         (emacsql-with-transaction (forge-db)
-           (forge-sql [:delete-from notification :where (= forge $s1)] forge)
-           (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
-             (closql-insert (forge-db) obj)
-             (when query
-               (funcall (if (eq (oref obj type) 'issue)
-                            #'forge--update-issue
-                          #'forge--update-pullreq)
-                        repo (cdr (cadr (assq key data))) nil))))
-         (forge--msg nil t t "Storing notifications")
-         (when callback
-           (funcall callback)))
-       nil :auth 'forge))))
+                                         :host apihost :unpaginate t)))
+         (groups (-partition-all 100 notifs))
+         (pages  (length groups))
+         (page   0)
+         (result nil))
+      (cl-labels
+          ((cb (&optional data _headers _status _req)
+               (when data
+                 (setq result (nconc result (cdr data))))
+               (if groups
+                   (progn (cl-incf page)
+                          (forge--msg nil t nil
+                                      "Pulling notifications (page %s/%s)"
+                                      page pages)
+                          (ghub--graphql-vacuum
+                           (cons 'query (-keep #'caddr (pop groups)))
+                           nil #'cb nil :auth 'forge))
+                 (forge--msg nil t t   "Pulling notifications")
+                 (forge--msg nil t nil "Storing notifications")
+                 (emacsql-with-transaction (forge-db)
+                   (forge-sql [:delete-from notification
+                               :where (= forge $s1)] forge)
+                   (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
+                     (closql-insert (forge-db) obj)
+                     (when query
+                       (funcall (if (eq (oref obj type) 'issue)
+                                    #'forge--update-issue
+                                  #'forge--update-pullreq)
+                                repo (cdr (cadr (assq key result))) nil))))
+                 (forge--msg nil t t "Storing notifications")
+                 (when callback
+                   (funcall callback)))))
+        (cb)))))
 
 (defun forge--ghub-massage-notification (data forge githost)
   (let-alist data
