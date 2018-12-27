@@ -552,27 +552,28 @@ alist, containing just `text' and `position'.")
                              (funcall bug-reference-url-format))))))))))
 
 (defun forge-bug-reference-setup ()
-  (when-let ((repo (forge-get-repository 'full))
-             (format (oref repo issue-url-format)))
-    (unless bug-reference-url-format
-      (setq-local bug-reference-url-format
-                  (if (forge--childp repo 'forge-gitlab-repository)
-                      (lambda ()
-                        (forge--format-url repo
-                                           (if (equal (match-string 3) "#")
-                                               'issue-url-format
-                                             'pullreq-url-format)
-                                           `((?i . ,(match-string 2)))))
-                    (forge--format-url repo 'issue-url-format '((?i . "%s")))))
-      (setq-local bug-reference-bug-regexp
-                  (if (forge--childp repo 'forge-gitlab-repository)
-                      "\\(?3:[!#]\\)\\(?2:[0-9]+\\)"
-                    "#\\(?2:[0-9]+\\)")))
-    (if (derived-mode-p 'prog-mode)
-        (bug-reference-prog-mode 1)
-      (bug-reference-mode 1))
-    (add-hook 'completion-at-point-functions
-              'forge-topic-completion-at-point nil t)))
+  (magit--with-safe-default-directory nil
+    (when-let ((repo (forge-get-repository 'full))
+               (format (oref repo issue-url-format)))
+      (unless bug-reference-url-format
+        (setq-local bug-reference-url-format
+                    (if (forge--childp repo 'forge-gitlab-repository)
+                        (lambda ()
+                          (forge--format-url repo
+                                             (if (equal (match-string 3) "#")
+                                                 'issue-url-format
+                                               'pullreq-url-format)
+                                             `((?i . ,(match-string 2)))))
+                      (forge--format-url repo 'issue-url-format '((?i . "%s")))))
+        (setq-local bug-reference-bug-regexp
+                    (if (forge--childp repo 'forge-gitlab-repository)
+                        "\\(?3:[!#]\\)\\(?2:[0-9]+\\)"
+                      "#\\(?2:[0-9]+\\)")))
+      (if (derived-mode-p 'prog-mode)
+          (bug-reference-prog-mode 1)
+        (bug-reference-mode 1))
+      (add-hook 'completion-at-point-functions
+                'forge-topic-completion-at-point nil t))))
 
 (unless noninteractive
   (add-hook 'find-file-hook        #'forge-bug-reference-setup)
