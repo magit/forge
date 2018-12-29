@@ -171,6 +171,9 @@ argument.")
 (cl-defgeneric forge--repository-ids (class host owner name &optional stub)
   "Return the database and forge ids for the specified CLASS object.")
 
+(cl-defmethod magit-section-ident-value ((obj forge-object))
+  (oref obj id))
+
 ;;; Utilities
 
 (defmacro forge--childp (obj type)
