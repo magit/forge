@@ -123,14 +123,6 @@ The following %-sequences are supported:
            number)
    t))
 
-(cl-defmethod forge--object-id ((type symbol) parent id)
-  (base64-encode-string
-   (format "%s:%s%s"
-           (base64-decode-string parent)
-           type
-           (or (ignore-errors (base64-decode-string id)) id))
-   t))
-
 (cl-defmethod forge--object-id ((prefix string) id)
   (base64-encode-string
    (format "%s:%s"
