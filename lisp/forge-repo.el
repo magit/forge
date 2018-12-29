@@ -139,10 +139,12 @@ forges and hosts.  "
       (if-let ((url (and remote (magit-git-string "remote" "get-url" remote))))
           (forge-get-repository url remote demand)
         (when (memq demand forge--signal-no-entry)
-          (error "Cannot determine forge repository.  %s"
-                 (cond (remote  (format "No url configured for %S" remote))
-                       (remotes "Cannot decide on remote to use")
-                       (t       "No remote configured"))))))))
+          (error "Cannot determine forge repository.  %s\n%s  %s"
+                 (cond (remote  (format "No url configured for %S." remote))
+                       (remotes "Cannot decide on remote to use.")
+                       (t       "No remote configured."))
+                 "You might have to set `forge.remote'."
+                 "See https://magit.vc/manual/forge/Token-Creation.html."))))))
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
