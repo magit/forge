@@ -114,7 +114,7 @@ The following %-sequences are supported:
 (defclass forge-topic (forge-post) () :abstract t)
 
 (cl-defmethod forge--object-id ((class (subclass forge-topic)) repo number)
-  "Return the id of the specified topic."
+  "Return the id for a CLASS object in REPO identified by id NUMBER."
   (base64-encode-string
    (format "%s:%s%s"
            (base64-decode-string (oref repo id))
