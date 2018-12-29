@@ -369,39 +369,42 @@ The following %-sequences are supported:
           (oref topic title)))
 
 (defun forge-topic-completion-at-point ()
-  (when-let ((repo (forge-get-repository t)))
-    (when (and (or (not bug-reference-prog-mode)
-	           (nth 8 (syntax-ppss))) ; inside comment or string
-               (looking-back (if (forge--childp repo 'forge-gitlab-repository)
-                                 "\\(?3:[!#]\\)\\(?2:[0-9]*\\)"
-                               "#\\(?2:[0-9]*\\)")
-                             (line-beginning-position)))
-      (list (match-beginning 2)
-            (match-end 0)
-            (mapcar (lambda (row)
-                      (propertize (number-to-string (car row))
-                                  :title (format " %s" (cadr row))))
-                    (if (forge--childp repo 'forge-gitlab-repository)
-                        (forge-sql [:select [number title]
-                                    :from $i1
-                                    :where (= repository $s2)
-                                    :order-by [(desc updated)]]
-                                   (if (equal (match-string 3) "#")
-                                       'issue
-                                     'pullreq)
-                                   (oref repo id))
-                      (cl-sort
-                       (nconc
-                        (forge-sql [:select [number title updated]
-                                    :from pullreq
-                                    :where (= repository $s1)]
-                                   (oref repo id))
-                        (forge-sql [:select [number title updated]
-                                    :from issue
-                                    :where (= repository $s1)]
-                                   (oref repo id)))
-                       #'string> :key #'cl-caddr)))
-            :annotation-function (lambda (c) (get-text-property 0 :title c))))))
+  (let ((bol (line-beginning-position))
+        repo)
+    (and (looking-back "[!#][0-9]*" bol)
+         (or (not bug-reference-prog-mode)
+	     (nth 8 (syntax-ppss))) ; inside comment or string
+         (setq repo (forge-get-repository t))
+         (looking-back (if (forge--childp repo 'forge-gitlab-repository)
+                           "\\(?3:[!#]\\)\\(?2:[0-9]*\\)"
+                         "#\\(?2:[0-9]*\\)")
+                       bol)
+         (list (match-beginning 2)
+               (match-end 0)
+               (mapcar (lambda (row)
+                         (propertize (number-to-string (car row))
+                                     :title (format " %s" (cadr row))))
+                       (if (forge--childp repo 'forge-gitlab-repository)
+                           (forge-sql [:select [number title]
+                                       :from $i1
+                                       :where (= repository $s2)
+                                       :order-by [(desc updated)]]
+                                      (if (equal (match-string 3) "#")
+                                          'issue
+                                        'pullreq)
+                                      (oref repo id))
+                         (cl-sort
+                          (nconc
+                           (forge-sql [:select [number title updated]
+                                       :from pullreq
+                                       :where (= repository $s1)]
+                                      (oref repo id))
+                           (forge-sql [:select [number title updated]
+                                       :from issue
+                                       :where (= repository $s1)]
+                                      (oref repo id)))
+                          #'string> :key #'cl-caddr)))
+               :annotation-function (lambda (c) (get-text-property 0 :title c))))))
 
 ;;; Parse
 
