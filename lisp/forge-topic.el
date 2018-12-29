@@ -334,7 +334,10 @@ identifier."
             (add-face-text-property 0 (length heading)
                                     'magit-diff-hunk-heading t heading)
             (magit-insert-heading heading))
-          (insert (forge--fontify-markdown body) "\n\n"))))))
+          (insert (forge--fontify-markdown body) "\n\n"))))
+    (when (fboundp 'markdown-display-inline-images)
+      (let ((markdown-display-remote-images t))
+        (markdown-display-inline-images)))))
 
 (defvar forge-topic-title-section-map
   (let ((map (make-sparse-keymap)))
