@@ -348,7 +348,7 @@ repositories.
            (repoid (oref repo id))
            (owner  (oref repo owner))
            (name   (oref repo name))
-           (id     (forge--object-id repoid .id))
+           (id     (forge--object-id repoid (string-to-number .id)))
            (key    (intern (concat "_" (replace-regexp-in-string "=" "_" id)))))
       (list key repo
             (and (memq type '(pullreq issue))
