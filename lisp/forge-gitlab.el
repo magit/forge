@@ -182,18 +182,17 @@ it is all or nothing.")
         (forge--set-id-slot repo issue 'labels .labels)
         .body .id ; Silence Emacs 25 byte-compiler.
         (dolist (c .notes)
-          (unless (forge--glab-ignore-note-p c)
-            (let-alist c
-              (let ((post
-                     (forge-issue-post
-                      :id      (forge--object-id issue-id .id)
-                      :issue   issue-id
-                      :number  .id
-                      :author  .author.username
-                      :created .created_at
-                      :updated .updated_at
-                      :body    (forge--sanitize-string .body))))
-                (closql-insert (forge-db) post t)))))))))
+          (let-alist c
+            (let ((post
+                   (forge-issue-post
+                    :id      (forge--object-id issue-id .id)
+                    :issue   issue-id
+                    :number  .id
+                    :author  .author.username
+                    :created .created_at
+                    :updated .updated_at
+                    :body    (forge--sanitize-string .body))))
+              (closql-insert (forge-db) post t))))))))
 
 ;;;; Pullreqs
 
@@ -311,18 +310,17 @@ it is all or nothing.")
         (forge--set-id-slot repo pullreq 'labels .labels)
         .body .id ; Silence Emacs 25 byte-compiler.
         (dolist (c .notes)
-          (unless (forge--glab-ignore-note-p c)
-            (let-alist c
-              (let ((post
-                     (forge-pullreq-post
-                      :id      (forge--object-id pullreq-id .id)
-                      :pullreq pullreq-id
-                      :number  .id
-                      :author  .author.username
-                      :created .created_at
-                      :updated .updated_at
-                      :body    (forge--sanitize-string .body))))
-                (closql-insert (forge-db) post t)))))))))
+          (let-alist c
+            (let ((post
+                   (forge-pullreq-post
+                    :id      (forge--object-id pullreq-id .id)
+                    :pullreq pullreq-id
+                    :number  .id
+                    :author  .author.username
+                    :created .created_at
+                    :updated .updated_at
+                    :body    (forge--sanitize-string .body))))
+              (closql-insert (forge-db) post t))))))))
 
 ;;;; Other
 
@@ -561,21 +559,6 @@ it is all or nothing.")
              :noerror noerror :reader reader
              :callback callback
              :errorback (or errorback (and callback t))))
-
-(defun forge--glab-ignore-note-p (data)
-  "Return non-nil if we are fairly sure that DATA is not a post."
-  ;; This uses a blacklist, which we have to extend over time as we
-  ;; run into other none-post "notes", because neither does the API
-  ;; expose posts seperately nor do "notes" have a "type" field.
-  (let-alist data
-    (let ((body (forge--sanitize-string .body)))
-      (or (string-equal    "changed the description" body)
-          (string-prefix-p "changed title from" body)
-          (string-prefix-p "assigned to" body)
-          (string-prefix-p "unassigned" body)
-          (string-prefix-p "closed" body)
-          (string-prefix-p "reopened" body)
-          ))))
 
 ;;; _
 (provide 'forge-gitlab)
