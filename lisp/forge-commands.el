@@ -62,9 +62,17 @@ for a repository using the command `forge-add-pullreq-refspec'."
 ;;; Pull
 
 ;;;###autoload
-(defun forge-pull (&optional repo)
-  "Pull topics from the forge repository."
-  (interactive)
+(defun forge-pull (&optional repo until)
+  "Pull topics from the forge repository.
+
+With a prefix argument and if the repository has not been fetched
+before, then read a date from the user and limit pulled topics to
+those that have been updated since then."
+  (interactive
+   (list nil
+         (and current-prefix-arg
+              (not (forge-get-repository 'full))
+              (forge-read-date "Limit pulling to topics updates since: "))))
   (let (create)
     (unless repo
       (setq repo (forge-get-repository 'full))
@@ -83,7 +91,19 @@ for a repository using the command `forge-add-pullreq-refspec'."
                         (format "remote.%s.fetch" remote)
                         refspec)))
     (forge--msg repo t nil "Pulling REPO")
-    (forge--pull repo)))
+    (forge--pull repo until)))
+
+(defun forge-read-date (prompt)
+  (cl-block nil
+    (while t
+      (let ((str (read-from-minibuffer prompt)))
+        (cond ((string-equal str "")
+               (cl-return nil))
+              ((string-match-p
+                "\\`[0-9]\\{4\\}[-/][0-9]\\{2\\}[-/][0-9]\\{2\\}\\'" str)
+               (cl-return str))))
+      (message "Please enter a date in the format YYYY-MM-DD.")
+      (sit-for 1))))
 
 (cl-defmethod forge--pull ((_repo forge-noapi-repository))) ; NOOP
 

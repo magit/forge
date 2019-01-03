@@ -65,7 +65,7 @@ repositories.
 ;;; Pull
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-github-repository))
+(cl-defmethod forge--pull ((repo forge-github-repository) &optional until)
   (let ((buf (current-buffer))
         (dir default-directory))
     (ghub-fetch-repository
@@ -90,8 +90,8 @@ repositories.
                                       (oref repo githost)
                                       (lambda () (forge--git-fetch buf dir repo)))
          (forge--git-fetch buf dir repo)))
-     `((issues-until       . ,(forge--topics-until repo 'issue))
-       (pullRequests-until . ,(forge--topics-until repo 'pullreq)))
+     `((issues-until       . ,(forge--topics-until repo until 'issue))
+       (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
      :auth 'forge)))
 
 (cl-defmethod forge--pull-pullreq ((repo forge-github-repository) pullreq)

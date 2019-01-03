@@ -55,7 +55,7 @@ it is all or nothing.")
 ;;; Pull
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-gitlab-repository))
+(cl-defmethod forge--pull ((repo forge-gitlab-repository) &optional until)
   (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
                             (current-buffer)))
                   (dir default-directory)
@@ -67,8 +67,8 @@ it is all or nothing.")
                  ((not (assq 'assignees val)) (forge--fetch-assignees  repo cb))
                  ((not (assq 'forks     val)) (forge--fetch-forks      repo cb))
                  ((not (assq 'labels    val)) (forge--fetch-labels     repo cb))
-                 ((not (assq 'issues    val)) (forge--fetch-issues     repo cb))
-                 ((not (assq 'pullreqs  val)) (forge--fetch-pullreqs   repo cb))
+                 ((not (assq 'issues    val)) (forge--fetch-issues     repo cb until))
+                 ((not (assq 'pullreqs  val)) (forge--fetch-pullreqs   repo cb until))
                  (t
                   (forge--msg repo t t   "Pulling REPO")
                   (forge--msg repo t nil "Storing REPO")
@@ -116,7 +116,7 @@ it is all or nothing.")
 
 ;;;; Issues
 
-(cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback)
+(cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback until)
   (let ((cb (let (val cur cnt pos)
               (lambda (cb &optional v)
                 (cond
@@ -141,7 +141,7 @@ it is all or nothing.")
     (forge--glab-get repo "/projects/:project/issues"
       `((per_page . 100)
         (order_by . "updated_at")
-        (updated_after . ,(forge--topics-until repo 'issue)))
+        (updated_after . ,(forge--topics-until repo until 'issue)))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
                   (funcall cb cb value)))))
@@ -198,7 +198,7 @@ it is all or nothing.")
 
 ;;;; Pullreqs
 
-(cl-defmethod forge--fetch-pullreqs ((repo forge-gitlab-repository) callback)
+(cl-defmethod forge--fetch-pullreqs ((repo forge-gitlab-repository) callback until)
   (let ((cb (let (val cur cnt pos)
               (lambda (cb &optional v)
                 (cond
@@ -227,7 +227,7 @@ it is all or nothing.")
     (forge--glab-get repo "/projects/:project/merge_requests"
       `((per_page . 100)
         (order_by . "updated_at")
-        (updated_after . ,(forge--topics-until repo 'pullreq)))
+        (updated_after . ,(forge--topics-until repo until 'pullreq)))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
                   (funcall cb cb value)))))
