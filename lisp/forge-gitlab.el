@@ -63,7 +63,10 @@ it is all or nothing.")
               (lambda (cb &optional v)
                 (when v (if val (push v val) (setq val v)))
                 (cond
-                 ((not val)                   (forge--fetch-repository repo cb))
+                 ((not val)
+                  (forge--fetch-repository repo cb)
+                  (when (magit-get-boolean "forge.omitExpensive")
+                    (setq val (nconc `((assignees) (forks) (labels)) val))))
                  ((not (assq 'assignees val)) (forge--fetch-assignees  repo cb))
                  ((not (assq 'forks     val)) (forge--fetch-forks      repo cb))
                  ((not (assq 'labels    val)) (forge--fetch-labels     repo cb))
@@ -180,8 +183,9 @@ it is all or nothing.")
                :milestone    .milestone.iid
                :body         (forge--sanitize-string .description))))
         (closql-insert (forge-db) issue t)
-        (forge--set-id-slot repo issue 'assignees .assignees)
-        (forge--set-id-slot repo issue 'labels .labels)
+        (unless (magit-get-boolean "forge.omitExpensive")
+          (forge--set-id-slot repo issue 'assignees .assignees)
+          (forge--set-id-slot repo issue 'labels .labels))
         .body .id ; Silence Emacs 25 byte-compiler.
         (dolist (c .notes)
           (let-alist c
@@ -308,8 +312,9 @@ it is all or nothing.")
                :milestone    .milestone.iid
                :body         (forge--sanitize-string .description))))
         (closql-insert (forge-db) pullreq t)
-        (forge--set-id-slot repo pullreq 'assignees (list .assignee))
-        (forge--set-id-slot repo pullreq 'labels .labels)
+        (unless (magit-get-boolean "forge.omitExpensive")
+          (forge--set-id-slot repo pullreq 'assignees (list .assignee))
+          (forge--set-id-slot repo pullreq 'labels .labels))
         .body .id ; Silence Emacs 25 byte-compiler.
         (dolist (c .notes)
           (let-alist c

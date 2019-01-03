@@ -67,7 +67,10 @@ for a repository using the command `forge-add-pullreq-refspec'."
 
 With a prefix argument and if the repository has not been fetched
 before, then read a date from the user and limit pulled topics to
-those that have been updated since then."
+those that have been updated since then.
+
+If pulling is too slow, then also consider setting the Git variable
+`forge.omitExpensive' to `true'."
   (interactive
    (list nil
          (and current-prefix-arg
