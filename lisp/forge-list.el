@@ -43,7 +43,7 @@
 (define-derived-mode forge-topic-list-mode tabulated-list-mode
   "Issues"
   "Major mode for browsing a list of topics."
-  (setq x-stretch-cursor        nil)
+  (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "#" nil))
   (setq tabulated-list-format   (vconcat (--map `(,@(-take 3 it)
