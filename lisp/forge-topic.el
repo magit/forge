@@ -51,8 +51,8 @@ case it limits the number of closed topics only."
   :package-version '(forge . "0.1.0")
   :group 'forge
   :type '(choice (number :tag "Maximal number of closed issues")
-                 (cons (number :tag "Maximal number of closed issues")
-                       (number :tag "Maximal number of open issues"))))
+                 (cons (number :tag "Maximal number of open issues")
+                       (number :tag "Maximal number of closed issues"))))
 
 (defcustom forge-post-heading-format "%a %C\n"
   "Format for post headings in topic view.
