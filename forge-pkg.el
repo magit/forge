@@ -8,5 +8,5 @@
     (graphql        "0.1.1")
     (let-alist      "1.0.5")
     (magit          "2.90.1")
-    (magit-popup    "2.12.5")
-    (markdown-mode  "2.3")))
+    (markdown-mode  "2.3")
+    (transient      "0.1.0")))

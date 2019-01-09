@@ -57,12 +57,14 @@
 (require 'forge-commands)
 (require 'forge-list)
 
+;;; Add Sections
+
 (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-pullreqs nil t)
 (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-issues   nil t)
 
+;;; Add Bindings
+
 (define-key magit-mode-map "'" 'forge-dispatch)
-(magit-define-popup-action 'magit-dispatch-popup
-  ?' "Forge" 'forge-dispatch ?%)
 
 (define-key magit-commit-section-map [remap magit-browse-thing] 'forge-browse-dwim)
 (define-key magit-remote-section-map [remap magit-browse-thing] 'forge-browse-remote)
@@ -71,27 +73,25 @@
 (define-key magit-commit-section-map (kbd "C-c C-v") 'forge-visit-topic)
 (define-key magit-branch-section-map (kbd "C-c C-v") 'forge-visit-topic)
 
-(require 'magit-fetch)
+(transient-append-suffix 'magit-dispatch "%"
+  '("'" "Forge" forge-dispatch ?%))
 
-(when (boundp 'magit-fetch-popup)
-  (magit-define-popup-action 'magit-pull-and-fetch-popup
-    ?Y "forge notifications" 'forge-pull-notifications)
-  (magit-define-popup-action 'magit-pull-popup
-    ?Y "forge notifications" 'forge-pull-notifications)
+(transient-append-suffix 'magit-fetch "m"
+  '("y" "forge topics" forge-pull))
+(transient-append-suffix 'magit-fetch "y"
+  '("Y" "forge notifications" forge-pull-notifications))
 
-  (magit-define-popup-action 'magit-pull-and-fetch-popup
-    ?y "forge topics" 'forge-pull)
-  (magit-define-popup-action 'magit-pull-popup
-    ?y "forge topics" 'forge-pull)
+(transient-append-suffix 'magit-pull "m"
+  '("y" "forge topics" forge-pull))
+(transient-append-suffix 'magit-pull "y"
+  '("Y" "forge notifications" forge-pull-notifications))
 
-  (magit-define-popup-action 'magit-branch-popup
-    ?y "Checkout pull-request" 'forge-checkout-pullreq)
+(transient-append-suffix 'magit-branch "w"
+  '("y" "pull-request" forge-checkout-pullreq))
+(transient-append-suffix 'magit-branch "W"
+  '("Y" "from pull-request" forge-branch-pullreq))
 
-  (magit-define-popup-action 'magit-branch-popup
-    ?Y "Create from pull-request" 'forge-branch-pullreq)
-
-  (magit-define-popup-action 'magit-worktree-popup
-    ?p "Create new worktree from pull-request" 'forge-checkout-worktree ?c)
-  )
+(transient-append-suffix 'magit-worktree "c"
+  '("y" "pull-request worktree" forge-checkout-worktree))
 
 ;;; forge.el ends here

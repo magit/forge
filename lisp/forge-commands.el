@@ -42,22 +42,19 @@ for a repository using the command `forge-add-pullreq-refspec'."
 
 ;;; Dispatch
 
-;; We'll soon start using `transient' instead.
-
-(require 'magit-popup)
-
 ;;;###autoload (autoload 'forge-dispatch "forge-commands" nil t)
-(magit-define-popup forge-dispatch
+(define-transient-command forge-dispatch
   "Dispatch a forge command."
-  nil nil nil
-  :actions '((?f "Fetch topics"        forge-pull)
-             (?n "Fetch notifications" forge-pull-notifications)
-             (?p "Create pull-request" forge-create-pullreq)
-             (?i "Create issue"        forge-create-issue)
-             (?N "List notifications"  forge-list-notifications)
-             (?P "List pull-requests"  forge-list-pullreqs)
-             (?I "List issues"         forge-list-issues))
-  :max-action-columns 1)
+  [["Fetch"
+    ("f f" "topics"        forge-pull)
+    ("f n" "notifications" forge-pull-notifications)]
+   ["List"
+    ("l p" "pull-requests" forge-list-pullreqs)
+    ("l i" "issues"        forge-list-issues)
+    ("l n" "notifications" forge-list-notifications)]
+   ["Create"
+    ("c p" "pull-request"  forge-create-pullreq)
+    ("c i" "issue"         forge-create-issue)]])
 
 ;;; Pull
 

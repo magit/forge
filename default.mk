@@ -27,7 +27,6 @@ DEPS += emacsql
 DEPS += ghub
 DEPS += graphql
 DEPS += magit/lisp
-DEPS += magit-popup
 DEPS += markdown-mode
 DEPS += transient/lisp
 DEPS += treepy

@@ -27,6 +27,8 @@
 (require 'eieio)
 (require 'subr-x)
 
+(require 'transient)
+
 (require 'forge-db)
 
 (eval-when-compile
