@@ -55,8 +55,8 @@
     ("salsa.debian.org" "salsa.debian.org/api/v4"
      "salsa.debian.org" forge-gitlab-repository)
     ;; Forges (API unsupported)
-    ("teahub.io" "teahub.io/api/v1"
-     "teahub.io" forge-gitea-repository)
+    ("codeberg.org" "codeberg.org/api/v1"
+     "codeberg.org" forge-gitea-repository)
     ("code.orgmode.org" "code.orgmode.org/api/v1"
      "code.orgmode.org" forge-gogs-repository)
     ("bitbucket.org" "api.bitbucket.org/2.0"
