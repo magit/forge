@@ -61,6 +61,8 @@
 (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-issues   nil t)
 
 (define-key magit-mode-map "'" 'forge-dispatch)
+(magit-define-popup-action 'magit-dispatch-popup
+  ?' "Forge" 'forge-dispatch ?%)
 
 (define-key magit-commit-section-map [remap magit-browse-thing] 'forge-browse-dwim)
 (define-key magit-remote-section-map [remap magit-browse-thing] 'forge-browse-remote)
