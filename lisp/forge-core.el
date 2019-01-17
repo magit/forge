@@ -94,9 +94,9 @@ ID, and vice-versa."
   :package-version '(forge . "0.1.0")
   :group 'forge
   :type '(repeat (list (string :tag "Git host")
-                       (string :tag "ID")
                        (choice (string :tag "API endpoint")
                                (const  :tag "No API" nil))
+                       (string :tag "ID")
                        (symbol :tag "Repository class"))))
 
 (defcustom forge-pull-notifications nil
