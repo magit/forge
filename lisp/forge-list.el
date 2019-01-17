@@ -56,7 +56,10 @@
 (defvar forge-issue-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map forge-topic-list-mode-map)
-    (define-key map [return] 'forge-list-visit-issue)
+    (cond ((featurep 'jkl)
+           (define-key map [return]    'forge-list-visit-issue))
+          (t
+           (define-key map (kbd "C-m") 'forge-list-visit-issue)))
     map)
   "Local keymap for Forge-Issue-List mode buffers.")
 
@@ -69,7 +72,10 @@
 (defvar forge-pullreq-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map forge-topic-list-mode-map)
-    (define-key map [return] 'forge-list-visit-pullreq)
+    (cond ((featurep 'jkl)
+           (define-key map [return]    'forge-list-visit-pullreq))
+          (t
+           (define-key map (kbd "C-m") 'forge-list-visit-pullreq)))
     map)
   "Local keymap for Forge-Pullreq-List mode buffers.")
 
