@@ -147,6 +147,7 @@ The following %-sequences are supported:
 (cl-defmethod forge-list-recent-topics ((repo forge-repository) table)
   (let* ((id (oref repo id))
          (limit forge-topic-list-limit)
+         (open-limit   (if (consp limit) (car limit) limit))
          (closed-limit (if (consp limit) (cdr limit) limit))
          (issues (forge-sql [:select * :from $s1
                              :where (and (= repository $s2)
@@ -160,7 +161,7 @@ The following %-sequences are supported:
                                       (isnull closed))
                           :order-by [(desc updated)]
                           :limit $s3]
-                         table id (car limit))
+                         table id open-limit)
             (forge-sql [:select * :from $s1
                         :where (and (= repository $s2)
                                     (isnull closed))]
