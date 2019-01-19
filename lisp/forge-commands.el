@@ -115,7 +115,7 @@ for a repository using the command `forge-add-pullreq-refspec'."
 Normally you wouldn't want to pull a single pull-request by
 itself, but due to a bug in the Github API you might sometimes
 have to do so.  See https://platform.github.community/t/7284."
-  (interactive (list (forge-read-pullreq "Pull pull-request")))
+  (interactive (list (forge-read-pullreq "Pull pull-request" t)))
   (forge--pull-pullreq (forge-get-repository pullreq) pullreq))
 
 (cl-defmethod forge--pull-pullreq ((_repo forge-repository) _pullreq)) ; NOOP
@@ -204,7 +204,7 @@ Prefer a topic over a branch and that over a commit."
 ;;;###autoload
 (defun forge-browse-pullreq (pullreq)
   "Visit the url corresponding to PULLREQ using a browser."
-  (interactive (list (forge-read-pullreq "Browse pull-request")))
+  (interactive (list (forge-read-pullreq "Browse pull-request" t)))
   (browse-url (forge--format-url pullreq 'pullreq-url-format))
   (oset pullreq unread-p nil))
 
@@ -217,7 +217,7 @@ Prefer a topic over a branch and that over a commit."
 ;;;###autoload
 (defun forge-browse-issue (issue)
   "Visit the url corresponding to ISSUE using a browser."
-  (interactive (list (forge-read-issue "Browse issue")))
+  (interactive (list (forge-read-issue "Browse issue" t)))
   (browse-url (forge--format-url issue 'issue-url-format))
   (oset issue unread-p nil))
 
@@ -253,7 +253,7 @@ Prefer a topic over a branch and that over a commit."
 ;;;###autoload
 (defun forge-visit-pullreq (pullreq)
   "View the pull-request at point in a separate buffer."
-  (interactive (list (forge-read-pullreq "View pull-request")))
+  (interactive (list (forge-read-pullreq "View pull-request" t)))
   (let ((magit-generate-buffer-name-function 'forge-topic-buffer-name))
     (magit-mode-setup-internal #'forge-topic-mode (list pullreq) t))
   (oset pullreq unread-p nil))
@@ -261,7 +261,7 @@ Prefer a topic over a branch and that over a commit."
 ;;;###autoload
 (defun forge-visit-issue (issue)
   "View the issue at point in a separate buffer."
-  (interactive (list (forge-read-issue "View issue")))
+  (interactive (list (forge-read-issue "View issue" t)))
   (let ((magit-generate-buffer-name-function 'forge-topic-buffer-name))
     (magit-mode-setup-internal #'forge-topic-mode (list issue) t))
   (oset issue unread-p nil))
@@ -409,7 +409,7 @@ Prefer a topic over a branch and that over a commit."
 (defun forge-branch-pullreq (pullreq)
   "Create and configure a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (forge-read-pullreq-or-number "Branch pull request")))
+  (interactive (list (forge-read-pullreq-or-number "Branch pull request" t)))
   (forge--branch-pullreq (forge-get-repository t) pullreq))
 
 (cl-defmethod forge--branch-pullreq ((_repo forge-unusedapi-repository) number)
@@ -487,7 +487,7 @@ Please see the manual for more information."
 (defun forge-checkout-pullreq (pullreq)
   "Create, configure and checkout a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (forge-read-pullreq-or-number "Checkout pull request")))
+  (interactive (list (forge-read-pullreq-or-number "Checkout pull request" t)))
   (magit-checkout
    (let ((inhibit-magit-refresh t))
      (forge-branch-pullreq pullreq))))
@@ -499,7 +499,7 @@ This is like `magit-checkout-pull-request', except that it
 also creates a new worktree. Please see the manual for more
 information."
   (interactive
-   (let ((pullreq (forge-read-pullreq-or-number "Checkout pull request")))
+   (let ((pullreq (forge-read-pullreq-or-number "Checkout pull request" t)))
      (with-slots (number head-ref) pullreq
        (let ((path (let ((branch (forge--pullreq-branch pullreq t)))
                      (read-directory-name
