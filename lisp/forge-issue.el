@@ -165,14 +165,16 @@
     (magit-insert-section (issue issue)
       (insert
        (format (if width
-                   (format "%%-%is %%s\n" (1+ width))
-                 "%s %s\n")
+                   (format "%%-%is %%s%%s\n" (1+ width))
+                 "%s %s%s\n")
                (propertize (format "#%s" number) 'face 'magit-dimmed)
                (magit-log-propertize-keywords
                 nil (propertize title 'face
                                 (cond (unread-p 'forge-topic-unread)
                                       (closed   'forge-topic-closed)
-                                      (t        'forge-topic-open)))))))))
+                                      (t        'forge-topic-open))))
+               (when-let ((labels (forge--format-topic-labels issue)))
+                 (concat " " labels)))))))
 
 ;;; _
 (provide 'forge-issue)
