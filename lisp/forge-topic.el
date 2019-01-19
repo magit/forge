@@ -76,12 +76,12 @@ The following %-sequences are supported:
 
 (defface forge-topic-unread
   '((t :inherit bold))
-  "Face used for title unread topics."
+  "Face used for title of unread topics."
   :group 'forge-faces)
 
 (defface forge-topic-closed
   '((t :inherit magit-dimmed))
-  "Face used for title of unread topics."
+  "Face used for title of closed topics."
   :group 'forge-faces)
 
 (defface forge-topic-open
@@ -91,12 +91,12 @@ The following %-sequences are supported:
 
 (defface forge-topic-merged
   '((t :inherit magit-dimmed))
-  "Face used for number of merged topics."
+  "Face used for number of merged pull-requests."
   :group 'forge-faces)
 
 (defface forge-topic-unmerged
   '((t :inherit magit-dimmed :slant italic))
-  "Face used for number of unmerged topics."
+  "Face used for number of unmerged pull-requests."
   :group 'forge-faces)
 
 (defface forge-post-author
