@@ -22,6 +22,24 @@
 
 (require 'forge)
 
+;;; Options
+
+(defcustom forge-add-pullreq-refspec t
+  "Whether the pull-request refspec is added when setting up a repository.
+
+This controls whether running `forge-pull' for the first time in
+a repository also adds a refspec that fetches all pull-requests.
+In repositories with huge numbers of pull-requests you might want
+to not do so, in which case you should set this option to `ask'.
+
+You can also set this to nil and later add the refspec exlicitly
+for a repository using the command `forge-add-pullreq-refspec'."
+  :package-version '(forge . "0.2.0")
+  :group 'forge
+  :type '(choice (const :tag "Always add refspec" t)
+                 (const :tag "Ask every time" ask)
+                 (const :tag "Never add refspec" nil)))
+
 ;;; Dispatch
 
 ;; We'll soon start using `transient' instead.
@@ -47,17 +65,25 @@
 (defun forge-pull (&optional repo)
   "Pull topics from the forge repository."
   (interactive)
-  (unless repo
-    (setq repo (forge-get-repository 'create)))
-  (setq forge--mode-line-buffer (current-buffer))
-  (when-let ((remote  (oref repo remote))
-             (refspec (oref repo pullreq-refspec)))
-    (unless (member refspec (magit-get-all "remote" remote "fetch"))
-      (magit-call-git "config" "--add"
-                      (format "remote.%s.fetch" remote)
-                      refspec)))
-  (forge--msg repo t nil "Pulling REPO")
-  (forge--pull repo))
+  (let (create)
+    (unless repo
+      (setq repo (forge-get-repository 'full))
+      (unless repo
+        (setq repo (forge-get-repository 'create))
+        (setq create t)))
+    (setq forge--mode-line-buffer (current-buffer))
+    (when-let ((remote  (oref repo remote))
+               (refspec (oref repo pullreq-refspec)))
+      (when (and create
+                 (not (member refspec (magit-get-all "remote" remote "fetch")))
+                 (or (eq forge-add-pullreq-refspec t)
+                     (and (eq forge-add-pullreq-refspec 'ask)
+                          (y-or-n-p (format "Also add %S refspec? " refspec)))))
+        (magit-call-git "config" "--add"
+                        (format "remote.%s.fetch" remote)
+                        refspec)))
+    (forge--msg repo t nil "Pulling REPO")
+    (forge--pull repo)))
 
 (cl-defmethod forge--pull ((_repo forge-noapi-repository))) ; NOOP
 

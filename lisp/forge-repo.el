@@ -207,17 +207,17 @@ forges and hosts.  "
   (let ((choice (magit-completing-read
                  prompt
                  (mapcar (pcase-lambda (`(,host ,owner ,name))
-                           (format "%s/%s@%s" owner name host))
+                           (format "%s/%s @%s" owner name host))
                          (forge-sql [:select [githost owner name]
                                      :from repository]))
                  nil t nil nil
                  (when-let ((default (forge-get-repository nil)))
-                   (format "%s/%s@%s"
+                   (format "%s/%s @%s"
                            (oref default owner)
                            (oref default name)
                            (oref default githost))))))
     (save-match-data
-      (string-match "\\`\\([^/]+\\)/\\([^/]+\\)@\\(.+\\)\\'" choice)
+      (string-match "\\`\\([^/]+\\)/\\([^/]+\\) @\\(.+\\)\\'" choice)
       (forge-get-repository (list (match-string 3 choice)
                                   (match-string 1 choice)
                                   (match-string 2 choice))))))
