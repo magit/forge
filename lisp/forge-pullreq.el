@@ -236,8 +236,9 @@
                                 (cond (unread-p 'forge-topic-unread)
                                       (closed   'forge-topic-closed)
                                       (t        'forge-topic-open))))
-               (when-let ((labels (forge--format-topic-labels pullreq)))
-                 (concat " " labels))))
+               (if-let ((labels (forge--format-topic-labels pullreq)))
+                   (concat " " labels)
+                 "")))
       (unless merged
         (magit-insert-heading)
         (forge--insert-pullreq-commits pullreq)))))

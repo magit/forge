@@ -173,8 +173,9 @@
                                 (cond (unread-p 'forge-topic-unread)
                                       (closed   'forge-topic-closed)
                                       (t        'forge-topic-open))))
-               (when-let ((labels (forge--format-topic-labels issue)))
-                 (concat " " labels)))))))
+               (if-let ((labels (forge--format-topic-labels issue)))
+                   (concat " " labels)
+                 ""))))))
 
 ;;; _
 (provide 'forge-issue)
