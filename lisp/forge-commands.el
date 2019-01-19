@@ -523,6 +523,21 @@ upstream remote.  Also fetch from REMOTE."
       (magit-git-fetch remote (magit-fetch-arguments)))))
 
 ;;;###autoload
+(defun forge-remove-repository (repo)
+  "Remove a repository from the database."
+  (interactive
+   (let ((repo (forge-read-repository "Remove repository from db")))
+     (if (yes-or-no-p
+          (format "Do you really want to remove \"%s/%s @%s\" from the db? "
+                  (oref repo owner)
+                  (oref repo name)
+                  (oref repo githost)))
+         (list repo)
+       (user-error "Abort"))))
+  (closql-delete repo)
+  (magit-refresh))
+
+;;;###autoload
 (defun forge-reset-database ()
   "Move the current database file to the trash.
 This is useful after the database scheme has changed, which will
