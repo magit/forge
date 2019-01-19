@@ -144,9 +144,11 @@
     map))
 
 (defun forge-insert-issues ()
-  (when-let ((repo (forge-get-repository nil))
-             (- (not (oref repo sparse-p)))
-             (issues (forge-list-recent-topics repo 'issue)))
+  (when-let* ((repo (forge-get-repository nil))
+              (- (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE
+                     (oref repo issues-p)))
+              (- (not (oref repo sparse-p)))
+              (issues (forge-list-recent-topics repo 'issue)))
     (magit-insert-section (issues nil t)
       (magit-insert-heading
         (format "%s (%s)"
