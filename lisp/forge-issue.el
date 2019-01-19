@@ -93,13 +93,8 @@
               (oref post issue)
               'forge-issue))
 
-(cl-defmethod forge-ls-issues ((repo forge-repository))
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-issue (forge-db) row))
-          (forge-sql [:select * :from issue
-                      :where (= repository $s1)
-                      :order-by [(desc number)]]
-                     (oref repo id))))
+(cl-defmethod forge-ls-issues ((repo forge-repository) &optional type)
+  (forge-ls-topics repo 'forge-issue type))
 
 ;;; Utilities
 

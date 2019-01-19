@@ -122,13 +122,8 @@
               (oref post pullreq)
               'forge-pullreq))
 
-(cl-defmethod forge-ls-pullreqs ((repo forge-repository))
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-pullreq (forge-db) row))
-          (forge-sql [:select * :from pullreq
-                      :where (= repository $s1)
-                      :order-by [(desc number)]]
-                     (oref repo id))))
+(cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type)
+  (forge-ls-topics repo 'forge-pullreq type))
 
 (cl-defmethod forge-get-repository ((post forge-pullreq-post))
   (forge-get-repository (forge-get-pullreq post)))
