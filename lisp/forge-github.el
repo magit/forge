@@ -123,6 +123,8 @@ repositories.
     (oset repo locked-p       .isLocked)
     (oset repo mirror-p       .isMirror)
     (oset repo private-p      .isPrivate)
+    (oset repo issues-p       .hasIssuesEnabled)
+    (oset repo wiki-p         .hasWikiEnabled)
     (oset repo stars          .stargazers.totalCount)
     (oset repo watchers       .watchers.totalCount)))
 

@@ -103,6 +103,8 @@ it is all or nothing.")
     (oset repo locked-p       nil)
     (oset repo mirror-p       .mirror)
     (oset repo private-p      (equal .visibility "private"))
+    (oset repo issues-p       .issues_enabled)
+    (oset repo wiki-p         .wiki_enabled)
     (oset repo stars          .star_count)
     (oset repo watchers       .star_count)))
 
