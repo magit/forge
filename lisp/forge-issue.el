@@ -98,14 +98,16 @@
 
 ;;; Utilities
 
-(defun forge-read-issue (prompt)
+(defun forge-read-issue (prompt &optional type)
+  (when (eq type t)
+    (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-issue-at-point))
          (repo    (forge-get-repository (or default t)))
          (format  (lambda (topic)
                     (format "%s  %s"
                             (oref topic number)
                             (oref topic title))))
-         (choices (oref repo issues))
+         (choices (forge-ls-issues repo type))
          (choice  (magit-completing-read
                    prompt
                    (mapcar format choices)

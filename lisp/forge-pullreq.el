@@ -130,14 +130,16 @@
 
 ;;; Utilities
 
-(defun forge-read-pullreq (prompt)
+(defun forge-read-pullreq (prompt &optional type)
+  (when (eq type t)
+    (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-pullreq-at-point))
          (repo    (forge-get-repository (or default t)))
          (format  (lambda (topic)
                     (format "%s  %s"
                             (oref topic number)
                             (oref topic title))))
-         (choices (oref repo pullreqs))
+         (choices (forge-ls-pullreqs repo type))
          (choice  (magit-completing-read prompt
                                          (mapcar format choices)
                                          nil nil nil nil
@@ -148,14 +150,16 @@
     (and number
          (forge-get-pullreq repo number))))
 
-(defun forge-read-pullreq-or-number (prompt)
+(defun forge-read-pullreq-or-number (prompt &optional type)
+  (when (eq type t)
+    (setq type (if current-prefix-arg nil 'open)))
   (if (forge--childp (forge-get-repository t) 'forge-unusedapi-repository)
       (let* ((num (read-number (concat prompt ": ")))
              (ref (forge--pullreq-ref-1 num)))
         (unless (magit-ref-exists-p ref)
           (user-error "Reference `%s' doesn't exist.  Maybe pull first?" ref))
         num)
-    (forge-read-pullreq prompt)))
+    (forge-read-pullreq prompt type)))
 
 (defun forge--pullreq-branch (pullreq &optional assert-new)
   (with-slots (head-ref number cross-repo-p editable-p) pullreq
