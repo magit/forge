@@ -284,12 +284,16 @@ The following %-sequences are supported:
     (&optional (topic (car magit-refresh-args)))
   (magit-insert-section (topic-labels)
     (insert (format "%-11s" "Labels: "))
-    (if-let ((labels (closql--iref topic 'labels)))
-        (insert (mapconcat (pcase-lambda (`(,name ,color ,_desc))
-                             (propertize name 'face (list :box color)))
-                           labels " "))
+    (if-let ((labels (forge--format-topic-labels topic)))
+        (insert labels)
       (insert (propertize "none" 'face 'magit-dimmed)))
     (insert ?\n)))
+
+(defun forge--format-topic-labels (topic)
+  (when-let ((labels (closql--iref topic 'labels)))
+    (mapconcat (pcase-lambda (`(,name ,color ,_desc))
+                 (propertize name 'face (list :box color)))
+               labels " ")))
 
 (defvar forge-topic-assignees-section-map
   (let ((map (make-sparse-keymap)))
