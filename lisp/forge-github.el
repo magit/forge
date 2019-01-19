@@ -327,13 +327,11 @@ repositories.
                    (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
                      (closql-insert (forge-db) obj)
                      (when query
-                       (let ((topic (funcall (if (eq (oref obj type) 'issue)
-                                                 #'forge--update-issue
-                                               #'forge--update-pullreq)
-                                             repo
-                                             (cdr (cadr (assq key result)))
-                                             nil)))
-                         (oset topic unread-p (oref obj unread-p))))))
+                       (oset (funcall (if (eq (oref obj type) 'issue)
+                                          #'forge--update-issue
+                                        #'forge--update-pullreq)
+                                      repo (cdr (cadr (assq key result))) nil)
+                             unread-p (oref obj unread-p)))))
                  (forge--msg nil t t "Storing notifications")
                  (when callback
                    (funcall callback)))))
