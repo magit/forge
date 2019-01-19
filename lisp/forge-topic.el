@@ -183,6 +183,27 @@ The following %-sequences are supported:
              (cdr forge-topic-list-order)
              :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
 
+(cl-defmethod forge-ls-topics ((repo forge-repository) class &optional type)
+  (mapcar (lambda (row)
+            (closql--remake-instance class (forge-db) row))
+          (let ((table (oref-default class closql-table))
+                (id (oref repo id)))
+            (pcase-exhaustive type
+              (`open   (forge-sql [:select * :from $s1
+                                   :where (and (= repository $s2)
+                                               (isnull closed))
+                                   :order-by [(desc number)]]
+                                  table id))
+              (`closed (forge-sql [:select * :from $s1
+                                   :where (and (= repository $s2)
+                                               (notnull closed))
+                                   :order-by [(desc number)]]
+                                  table id))
+              (`nil    (forge-sql [:select * :from $s1
+                                   :where (= repository $s2)
+                                   :order-by [(desc number)]]
+                                  table id))))))
+
 ;;; Utilities
 
 (cl-defmethod forge--format-url ((topic forge-topic) slot &optional spec)
