@@ -148,9 +148,7 @@ have to do so.  See https://platform.github.community/t/7284."
 Prefer a topic over a branch and that over a commit."
   (interactive)
   (if-let ((topic (forge-topic-at-point)))
-      (if (forge-issue-p topic)
-          (forge-browse-issue topic)
-        (forge-browse-pullreq topic))
+      (forge-browse topic)
     (if-let ((branch (magit-branch-at-point)))
         (forge-browse-branch branch)
       (call-interactively 'forge-browse-commit))))
@@ -210,9 +208,7 @@ Prefer a topic over a branch and that over a commit."
   "Visit the current topic using a browser."
   (interactive)
   (if-let ((topic (forge-current-topic)))
-      (if (forge-issue-p topic)
-          (forge-browse-issue topic)
-        (forge-browse-pullreq topic))
+      (forge-browse topic)
     (user-error "There is no topic at point")))
 
 ;;;###autoload
@@ -225,8 +221,7 @@ Prefer a topic over a branch and that over a commit."
 (defun forge-browse-pullreq (pullreq)
   "Visit the url corresponding to PULLREQ using a browser."
   (interactive (list (forge-read-pullreq "Browse pull-request" t)))
-  (browse-url (forge--format-url pullreq 'pullreq-url-format))
-  (oset pullreq unread-p nil))
+  (forge-browse pullreq))
 
 ;;;###autoload
 (defun forge-browse-issues (repo)
@@ -238,25 +233,14 @@ Prefer a topic over a branch and that over a commit."
 (defun forge-browse-issue (issue)
   "Visit the url corresponding to ISSUE using a browser."
   (interactive (list (forge-read-issue "Browse issue" t)))
-  (browse-url (forge--format-url issue 'issue-url-format))
-  (oset issue unread-p nil))
+  (forge-browse issue))
 
 ;;;###autoload
 (defun forge-browse-post ()
   "Visit the url corresponding to the post at point using a browser."
   (interactive)
-  (let ((post (forge-post-at-point)))
-    (cl-etypecase post
-      (forge-issue   (forge-browse-issue post))
-      (forge-pullreq (forge-browse-pullreq post))
-      (forge-post
-       (let ((topic (forge-get-topic post)))
-         (browse-url
-          (forge--format-url post
-                             (cl-etypecase topic
-                               (forge-issue   'issue-post-url-format)
-                               (forge-pullreq 'pullreq-post-url-format))))
-         (oset topic unread-p nil))))))
+  (when-let ((post (forge-post-at-point)))
+    (forge-browse post)))
 
 ;;; Visit
 

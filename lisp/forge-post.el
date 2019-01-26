@@ -57,6 +57,9 @@
                                   ((forge--childp topic 'forge-pullreq)
                                    'pullreq-post-url-format)))))
 
+(cl-defmethod forge-browse :after ((post forge-post))
+  (oset (forge-get-topic post) unread-p nil))
+
 ;;; Sections
 
 (defun forge-post-at-point ()
