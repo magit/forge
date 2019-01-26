@@ -167,6 +167,9 @@ argument.")
 (cl-defgeneric forge-get-pullreq ()
   "Return a forge pullreq object.")
 
+(cl-defgeneric forge-get-url (obj)
+  "Return the URL for a forge object.")
+
 (cl-defgeneric forge--object-id (class &rest args)
   "Return the database id for the CLASS object specified by ARGS.")
 

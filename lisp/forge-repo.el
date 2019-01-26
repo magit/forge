@@ -245,6 +245,9 @@ forges and hosts.  "
          (?p . ,path)
          (?P . ,(replace-regexp-in-string "/" "%2F" path)))))))
 
+(cl-defmethod forge-get-url ((repo forge-repository))
+  (forge--format-url (oref repo remote) 'remote-url-format))
+
 (defun forge--set-field-callback ()
   (let ((buf (current-buffer)))
     (lambda (&rest _)

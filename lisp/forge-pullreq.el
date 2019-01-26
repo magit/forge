@@ -183,6 +183,9 @@
     (or (and branch (magit-rev-verify branch) branch)
         (forge--pullreq-ref-1 (oref pullreq number)))))
 
+(cl-defmethod forge-get-url ((pullreq forge-pullreq))
+  (forge--format-url pullreq 'pullreq-url-format))
+
 ;;; Sections
 
 (defun forge-pullreq-at-point ()

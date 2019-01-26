@@ -48,6 +48,15 @@
 (cl-defmethod forge-get-repository ((post forge-post))
   (forge-get-repository (forge-get-topic post)))
 
+;;; Utilities
+
+(cl-defmethod forge-get-url ((post forge-post))
+  (forge--format-url post (let ((topic (forge-get-parent post)))
+                            (cond ((forge--childp topic 'forge-issue)
+                                   'issue-post-url-format)
+                                  ((forge--childp topic 'forge-pullreq)
+                                   'pullreq-post-url-format)))))
+
 ;;; Sections
 
 (defun forge-post-at-point ()

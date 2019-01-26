@@ -48,6 +48,11 @@
   (when-let ((id (oref notify repository)))
     (closql-get (forge-db) id 'forge-repository)))
 
+;;; Utilities
+
+(cl-defmethod forge-get-url ((notify forge-notification))
+  (oref notify url))
+
 ;;; Mode
 
 (defvar forge-notifications-mode-map
