@@ -239,8 +239,9 @@ Prefer a topic over a branch and that over a commit."
 (defun forge-browse-post ()
   "Visit the url corresponding to the post at point using a browser."
   (interactive)
-  (when-let ((post (forge-post-at-point)))
-    (forge-browse post)))
+  (if-let ((post (forge-post-at-point)))
+      (forge-browse post)
+    (user-error "There is no post at point")))
 
 ;;; Visit
 
