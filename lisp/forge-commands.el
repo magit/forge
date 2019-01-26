@@ -249,26 +249,20 @@ Prefer a topic over a branch and that over a commit."
   "View the topic at point in a separate buffer."
   (interactive)
   (if-let ((topic (forge-topic-at-point)))
-      (if (forge-issue-p topic)
-          (forge-visit-issue topic)
-        (forge-visit-pullreq topic))
+      (forge-visit topic)
     (user-error "There is no topic at point")))
 
 ;;;###autoload
 (defun forge-visit-pullreq (pullreq)
   "View the pull-request at point in a separate buffer."
   (interactive (list (forge-read-pullreq "View pull-request" t)))
-  (let ((magit-generate-buffer-name-function 'forge-topic-buffer-name))
-    (magit-mode-setup-internal #'forge-topic-mode (list pullreq) t))
-  (oset pullreq unread-p nil))
+  (forge-visit pullreq))
 
 ;;;###autoload
 (defun forge-visit-issue (issue)
   "View the issue at point in a separate buffer."
   (interactive (list (forge-read-issue "View issue" t)))
-  (let ((magit-generate-buffer-name-function 'forge-topic-buffer-name))
-    (magit-mode-setup-internal #'forge-topic-mode (list issue) t))
-  (oset issue unread-p nil))
+  (forge-visit issue))
 
 ;;; Create
 

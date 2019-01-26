@@ -213,6 +213,13 @@ The following %-sequences are supported:
   (forge--format-url (forge-get-repository topic) slot
                      `(,@spec (?i . ,(oref topic number)))))
 
+(cl-defmethod forge-visit ((topic forge-topic))
+  (let ((magit-generate-buffer-name-function 'forge-topic-buffer-name))
+    (magit-mode-setup-internal #'forge-topic-mode (list topic) t)))
+
+(cl-defmethod forge-visit :after ((topic forge-topic))
+  (oset topic unread-p nil))
+
 (defun forge--sanitize-string (string)
   ;; For Gitlab this may also be nil.
   (if string

@@ -174,6 +174,9 @@ argument.")
   "Visit the URL corresponding to a forge object in a browser."
   (browse-url (forge-get-url obj)))
 
+(cl-defgeneric forge-visit (obj)
+  "View a forge object in a separate buffer.")
+
 (cl-defgeneric forge--object-id (class &rest args)
   "Return the database id for the CLASS object specified by ARGS.")
 
