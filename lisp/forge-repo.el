@@ -133,8 +133,7 @@ forges and hosts.  "
     (let* ((remotes (magit-list-remotes))
            (remote (or remote
                        (if (cdr remotes)
-                           (car (member (or (magit-get "forge.remote") "origin")
-                                        remotes))
+                           (car (member (forge--get-remote) remotes))
                          (car remotes)))))
       (if-let ((url (and remote (magit-git-string "remote" "get-url" remote))))
           (forge-get-repository url remote demand)
@@ -202,6 +201,9 @@ forges and hosts.  "
   repo)
 
 ;;; Utilities
+
+(defsubst forge--get-remote ()
+  (or (magit-get "forge.remote") "origin"))
 
 (defun forge-read-repository (prompt)
   (let ((choice (magit-completing-read
