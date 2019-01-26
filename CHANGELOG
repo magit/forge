@@ -16,6 +16,8 @@
 
 - Added support for issue and pull-request templates.  #25
 
+- Added the command ~forge-copy-url-at-point-as-kill~.  #85
+
 - When visiting an unmerged pull-request in a separate buffer, then
   the commits are now listed alongside the posts.  caeb8fb
 

@@ -183,6 +183,17 @@ Prefer a topic over a branch and that over a commit."
                         `((?r . ,(magit-commit-p rev)))))))
 
 ;;;###autoload
+(defun forge-copy-url-at-point-as-kill ()
+  "Copy the url of the thing at point."
+  (interactive)
+  (if-let ((url (forge-get-url (or (forge-post-at-point)
+                                   (forge-current-topic)))))
+      (progn
+        (kill-new url)
+        (message "Copied %S" url))
+    (user-error "Nothing at point with a URL")))
+
+;;;###autoload
 (defun forge-browse-branch (branch)
   "Visit the url corresponding BRANCH using a browser."
   (interactive (list (magit-read-branch "Browse branch")))
