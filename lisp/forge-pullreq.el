@@ -254,6 +254,11 @@
         (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
                           magit-log-section-arguments)))))
 
+(cl-defmethod forge--topic-type-prefix ((pullreq forge-pullreq))
+  (if (forge--childp (forge-get-repository pullreq) 'forge-gitlab-repository)
+      "!"
+    "#"))
+
 ;;; _
 (provide 'forge-pullreq)
 ;;; forge-pullreq.el ends here

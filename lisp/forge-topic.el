@@ -357,9 +357,9 @@ The following %-sequences are supported:
       (fill-region (point-min) (point-max)))
     (buffer-string)))
 
-(defun forge--topic-type-prefix (topic)
-  (and (forge--childp (forge-get-repository topic) 'forge-gitlab-repository)
-       (if (forge--childp topic 'forge-pullreq) "!" "#")))
+(cl-defmethod forge--topic-type-prefix ((_ forge-topic))
+  "Get the identifier prefix specific to the type of TOPIC."
+  "#")
 
 (defun forge--topic-buffer-lock-value (args)
   (and (derived-mode-p 'forge-topic-mode)
