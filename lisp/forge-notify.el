@@ -96,9 +96,9 @@
               (with-slots (type topic title url unread-p) notify
                 (pcase type
                   ('issue
-                   (forge-insert-issue (forge-get-issue repo topic)))
+                   (forge-insert-topic (forge-get-issue repo topic)))
                   ('pullreq
-                   (forge-insert-pullreq (forge-get-pullreq repo topic)))
+                   (forge-insert-topic (forge-get-pullreq repo topic)))
                   ('commit
                    (magit-insert-section (ncommit nil) ; !commit
                      (string-match "[^/]*\\'" url)

@@ -226,6 +226,58 @@ The following %-sequences are supported:
       (replace-regexp-in-string "\r\n" "\n" string t t)
     ""))
 
+(defun forge-insert-topics (heading topics)
+  "Under a new section with HEADING, insert TOPICS."
+  (when topics
+    (let ((width (length (number-to-string (oref (car topics) number))))
+          list-section-type topic-section-type)
+      (cond ((forge--childp (car topics) 'forge-issue)
+             (setq list-section-type  'issues)
+             (setq topic-section-type 'issue))
+            ((forge--childp (car topics) 'forge-pullreq)
+             (setq list-section-type  'pullreqs)
+             (setq topic-section-type 'pullreq)))
+      (magit-insert-section ((eval list-section-type) nil t)
+        (magit-insert-heading
+          (format "%s (%s)"
+                  (propertize heading 'face 'magit-section-heading)
+                  (length topics)))
+        (magit-insert-section-body
+          (dolist (topic topics)
+            (forge-insert-topic topic topic-section-type width))
+          (insert ?\n))))))
+
+(defun forge-insert-topic (topic &optional topic-section-type width)
+  "Insert TOPIC as a new section.
+If TOPIC-SECTION-TYPE is provided, it is the section type to use.
+If WIDTH is provided, it is a fixed width to use for the topic
+identifier."
+  (unless topic-section-type
+    (setq topic-section-type
+          (cond ((forge--childp topic 'forge-issue) 'issue)
+                ((forge--childp topic 'forge-pullreq) 'pullreq))))
+  (magit-insert-section ((eval topic-section-type) topic t)
+    (forge--insert-topic-contents topic width)))
+
+(cl-defmethod forge--format-topic-id ((topic forge-topic))
+  (propertize (format "#%s" (oref topic number)) 'face 'magit-dimmed))
+
+(cl-defmethod forge--insert-topic-contents ((topic forge-topic) width)
+  (with-slots (number title unread-p closed) topic
+    (insert
+     (format (if width
+                 (format "%%-%is %%s%%s\n" (1+ width))
+               "%s %s%s\n")
+             (forge--format-topic-id topic)
+             (magit-log-propertize-keywords
+              nil (propertize title 'face
+                              (cond (unread-p 'forge-topic-unread)
+                                    (closed   'forge-topic-closed)
+                                    (t        'forge-topic-open))))
+             (if-let ((labels (forge--format-topic-labels topic)))
+                 (concat " " labels)
+               "")))))
+
 ;;; Mode
 
 (defvar forge-topic-mode-map

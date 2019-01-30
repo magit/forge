@@ -144,38 +144,11 @@
     map))
 
 (defun forge-insert-issues ()
-  (when-let ((repo (forge-get-repository nil))
-             (- (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE
-                    (oref repo issues-p)))
-             (- (not (oref repo sparse-p)))
-             (issues (forge-list-recent-topics repo 'issue)))
-    (magit-insert-section (issues nil t)
-      (magit-insert-heading
-        (format "%s (%s)"
-                (propertize "Issues" 'face 'magit-section-heading)
-                (length issues)))
-      (magit-insert-section-body
-        (let ((width (length (number-to-string (oref (car issues) number)))))
-          (dolist (issue issues)
-            (forge-insert-issue issue width)))
-        (insert ?\n)))))
-
-(defun forge-insert-issue (issue &optional width)
-  (with-slots (number title unread-p closed) issue
-    (magit-insert-section (issue issue)
-      (insert
-       (format (if width
-                   (format "%%-%is %%s%%s\n" (1+ width))
-                 "%s %s%s\n")
-               (propertize (format "#%s" number) 'face 'magit-dimmed)
-               (magit-log-propertize-keywords
-                nil (propertize title 'face
-                                (cond (unread-p 'forge-topic-unread)
-                                      (closed   'forge-topic-closed)
-                                      (t        'forge-topic-open))))
-               (if-let ((labels (forge--format-topic-labels issue)))
-                   (concat " " labels)
-                 ""))))))
+  (when-let ((repo (forge-get-repository nil)))
+    (when (and (not (oref repo sparse-p))
+               (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE
+                   (oref repo issues-p)))
+      (forge-insert-topics "Issues" (forge-list-recent-topics repo 'issue)))))
 
 ;;; _
 (provide 'forge-issue)

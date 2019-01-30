@@ -209,43 +209,10 @@
     map))
 
 (defun forge-insert-pullreqs ()
-  (when-let ((repo (forge-get-repository nil))
-             (- (not (oref repo sparse-p)))
-             (pullreqs (forge-list-recent-topics repo 'pullreq)))
-    (magit-insert-section (pullreqs nil t)
-      (magit-insert-heading
-        (format "%s (%s)"
-                (propertize "Pull requests" 'face 'magit-section-heading)
-                (length pullreqs)))
-      (magit-insert-section-body
-        (let ((width (length (number-to-string (oref (car pullreqs) number))))
-              (prefix (forge--topic-type-prefix (car pullreqs))))
-          (dolist (pullreq pullreqs)
-            (forge-insert-pullreq pullreq width prefix)))
-        (insert ?\n)))))
-
-(defun forge-insert-pullreq (pullreq &optional width prefix)
-  (with-slots (number title unread-p closed merged) pullreq
-    (magit-insert-section (pullreq pullreq t)
-      (insert
-       (format (if width
-                   (format "%%-%is %%s%%s\n" (1+ width))
-                 "%s %s%s\n")
-               (propertize (format "%s%s" (or prefix "#") number)
-                           'face (if merged
-                                     'forge-topic-merged
-                                   'forge-topic-unmerged))
-               (magit-log-propertize-keywords
-                nil (propertize title 'face
-                                (cond (unread-p 'forge-topic-unread)
-                                      (closed   'forge-topic-closed)
-                                      (t        'forge-topic-open))))
-               (if-let ((labels (forge--format-topic-labels pullreq)))
-                   (concat " " labels)
-                 "")))
-      (unless merged
-        (magit-insert-heading)
-        (forge--insert-pullreq-commits pullreq)))))
+  (when-let ((repo (forge-get-repository nil)))
+    (unless (oref repo sparse-p)
+      (forge-insert-topics "Pull requests"
+                           (forge-list-recent-topics repo 'pullreq)))))
 
 (defun forge--insert-pullreq-commits (pullreq)
   (when-let ((ref (forge--pullreq-ref pullreq)))
@@ -253,6 +220,19 @@
       (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
         (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
                           magit-log-section-arguments)))))
+
+(cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq) _width)
+  (unless (oref pullreq merged)
+    (magit-insert-heading)
+    (forge--insert-pullreq-commits pullreq)))
+
+(cl-defmethod forge--format-topic-id ((pullreq forge-pullreq))
+  (propertize (format "%s%s"
+                      (forge--topic-type-prefix pullreq)
+                      (oref pullreq number))
+              'face (if (oref pullreq merged)
+                        'forge-topic-merged
+                      'forge-topic-unmerged)))
 
 (cl-defmethod forge--topic-type-prefix ((pullreq forge-pullreq))
   (if (forge--childp (forge-get-repository pullreq) 'forge-gitlab-repository)
