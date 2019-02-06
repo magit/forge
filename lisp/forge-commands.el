@@ -306,20 +306,26 @@ Prefer a topic over a branch and that over a commit."
                                 (magit-get-upstream-branch upstream)))
                          (car (member "origin/master" branches))))))
      (list source target)))
-  (let ((buf (forge--prepare-post-buffer "new-pullreq")))
+  (let* ((repo (forge-get-repository t))
+         (buf (forge--prepare-post-buffer
+               "new-pullreq"
+               (forge--format-url repo "Create new pull-request on %p"))))
     (with-current-buffer buf
       (setq forge--buffer-base-branch target)
       (setq forge--buffer-head-branch source)
-      (setq forge--buffer-post-object (forge-get-repository t))
+      (setq forge--buffer-post-object repo)
       (setq forge--submit-post-function 'forge--submit-create-pullreq))
     (forge--display-post-buffer buf)))
 
 (defun forge-create-issue ()
   "Create a new issue for the current repository."
   (interactive)
-  (let ((buf (forge--prepare-post-buffer "new-issue")))
+  (let* ((repo (forge-get-repository t))
+         (buf (forge--prepare-post-buffer
+               "new-issue"
+               (forge--format-url repo "Create new issue on %p"))))
     (with-current-buffer buf
-      (setq forge--buffer-post-object (forge-get-repository t))
+      (setq forge--buffer-post-object repo)
       (setq forge--submit-post-function 'forge--submit-create-issue))
     (forge--display-post-buffer buf)))
 
@@ -328,7 +334,8 @@ Prefer a topic over a branch and that over a commit."
   (interactive)
   (let* ((topic (car magit-refresh-args))
          (buf (forge--prepare-post-buffer
-               (format "%s:new-comment" (oref topic number)))))
+               (forge--format-url topic "%i:new-comment")
+               (forge--format-url topic "New comment on #%i of %p"))))
     (with-current-buffer buf
       (setq forge--buffer-post-object topic)
       (setq forge--submit-post-function 'forge--submit-create-post))
@@ -340,13 +347,15 @@ Prefer a topic over a branch and that over a commit."
   "Edit an existing post."
   (interactive)
   (let* ((post (forge-post-at-point))
-         (buf (forge--prepare-post-buffer
-               (cl-typecase post
-                 (forge-topic (format "%s"
-                                      (oref post number)))
-                 (forge-post  (format "%s:%s"
-                                      (oref (forge-get-topic post) number)
-                                      (oref post number)))))))
+         (buf (cl-typecase post
+                (forge-topic
+                 (forge--prepare-post-buffer
+                  (forge--format-url post "%i")
+                  (forge--format-url post "Edit #%i of %p")))
+                (forge-post
+                 (forge--prepare-post-buffer
+                  (forge--format-url post "%i:%I")
+                  (forge--format-url post "Edit comment on #%i of %p"))))))
     (with-current-buffer buf
       (setq forge--buffer-post-object post)
       (setq forge--submit-post-function 'forge--submit-edit-post)

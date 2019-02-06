@@ -235,7 +235,9 @@ forges and hosts.  "
 
 (cl-defmethod forge--format-url ((repo forge-repository) slot &optional spec)
   (format-spec
-   (eieio-oref repo slot)
+   (if (symbolp slot)
+       (eieio-oref repo slot)
+     slot)
    (with-slots (githost owner name) repo
      (let ((path (if owner (concat owner "/" name) name)))
        `(,@spec
