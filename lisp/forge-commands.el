@@ -463,7 +463,7 @@ Please see the manual for more information."
             (unless (magit-branch-p tracking)
               (magit-call-git "fetch" upstream))
             (let ((inhibit-magit-refresh t))
-              (magit-branch-create branch tracking))
+              (magit-branch-create branch tracking "--force"))
             (magit-set upstream "branch" branch "pushRemote")
             (magit-set upstream "branch" branch "pullRequestRemote"))
         (if (magit-remote-p remote)
@@ -489,7 +489,7 @@ Please see the manual for more information."
                  ((string-prefix-p "git://" upstream-url)
                   (format "git://%s/%s.git" host head-repo))
                  (t (error "%s has an unexpected format" upstream-url)))))
-        (magit-git "branch" branch (concat remote "/" pr-branch))
+        (magit-git "branch" "--force" branch (concat remote "/" pr-branch))
         (if (and editable-p
                  (equal branch pr-branch))
             (magit-set remote "branch" branch "pushRemote")

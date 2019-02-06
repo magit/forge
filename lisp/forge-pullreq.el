@@ -161,15 +161,17 @@
         num)
     (forge-read-pullreq prompt type)))
 
-(defun forge--pullreq-branch (pullreq &optional assert-new)
+(defun forge--pullreq-branch (pullreq &optional confirm-reset)
   (with-slots (head-ref number cross-repo-p editable-p) pullreq
     (let ((branch head-ref))
-      (when (and cross-repo-p
-                 (or (not editable-p)
-                     (magit-branch-p branch)))
+      (when (and cross-repo-p (not editable-p))
         (setq branch (format "pr-%s" number)))
-      (when (and assert-new (magit-branch-p branch))
-        (user-error "Branch `%s' already exists" branch))
+      (when (and confirm-reset
+                 (magit-branch-p branch)
+                 (not (y-or-n-p
+                       (format "Branch `%s' already exists.  Reset it? "
+                               branch))))
+        (user-error "Abort"))
       branch)))
 
 (defun forge--pullreq-ref-1 (number)
