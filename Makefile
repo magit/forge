@@ -17,6 +17,9 @@ help:
 	$(info make publish      - publish snapshot manuals)
 	$(info make release      - publish release manuals)
 	$(info make clean        - remove most generated files)
+	$(info make run          - run Emacs with minimal configuration)
+	$(info make dev-run      - like 'make run', but use local packages when available)
+	$(info make deps         - install dependencies)
 	@printf "\n"
 
 lisp:
@@ -50,3 +53,11 @@ clean:
 	@printf "Cleaning...\n"
 	@$(MAKE) -C lisp clean
 	@$(MAKE) -C docs clean
+	@$(MAKE) -f emake.mk clean
+
+dev-run:
+	@$(MAKE) -f emake.mk dev-run
+run:
+	@$(MAKE) -f emake.mk run
+deps:
+	@$(MAKE) -f emake.mk $(EMAKE_WORKDIR)/elpa

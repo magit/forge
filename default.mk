@@ -19,24 +19,29 @@ ELS  += $(PKG)-semi.el
 ELS  += $(PKG)-commands.el
 ELS  += $(PKG)-list.el
 ELCS  = $(ELS:.el=.elc)
-
-DEPS  = closql
-DEPS += dash
-DEPS += hydra # for lv.el
-DEPS += emacsql
-DEPS += ghub
-DEPS += graphql
-DEPS += magit/lisp
-DEPS += markdown-mode
-DEPS += transient/lisp
-DEPS += treepy
-DEPS += with-editor
+PACKAGE_LISP = $(addprefix lisp/,$(ELS))
 
 EMACS      ?= emacs
 EMACS_ARGS ?=
 
-LOAD_PATH  ?= $(addprefix -L ../../,$(DEPS))
-LOAD_PATH  += -L .
+CURL       ?= curl -fsSkL --retry 9 --retry-delay 9
+
+EMAKE_SHA1 ?= e2db14acc21fdf9e0c76377c5165149562c1ed88
+
+EMAKE_WORKDIR  ?= .emake
+EMAKE_LOGLEVEL ?= INFO
+
+EMAKE_ENV += PACKAGE_FILE="$(PKG)-pkg.el"
+EMAKE_ENV += PACKAGE_LISP="$(PACKAGE_LISP)"
+EMAKE_ENV += PACKAGE_ARCHIVES="melpa"
+EMAKE_ENV += EMAKE_WORKDIR="$(EMAKE_WORKDIR)"
+EMAKE_ENV += EMAKE_LOGLEVEL="$(EMAKE_LOGLEVEL)"
+
+EMAKE_BASE ?= $(EMAKE_ENV) $(EMACS) -Q $(EMACS_ARGS) \
+	-L '$(abspath lisp)' \
+	-l '$(EMAKE_WORKDIR)/emake.el' \
+	--eval '(setq enable-dir-local-variables nil)'
+EMAKE ?= $(EMAKE_BASE) --eval "(emake (pop argv))"
 
 ifndef ORG_LOAD_PATH
 ORG_LOAD_PATH  = -L ../../dash
