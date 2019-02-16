@@ -1,5 +1,7 @@
+*.elc
 /config.mk
 /docs/*.html
 /docs/*.pdf
 /docs/dir
 /docs/forge/
+/lisp/forge-autoloads.el
