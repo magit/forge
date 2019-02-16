@@ -65,7 +65,7 @@ repositories.
 ;;; Pull
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-github-repository) &optional until)
+(cl-defmethod forge--pull ((repo forge-github-repository) until)
   (let ((buf (current-buffer))
         (dir default-directory))
     (ghub-fetch-repository

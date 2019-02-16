@@ -55,7 +55,7 @@ it is all or nothing.")
 ;;; Pull
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-gitlab-repository) &optional until)
+(cl-defmethod forge--pull ((repo forge-gitlab-repository) until)
   (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
                             (current-buffer)))
                   (dir default-directory)
