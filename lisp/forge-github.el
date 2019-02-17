@@ -299,10 +299,10 @@ repositories.
     (forge--msg nil t nil "Pulling notifications")
     (pcase-let*
         ((`(,_ ,apihost ,forge ,_) spec)
-         (notifs (--map (forge--ghub-massage-notification it forge githost)
-                        (forge--ghub-get nil "/notifications"
-                                         '((all . "true"))
-                                         :host apihost :unpaginate t)))
+         (notifs (--keep (forge--ghub-massage-notification it forge githost)
+                         (forge--ghub-get nil "/notifications"
+                                          '((all . "true"))
+                                          :host apihost :unpaginate t)))
          (groups (-partition-all 100 notifs))
          (pages  (length groups))
          (page   0)
@@ -353,8 +353,8 @@ repositories.
            (name   (oref repo name))
            (id     (forge--object-id repoid (string-to-number .id)))
            (key    (intern (concat "_" (replace-regexp-in-string "=" "_" id)))))
-      (list key repo
-            (and (memq type '(pullreq issue))
+      (and (memq type '(pullreq issue))
+           (list key repo
                  `(,key
                    [(:alias t)]
                    (repository
@@ -367,19 +367,19 @@ repositories.
                          (if (eq type 'issue)
                              `(repository issues (issue . ,number))
                            `(repository pullRequest (pullRequest . ,number)))
-                         ))))))
-            (forge-notification
-             :id           id
-             :repository   repoid
-             :forge        forge
-             :reason       (intern (downcase .reason))
-             :unread-p     .unread
-             :last-read    .last_read_at
-             :updated      .updated_at
-             :title        .subject.title
-             :type         type
-             :topic        number
-             :url          .subject.url)))))
+                         )))))
+                 (forge-notification
+                  :id           id
+                  :repository   repoid
+                  :forge        forge
+                  :reason       (intern (downcase .reason))
+                  :unread-p     .unread
+                  :last-read    .last_read_at
+                  :updated      .updated_at
+                  :title        .subject.title
+                  :type         type
+                  :topic        number
+                  :url          .subject.url))))))
 
 ;;; Mutations
 
