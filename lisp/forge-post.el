@@ -51,11 +51,11 @@
 ;;; Utilities
 
 (cl-defmethod forge-get-url ((post forge-post))
-  (forge--format-url post (let ((topic (forge-get-parent post)))
-                            (cond ((forge--childp topic 'forge-issue)
-                                   'issue-post-url-format)
-                                  ((forge--childp topic 'forge-pullreq)
-                                   'pullreq-post-url-format)))))
+  (forge--format post (let ((topic (forge-get-parent post)))
+                        (cond ((forge--childp topic 'forge-issue)
+                               'issue-post-url-format)
+                              ((forge--childp topic 'forge-pullreq)
+                               'pullreq-post-url-format)))))
 
 (cl-defmethod forge-browse :after ((post forge-post))
   (oset (forge-get-topic post) unread-p nil))
@@ -88,9 +88,9 @@
 
 ;;; Utilities
 
-(cl-defmethod forge--format-url ((post forge-post) slot &optional spec)
-  (forge--format-url (forge-get-topic post) slot
-                     `(,@spec (?I . ,(oref post number)))))
+(cl-defmethod forge--format ((post forge-post) slot &optional spec)
+  (forge--format (forge-get-topic post) slot
+                 `(,@spec (?I . ,(oref post number)))))
 
 ;;; Mode
 

@@ -119,7 +119,7 @@
          (forge-get-issue repo number))))
 
 (cl-defmethod forge-get-url ((issue forge-issue))
-  (forge--format-url issue 'issue-url-format))
+  (forge--format issue 'issue-url-format))
 
 ;;; Sections
 

@@ -184,7 +184,7 @@
         (forge--pullreq-ref-1 (oref pullreq number)))))
 
 (cl-defmethod forge-get-url ((pullreq forge-pullreq))
-  (forge--format-url pullreq 'pullreq-url-format))
+  (forge--format pullreq 'pullreq-url-format))
 
 ;;; Sections
 

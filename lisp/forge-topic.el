@@ -209,9 +209,9 @@ The following %-sequences are supported:
 
 ;;; Utilities
 
-(cl-defmethod forge--format-url ((topic forge-topic) slot &optional spec)
-  (forge--format-url (forge-get-repository topic) slot
-                     `(,@spec (?i . ,(oref topic number)))))
+(cl-defmethod forge--format ((topic forge-topic) slot &optional spec)
+  (forge--format (forge-get-repository topic) slot
+                 `(,@spec (?i . ,(oref topic number)))))
 
 (cl-defmethod forge-visit ((topic forge-topic))
   (let ((magit-generate-buffer-name-function 'forge-topic-buffer-name))
@@ -646,12 +646,12 @@ alist, containing just `text' and `position'.")
         (setq-local bug-reference-url-format
                     (if (forge--childp repo 'forge-gitlab-repository)
                         (lambda ()
-                          (forge--format-url repo
-                                             (if (equal (match-string 3) "#")
-                                                 'issue-url-format
-                                               'pullreq-url-format)
-                                             `((?i . ,(match-string 2)))))
-                      (forge--format-url repo 'issue-url-format '((?i . "%s")))))
+                          (forge--format repo
+                                         (if (equal (match-string 3) "#")
+                                             'issue-url-format
+                                           'pullreq-url-format)
+                                         `((?i . ,(match-string 2)))))
+                      (forge--format repo 'issue-url-format '((?i . "%s")))))
         (setq-local bug-reference-bug-regexp
                     (if (forge--childp repo 'forge-gitlab-repository)
                         "\\(?3:[!#]\\)\\(?2:[0-9]+\\)"

@@ -205,11 +205,11 @@ at that time."
                                  (if (atom val) val (alist-get 'id val))))
              rows))))
 
-(cl-defgeneric forge--format-url (object slot &optional spec))
+(cl-defgeneric forge--format (object slot &optional spec))
 
-(cl-defmethod forge--format-url ((remote string) slot &optional spec)
+(cl-defmethod forge--format ((remote string) slot &optional spec)
   (if-let ((parts (forge--split-remote-url remote)))
-      (forge--format-url
+      (forge--format
        (forge-get-repository 'stub remote) slot
        (pcase-let* ((`(,host ,owner ,name) parts)
                     (path (if owner (concat owner "/" name) name)))

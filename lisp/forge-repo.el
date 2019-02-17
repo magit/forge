@@ -233,11 +233,11 @@ forges and hosts.  "
                       :limit 1]
                      table (oref repo id)))))
 
-(cl-defmethod forge--format-url ((repo forge-repository) slot &optional spec)
+(cl-defmethod forge--format ((repo forge-repository) format-or-slot &optional spec)
   (format-spec
-   (if (symbolp slot)
-       (eieio-oref repo slot)
-     slot)
+   (if (symbolp format-or-slot)
+       (eieio-oref repo format-or-slot)
+     format-or-slot)
    (with-slots (githost owner name) repo
      (let ((path (if owner (concat owner "/" name) name)))
        `(,@spec
@@ -248,7 +248,7 @@ forges and hosts.  "
          (?P . ,(replace-regexp-in-string "/" "%2F" path)))))))
 
 (cl-defmethod forge-get-url ((repo forge-repository))
-  (forge--format-url (oref repo remote) 'remote-url-format))
+  (forge--format (oref repo remote) 'remote-url-format))
 
 (defun forge--set-field-callback ()
   (let ((buf (current-buffer)))
