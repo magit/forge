@@ -183,13 +183,22 @@ The following %-sequences are supported:
                          (notnull closed))])
           queries)
 
-    (cl-sort (mapcar (lambda (row)
-                       (closql--remake-instance
-                        (if (eq table 'pullreq) 'forge-pullreq 'forge-issue)
-                        (forge-db) row))
-                     (forge-sql* table queries id open-limit closed-limit))
-             (cdr forge-topic-list-order)
-             :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
+    (forge-list-topics-from-query-result table
+      (forge-sql* table queries id open-limit closed-limit))))
+
+(defun forge-list-topics-from-query-result (table query-result)
+  (declare (indent 1))
+  (cl-assert (memq table '(pullreq issue)))
+  (cl-sort (mapcar (pcase-exhaustive table
+                     ;; pulling the `if' out of the lambda avoids the
+                     ;; repeated decision
+                     (`pullreq (lambda (row) (closql--remake-instance
+                                              'forge-pullreq (forge-db) row)))
+                     (`issue   (lambda (row) (closql--remake-instance
+                                              'forge-issue   (forge-db) row))))
+                   query-result)
+           (cdr forge-topic-list-order)
+           :key (lambda (it) (eieio-oref it (car forge-topic-list-order)))))
 
 (cl-defmethod forge-ls-topics ((repo forge-repository) class &optional type)
   (mapcar (lambda (row)
