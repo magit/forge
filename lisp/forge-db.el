@@ -64,10 +64,14 @@
 
 ;;; Api
 
-(defun forge-sql (sql &rest args)
+(defun forge--sql (db sql &rest args)
   (if (stringp sql)
-      (emacsql (forge-db) (apply #'format sql args))
-    (apply #'emacsql (forge-db) sql args)))
+      (emacsql db (apply #'format sql args))
+    (apply #'emacsql db sql args)))
+
+(defun forge-sql (sql &rest args)
+  (apply #'forge--sql (forge-db) sql args))
+
 
 ;;; Schemata
 
