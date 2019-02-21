@@ -228,7 +228,8 @@
 
 (cl-defmethod forge--format-topic-id ((pullreq forge-pullreq))
   (propertize (format "%s%s"
-                      (forge--topic-type-prefix pullreq)
+                      ;; FIXME Too expensive (forge--topic-type-prefix pullreq)
+                      "#"
                       (oref pullreq number))
               'face (if (oref pullreq merged)
                         'forge-topic-merged
