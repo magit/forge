@@ -148,41 +148,46 @@ The following %-sequences are supported:
   topic)
 
 (cl-defmethod forge-list-recent-topics ((repo forge-repository) table)
-  (let* ((id (oref repo id))
-         (limit forge-topic-list-limit)
-         (open-limit   (if (consp limit) (car limit) limit))
-         (closed-limit (if (consp limit) (cdr limit) limit))
-         (issues (forge-sql [:select * :from $s1
-                             :where (and (= repository $s2)
-                                         (notnull unread-p))]
-                            table id)))
-    (mapc (lambda (row)
-            (cl-pushnew row issues :test #'equal))
-          (if (consp limit)
-              (forge-sql [:select * :from $s1
-                          :where (and (= repository $s2)
-                                      (isnull closed))
-                          :order-by [(desc updated)]
-                          :limit $s3]
-                         table id open-limit)
-            (forge-sql [:select * :from $s1
-                        :where (and (= repository $s2)
-                                    (isnull closed))]
-                       table id)))
-    (unless (zerop closed-limit)
-      (mapc (lambda (row)
-              (cl-pushnew row issues :test #'equal))
-            (forge-sql [:select * :from $s1
-                        :where (and (= repository $s2)
-                                    (notnull closed))
-                        :order-by [(desc updated)]
-                        :limit $s3]
-                       table id closed-limit)))
+  (cl-assert (memq table '(pullreq issue)))
+  (let ((id (oref repo id))
+        (open-limit   (if (consp forge-topic-list-limit)
+                          (car forge-topic-list-limit)
+                        forge-topic-list-limit))
+        (closed-limit (if (consp forge-topic-list-limit)
+                          (cdr forge-topic-list-limit)
+                        forge-topic-list-limit))
+        queries)
+
+    ;; We want *all* unread issues
+    (push [:where (and (= repository $s1)
+                       (notnull unread-p))]
+          queries)
+
+    ;; Get open issues
+    (push (if open-limit
+              [:where (and (= repository $s1)
+                           (isnull closed))
+               :order-by [(desc updated)]
+               :limit $s2]
+            [:where (and (= repository $s1)
+                         (isnull closed))])
+          queries)
+
+    ;; Get closed issues
+    (push (if closed-limit
+              [:where (and (= repository $s1)
+                           (notnull closed))
+               :order-by [(desc updated)]
+               :limit $s3]
+            [:where (and (= repository $s1)
+                         (notnull closed))])
+          queries)
+
     (cl-sort (mapcar (lambda (row)
                        (closql--remake-instance
                         (if (eq table 'pullreq) 'forge-pullreq 'forge-issue)
                         (forge-db) row))
-                     issues)
+                     (forge-sql* table queries id open-limit closed-limit))
              (cdr forge-topic-list-order)
              :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
 

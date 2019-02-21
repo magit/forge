@@ -72,6 +72,14 @@
 (defun forge-sql (sql &rest args)
   (apply #'forge--sql (forge-db) sql args))
 
+(defun forge-sql* (table sql-list &rest args)
+  (declare (indent 2))
+  (let ((db (forge-db))
+        (prefix (vector :select '* :from table))
+        results)
+    (dolist (sql sql-list)
+      (setq results (nconc results (apply #'forge--sql db (vconcat prefix sql) args))))
+    (cl-delete-duplicates results :test #'equal)))
 
 ;;; Schemata
 
