@@ -225,7 +225,7 @@ at that time."
   (concat "\\`\\(?:git://\\|[^/@]+@\\|ssh://\\(?:[^/@]+@\\)?\\|https://\\)"
           (regexp-opt (mapcar #'car forge-alist) t)
           "[:/]\\(.+?\\)"
-          "\\(?:\\.git\\)?\\'"))
+          "\\(?:\\.git\\|/\\)?\\'"))
 
 (defun forge--split-remote-url (remote)
   (when-let ((url (magit-git-string "remote" "get-url" remote)))
