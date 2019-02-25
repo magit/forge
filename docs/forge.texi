@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-85-gf1621ef+1)
+@subtitle for version 0.1.0 (v0.1.0-86-ge07ce2c+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-85-gf1621ef+1).
+This manual is for Forge version 0.1.0 (v0.1.0-86-ge07ce2c+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -478,13 +478,13 @@ Once information has been fetched from a repository's forge, Forge
 adds two additional sections named "Pull requests" and "Issues" to
 Magit's status buffer.  Some of Forge's commands are only bound when
 point is within one of these sections but other commands are also
-available elsewhere in Magit's status buffer and/or from Magit's popup
-commands.
+available elsewhere in Magit's status buffer and/or from Magit's
+transient commands.
 
 @table @asis
 @kindex '
-@cindex forge-dispatch-popup
-@item @kbd{'} @tie{}@tie{}@tie{}@tie{}(@code{forge-dispatch-popup})
+@cindex forge-dispatch
+@item @kbd{'} @tie{}@tie{}@tie{}@tie{}(@code{forge-dispatch})
 
 This prefix command is available in any Magit buffer and provides
 access to several of the available Forge commands.  Most of these
@@ -502,8 +502,9 @@ following sections for information about the available commands.
 @node Pulling
 @section Pulling
 
-The commands that pull forge data are available from the same popup
-(@code{magit-pull-popup} on @code{F}) that is used to pull Git data.
+The commands that pull forge data are available from the same
+transient prefix command (@code{magit-pull} on @code{F}) that is used to pull
+Git data.
 
 @table @asis
 @kindex F y
@@ -572,9 +573,9 @@ up-to-date using this command.
 
 Forge provides commands for creating and checking out a new branch or
 worktree from a pull-request.  These commands are available from the
-same popups as the commands used to create and check out branches and
-worktrees in a more generic fashion (@code{magit-branch-popup} on @code{b} and
-@code{magit-worktree-popup} on @code{%}).
+same transient prefix commands as the suffix commands used to create
+and check out branches and worktrees in a more generic fashion
+(@code{magit-branch} on @code{b} and @code{magit-worktree} on @code{%}).
 
 @table @asis
 @kindex b Y

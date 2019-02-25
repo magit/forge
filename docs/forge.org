@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-85-gf1621ef+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-86-ge07ce2c+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-85-gf1621ef+1).
+This manual is for Forge version 0.1.0 (v0.1.0-86-ge07ce2c+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -329,10 +329,10 @@ Once information has been fetched from a repository's forge, Forge
 adds two additional sections named "Pull requests" and "Issues" to
 Magit's status buffer.  Some of Forge's commands are only bound when
 point is within one of these sections but other commands are also
-available elsewhere in Magit's status buffer and/or from Magit's popup
-commands.
+available elsewhere in Magit's status buffer and/or from Magit's
+transient commands.
 
-- Key: ', forge-dispatch-popup
+- Key: ', forge-dispatch
 
   This prefix command is available in any Magit buffer and provides
   access to several of the available Forge commands.  Most of these
@@ -341,8 +341,9 @@ commands.
 
 ** Pulling
 
-The commands that pull forge data are available from the same popup
-(~magit-pull-popup~ on ~F~) that is used to pull Git data.
+The commands that pull forge data are available from the same
+transient prefix command (~magit-pull~ on ~F~) that is used to pull
+Git data.
 
 - Key: F y, forge-pull
 
@@ -400,9 +401,9 @@ that you know exists but haven't actually pulled yet.
 
 Forge provides commands for creating and checking out a new branch or
 worktree from a pull-request.  These commands are available from the
-same popups as the commands used to create and check out branches and
-worktrees in a more generic fashion (~magit-branch-popup~ on ~b~ and
-~magit-worktree-popup~ on ~%~).
+same transient prefix commands as the suffix commands used to create
+and check out branches and worktrees in a more generic fashion
+(~magit-branch~ on ~b~ and ~magit-worktree~ on ~%~).
 
 - Key: b Y, forge-branch-pullreq
 
