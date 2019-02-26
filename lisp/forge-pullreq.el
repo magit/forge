@@ -212,7 +212,8 @@
   (when-let ((repo (forge-get-repository nil)))
     (unless (oref repo sparse-p)
       (forge-insert-topics "Pull requests"
-                           (forge-list-recent-topics repo 'pullreq)))))
+                           (forge-list-recent-topics repo 'pullreq)
+                           (forge--topic-type-prefix repo 'pullreq)))))
 
 (defun forge--insert-pullreq-commits (pullreq)
   (when-let ((ref (forge--pullreq-ref pullreq)))
@@ -221,15 +222,15 @@
         (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
                           magit-log-section-arguments)))))
 
-(cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq) _width)
+(cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq)
+                                                   _width _prefix)
   (unless (oref pullreq merged)
     (magit-insert-heading)
     (forge--insert-pullreq-commits pullreq)))
 
-(cl-defmethod forge--format-topic-id ((pullreq forge-pullreq))
+(cl-defmethod forge--format-topic-id ((pullreq forge-pullreq) &optional prefix)
   (propertize (format "%s%s"
-                      ;; FIXME Too expensive (forge--topic-type-prefix pullreq)
-                      "#"
+                      (or prefix (forge--topic-type-prefix pullreq))
                       (oref pullreq number))
               'face (if (oref pullreq merged)
                         'forge-topic-merged

@@ -226,7 +226,7 @@ The following %-sequences are supported:
       (replace-regexp-in-string "\r\n" "\n" string t t)
     ""))
 
-(defun forge-insert-topics (heading topics)
+(defun forge-insert-topics (heading topics prefix)
   "Under a new section with HEADING, insert TOPICS."
   (when topics
     (let ((width (length (number-to-string (oref (car topics) number))))
@@ -244,10 +244,10 @@ The following %-sequences are supported:
                   (length topics)))
         (magit-insert-section-body
           (dolist (topic topics)
-            (forge-insert-topic topic topic-section-type width))
+            (forge-insert-topic topic topic-section-type width prefix))
           (insert ?\n))))))
 
-(defun forge-insert-topic (topic &optional topic-section-type width)
+(defun forge-insert-topic (topic &optional topic-section-type width prefix)
   "Insert TOPIC as a new section.
 If TOPIC-SECTION-TYPE is provided, it is the section type to use.
 If WIDTH is provided, it is a fixed width to use for the topic
@@ -257,18 +257,21 @@ identifier."
           (cond ((forge--childp topic 'forge-issue) 'issue)
                 ((forge--childp topic 'forge-pullreq) 'pullreq))))
   (magit-insert-section ((eval topic-section-type) topic t)
-    (forge--insert-topic-contents topic width)))
+    (forge--insert-topic-contents topic width prefix)))
 
-(cl-defmethod forge--format-topic-id ((topic forge-topic))
-  (propertize (format "#%s" (oref topic number)) 'face 'magit-dimmed))
+(cl-defmethod forge--format-topic-id ((topic forge-topic) &optional prefix)
+  (propertize (format "%s%s"
+                      (or prefix (forge--topic-type-prefix topic))
+                      (oref topic number))
+              'face 'magit-dimmed))
 
-(cl-defmethod forge--insert-topic-contents ((topic forge-topic) width)
+(cl-defmethod forge--insert-topic-contents ((topic forge-topic) width prefix)
   (with-slots (number title unread-p closed) topic
     (insert
      (format (if width
                  (format "%%-%is %%s%%s\n" (1+ width))
                "%s %s%s\n")
-             (forge--format-topic-id topic)
+             (forge--format-topic-id topic prefix)
              (magit-log-propertize-keywords
               nil (propertize title 'face
                               (cond (unread-p 'forge-topic-unread)
@@ -414,6 +417,9 @@ identifier."
 
 (cl-defmethod forge--topic-type-prefix ((_ forge-topic))
   "Get the identifier prefix specific to the type of TOPIC."
+  "#")
+
+(cl-defmethod forge--topic-type-prefix ((_repo forge-repository) _type)
   "#")
 
 (defun forge--topic-buffer-lock-value (args)

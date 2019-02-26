@@ -148,7 +148,9 @@
     (when (and (not (oref repo sparse-p))
                (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE
                    (oref repo issues-p)))
-      (forge-insert-topics "Issues" (forge-list-recent-topics repo 'issue)))))
+      (forge-insert-topics "Issues"
+                           (forge-list-recent-topics repo 'issue)
+                           (forge--topic-type-prefix repo 'issue)))))
 
 ;;; _
 (provide 'forge-issue)

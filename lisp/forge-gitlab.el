@@ -519,6 +519,9 @@ it is all or nothing.")
 
 ;;; Utilities
 
+(cl-defmethod forge--topic-type-prefix ((_repo forge-gitlab-repository) type)
+  (if (eq type 'pullreq) "!" "#"))
+
 (cl-defun forge--glab-get (obj resource
                                &optional params
                                &key query payload headers
