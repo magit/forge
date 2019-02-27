@@ -152,12 +152,12 @@ The following %-sequences are supported:
          (limit forge-topic-list-limit)
          (open-limit   (if (consp limit) (car limit) limit))
          (closed-limit (if (consp limit) (cdr limit) limit))
-         (issues (forge-sql [:select * :from $s1
+         (topics (forge-sql [:select * :from $s1
                              :where (and (= repository $s2)
                                          (notnull unread-p))]
                             table id)))
     (mapc (lambda (row)
-            (cl-pushnew row issues :test #'equal))
+            (cl-pushnew row topics :test #'equal))
           (if (consp limit)
               (forge-sql [:select * :from $s1
                           :where (and (= repository $s2)
@@ -171,7 +171,7 @@ The following %-sequences are supported:
                        table id)))
     (unless (zerop closed-limit)
       (mapc (lambda (row)
-              (cl-pushnew row issues :test #'equal))
+              (cl-pushnew row topics :test #'equal))
             (forge-sql [:select * :from $s1
                         :where (and (= repository $s2)
                                     (notnull closed))
@@ -183,7 +183,7 @@ The following %-sequences are supported:
                                     'forge-issue)))
                        (lambda (row)
                          (closql--remake-instance class (forge-db) row)))
-                     issues)
+                     topics)
              (cdr forge-topic-list-order)
              :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
 
