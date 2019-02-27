@@ -178,10 +178,11 @@ The following %-sequences are supported:
                         :order-by [(desc updated)]
                         :limit $s3]
                        table id closed-limit)))
-    (cl-sort (mapcar (lambda (row)
-                       (closql--remake-instance
-                        (if (eq table 'pullreq) 'forge-pullreq 'forge-issue)
-                        (forge-db) row))
+    (cl-sort (mapcar (let ((class (if (eq table 'pullreq)
+                                      'forge-pullreq
+                                    'forge-issue)))
+                       (lambda (row)
+                         (closql--remake-instance class (forge-db) row)))
                      issues)
              (cdr forge-topic-list-order)
              :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
