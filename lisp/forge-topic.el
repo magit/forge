@@ -156,7 +156,8 @@ This variable has to be customized before `forge' is loaded."
 (cl-defmethod forge-get-topic ((topic forge-topic))
   topic)
 
-(cl-defmethod forge-ls-recent-topics ((repo forge-repository) table)
+(cl-defmethod forge-ls-recent-topics ((repo forge-repository) table
+                                      &optional rows)
   (let* ((id (oref repo id))
          (limit forge-topic-list-limit)
          (open-limit   (if (consp limit) (car limit) limit))
@@ -187,35 +188,43 @@ This variable has to be customized before `forge' is loaded."
                         :order-by [(desc updated)]
                         :limit $s3]
                        table id closed-limit)))
-    (cl-sort (mapcar (let ((class (if (eq table 'pullreq)
-                                      'forge-pullreq
-                                    'forge-issue)))
-                       (lambda (row)
-                         (closql--remake-instance class (forge-db) row)))
-                     topics)
-             (cdr forge-topic-list-order)
-             :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
+    (if rows
+        topics
+      (cl-sort (mapcar (let ((class (if (eq table 'pullreq)
+                                        'forge-pullreq
+                                      'forge-issue)))
+                         (lambda (row)
+                           (closql--remake-instance class (forge-db) row)))
+                       topics)
+               (cdr forge-topic-list-order)
+               :key (lambda (it) (eieio-oref it (car forge-topic-list-order)))))))
 
-(cl-defmethod forge-ls-topics ((repo forge-repository) class &optional type)
-  (mapcar (lambda (row)
-            (closql--remake-instance class (forge-db) row))
-          (let ((table (oref-default class closql-table))
-                (id (oref repo id)))
-            (pcase-exhaustive type
-              (`open   (forge-sql [:select * :from $s1
-                                   :where (and (= repository $s2)
-                                               (isnull closed))
-                                   :order-by [(desc number)]]
-                                  table id))
-              (`closed (forge-sql [:select * :from $s1
-                                   :where (and (= repository $s2)
-                                               (notnull closed))
-                                   :order-by [(desc number)]]
-                                  table id))
-              (`nil    (forge-sql [:select * :from $s1
-                                   :where (= repository $s2)
-                                   :order-by [(desc number)]]
-                                  table id))))))
+(cl-defmethod forge-ls-topics ((repo forge-repository) class
+                               &optional type select)
+  (let* ((table (oref-default class closql-table))
+         (id (oref repo id))
+         (raw select)
+         (select (or select '*))
+         (topics (pcase-exhaustive type
+                   (`open   (forge-sql [:select $i1 :from $s2
+                                        :where (and (= repository $s3)
+                                                    (isnull closed))
+                                        :order-by [(desc number)]]
+                                       select table id))
+                   (`closed (forge-sql [:select $i1 :from $s2
+                                        :where (and (= repository $s3)
+                                                    (notnull closed))
+                                        :order-by [(desc number)]]
+                                       select table id))
+                   (`nil    (forge-sql [:select $i1 :from $s2
+                                        :where (= repository $s3)
+                                        :order-by [(desc number)]]
+                                       select table id)))))
+    (if raw
+        topics
+      (mapcar (lambda (row)
+                (closql--remake-instance class (forge-db) row))
+              topics))))
 
 ;;; Utilities
 
