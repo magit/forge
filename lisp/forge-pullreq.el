@@ -236,7 +236,7 @@ yourself, in which case you probably should not reset either.
   (when-let ((repo (forge-get-repository nil)))
     (unless (oref repo sparse-p)
       (forge-insert-topics "Pull requests"
-                           (forge-list-recent-topics repo 'pullreq)
+                           (forge-ls-recent-topics repo 'pullreq)
                            (forge--topic-type-prefix repo 'pullreq)))))
 
 (defun forge--insert-pullreq-commits (pullreq)

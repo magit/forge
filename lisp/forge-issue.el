@@ -149,7 +149,7 @@
                (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE
                    (oref repo issues-p)))
       (forge-insert-topics "Issues"
-                           (forge-list-recent-topics repo 'issue)
+                           (forge-ls-recent-topics repo 'issue)
                            (forge--topic-type-prefix repo 'issue)))))
 
 ;;; _

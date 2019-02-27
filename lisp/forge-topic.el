@@ -147,7 +147,7 @@ The following %-sequences are supported:
 (cl-defmethod forge-get-topic ((topic forge-topic))
   topic)
 
-(cl-defmethod forge-list-recent-topics ((repo forge-repository) table)
+(cl-defmethod forge-ls-recent-topics ((repo forge-repository) table)
   (let* ((id (oref repo id))
          (limit forge-topic-list-limit)
          (open-limit   (if (consp limit) (car limit) limit))
