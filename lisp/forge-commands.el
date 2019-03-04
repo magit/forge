@@ -43,7 +43,7 @@ for a repository using the command `forge-add-pullreq-refspec'."
 ;;; Dispatch
 
 ;;;###autoload (autoload 'forge-dispatch "forge-commands" nil t)
-(define-transient-command forge-dispatch
+(define-transient-command forge-dispatch ()
   "Dispatch a forge command."
   [["Fetch"
     ("f f" "topics"        forge-pull)
