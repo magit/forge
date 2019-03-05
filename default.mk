@@ -22,7 +22,6 @@ ELCS  = $(ELS:.el=.elc)
 
 DEPS  = closql
 DEPS += dash
-DEPS += hydra # for lv.el
 DEPS += emacsql
 DEPS += ghub
 DEPS += graphql
