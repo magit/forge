@@ -64,7 +64,9 @@
 
 ;;; Add Bindings
 
-(define-key magit-mode-map "'" 'forge-dispatch)
+;;;###autoload
+(with-eval-after-load 'magit-mode
+  (define-key magit-mode-map "'" 'forge-dispatch))
 
 (define-key magit-commit-section-map [remap magit-browse-thing] 'forge-browse-dwim)
 (define-key magit-remote-section-map [remap magit-browse-thing] 'forge-browse-remote)
