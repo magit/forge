@@ -332,14 +332,16 @@ Prefer a topic over a branch and that over a commit."
 (defun forge-create-post ()
   "Create a new post on an existing topic."
   (interactive)
-  (let* ((topic (car magit-refresh-args))
-         (buf (forge--prepare-post-buffer
-               (forge--format topic "%i:new-comment")
-               (forge--format topic "New comment on #%i of %p"))))
-    (with-current-buffer buf
-      (setq forge--buffer-post-object topic)
-      (setq forge--submit-post-function 'forge--submit-create-post))
-    (forge--display-post-buffer buf)))
+  (let ((topic (car magit-refresh-args)))
+    (unless (forge-topic-p topic)
+      (user-error "This command is only available from a topic buffer"))
+    (let ((buf (forge--prepare-post-buffer
+                (forge--format topic "%i:new-comment")
+                (forge--format topic "New comment on #%i of %p"))))
+      (with-current-buffer buf
+        (setq forge--buffer-post-object topic)
+        (setq forge--submit-post-function 'forge--submit-create-post))
+      (forge--display-post-buffer buf))))
 
 ;;; Edit
 
