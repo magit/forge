@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-87-g5037813+1)
+@subtitle for version 0.1.0 (v0.1.0-94-g2bbd2a7+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-87-g5037813+1).
+This manual is for Forge version 0.1.0 (v0.1.0-94-g2bbd2a7+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -517,14 +517,15 @@ following sections for information about the available commands.
 @node Pulling
 @section Pulling
 
-The commands that pull forge data are available from the same
-transient prefix command (@code{magit-pull} on @code{F}) that is used to pull
-Git data.
+The commands that fetch forge data are available from the same
+transient prefix command (@code{magit-fetch} on @code{f}) that is used to fetch Git
+data.  If option @code{magit-pull-or-fetch} is non-nil, then they are also
+available from the @code{magit-pull} transient (on @code{F}).
 
 @table @asis
-@kindex F y
+@kindex f y
 @cindex forge-pull
-@item @kbd{F y} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull})
+@item @kbd{f y} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull})
 
 This command uses a forge's API to fetch topics and other
 information about the current repository and stores the fetched
@@ -536,9 +537,9 @@ After using this command for the first time in a given repository
 the status buffer for that repository always lists the pull-requests
 and issues.  See @ref{Initial Pull}.
 
-@kindex F Y
+@kindex f Y
 @cindex forge-pull-notifications
-@item @kbd{F Y} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull-notifications})
+@item @kbd{f Y} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull-notifications})
 
 This command uses a forge's API to fetch all notifications from that
 forge, including but not limited to the notifications for the current

@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-87-g5037813+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-94-g2bbd2a7+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-87-g5037813+1).
+This manual is for Forge version 0.1.0 (v0.1.0-94-g2bbd2a7+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -356,11 +356,12 @@ transient commands.
 
 ** Pulling
 
-The commands that pull forge data are available from the same
-transient prefix command (~magit-pull~ on ~F~) that is used to pull
-Git data.
+The commands that fetch forge data are available from the same
+transient prefix command (~magit-fetch~ on ~f~) that is used to fetch Git
+data.  If option ~magit-pull-or-fetch~ is non-nil, then they are also
+available from the ~magit-pull~ transient (on ~F~).
 
-- Key: F y, forge-pull
+- Key: f y, forge-pull
 
   This command uses a forge's API to fetch topics and other
   information about the current repository and stores the fetched
@@ -372,7 +373,7 @@ Git data.
   the status buffer for that repository always lists the pull-requests
   and issues.  See [[*Initial Pull]].
 
-- Key: F Y, forge-pull-notifications
+- Key: f Y, forge-pull-notifications
 
   This command uses a forge's API to fetch all notifications from that
   forge, including but not limited to the notifications for the current
