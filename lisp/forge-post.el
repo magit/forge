@@ -124,9 +124,11 @@
         (setq forge--pre-post-buffer prevbuf)
         (when resume
           (forge--display-post-buffer buf)
-          (when (yes-or-no-p "This is an old draft.  Discard and start over? ")
-            (erase-buffer)
-            (setq resume nil)))
+          (pcase (magit-read-char-case "A draft already exists.  " nil
+                   (?r "[r]esume editing existing draft")
+                   (?d "[d]iscard draft and start over"))
+            (?d (erase-buffer)
+                (setq resume nil))))
         (when (and (not resume) (string-prefix-p "new" filename))
           (let-alist (forge--topic-template
                       (forge-get-repository t)
