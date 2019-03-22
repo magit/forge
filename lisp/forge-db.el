@@ -29,7 +29,7 @@
 
 ;;; Options
 
-(defcustom forge-database-file "~/.emacs.d/forge-database.sqlite"
+(defcustom forge-database-file (concat user-emacs-directory "forge-database.sqlite")
   "The file used to store the forge database."
   :package-version '(forge . "0.1.0")
   :group 'forge
