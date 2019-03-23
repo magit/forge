@@ -170,12 +170,13 @@
       (when (and confirm-reset (magit-branch-p branch))
         (when (member branch '("master" "next" "maint"))
           (setq branch branch-n))
-        (if (string-prefix-p "pr-" branch)
-            (unless (y-or-n-p
-                     (format "Branch %S already exists.  Reset it? " branch))
-              (user-error "Abort"))
-          (pcase (read-char-choice
-                  (format "A branch named %S already exists.
+        (when (magit-branch-p branch)
+          (if (string-prefix-p "pr-" branch)
+              (unless (y-or-n-p
+                       (format "Branch %S already exists.  Reset it? " branch))
+                (user-error "Abort"))
+            (pcase (read-char-choice
+                    (format "A branch named %S already exists.
 
 This could be because you checked out this pull-request before,
 in which case resetting might be the appropriate thing to do.
@@ -190,11 +191,11 @@ yourself, in which case you probably should not reset either.
   [r]eset existing %S branch
   [c]reate new \"pr-%s\" branch instead
   [a]bort" branch branch number) '(?r ?c ?a))
-            (?r)
-            (?c (setq branch branch-n)
-                (when (magit-branch-p branch)
-                  (error "Oh no!  %S already exists too" branch)))
-            (?a (user-error "Abort")))
+              (?r)
+              (?c (setq branch branch-n)
+                  (when (magit-branch-p branch)
+                    (error "Oh no!  %S already exists too" branch)))
+              (?a (user-error "Abort"))))
           (message "")))
       branch)))
 
