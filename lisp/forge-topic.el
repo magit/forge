@@ -339,7 +339,8 @@ identifier."
                                     'magit-diff-hunk-heading t heading)
             (magit-insert-heading heading))
           (insert (forge--fontify-markdown body) "\n\n"))))
-    (when (fboundp 'markdown-display-inline-images)
+    (when (and (display-images-p)
+               (fboundp 'markdown-display-inline-images))
       (let ((markdown-display-remote-images t))
         (markdown-display-inline-images)))))
 
