@@ -96,4 +96,33 @@
 (transient-append-suffix 'magit-worktree "c"
   '("y" "pull-request worktree" forge-checkout-worktree))
 
+;;; Startup Asserts
+
+(defconst forge--minimal-git "2.7.0")
+
+(defun forge-startup-asserts ()
+  (let ((version (magit-git-version)))
+    (when (and version
+               (version< version forge--minimal-git)
+               (not (equal (getenv "TRAVIS") "true")))
+      (display-warning 'magit (format "\
+Forge requires Git >= %s, you are using %s.
+
+If this comes as a surprise to you, because you do actually have
+a newer version installed, then that probably means that the
+older version happens to appear earlier on the `$PATH'.  If you
+always start Emacs from a shell, then that can be fixed in the
+shell's init file.  If you start Emacs by clicking on an icon,
+or using some sort of application launcher, then you probably
+have to adjust the environment as seen by graphical interface.
+For X11 something like ~/.xinitrc should work.
+
+If you use Tramp to work inside remote Git repositories, then you
+have to make sure a suitable Git is used on the remote machines
+too.\n" forge--minimal-git version) :error))))
+
+(if after-init-time
+    (forge-startup-asserts)
+  (add-hook 'after-init-hook #'forge-startup-asserts t))
+
 ;;; forge.el ends here
