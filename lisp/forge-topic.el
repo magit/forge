@@ -424,14 +424,6 @@ identifier."
 (cl-defmethod forge--topic-type-prefix ((_repo forge-repository) _type)
   "#")
 
-(defun forge--topic-buffer-lock-value (args)
-  (and (derived-mode-p 'forge-topic-mode)
-       (let ((topic (car args)))
-         (concat (forge--topic-type-prefix topic)
-                 (number-to-string (oref topic number))))))
-
-(add-hook 'magit-buffer-lock-functions 'forge--topic-buffer-lock-value)
-
 ;;; Completion
 
 (defun forge-read-topic (prompt)
