@@ -617,24 +617,24 @@ alist, containing just `text' and `position'.")
   "Apply bug reference overlays to region."
   (save-excursion
     (let ((beg-line (progn (goto-char start) (line-beginning-position)))
-	  (end-line (progn (goto-char end) (line-end-position))))
+          (end-line (progn (goto-char end) (line-end-position))))
       ;; Remove old overlays.
       (bug-reference-unfontify beg-line end-line)
       (goto-char beg-line)
       (while (and (< (point) end-line)
-		  (re-search-forward bug-reference-bug-regexp end-line 'move))
-	(when (and (or (not bug-reference-prog-mode)
-		       ;; This tests for both comment and string syntax.
-		       (nth 8 (syntax-ppss)))
+                  (re-search-forward bug-reference-bug-regexp end-line 'move))
+        (when (and (or (not bug-reference-prog-mode)
+                       ;; This tests for both comment and string syntax.
+                       (nth 8 (syntax-ppss)))
                    (not (and (derived-mode-p 'magit-status-mode
                                              'forge-notifications-mode)
                              (= (match-beginning 0)
                                 (line-beginning-position)))))
-	  (let ((overlay (make-overlay (match-beginning 0) (match-end 0)
-	                               nil t nil)))
-	    (overlay-put overlay 'category 'bug-reference)
-	    ;; Don't put a link if format is undefined
-	    (when bug-reference-url-format
+          (let ((overlay (make-overlay (match-beginning 0) (match-end 0)
+                                       nil t nil)))
+            (overlay-put overlay 'category 'bug-reference)
+            ;; Don't put a link if format is undefined
+            (when bug-reference-url-format
               (overlay-put overlay 'bug-reference-url
                            (if (stringp bug-reference-url-format)
                                (format bug-reference-url-format
