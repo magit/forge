@@ -626,10 +626,14 @@ alist, containing just `text' and `position'.")
         (when (and (or (not bug-reference-prog-mode)
                        ;; This tests for both comment and string syntax.
                        (nth 8 (syntax-ppss)))
+                   ;; This is the part where this redefinition differs
+                   ;; from the original defined in "bug-reference.el".
                    (not (and (derived-mode-p 'magit-status-mode
                                              'forge-notifications-mode)
                              (= (match-beginning 0)
-                                (line-beginning-position)))))
+                                (line-beginning-position))))
+                   ;; End of additions.
+                   )
           (let ((overlay (make-overlay (match-beginning 0) (match-end 0)
                                        nil t nil)))
             (overlay-put overlay 'category 'bug-reference)
