@@ -58,6 +58,7 @@
     (set-keymap-parent map forge-topic-list-mode-map)
     (define-key map (kbd "RET") 'forge-list-visit-issue)
     (define-key map [return]    'forge-list-visit-issue)
+    (define-key map (kbd "o")   'forge-list-browse-issue)
     map)
   "Local keymap for Forge-Issue-List mode buffers.")
 
@@ -72,6 +73,7 @@
     (set-keymap-parent map forge-topic-list-mode-map)
     (define-key map (kbd "RET") 'forge-list-visit-pullreq)
     (define-key map [return]    'forge-list-visit-pullreq)
+    (define-key map (kbd "o")   'forge-list-browse-pullreq)
     map)
   "Local keymap for Forge-Pullreq-List mode buffers.")
 
@@ -96,6 +98,11 @@
   (interactive)
   (forge-visit-issue (forge-get-issue (tabulated-list-get-id))))
 
+(defun forge-list-browse-issue ()
+  "Visit the url corresponding to the issue at point in a browser."
+  (interactive)
+  (forge-browse-issue (forge-get-issue (tabulated-list-get-id))))
+
 ;;;; Pullreq
 
 ;;;###autoload
@@ -111,6 +118,11 @@
   "View the pull-request at point in a separate buffer."
   (interactive)
   (forge-visit-pullreq (forge-get-pullreq (tabulated-list-get-id))))
+
+(defun forge-list-browse-issue ()
+  "Visit the url corresponding to the issue at point in a browser."
+  (interactive)
+  (forge-browse-pullreq (forge-get-pullreq (tabulated-list-get-id))))
 
 ;;; Internal
 
