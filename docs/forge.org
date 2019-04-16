@@ -108,6 +108,7 @@ also see [[*Getting Started]].
 
   - https://gitlab.com
   - https://salsa.debian.org
+  - https://framagit.org
 
 ** Partially Supported Forges
 :PROPERTIES:

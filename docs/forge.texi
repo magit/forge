@@ -190,6 +190,9 @@ Gitlab Hosts
 
 @item
 @uref{https://salsa.debian.org}
+
+@item
+@uref{https://framagit.org}
 @end itemize
 @end itemize
 

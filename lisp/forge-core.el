@@ -56,6 +56,8 @@
      "gitlab.com" forge-gitlab-repository)
     ("salsa.debian.org" "salsa.debian.org/api/v4"
      "salsa.debian.org" forge-gitlab-repository)
+    ("framagit.org" "framagit.org/api/v4"
+     "framagit.org" forge-gitlab-repository)
     ;; Forges (API unsupported)
     ("codeberg.org" "codeberg.org/api/v1"
      "codeberg.org" forge-gitea-repository)
