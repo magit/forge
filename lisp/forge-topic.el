@@ -130,22 +130,26 @@ This variable has to be customized before `forge' is loaded."
 (cl-defmethod forge--object-id ((class (subclass forge-topic)) repo number)
   "Return the id for a CLASS object in REPO identified by id NUMBER."
   (base64-encode-string
-   (format "%s:%s%s"
-           (base64-decode-string (oref repo id))
-           (substring (symbol-name class)
-                      (length (oref-default class closql-class-prefix)))
-           number)
+   (encode-coding-string
+    (format "%s:%s%s"
+            (base64-decode-string (oref repo id))
+            (substring (symbol-name class)
+                       (length (oref-default class closql-class-prefix)))
+            number)
+    'utf-8)
    t))
 
 (cl-defmethod forge--object-id ((prefix string) id)
   (base64-encode-string
-   (format "%s:%s"
-           (base64-decode-string prefix)
-           ;; TODO Simply use `id', which is always an integer, except
-           ;; when called by `forge--update-labels(gitlab)', in which
-           ;; case the string also shouldn't be decoded because it is
-           ;; NOT base64 encoded.
-           (or (ignore-errors (base64-decode-string id)) id))
+   (encode-coding-string
+    (format "%s:%s"
+            (base64-decode-string prefix)
+            ;; TODO Simply use `id', which is always an integer, except
+            ;; when called by `forge--update-labels(gitlab)', in which
+            ;; case the string also shouldn't be decoded because it is
+            ;; NOT base64 encoded.
+            (or (ignore-errors (base64-decode-string id)) id))
+    'utf-8)
    t))
 
 ;;; Query
