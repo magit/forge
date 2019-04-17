@@ -245,7 +245,7 @@ yourself, in which case you probably should not reset either.
     (magit-insert-section-body
       (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
         (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
-                          magit-log-section-arguments)))))
+                          magit-buffer-log-args)))))
 
 (cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq)
                                                    _width _prefix)

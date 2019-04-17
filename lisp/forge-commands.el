@@ -334,7 +334,7 @@ Prefer a topic over a branch and that over a commit."
   (interactive)
   (unless (derived-mode-p 'forge-topic-mode)
     (user-error "This command is only available from topic buffers"))
-  (let* ((topic (car magit-refresh-args))
+  (let* ((topic forge-buffer-topic)
          (buf (forge--prepare-post-buffer
                (forge--format topic "%i:new-comment")
                (forge--format topic "New comment on #%i of %p"))))
@@ -549,7 +549,7 @@ information."
 (defun forge-list-notifications ()
   "List notifications."
   (interactive)
-  (magit-mode-setup #'forge-notifications-mode))
+  (forge-notifications-setup-buffer))
 
 ;;;###autoload
 (defun forge-add-pullreq-refspec ()

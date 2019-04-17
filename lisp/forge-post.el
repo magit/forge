@@ -76,7 +76,7 @@
 (defun forge-current-topic ()
   (or (forge-topic-at-point)
       (and (derived-mode-p 'forge-topic-mode)
-           (car magit-refresh-args))))
+           forge-buffer-topic)))
 
 (defun forge--pullreq-from-rev (rev)
   (when-let ((repo    (forge-get-repository nil))

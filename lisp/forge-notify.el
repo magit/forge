@@ -65,6 +65,9 @@
   "Mode for looking at forge notifications."
   (hack-dir-local-variables-non-file-buffer))
 
+(defun forge-notifications-setup-buffer ()
+  (magit-setup-buffer #'forge-notifications-mode))
+
 (defun forge-notifications-refresh-buffer ()
   (forge-insert-notifications))
 

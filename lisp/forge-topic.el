@@ -215,8 +215,7 @@ The following %-sequences are supported:
                  `(,@spec (?i . ,(oref topic number)))))
 
 (cl-defmethod forge-visit ((topic forge-topic))
-  (let ((magit-generate-buffer-name-function 'forge-topic-buffer-name))
-    (magit-mode-setup-internal #'forge-topic-mode (list topic) t)))
+  (forge-topic-setup-buffer topic))
 
 (cl-defmethod forge-visit :after ((topic forge-topic))
   (oset topic unread-p nil))
@@ -306,43 +305,60 @@ identifier."
     (define-key map [remap magit-edit-thing]   'forge-edit-post)
     map))
 
-(defun forge-topic-refresh-buffer (topic)
-  (setq topic (closql-reload topic))
-  (setcar magit-refresh-args topic)
-  (magit-set-header-line-format
-   (format "#%s: %s"
-           (oref topic number)
-           (oref topic title)))
-  (magit-insert-section (topicbuf)
-    (magit-insert-headers 'forge-topic-headers-hook)
-    (when (and (forge-pullreq-p topic)
-               (not (oref topic merged)))
-      (magit-insert-section (pullreq topic)
-        (magit-insert-heading "Commits")
-        (forge--insert-pullreq-commits topic)))
-    (dolist (post (cons topic (oref topic posts)))
-      (with-slots (author created body) post
-        (magit-insert-section section (post post)
-          (oset section heading-highlight-face
-                'magit-diff-hunk-heading-highlight)
-          (let ((heading
-                 (format-spec
-                  forge-post-heading-format
-                  `((?a . ,(propertize author  'face 'forge-post-author))
-                    (?c . ,(propertize created 'face 'forge-post-date))
-                    (?C . ,(propertize (apply #'format "%s %s ago"
-                                              (magit--age
-                                               (float-time
-                                                (date-to-time created))))
-                                       'face 'forge-post-date))))))
-            (add-face-text-property 0 (length heading)
-                                    'magit-diff-hunk-heading t heading)
-            (magit-insert-heading heading))
-          (insert (forge--fontify-markdown body) "\n\n"))))
-    (when (and (display-images-p)
-               (fboundp 'markdown-display-inline-images))
-      (let ((markdown-display-remote-images t))
-        (markdown-display-inline-images)))))
+(defvar-local forge-buffer-topic nil)
+(defvar-local forge-buffer-topic-ident nil)
+
+(defun forge-topic-setup-buffer (topic)
+  (let* ((repo  (forge-get-repository topic))
+         (ident (concat (forge--topic-type-prefix topic)
+                        (number-to-string (oref topic number))))
+         (name  (format "*%s/%s %s*"
+                        (oref repo owner)
+                        (oref repo name)
+                        ident))
+         (magit-generate-buffer-name-function (lambda (_mode _value) name)))
+    (magit-setup-buffer #'forge-topic-mode t
+      (forge-buffer-topic topic)
+      (forge-buffer-topic-ident ident))))
+
+(defun forge-topic-refresh-buffer ()
+  (let ((topic (closql-reload forge-buffer-topic)))
+    (setq forge-buffer-topic topic)
+    (magit-set-header-line-format
+     (format "%s: %s" forge-buffer-topic-ident (oref topic title)))
+    (magit-insert-section (topicbuf)
+      (magit-insert-headers 'forge-topic-headers-hook)
+      (when (and (forge-pullreq-p topic)
+                 (not (oref topic merged)))
+        (magit-insert-section (pullreq topic)
+          (magit-insert-heading "Commits")
+          (forge--insert-pullreq-commits topic)))
+      (dolist (post (cons topic (oref topic posts)))
+        (with-slots (author created body) post
+          (magit-insert-section section (post post)
+            (oset section heading-highlight-face
+                  'magit-diff-hunk-heading-highlight)
+            (let ((heading
+                   (format-spec
+                    forge-post-heading-format
+                    `((?a . ,(propertize author  'face 'forge-post-author))
+                      (?c . ,(propertize created 'face 'forge-post-date))
+                      (?C . ,(propertize (apply #'format "%s %s ago"
+                                                (magit--age
+                                                 (float-time
+                                                  (date-to-time created))))
+                                         'face 'forge-post-date))))))
+              (add-face-text-property 0 (length heading)
+                                      'magit-diff-hunk-heading t heading)
+              (magit-insert-heading heading))
+            (insert (forge--fontify-markdown body) "\n\n"))))
+      (when (and (display-images-p)
+                 (fboundp 'markdown-display-inline-images))
+        (let ((markdown-display-remote-images t))
+          (markdown-display-inline-images))))))
+
+(cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
+  forge-buffer-topic-ident)
 
 (defvar forge-topic-title-section-map
   (let ((map (make-sparse-keymap)))
@@ -350,7 +366,7 @@ identifier."
     map))
 
 (cl-defun forge-insert-topic-title
-    (&optional (topic (car magit-refresh-args)))
+    (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-title)
     (insert (format "%-11s" "Title: ") (oref topic title) "\n")))
 
@@ -360,7 +376,7 @@ identifier."
     map))
 
 (cl-defun forge-insert-topic-state
-    (&optional (topic (car magit-refresh-args)))
+    (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-state)
     (insert (format "%-11s" "State: ")
             (symbol-name (oref topic state))
@@ -372,7 +388,7 @@ identifier."
     map))
 
 (cl-defun forge-insert-topic-labels
-    (&optional (topic (car magit-refresh-args)))
+    (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-labels)
     (insert (format "%-11s" "Labels: "))
     (if-let ((labels (forge--format-topic-labels topic)))
@@ -392,7 +408,7 @@ identifier."
     map))
 
 (cl-defun forge-insert-topic-assignees
-    (&optional (topic (car magit-refresh-args)))
+    (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-assignees)
     (insert (format "%-11s" "Assignees: "))
     (if-let ((assignees (closql--iref topic 'assignees)))
@@ -401,11 +417,6 @@ identifier."
                            assignees ", "))
       (insert (propertize "none" 'face 'magit-dimmed)))
     (insert ?\n)))
-
-(defun forge-topic-buffer-name (_mode topic)
-  (with-slots (owner name)
-      (forge-get-repository topic)
-    (format "*%s/%s #%d*" owner name (oref topic number))))
 
 (defun forge--fontify-markdown (text)
   (with-temp-buffer
