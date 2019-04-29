@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-94-g2bbd2a7+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-112-gb8bc22f+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-94-g2bbd2a7+1).
+This manual is for Forge version 0.1.0 (v0.1.0-112-gb8bc22f+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -620,6 +620,10 @@ a post visits that post in a browser.
   This command allows users to create a new post on an existing topic.
   It opens a buffer in which the user can write the post.  When the
   post is done, then the user has to sumbit using ~C-c C-c~.
+
+  If the region is active and marks part of an existing post, then
+  that part of the post is quoted.  Otherwise and if a prefix argument
+  is used, then the complete post that point is currently on is quoted.
 
 - Key: C-c C-e [on a post section], forge-edit-post
 

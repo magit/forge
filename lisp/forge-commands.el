@@ -329,18 +329,36 @@ Prefer a topic over a branch and that over a commit."
       (setq forge--submit-post-function 'forge--submit-create-issue))
     (forge--display-post-buffer buf)))
 
-(defun forge-create-post ()
-  "Create a new post on an existing topic."
-  (interactive)
+(defun forge-create-post (&optional quote)
+  "Create a new post on an existing topic.
+If the region is active, then quote that part of the post.
+Otherwise and with a prefix argument quote the post that
+point is currently on."
+  (interactive (list current-prefix-arg))
   (unless (derived-mode-p 'forge-topic-mode)
     (user-error "This command is only available from topic buffers"))
   (let* ((topic forge-buffer-topic)
          (buf (forge--prepare-post-buffer
                (forge--format topic "%i:new-comment")
-               (forge--format topic "New comment on #%i of %p"))))
+               (forge--format topic "New comment on #%i of %p")))
+         (quote (cond
+                 ((not (magit-section-match 'post)) nil)
+                 ((use-region-p)
+                  (buffer-substring-no-properties (region-beginning)
+                                                  (region-end)))
+                 (quote
+                  (let ((section (magit-current-section)))
+                    (string-trim-right
+                     (buffer-substring-no-properties (oref section content)
+                                                     (oref section end))))))))
     (with-current-buffer buf
       (setq forge--buffer-post-object topic)
-      (setq forge--submit-post-function 'forge--submit-create-post))
+      (setq forge--submit-post-function 'forge--submit-create-post)
+      (when quote
+        (goto-char (point-max))
+        (unless (bobp)
+          (insert "\n"))
+        (insert (replace-regexp-in-string "^" "> " quote) "\n\n")))
     (forge--display-post-buffer buf)))
 
 ;;; Edit

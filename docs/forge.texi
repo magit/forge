@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-94-g2bbd2a7+1)
+@subtitle for version 0.1.0 (v0.1.0-112-gb8bc22f+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-94-g2bbd2a7+1).
+This manual is for Forge version 0.1.0 (v0.1.0-112-gb8bc22f+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -869,6 +869,10 @@ a post visits that post in a browser.
 This command allows users to create a new post on an existing topic.
 It opens a buffer in which the user can write the post.  When the
 post is done, then the user has to sumbit using @code{C-c C-c}.
+
+If the region is active and marks part of an existing post, then
+that part of the post is quoted.  Otherwise and if a prefix argument
+is used, then the complete post that point is currently on is quoted.
 
 @kindex C-c C-e [on a post section]
 @cindex forge-edit-post
