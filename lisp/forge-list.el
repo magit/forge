@@ -119,8 +119,8 @@
   (interactive)
   (forge-visit-pullreq (forge-get-pullreq (tabulated-list-get-id))))
 
-(defun forge-list-browse-issue ()
-  "Visit the url corresponding to the issue at point in a browser."
+(defun forge-list-browse-pullreq ()
+  "Visit the url corresponding to the pull-request at point in a browser."
   (interactive)
   (forge-browse-pullreq (forge-get-pullreq (tabulated-list-get-id))))
 
