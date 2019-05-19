@@ -481,7 +481,7 @@ repositories.
                                       (_ (subclass forge-pullreq)))
   (when-let ((files (magit-revision-files (oref repo default-branch))))
     (if-let ((file (--first (string-match-p "\
-\\`\\(\\|docs/\\|\\.github/\\)pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
+\\`\\(\\|docs/\\|\\.github/\\)\\(pull_request_template\\|PULL_REQUEST_TEMPLATE\\)\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
                               files)))
         (list file)
       ;; Unlike for issues, the web interface does not support
