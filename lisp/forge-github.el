@@ -471,7 +471,8 @@ repositories.
                                       (_ (subclass forge-issue)))
   (when-let ((files (magit-revision-files (oref repo default-branch))))
     (if-let ((file (--first (string-match-p "\
-\\`\\(\\|docs/\\|\\.github/\\)issue_template\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
+\\`\\(\\|docs/\\|\\.github/\\)issue_template\\(\\.[a-zA-Z0-9]+\\)?\\'"
+                                            (forge--topic-file-name-downcase it))
                             files)))
         (list file)
       (--filter (string-match-p "\\`\\.github/ISSUE_TEMPLATE/[^/]*" it)
@@ -481,7 +482,8 @@ repositories.
                                       (_ (subclass forge-pullreq)))
   (when-let ((files (magit-revision-files (oref repo default-branch))))
     (if-let ((file (--first (string-match-p "\
-\\`\\(\\|docs/\\|\\.github/\\)\\(pull_request_template\\|PULL_REQUEST_TEMPLATE\\)\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
+\\`\\(\\|docs/\\|\\.github/\\)pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'"
+                                            (forge--topic-file-name-downcase it))
                               files)))
         (list file)
       ;; Unlike for issues, the web interface does not support
@@ -491,6 +493,14 @@ repositories.
       )))
 
 ;;; Utilities
+
+(cl-defun forge--topic-file-name-downcase (filename)
+  "Return the FILENAME with its nondirectory component downcased."
+  (let ((directory (file-name-directory filename)))
+    (if directory
+        (concat (file-name-as-directory directory)
+                (downcase (file-name-nondirectory filename)))
+      (downcase filename))))
 
 (cl-defun forge--ghub-get (obj resource
                                &optional params
