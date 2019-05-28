@@ -601,14 +601,13 @@ alist, containing just `text' and `position'.")
                               (forge--topic-parse-buffer f)))
                           (forge--topic-templates repo class)))
          (choice  (if (cdr choices)
-                      (--first (equal (alist-get 'prompt it)
-                                      (magit-completing-read
-                                       (if (eq class 'forge-pullreq)
-                                           "Select pull-request template"
-                                         "Select issue template")
-                                       (--map (alist-get 'prompt it) choices)
-                                       nil t))
-                               choices)
+                      (let ((c (magit-completing-read
+                                (if (eq class 'forge-pullreq)
+                                    "Select pull-request template"
+                                  "Select issue template")
+                                (--map (alist-get 'prompt it) choices)
+                                nil t)))
+                        (--first (equal (alist-get 'prompt it) c) choices))
                     (car choices))))
     (cond ((assq 'name choice)
            (when (string-match "^title: .?" (alist-get 'text choice))
