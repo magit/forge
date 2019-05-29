@@ -352,22 +352,20 @@ repositories.
            (owner  (oref repo owner))
            (name   (oref repo name))
            (id     (forge--object-id repoid (string-to-number .id)))
-           (key    (intern (concat "_" (replace-regexp-in-string "=" "_" id)))))
+           (alias  (intern (concat "_" (replace-regexp-in-string "=" "_" id)))))
       (and (memq type '(pullreq issue))
-           (list key repo
-                 `(,key
-                   [(:alias t)]
-                   (repository
-                    [(name ,name)
-                     (owner ,owner)]
-                    ,@(cddr
-                       (caddr
-                        (ghub--graphql-prepare-query
-                         ghub-fetch-repository
-                         (if (eq type 'issue)
-                             `(repository issues (issue . ,number))
-                           `(repository pullRequest (pullRequest . ,number)))
-                         )))))
+           (list alias repo
+                 `((,alias repository)
+                   [(name ,name)
+                    (owner ,owner)]
+                   ,@(cddr
+                      (caddr
+                       (ghub--graphql-prepare-query
+                        ghub-fetch-repository
+                        (if (eq type 'issue)
+                            `(repository issues (issue . ,number))
+                          `(repository pullRequest (pullRequest . ,number)))
+                        ))))
                  (forge-notification
                   :id           id
                   :repository   repoid
