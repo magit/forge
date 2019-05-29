@@ -24,7 +24,6 @@ DEPS  = closql
 DEPS += dash
 DEPS += emacsql
 DEPS += ghub
-DEPS += graphql
 DEPS += magit/lisp
 DEPS += markdown-mode
 DEPS += transient/lisp
