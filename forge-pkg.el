@@ -7,7 +7,6 @@
     ;; This comes with important bug fixes and a workaround for
     ;; an Emacs bug.
     (ghub           "20190319")
-    (graphql        "0.1.1")
     (let-alist      "1.0.5")
     ;; Forge currently isn't compatible with any releases Magit
     ;; version.  When removing this kludge, then do not forget to
