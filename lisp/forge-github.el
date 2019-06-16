@@ -468,25 +468,27 @@ repositories.
 (cl-defmethod forge--topic-templates ((repo forge-github-repository)
                                       (_ (subclass forge-issue)))
   (when-let ((files (magit-revision-files (oref repo default-branch))))
-    (if-let ((file (--first (string-match-p "\
+    (let ((case-fold-search t))
+      (if-let ((file (--first (string-match-p "\
 \\`\\(\\|docs/\\|\\.github/\\)issue_template\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
-                            files)))
-        (list file)
-      (--filter (string-match-p "\\`\\.github/ISSUE_TEMPLATE/[^/]*" it)
-                files))))
+                              files)))
+          (list file)
+        (--filter (string-match-p "\\`\\.github/ISSUE_TEMPLATE/[^/]*" it)
+                  files)))))
 
 (cl-defmethod forge--topic-templates ((repo forge-github-repository)
                                       (_ (subclass forge-pullreq)))
   (when-let ((files (magit-revision-files (oref repo default-branch))))
-    (if-let ((file (--first (string-match-p "\
+    (let ((case-fold-search t))
+      (if-let ((file (--first (string-match-p "\
 \\`\\(\\|docs/\\|\\.github/\\)pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
                               files)))
-        (list file)
-      ;; Unlike for issues, the web interface does not support
-      ;; multiple pull-request templates.  The API does though,
-      ;; but due to this limitation I doubt many people use them,
-      ;; so Forge doesn't support them either.
-      )))
+          (list file)
+        ;; Unlike for issues, the web interface does not support
+        ;; multiple pull-request templates.  The API does though,
+        ;; but due to this limitation I doubt many people use them,
+        ;; so Forge doesn't support them either.
+        ))))
 
 ;;; Utilities
 
