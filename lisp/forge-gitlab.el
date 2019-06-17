@@ -397,7 +397,9 @@ it is all or nothing.")
                       ;; As a result of this we cannot recognize when
                       ;; a label is renamed and a topic continues to be
                       ;; tagged with the old label name until it itself
-                      ;; is modified somehow.
+                      ;; is modified somehow.  Additionally it leads to
+                      ;; name conflicts between group and project
+                      ;; labels.  See #160.
                       (list (forge--object-id id .name)
                             .name
                             (downcase .color)
