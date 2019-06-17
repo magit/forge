@@ -394,7 +394,10 @@ it is all or nothing.")
                       ;; We should use the label's `id' instead of its
                       ;; `name' but a topic's `labels' field is a list
                       ;; of names instead of a list of ids or an alist.
-                      ;; If a label is renamed, then things break.
+                      ;; As a result of this we cannot recognize when
+                      ;; a label is renamed and a topic continues to be
+                      ;; tagged with the old label name until it itself
+                      ;; is modified somehow.
                       (list (forge--object-id id .name)
                             .name
                             (downcase .color)
