@@ -88,7 +88,7 @@ If optional STUB is non-nil, then the IDs are not guaranteed to
 be unique.  Otherwise this method has to make an API request to
 retrieve THEIR-ID, the repository's ID on the forge.  In that
 case OUR-ID derives from THEIR-ID and is unique across all
-forges and hosts.  "
+forges and hosts."
   (pcase-let* ((`(,_githost ,apihost ,id ,_class)
                 (or (assoc host forge-alist)
                     (error "No entry for %S in forge-alist" host)))
