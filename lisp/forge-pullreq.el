@@ -155,7 +155,7 @@
     (setq type (if current-prefix-arg nil 'open)))
   (if (forge--childp (forge-get-repository t) 'forge-unusedapi-repository)
       (let* ((num (read-number (concat prompt ": ")))
-             (ref (forge--pullreq-ref-1 num)))
+             (ref (forge--pullreq-ref num)))
         (unless (magit-ref-exists-p ref)
           (user-error "Reference `%s' doesn't exist.  Maybe pull first?" ref))
         num)
@@ -199,14 +199,9 @@ yourself, in which case you probably should not reset either.
           (message "")))
       branch)))
 
-(defun forge--pullreq-ref-1 (number)
-  (let ((ref (format "refs/pullreqs/%s" number)))
-    (and (magit-rev-verify ref) ref)))
-
 (defun forge--pullreq-ref (pullreq)
-  (let ((branch (forge--pullreq-branch pullreq)))
-    (or (and branch (magit-rev-verify branch) branch)
-        (forge--pullreq-ref-1 (oref pullreq number)))))
+  (let ((ref (format "refs/pullreqs/%s" (oref pullreq number))))
+    (and (magit-rev-verify ref) ref)))
 
 (cl-defmethod forge-get-url ((pullreq forge-pullreq))
   (forge--format pullreq 'pullreq-url-format))

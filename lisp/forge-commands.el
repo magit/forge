@@ -456,7 +456,7 @@ Please see the manual for more information."
   (let ((branch (format "pr-%s" number)))
     (when (magit-branch-p branch)
       (user-error "Branch `%s' already exists" branch))
-    (magit-git "branch" branch (forge--pullreq-ref-1 number))
+    (magit-git "branch" branch (forge--pullreq-ref number))
     ;; More often than not this is the correct target branch.
     (magit-call-git "branch" branch "--set-upstream-to=master")
     (magit-set (number-to-string number) "branch" branch "pullRequest")
