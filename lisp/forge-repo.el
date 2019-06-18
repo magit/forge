@@ -124,26 +124,39 @@ forges and hosts."
            t)
           their-id)))
 
+(defvar-local forge-buffer-repository nil)
+
 (defconst forge--signal-no-entry '(t stub create))
 
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
-  "Return the forge repository for the current Git repository."
-  (magit--with-refresh-cache
-      (list default-directory 'forge-get-repository demand)
-    (let* ((remotes (magit-list-remotes))
-           (remote (or remote
-                       (if (cdr remotes)
-                           (car (member (forge--get-remote) remotes))
-                         (car remotes)))))
-      (if-let ((url (and remote (magit-git-string "remote" "get-url" remote))))
-          (forge-get-repository url remote demand)
-        (when (memq demand forge--signal-no-entry)
-          (error "Cannot determine forge repository.  %s\n%s  %s"
-                 (cond (remote  (format "No url configured for %S." remote))
-                       (remotes "Cannot decide on remote to use.")
-                       (t       "No remote configured."))
-                 "You might have to set `forge.remote'."
-                 "See https://magit.vc/manual/forge/Token-Creation.html."))))))
+  "Return the current forge repository.
+
+If the `forge-buffer-repository' is non-nil, then return that.
+Otherwise if `forge-buffer-topic' is non-nil, then return the
+repository for that.  Finally if both variables are nil, then
+return the forge repository corresponding to the current Git
+repository, if any."
+  (or forge-buffer-repository
+      (and forge-buffer-topic
+           (forge-get-repository forge-buffer-topic))
+      (magit--with-refresh-cache
+          (list default-directory 'forge-get-repository demand)
+        (let* ((remotes (magit-list-remotes))
+               (remote (or remote
+                           (if (cdr remotes)
+                               (car (member (forge--get-remote) remotes))
+                             (car remotes)))))
+          (if-let ((url (and remote
+                             (magit-git-string "remote" "get-url" remote))))
+              (forge-get-repository url remote demand)
+            (when (memq demand forge--signal-no-entry)
+              (error
+               "Cannot determine forge repository.  %s\n%s  %s"
+               (cond (remote  (format "No url configured for %S." remote))
+                     (remotes "Cannot decide on remote to use.")
+                     (t       "No remote configured."))
+               "You might have to set `forge.remote'."
+               "See https://magit.vc/manual/forge/Token-Creation.html.")))))))
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
