@@ -295,7 +295,8 @@ Prefer a topic over a branch and that over a commit."
                           (if (magit-remote-branch-p d)
                               d
                             (magit-get-push-branch d t))))))
-          (targets (delete source (magit-list-remote-branch-names))
+          (remote  (oref (forge-get-repository t) remote))
+          (targets (delete source (magit-list-remote-branch-names remote)))
           (target  (magit-completing-read
                     "Target branch" targets nil t nil 'magit-revision-history
                     (let* ((d (cdr (magit-split-branch-name source)))
@@ -304,7 +305,7 @@ Prefer a topic over a branch and that over a commit."
                            (d (and d (if (magit-remote-branch-p d)
                                          d
                                        (magit-get-upstream-branch d))))
-                           (d (or d "origin/master")))
+                           (d (or d (concat remote "/master"))))
                       (car (member d targets))))))
      (list source target)))
   (let* ((repo (forge-get-repository t))
