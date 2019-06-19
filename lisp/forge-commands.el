@@ -54,7 +54,9 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("l n" "notifications" forge-list-notifications)]
    ["Create"
     ("c p" "pull-request"  forge-create-pullreq)
-    ("c i" "issue"         forge-create-issue)]])
+    ("c i" "issue"         forge-create-issue)]]
+  [["Configure"
+    ("r" "forge.repository" forge-forge.remote)]])
 
 ;;; Pull
 
@@ -562,6 +564,12 @@ information."
                              (forge-branch-pullreq pullreq))))
 
 ;;; Misc
+
+(define-infix-command forge-forge.remote ()
+  :class 'magit--git-variable:choices
+  :variable "forge.remote"
+  :choices 'magit-list-remotes
+  :default "origin")
 
 ;;;###autoload
 (defun forge-list-notifications ()
