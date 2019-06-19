@@ -215,7 +215,7 @@ repository, if any."
 
 ;;; Utilities
 
-(defsubst forge--get-remote ()
+(defun forge--get-remote ()
   (or (magit-get "forge.remote") "origin"))
 
 (defun forge-read-repository (prompt)
