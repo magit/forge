@@ -66,7 +66,11 @@
   (hack-dir-local-variables-non-file-buffer))
 
 (defun forge-notifications-setup-buffer ()
-  (magit-setup-buffer #'forge-notifications-mode))
+  ;; There should only ever be one such buffer.
+  (cl-letf (((symbol-function 'magit-get-mode-buffer)
+             (lambda (&rest _)
+               (get-buffer-create "*forge-notifications*"))))
+    (magit-setup-buffer #'forge-notifications-mode)))
 
 (defun forge-notifications-refresh-buffer ()
   (forge-insert-notifications))
