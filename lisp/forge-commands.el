@@ -466,7 +466,7 @@ Please see the manual for more information."
     branch))
 
 (cl-defmethod forge--branch-pullreq ((repo forge-repository) pullreq)
-  (with-slots (number title editable-p cross-repo-p
+  (with-slots (number title editable-p cross-repo-p state
                       base-ref base-repo
                       head-ref head-repo head-user)
       pullreq
@@ -476,49 +476,52 @@ Please see the manual for more information."
            (remote head-user)
            (branch (forge--pullreq-branch pullreq t))
            (pr-branch head-ref))
-      (if (not cross-repo-p)
-          (let ((tracking (concat upstream "/" pr-branch)))
-            (unless (magit-branch-p tracking)
-              (magit-call-git "fetch" upstream))
-            (magit-call-git "branch" branch tracking)
-            (magit-branch-maybe-adjust-upstream branch tracking)
-            (magit-set upstream "branch" branch "pushRemote")
-            (magit-set upstream "branch" branch "pullRequestRemote"))
-        (if (magit-remote-p remote)
-            (let ((url   (magit-git-string "remote" "get-url" remote))
-                  (fetch (magit-get-all "remote" remote "fetch")))
-              (unless (forge--url-equal
-                       url (format "git@%s:%s.git" host head-repo))
-                (user-error
-                 "Remote `%s' already exists but does not point to %s"
-                 remote url))
-              (unless (member (format "+refs/heads/*:refs/remotes/%s/*" remote)
-                              fetch)
-                (magit-git "remote" "set-branches" "--add" remote pr-branch)
-                (magit-git "fetch" remote)))
-          (magit-git
-           "remote" "add" "-f" "--no-tags"
-           "-t" pr-branch remote
-           (cond ((or (string-prefix-p "git@" upstream-url)
-                      (string-prefix-p "ssh://git@" upstream-url))
-                  (format "git@%s:%s.git" host head-repo))
-                 ((string-prefix-p "https://" upstream-url)
-                  (format "https://%s/%s.git" host head-repo))
-                 ((string-prefix-p "git://" upstream-url)
-                  (format "git://%s/%s.git" host head-repo))
-                 (t (error "%s has an unexpected format" upstream-url)))))
-        (magit-git "branch" "--force" branch (concat remote "/" pr-branch))
-        (if (and editable-p
-                 (equal branch pr-branch))
-            (magit-set remote "branch" branch "pushRemote")
-          (magit-set upstream "branch" branch "pushRemote")))
-      (magit-set remote "branch" branch "pullRequestRemote")
-      (magit-set "true" "branch" branch "rebase")
-      (magit-git "branch" branch
-                 (concat "--set-upstream-to="
-                         (if magit-branch-prefer-remote-upstream
-                             (concat upstream "/" base-ref)
-                           base-ref)))
+      (if (not (eq state 'open))
+          (magit-git "branch" "--force" branch
+                     (format "refs/pullreqs/%s" number))
+        (if (not cross-repo-p)
+            (let ((tracking (concat upstream "/" pr-branch)))
+              (unless (magit-branch-p tracking)
+                (magit-call-git "fetch" upstream))
+              (magit-call-git "branch" branch tracking)
+              (magit-branch-maybe-adjust-upstream branch tracking)
+              (magit-set upstream "branch" branch "pushRemote")
+              (magit-set upstream "branch" branch "pullRequestRemote"))
+          (if (magit-remote-p remote)
+              (let ((url   (magit-git-string "remote" "get-url" remote))
+                    (fetch (magit-get-all "remote" remote "fetch")))
+                (unless (forge--url-equal
+                         url (format "git@%s:%s.git" host head-repo))
+                  (user-error
+                   "Remote `%s' already exists but does not point to %s"
+                   remote url))
+                (unless (member (format "+refs/heads/*:refs/remotes/%s/*" remote)
+                                fetch)
+                  (magit-git "remote" "set-branches" "--add" remote pr-branch)
+                  (magit-git "fetch" remote)))
+            (magit-git
+             "remote" "add" "-f" "--no-tags"
+             "-t" pr-branch remote
+             (cond ((or (string-prefix-p "git@" upstream-url)
+                        (string-prefix-p "ssh://git@" upstream-url))
+                    (format "git@%s:%s.git" host head-repo))
+                   ((string-prefix-p "https://" upstream-url)
+                    (format "https://%s/%s.git" host head-repo))
+                   ((string-prefix-p "git://" upstream-url)
+                    (format "git://%s/%s.git" host head-repo))
+                   (t (error "%s has an unexpected format" upstream-url))))
+            (magit-git "branch" "--force" branch (concat remote "/" pr-branch)))
+          (if (and editable-p
+                   (equal branch pr-branch))
+              (magit-set remote "branch" branch "pushRemote")
+            (magit-set upstream "branch" branch "pushRemote")))
+        (magit-set remote "branch" branch "pullRequestRemote")
+        (magit-set "true" "branch" branch "rebase")
+        (magit-git "branch" branch
+                   (concat "--set-upstream-to="
+                           (if magit-branch-prefer-remote-upstream
+                               (concat upstream "/" base-ref)
+                             base-ref))))
       (magit-set (number-to-string number) "branch" branch "pullRequest")
       (magit-set title                     "branch" branch "description")
       (magit-refresh)
