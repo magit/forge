@@ -312,7 +312,7 @@ identifier."
   (let* ((repo  (forge-get-repository topic))
          (ident (concat (forge--topic-type-prefix topic)
                         (number-to-string (oref topic number))))
-         (name  (format "*%s/%s %s*"
+         (name  (format "*forge: %s/%s %s*"
                         (oref repo owner)
                         (oref repo name)
                         ident))
