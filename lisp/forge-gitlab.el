@@ -405,10 +405,9 @@ it is all or nothing.")
                             (downcase .color)
                             .description)))
                   ;; For now simply remove one of the duplicates.
-                  (cl-delete-duplicates .labels
+                  (cl-delete-duplicates data
                                         :key (apply-partially #'alist-get 'name)
-                                        :test #'equal)
-                  data))))
+                                        :test #'equal)))))
 
 ;;;; Notifications
 
