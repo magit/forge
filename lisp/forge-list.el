@@ -38,6 +38,7 @@
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
     (define-key map (kbd "'") 'forge-dispatch)
+    (define-key map (kbd "?") 'magit-dispatch)
     map)
   "Local keymap for Forge-Topic-List mode buffers.")
 
