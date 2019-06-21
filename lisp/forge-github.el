@@ -299,10 +299,17 @@ repositories.
     (forge--msg nil t nil "Pulling notifications")
     (pcase-let*
         ((`(,_ ,apihost ,forge ,_) spec)
-         (notifs (--keep (forge--ghub-massage-notification it forge githost)
-                         (forge--ghub-get nil "/notifications"
-                                          '((all . "true"))
-                                          :host apihost :unpaginate t)))
+         (notifs (-keep (lambda (data)
+                          ;; Github may return notifications for repos
+                          ;; the user no longer has access to.  Trying
+                          ;; to retrieve information for such a repo
+                          ;; leads to an error, which we suppress.  See #164.
+                          (with-demoted-errors "forge--pull-notifications: %S"
+                            (forge--ghub-massage-notification
+                             data forge githost)))
+                        (forge--ghub-get nil "/notifications"
+                                         '((all . "true"))
+                                         :host apihost :unpaginate t)))
          (groups (-partition-all 100 notifs))
          (pages  (length groups))
          (page   0)
