@@ -167,7 +167,7 @@
           (branch-n (format "pr-%s" number)))
       (when (or (and cross-repo-p (not editable-p))
                 ;; Such a branch name would be invalid.  If we encounter
-                ;; this, then it means that we are dealing with Gitlab
+                ;; this, then it means that we are dealing with a Gitlab
                 ;; pull-request whose source branch has been deleted.
                 (string-match-p ":" branch))
         (setq branch branch-n))
