@@ -539,8 +539,12 @@ because the source branch has been deleted"))
 Please see the manual for more information."
   (interactive (list (forge-read-pullreq-or-number "Checkout pull request" t)))
   (magit-checkout
-   (let ((inhibit-magit-refresh t))
-     (forge-branch-pullreq pullreq))))
+   (or (if (not (eq (oref pullreq state) 'open))
+           (magit-ref-p (format "refs/pullreqs/%s"
+                                (oref pullreq number)))
+         (magit-branch-p (forge--pullreq-branch pullreq)))
+       (let ((inhibit-magit-refresh t))
+         (forge-branch-pullreq pullreq)))))
 
 ;;;###autoload
 (defun forge-checkout-worktree (path pullreq)
