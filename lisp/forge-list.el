@@ -37,6 +37,7 @@
 (defvar forge-topic-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
+    (define-key map (kbd "'") 'forge-dispatch)
     map)
   "Local keymap for Forge-Topic-List mode buffers.")
 
