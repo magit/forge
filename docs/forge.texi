@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-149-g421cc82+1)
+@subtitle for version 0.1.0 (v0.1.0-152-g9510caa+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-149-g421cc82+1).
+This manual is for Forge version 0.1.0 (v0.1.0-152-g9510caa+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -85,7 +85,7 @@ Usage
 * Pulling::
 * Branching::
 * Working with Topics::
-* Miscellanous::
+* Miscellaneous::
 
 Working with Topics
 
@@ -147,7 +147,7 @@ Github Caveats
 
 @itemize
 @item
-Forge uses the Github GraphQl API when possible but has to fall
+Forge uses the Github GraphQL API when possible but has to fall
 back to use the REST API in many cases because the former is still
 rather incomplete.
 
@@ -442,7 +442,7 @@ synchronously though, so there can be a noticeable hang at the end.
 Subsequent fetches are much faster.
 
 Fetching issues from Github is much faster than fetching from other
-forges because making a handful of GraphQl requests is much faster
+forges because making a handful of GraphQL requests is much faster
 than making hundreds of REST requests.
 
 @node Token Creation
@@ -486,7 +486,7 @@ does not fall through to try @code{origin} if no remote by your chosen name
 exists.
 
 Once the upstream remote has been determined, Forge looks it up in
-@code{forge-alist}, using the host part of the url as the key.  For example
+@code{forge-alist}, using the host part of the URL as the key.  For example
 the key for @code{git@@github.com:magit/forge.git} is @code{github.com}.
 
 @node Usage
@@ -514,7 +514,7 @@ following sections for information about the available commands.
 * Pulling::
 * Branching::
 * Working with Topics::
-* Miscellanous::
+* Miscellaneous::
 @end menu
 
 @node Pulling
@@ -533,7 +533,7 @@ available from the @code{magit-pull} transient (on @code{F}).
 This command uses a forge's API to fetch topics and other
 information about the current repository and stores the fetched
 information in the database.  It also fetches notifications for all
-repositories from the same forge host.  (Currently this is limitted
+repositories from the same forge host.  (Currently this is limited
 to Github.)  Finally it fetches pull-request references using Git.
 
 After using this command for the first time in a given repository
@@ -591,9 +591,9 @@ up-to-date using this command.
 @section Branching
 
 Forge provides commands for creating and checking out a new branch or
-worktree from a pull-request.  These commands are available from the
+work tree from a pull-request.  These commands are available from the
 same transient prefix commands as the suffix commands used to create
-and check out branches and worktrees in a more generic fashion
+and check out branches and work trees in a more generic fashion
 (@code{magit-branch} on @code{b} and @code{magit-worktree} on @code{%}).
 
 @table @asis
@@ -606,7 +606,7 @@ creating and configuring a new remote if necessary.
 
 The name of the local branch is the same as the name of the remote
 branch that you are being asked to merge, unless the contributor
-could not be bother to properly name the branch before opening the
+could not be bothered to properly name the branch before opening the
 pull-request.  The most likely such case is when you are being asked
 to merge something like "fork/master" into "origin/master".  In such
 cases the local branch will be named "pr-N", where @code{N} is the
@@ -830,18 +830,18 @@ buffer.
 @kindex ' p
 @cindex forge-create-pullreq
 @item @kbd{' p} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
-@kindex C-n C-n [on "Pull requests" section]
+@kindex C-c C-n [on "Pull requests" section]
 @cindex forge-create-pullreq
-@item @kbd{C-n C-n [on "Pull requests" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
+@item @kbd{C-c C-n [on "Pull requests" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
 
 This command creates a new pull-request for the current repository.
 
 @kindex ' i
 @cindex forge-create-issue
 @item @kbd{' i} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-issue})
-@kindex C-n C-n [on "Issues" section]
+@kindex C-c C-n [on "Issues" section]
 @cindex forge-create-pullreq
-@item @kbd{C-n C-n [on "Issues" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
+@item @kbd{C-c C-n [on "Issues" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
 
 This command creates a new issue for the current repository.
 @end table
@@ -868,7 +868,7 @@ a post visits that post in a browser.
 
 This command allows users to create a new post on an existing topic.
 It opens a buffer in which the user can write the post.  When the
-post is done, then the user has to sumbit using @code{C-c C-c}.
+post is done, then the user has to submit using @code{C-c C-c}.
 
 If the region is active and marks part of an existing post, then
 that part of the post is quoted.  Otherwise and if a prefix argument
@@ -879,7 +879,7 @@ is used, then the complete post that point is currently on is quoted.
 @item @kbd{C-c C-e [on a post section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-post})
 
 This command visits an existing post in a separate buffer.  When the
-changes to the post are done, then the user has to sumbit using @code{C-c
+changes to the post are done, then the user has to submit using @code{C-c
   C-c}.
 
 @kindex C-c C-e [on "Title" section]
@@ -941,8 +941,8 @@ This command cancels the post that is being edited in the current
 buffer.
 @end table
 
-@node Miscellanous
-@section Miscellanous
+@node Miscellaneous
+@section Miscellaneous
 
 @table @asis
 @kindex M-x forge-reset-database
