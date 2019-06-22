@@ -282,32 +282,7 @@ Prefer a topic over a branch and that over a commit."
 
 (defun forge-create-pullreq (source target)
   "Create a new pull-request for the current repository."
-  (interactive
-   (let* ((source  (magit-completing-read
-                    "Source branch"
-                    (magit-list-remote-branch-names)
-                    nil t nil 'magit-revision-history
-                    (or (when-let ((d (magit-branch-at-point)))
-                          (if (magit-remote-branch-p d)
-                              d
-                            (magit-get-push-branch d t)))
-                        (when-let ((d (magit-get-current-branch)))
-                          (if (magit-remote-branch-p d)
-                              d
-                            (magit-get-push-branch d t))))))
-          (remote  (oref (forge-get-repository t) remote))
-          (targets (delete source (magit-list-remote-branch-names remote)))
-          (target  (magit-completing-read
-                    "Target branch" targets nil t nil 'magit-revision-history
-                    (let* ((d (cdr (magit-split-branch-name source)))
-                           (d (and (magit-branch-p d) d))
-                           (d (and d (magit-get-upstream-branch d)))
-                           (d (and d (if (magit-remote-branch-p d)
-                                         d
-                                       (magit-get-upstream-branch d))))
-                           (d (or d (concat remote "/master"))))
-                      (car (member d targets))))))
-     (list source target)))
+  (interactive (forge-create-pullreq--read-args))
   (let* ((repo (forge-get-repository t))
          (buf (forge--prepare-post-buffer
                "new-pullreq"
@@ -318,6 +293,33 @@ Prefer a topic over a branch and that over a commit."
       (setq forge--buffer-post-object repo)
       (setq forge--submit-post-function 'forge--submit-create-pullreq))
     (forge--display-post-buffer buf)))
+
+(defun forge-create-pullreq--read-args ()
+  (let* ((source  (magit-completing-read
+                   "Source branch"
+                   (magit-list-remote-branch-names)
+                   nil t nil 'magit-revision-history
+                   (or (when-let ((d (magit-branch-at-point)))
+                         (if (magit-remote-branch-p d)
+                             d
+                           (magit-get-push-branch d t)))
+                       (when-let ((d (magit-get-current-branch)))
+                         (if (magit-remote-branch-p d)
+                             d
+                           (magit-get-push-branch d t))))))
+         (remote  (oref (forge-get-repository t) remote))
+         (targets (delete source (magit-list-remote-branch-names remote)))
+         (target  (magit-completing-read
+                   "Target branch" targets nil t nil 'magit-revision-history
+                   (let* ((d (cdr (magit-split-branch-name source)))
+                          (d (and (magit-branch-p d) d))
+                          (d (and d (magit-get-upstream-branch d)))
+                          (d (and d (if (magit-remote-branch-p d)
+                                        d
+                                      (magit-get-upstream-branch d))))
+                          (d (or d (concat remote "/master"))))
+                     (car (member d targets))))))
+    (list source target)))
 
 (defun forge-create-issue ()
   "Create a new issue for the current repository."
