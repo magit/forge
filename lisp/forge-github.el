@@ -388,6 +388,27 @@ repositories.
 
 ;;; Mutations
 
+(cl-defmethod forge--create-pullreq-from-issue ((repo forge-github-repository)
+                                                issue source target)
+  (pcase-let* ((`(,base-remote . ,base-branch)
+                (magit-split-branch-name target))
+               (`(,head-remote . ,head-branch)
+                (magit-split-branch-name source))
+               (head-repo (forge-get-repository 'stub head-remote))
+               (issue-obj (forge-get-issue repo issue)))
+    (forge--ghub-post repo "/repos/:owner/:repo/pulls"
+                      `((issue . ,issue)
+                        (base  . ,base-branch)
+                        (head  . ,(if (equal head-remote base-remote)
+                                      head-branch
+                                    (concat (oref head-repo owner) ":"
+                                            head-branch)))
+                        (maintainer_can_modify . t))
+                      :callback  (lambda (&rest _)
+                                   (closql-delete issue-obj)
+                                   (forge-pull))
+                      :errorback (lambda (&rest _) (forge-pull)))))
+
 (cl-defmethod forge--submit-create-pullreq ((_ forge-github-repository) repo)
   (let-alist (forge--topic-parse-buffer)
     (pcase-let* ((`(,base-remote . ,base-branch)

@@ -54,7 +54,8 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("l n" "notifications" forge-list-notifications)]
    ["Create"
     ("c i" "issue"         forge-create-issue)
-    ("c p" "pull-request"  forge-create-pullreq)]]
+    ("c p" "pull-request"  forge-create-pullreq)
+    ("c u" "pull-request from issue" forge-create-pullreq-from-issue)]]
   [["Configure"
     ("r" "forge.repository" forge-forge.remote)]])
 
@@ -293,6 +294,13 @@ Prefer a topic over a branch and that over a commit."
       (setq forge--buffer-post-object repo)
       (setq forge--submit-post-function 'forge--submit-create-pullreq))
     (forge--display-post-buffer buf)))
+
+(defun forge-create-pullreq-from-issue (issue source target)
+  "Convert an existing issue into a pull-request."
+  (interactive (cons (oref (forge-read-issue "Convert issue") number)
+                     (forge-create-pullreq--read-args)))
+  (forge--create-pullreq-from-issue (forge-get-repository t)
+                                    issue source target))
 
 (defun forge-create-pullreq--read-args ()
   (let* ((source  (magit-completing-read
