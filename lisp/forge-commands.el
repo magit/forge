@@ -49,12 +49,12 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("f f" "topics"        forge-pull)
     ("f n" "notifications" forge-pull-notifications)]
    ["List"
-    ("l p" "pull-requests" forge-list-pullreqs)
     ("l i" "issues"        forge-list-issues)
+    ("l p" "pull-requests" forge-list-pullreqs)
     ("l n" "notifications" forge-list-notifications)]
    ["Create"
-    ("c p" "pull-request"  forge-create-pullreq)
-    ("c i" "issue"         forge-create-issue)]]
+    ("c i" "issue"         forge-create-issue)
+    ("c p" "pull-request"  forge-create-pullreq)]]
   [["Configure"
     ("r" "forge.repository" forge-forge.remote)]])
 
