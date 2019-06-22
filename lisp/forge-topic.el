@@ -72,6 +72,15 @@ The following %-sequences are supported:
   :group 'forge
   :type 'boolean)
 
+(defcustom forge-bug-reference-hooks
+  '(find-file-hook git-commit-setup-hook magit-mode-hook)
+  "Hooks to which `forge-bug-reference-setup' is added.
+This variable has to be customized before `forge' is loaded."
+  :package-version '(forge . "0.2.0")
+  :group 'forge
+  :options '(find-file-hook git-commit-setup-hook magit-mode-hook)
+  :type '(list :convert-widget custom-hook-convert-widget))
+
 ;;; Faces
 
 (defface forge-topic-unread
@@ -656,6 +665,10 @@ alist, containing just `text' and `position'.")
                              (funcall bug-reference-url-format))))))))))
 
 (defun forge-bug-reference-setup ()
+  "Setup `bug-reference' in the current buffer.
+If forge data has been fetched for the current repository, then
+enable `bug-reference-mode' or `bug-reference-prog-mode' and set
+some `bug-reference' variables to the appropriate values."
   (magit--with-safe-default-directory nil
     (when-let ((repo (forge-get-repository 'full))
                (format (oref repo issue-url-format)))
@@ -680,9 +693,8 @@ alist, containing just `text' and `position'.")
                 'forge-topic-completion-at-point nil t))))
 
 (unless noninteractive
-  (add-hook 'find-file-hook        #'forge-bug-reference-setup)
-  (add-hook 'git-commit-setup-hook #'forge-bug-reference-setup)
-  (add-hook 'magit-mode-hook       #'forge-bug-reference-setup))
+  (dolist (hook forge-bug-reference-hooks)
+    (add-hook hook #'forge-bug-reference-setup)))
 
 ;;; _
 (provide 'forge-topic)
