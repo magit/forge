@@ -312,6 +312,7 @@ identifier."
   (let ((map (make-sparse-keymap)))
     (define-key map [remap magit-browse-thing] 'forge-browse-post)
     (define-key map [remap magit-edit-thing]   'forge-edit-post)
+    (define-key map (kbd "C-c C-k")            'forge-delete-comment)
     map))
 
 (defvar-local forge-buffer-topic nil)

@@ -515,6 +515,18 @@ it is all or nothing.")
        (forge--set-topic-field repo topic 'assignee_ids
                                (--map (caddr (assoc it users)) assignees))))))
 
+(cl-defmethod forge--delete-comment
+  ((_repo forge-gitlab-repository) post)
+  (forge--glab-delete
+   post
+   (cl-etypecase post
+     (forge-pullreq-post
+      "/projects/:project/merge_requests/:topic/notes/:number")
+     (forge-issue-post
+      "/projects/:project/issues/:topic/notes/:number")))
+  (closql-delete post)
+  (magit-refresh))
+
 (cl-defmethod forge--topic-templates ((repo forge-gitlab-repository)
                                       (_ (subclass forge-issue)))
   (--filter (string-match-p "\\`\\.gitlab/issue_templates/.+\\.md\\'" it)

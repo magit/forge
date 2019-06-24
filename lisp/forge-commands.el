@@ -454,6 +454,15 @@ point is currently on."
           'confirm)
         (mapconcat #'car value ","))))))
 
+;;; Delete
+
+(defun forge-delete-comment (comment)
+  "Delete the comment at point."
+  (interactive (list (or (forge-comment-at-point)
+                         (user-error "There is no post at point"))))
+  (when (yes-or-no-p "Do you really want to delete the selected comment? ")
+    (forge--delete-comment (forge-get-repository t) comment)))
+
 ;;; Branch
 
 ;;;###autoload

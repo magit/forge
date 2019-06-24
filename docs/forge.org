@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-113-g9a4ce77+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-149-g421cc82+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-113-g9a4ce77+1).
+This manual is for Forge version 0.1.0 (v0.1.0-149-g421cc82+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -650,6 +650,10 @@ a post visits that post in a browser.
 
   This command reads a list of assignees for an existing topic in the
   minibuffer.
+
+- Key: C-c C-k [on a comment section], forge-delete-comment
+
+  This command deletes the comment at point.
 
 Creating a new post and editing an existing post are similar to
 creating a new commit and editing the message of an existing commit.

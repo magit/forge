@@ -480,6 +480,12 @@ repositories.
                    :payload labels
                    :callback (forge--set-field-callback)))
 
+(cl-defmethod forge--delete-comment
+  ((_repo forge-github-repository) post)
+  (forge--ghub-delete post "repos/:owner/:repo/issues/comments/:number")
+  (closql-delete post)
+  (magit-refresh))
+
 (cl-defmethod forge--set-topic-assignees
   ((_repo forge-github-repository) topic assignees)
   (let ((value (mapcar #'car (closql--iref topic 'assignees))))
