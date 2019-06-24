@@ -579,10 +579,10 @@ repositories.
               :callback callback :errorback errorback))
 
 (cl-defun forge--ghub-delete (obj resource
-                                 &optional params
-                                 &key query payload headers
-                                 silent unpaginate noerror reader
-                                 host callback errorback)
+                                  &optional params
+                                  &key query payload headers
+                                  silent unpaginate noerror reader
+                                  host callback errorback)
   (ghub-delete (forge--format-resource obj resource)
                params
                :host (or host (oref (forge-get-repository obj) apihost))
