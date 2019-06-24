@@ -578,6 +578,22 @@ it is all or nothing.")
              :callback callback
              :errorback (or errorback (and callback t))))
 
+(cl-defun forge--glab-delete (obj resource
+                                  &optional params
+                                  &key query payload headers
+                                  silent unpaginate noerror reader
+                                  host callback errorback)
+  (declare (indent defun))
+  (glab-delete (forge--format-resource obj resource)
+               params
+               :host (or host (oref (forge-get-repository obj) apihost))
+               :auth 'forge
+               :query query :payload payload :headers headers
+               :silent silent :unpaginate unpaginate
+               :noerror noerror :reader reader
+               :callback callback
+               :errorback (or errorback (and callback t))))
+
 ;;; _
 (provide 'forge-gitlab)
 ;;; forge-gitlab.el ends here
