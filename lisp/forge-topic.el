@@ -251,10 +251,12 @@ This variable has to be customized before `forge' is loaded."
           (format "%s (%s)"
                   (propertize heading 'face 'magit-section-heading)
                   (length topics)))
+        (magit-make-margin-overlay nil t)
         (magit-insert-section-body
           (dolist (topic topics)
             (forge-insert-topic topic topic-section-type width prefix))
-          (insert ?\n))))))
+          (insert ?\n)
+          (magit-make-margin-overlay nil t))))))
 
 (defun forge-insert-topic (topic &optional topic-section-type width prefix)
   "Insert TOPIC as a new section.
@@ -288,7 +290,11 @@ identifier."
                                     (t        'forge-topic-open))))
              (if-let ((labels (forge--format-topic-labels topic)))
                  (concat " " labels)
-               "")))))
+               "")))
+    (magit-log-format-author-margin
+     (oref topic author)
+     (format-time-string "%s" (date-to-time (oref topic created)))
+     t)))
 
 ;;; Mode
 
