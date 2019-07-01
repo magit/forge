@@ -141,11 +141,12 @@
                             (oref topic number)
                             (oref topic title))))
          (choices (forge-ls-pullreqs repo type))
-         (choice  (magit-completing-read prompt
-                                         (mapcar format choices)
-                                         nil nil nil nil
-                                         (and default
-                                              (funcall format default))))
+         (choice  (magit-completing-read
+                   prompt
+                   (mapcar format choices)
+                   nil nil nil nil
+                   (and default
+                        (funcall format default))))
          (number  (and (string-match "\\([0-9]+\\)" choice)
                        (string-to-number (match-string 1 choice)))))
     (and number
