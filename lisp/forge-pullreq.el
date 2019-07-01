@@ -123,11 +123,11 @@
               (oref post pullreq)
               'forge-pullreq))
 
-(cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type)
-  (forge-ls-topics repo 'forge-pullreq type))
-
 (cl-defmethod forge-get-repository ((post forge-pullreq-post))
   (forge-get-repository (forge-get-pullreq post)))
+
+(cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type)
+  (forge-ls-topics repo 'forge-pullreq type))
 
 ;;; Utilities
 
