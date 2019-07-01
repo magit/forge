@@ -534,6 +534,8 @@ because the source branch has been deleted"))
                     (format "https://%s/%s.git" host head-repo))
                    ((string-prefix-p "git://" upstream-url)
                     (format "git://%s/%s.git" host head-repo))
+                   ((string-prefix-p "http://" upstream-url)
+                    (format "http://%s/%s.git" host head-repo))
                    (t (error "%s has an unexpected format" upstream-url))))
             (magit-git "branch" "--force" branch (concat remote "/" pr-branch)))
           (if (and editable-p
