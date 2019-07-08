@@ -282,17 +282,16 @@ identifier."
   (with-slots (number title unread-p closed) topic
     (insert
      (format (if width
-                 (format "%%-%is %%s%%s\n" (1+ width))
-               "%s %s%s\n")
+                 (format "%%-%is %%s" (1+ width))
+               "%s %s")
              (forge--format-topic-id topic prefix)
              (magit-log-propertize-keywords
               nil (propertize title 'face
                               (cond (unread-p 'forge-topic-unread)
                                     (closed   'forge-topic-closed)
-                                    (t        'forge-topic-open))))
-             (if-let ((labels (forge--format-topic-labels topic)))
-                 (concat " " labels)
-               "")))
+                                    (t        'forge-topic-open))))))
+    (forge--insert-topic-labels topic)
+    (insert "\n")
     (magit-log-format-author-margin
      (oref topic author)
      (format-time-string "%s" (date-to-time (oref topic created)))
@@ -409,9 +408,7 @@ identifier."
     (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-labels)
     (insert (format "%-11s" "Labels: "))
-    (if-let ((labels (forge--format-topic-labels topic)))
-        (insert labels)
-      (insert (propertize "none" 'face 'magit-dimmed)))
+    (forge--insert-topic-labels topic t)
     (insert ?\n)))
 
 (defun forge--format-topic-labels (topic)
@@ -419,6 +416,32 @@ identifier."
     (mapconcat (pcase-lambda (`(,name ,color ,_desc))
                  (propertize name 'face (list :box color)))
                labels " ")))
+
+(defun forge--insert-topic-labels (topic &optional skip-separator)
+  (pcase-dolist (`(,name ,color ,_desc)
+                 (closql--iref topic 'labels))
+    (if skip-separator
+        (setq skip-separator nil)
+      (insert " "))
+    (let ((color2 (forge--contrast-color color)))
+      (insert (propertize name 'face (list :foreground color :box "black")))
+      (let ((o (make-overlay (- (point) (length name)) (point))))
+        (overlay-put o 'priority 2)
+        (overlay-put o 'evaporate t)
+        (overlay-put o 'face (list :background color :foreground color2))))))
+
+(defun forge--contrast-color (color)
+  (if (> (forge--color-brightness color) 127) "black" "white"))
+
+(defun forge--color-brightness (color)
+  ;; https://www.w3.org/TR/AERT/#color-contrast
+  (save-match-data
+    (or (string-match "\\`#.\\{6\\}\\'" color)
+        (error "Color doesn't have #NNNNNN format"))
+    (/ (+ (* (read (concat "#x" (substring color 1 3))) 299)
+          (* (read (concat "#x" (substring color 3 5))) 587)
+          (* (read (concat "#x" (substring color 5 7))) 114))
+       1000)))
 
 (defvar forge-topic-assignees-section-map
   (let ((map (make-sparse-keymap)))
