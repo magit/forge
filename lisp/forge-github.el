@@ -487,7 +487,7 @@ repositories.
 
 (cl-defmethod forge--delete-comment
   ((_repo forge-github-repository) post)
-  (forge--ghub-delete post "repos/:owner/:repo/issues/comments/:number")
+  (forge--ghub-delete post "/repos/:owner/:repo/issues/comments/:number")
   (closql-delete post)
   (magit-refresh))
 
