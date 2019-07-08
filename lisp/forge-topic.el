@@ -238,7 +238,9 @@ This variable has to be customized before `forge' is loaded."
 (defun forge-insert-topics (heading topics prefix)
   "Under a new section with HEADING, insert TOPICS."
   (when topics
-    (let ((width (length (number-to-string (oref (car topics) number))))
+    (let ((width (apply #'max
+                        (--map (length (number-to-string (oref it number)))
+                               topics)))
           list-section-type topic-section-type)
       (cond ((forge--childp (car topics) 'forge-issue)
              (setq list-section-type  'issues)
