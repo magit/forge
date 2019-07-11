@@ -527,7 +527,8 @@ identifier."
          (choice  (magit-completing-read
                    prompt choices nil nil nil nil
                    (and default
-                        (forge--topic-format-choice default))))
+                        (forge--topic-format-choice
+                         default (and (not gitlabp) "")))))
          (number  (and (string-match "\\`\\([!#]*\\)\\([0-9]+\\)" choice)
                        (string-to-number (match-string 2 choice)))))
     (and number
