@@ -435,12 +435,22 @@ identifier."
 
 (defun forge--color-brightness (color)
   ;; https://www.w3.org/TR/AERT/#color-contrast
-  (save-match-data
-    (or (string-match "\\`#.\\{6\\}\\'" color)
-        (error "Color doesn't have #NNNNNN format"))
-    (/ (+ (* (read (concat "#x" (substring color 1 3))) 299)
-          (* (read (concat "#x" (substring color 3 5))) 587)
-          (* (read (concat "#x" (substring color 5 7))) 114))
+  ;; https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#RGB_colors
+  (let (r g b)
+    (save-match-data
+      (cond ((string-match "\\`#.\\{6\\}\\'" color)
+             (setq r (substring color 1 3))
+             (setq g (substring color 3 5))
+             (setq b (substring color 5 7)))
+            ((string-match "\\`#.\\{3\\}\\'" color)
+             (setq r (make-string 2 (aref color 1)))
+             (setq g (make-string 2 (aref color 2)))
+             (setq b (make-string 2 (aref color 3))))
+            (t
+             (error "Color does not have #RRGGBB or #RGB format"))))
+    (/ (+ (* (read (concat "#x" r)) 299)
+          (* (read (concat "#x" g)) 587)
+          (* (read (concat "#x" b)) 114))
        1000)))
 
 (defvar forge-topic-assignees-section-map
