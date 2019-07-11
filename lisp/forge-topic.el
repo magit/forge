@@ -408,7 +408,9 @@ identifier."
     (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-labels)
     (insert (format "%-11s" "Labels: "))
-    (forge--insert-topic-labels topic t)
+    (if-let ((labels (closql--iref topic 'labels)))
+        (forge--insert-topic-labels topic t labels)
+      (insert (propertize "none" 'face 'magit-dimmed)))
     (insert ?\n)))
 
 (defun forge--format-topic-labels (topic)
@@ -417,9 +419,9 @@ identifier."
                  (propertize name 'face (list :box color)))
                labels " ")))
 
-(defun forge--insert-topic-labels (topic &optional skip-separator)
+(defun forge--insert-topic-labels (topic &optional skip-separator labels)
   (pcase-dolist (`(,name ,color ,_desc)
-                 (closql--iref topic 'labels))
+                 (or labels (closql--iref topic 'labels)))
     (if skip-separator
         (setq skip-separator nil)
       (insert " "))
