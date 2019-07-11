@@ -51,13 +51,14 @@
     (make-directory (file-name-directory forge-database-file) t)
     (closql-db 'forge-database 'forge--db-connection
                forge-database-file t)
-    (let ((version (caar (emacsql forge--db-connection "PRAGMA user_version"))))
+    (let* ((db forge--db-connection)
+           (version (caar (emacsql db "PRAGMA user_version"))))
       (cond
        ((> version forge--db-version)
-        (emacsql-close forge--db-connection)
+        (emacsql-close db)
         (user-error "BUG: forge-db-version is too low"))
        ((< version forge--db-version)
-        (emacsql-close forge--db-connection)
+        (emacsql-close db)
         (if (yes-or-no-p "The database scheme changed. Reset database now? ")
             (forge-reset-database)
           (user-error "Abort"))))))
