@@ -25,6 +25,8 @@
 (require 'emacsql)
 (require 'emacsql-sqlite)
 
+(defvar forge--db-table-schemata)
+
 (declare-function forge-reset-database "forge")
 
 ;;; Options
@@ -41,7 +43,7 @@
 (defclass forge-database (closql-database)
   ((object-class :initform forge-repository)))
 
-(defconst forge--db-version 2)
+(defconst forge--db-version 3)
 
 (defvar forge--db-connection nil
   "The EmacSQL database connection.")
@@ -54,6 +56,14 @@
     (let* ((db forge--db-connection)
            (version (caar (emacsql db "PRAGMA user_version"))))
       (cond
+       ((and (= version 2) (= forge--db-version 3))
+        (message "Upgrading Forge database from version 2 to 3...")
+        (let ((db forge--db-connection))
+          (emacsql-with-transaction db
+            (emacsql db [:create-table pullreq-review-request $S1]
+                     (cdr (assq 'pullreq-review-request forge--db-table-schemata)))
+            (emacsql db (format "PRAGMA user_version = %s" 3))))
+        (message "Upgrading Forge database from version 2 to 3...done"))
        ((> version forge--db-version)
         (emacsql-close db)
         (user-error "BUG: forge-db-version is too low"))
@@ -279,6 +289,13 @@
       body
       (edits :default eieio-unbound)
       (reactions :default eieio-unbound)]
+     (:foreign-key
+      [pullreq] :references pullreq [id]
+      :on-delete :cascade))
+
+    (pullreq-review-request
+     [(pullreq :not-null)
+      (id :not-null)]
      (:foreign-key
       [pullreq] :references pullreq [id]
       :on-delete :cascade))

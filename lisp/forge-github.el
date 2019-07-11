@@ -228,6 +228,9 @@ repositories.
              t)))
         (when bump
           (forge--set-id-slot repo pullreq 'assignees .assignees)
+          (forge--set-id-slot repo pullreq 'review-requests
+                              (--map (cdr (cadr it))
+                                     (car .reviewRequests)))
           (forge--set-id-slot repo pullreq 'labels .labels))
         pullreq))))
 
@@ -502,6 +505,19 @@ repositories.
       (forge--ghub-delete
        topic "/repos/:owner/:repo/issues/:number/assignees"
        `((assignees . ,remove)))))
+  (forge-pull))
+
+(cl-defmethod forge--set-topic-review-requests
+  ((_repo forge-github-repository) topic reviewers)
+  (let ((value (mapcar #'car (closql--iref topic 'review-requests))))
+    (when-let ((add (cl-set-difference reviewers value :test #'equal)))
+      (forge--ghub-post
+       topic "/repos/:owner/:repo/pulls/:number/requested_reviewers"
+       `((reviewers . ,add))))
+    (when-let ((remove (cl-set-difference value reviewers :test #'equal)))
+      (forge--ghub-delete
+       topic "/repos/:owner/:repo/pulls/:number/requested_reviewers"
+       `((reviewers . ,remove)))))
   (forge-pull))
 
 (cl-defmethod forge--topic-templates ((repo forge-github-repository)

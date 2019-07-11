@@ -313,7 +313,8 @@ identifier."
   '(forge-insert-topic-title
     forge-insert-topic-state
     forge-insert-topic-labels
-    forge-insert-topic-assignees))
+    forge-insert-topic-assignees
+    forge-insert-topic-review-requests))
 
 (defvar forge-post-section-map
   (let ((map (make-sparse-keymap)))
@@ -470,6 +471,24 @@ identifier."
                            assignees ", "))
       (insert (propertize "none" 'face 'magit-dimmed)))
     (insert ?\n)))
+
+(defvar forge-topic-review-requests-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-edit-thing] 'forge-edit-topic-review-requests)
+    map))
+
+(cl-defun forge-insert-topic-review-requests
+    (&optional (topic forge-buffer-topic))
+  (when (and (forge-github-repository-p (forge-get-repository topic))
+             (forge-pullreq-p topic))
+    (magit-insert-section (topic-review-requests)
+      (insert (format "%-11s" "Review-Requests: "))
+      (if-let ((review-requests (closql--iref topic 'review-requests)))
+          (insert (mapconcat (pcase-lambda (`(,login ,name))
+                               (format "%s (@%s)" name login))
+                             review-requests ", "))
+        (insert (propertize "none" 'face 'magit-dimmed)))
+      (insert ?\n))))
 
 (defun forge--fontify-markdown (text)
   (with-temp-buffer

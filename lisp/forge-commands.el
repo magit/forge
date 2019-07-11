@@ -454,6 +454,20 @@ point is currently on."
           'confirm)
         (mapconcat #'car value ","))))))
 
+(defun forge-edit-topic-review-requests (topic)
+  "Edit the review-requests of TOPIC."
+  (interactive (list (forge-read-pullreq "Request review for")))
+  (let* ((repo (forge-get-repository topic))
+         (value (closql--iref topic 'review-requests))
+         (choices (mapcar #'cadr (oref repo assignees)))
+         (crm-separator ","))
+    (forge--set-topic-review-requests
+     repo topic
+     (magit-completing-read-multiple*
+      "Request review from: " choices nil
+      'confirm
+      (mapconcat #'car value ",")))))
+
 ;;; Delete
 
 (defun forge-delete-comment (comment)

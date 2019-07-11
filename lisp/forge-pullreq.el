@@ -62,7 +62,7 @@
    (participants)
    (posts                :closql-class forge-pullreq-post)
    (reactions)
-   (review-requests)
+   (review-requests      :closql-table (pullreq-review-request assignee))
    (reviews)
    (timeline)
    ;; We don't use these fields:
