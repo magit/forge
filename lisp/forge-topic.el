@@ -224,9 +224,10 @@ This variable has to be customized before `forge' is loaded."
                  `(,@spec (?i . ,(oref topic number)))))
 
 (cl-defmethod forge-visit ((topic forge-topic))
-  (forge-topic-setup-buffer topic))
+  (forge-topic-setup-buffer topic)
+  (forge-topic-mark-read (forge-get-repository topic) topic))
 
-(cl-defmethod forge-visit :after ((topic forge-topic))
+(cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
   (oset topic unread-p nil))
 
 (defun forge--sanitize-string (string)
