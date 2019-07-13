@@ -422,7 +422,7 @@ identifier."
                labels " ")))
 
 (defun forge--insert-topic-labels (topic &optional skip-separator labels)
-  (pcase-dolist (`(,name ,color ,_desc)
+  (pcase-dolist (`(,name ,color ,description)
                  (or labels (closql--iref topic 'labels)))
     (if skip-separator
         (setq skip-separator nil)
@@ -432,7 +432,9 @@ identifier."
       (let ((o (make-overlay (- (point) (length name)) (point))))
         (overlay-put o 'priority 2)
         (overlay-put o 'evaporate t)
-        (overlay-put o 'face (list :background color :foreground color2))))))
+        (overlay-put o 'face (list :background color :foreground color2))
+        (when description
+          (overlay-put o 'help-echo description))))))
 
 (defun forge--contrast-color (color)
   (if (> (forge--color-brightness color) 127) "black" "white"))
