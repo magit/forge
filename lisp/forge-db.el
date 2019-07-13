@@ -59,12 +59,13 @@
       (cond
        ((> version forge--db-version)
         (emacsql-close db)
-        (user-error "BUG: forge-db-version is too low"))
+        (user-error
+         "The Forge database was created with a newer Forge version.  %s"
+         "You need to update the Forge package."))
        ((< version forge--db-version)
         (emacsql-close db)
-        (if (yes-or-no-p "The database scheme changed. Reset database now? ")
-            (forge-reset-database)
-          (user-error "Abort"))))))
+        (error "BUG: The Forge database scheme changed %s"
+               "and there is no upgrade path")))))
   forge--db-connection)
 
 ;;; Api
