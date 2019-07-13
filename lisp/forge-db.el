@@ -209,6 +209,7 @@
     (notification
      [(class :not-null)
       (id :not-null :primary-key)
+      thread-id
       repository
       forge
       reason

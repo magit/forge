@@ -30,6 +30,7 @@
    (closql-primary-key        :initform id)
    (closql-order-by           :initform [(desc id)])
    (id                        :initarg :id)
+   (thread-id                 :initarg :thread-id)
    (repository                :initarg :repository)
    (forge                     :initarg :forge)
    (reason                    :initarg :reason)
@@ -47,6 +48,14 @@
   "Return the object for the repository that NOTIFY belongs to."
   (when-let ((id (oref notify repository)))
     (closql-get (forge-db) id 'forge-repository)))
+
+(cl-defmethod forge-get-notification ((topic forge-topic))
+  (when-let ((row (car (forge-sql [:select * :from notification
+				   :where (and (= repository $s1)
+					       (= topic $s2))]
+				  (oref topic repository)
+				  (oref topic number)))))
+    (closql--remake-instance 'forge-notification (forge-db) row t)))
 
 ;;; Utilities
 

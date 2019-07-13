@@ -378,6 +378,7 @@ repositories.
                         ))))
                  (forge-notification
                   :id           id
+                  :thread-id    .id
                   :repository   repoid
                   :forge        forge
                   :reason       (intern (downcase .reason))
@@ -388,6 +389,13 @@ repositories.
                   :type         type
                   :topic        number
                   :url          .subject.url))))))
+
+(cl-defmethod forge-topic-mark-read ((_ forge-github-repository) topic)
+  (when (oref topic unread-p)
+    (oset topic unread-p nil)
+    (when-let ((notif (forge-get-notification topic)))
+      (oset topic unread-p nil)
+      (forge--ghub-patch notif "/notifications/threads/:thread-id"))))
 
 ;;; Mutations
 
