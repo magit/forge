@@ -54,16 +54,9 @@
     (closql-db 'forge-database 'forge--db-connection
                forge-database-file t)
     (let* ((db forge--db-connection)
-           (version (caar (emacsql db "PRAGMA user_version"))))
+           (version (caar (emacsql db "PRAGMA user_version")))
+           (version (forge--db-maybe-update forge--db-connection version)))
       (cond
-       ((and (= version 2) (= forge--db-version 3))
-        (message "Upgrading Forge database from version 2 to 3...")
-        (let ((db forge--db-connection))
-          (emacsql-with-transaction db
-            (emacsql db [:create-table pullreq-review-request $S1]
-                     (cdr (assq 'pullreq-review-request forge--db-table-schemata)))
-            (emacsql db (format "PRAGMA user_version = %s" 3))))
-        (message "Upgrading Forge database from version 2 to 3...done"))
        ((> version forge--db-version)
         (emacsql-close db)
         (user-error "BUG: forge-db-version is too low"))
@@ -319,6 +312,17 @@
     (pcase-dolist (`(,table . ,schema) forge--db-table-schemata)
       (emacsql db [:create-table $i1 $S2] table schema))
     (emacsql db (format "PRAGMA user_version = %s" forge--db-version))))
+
+(defun forge--db-maybe-update (db version)
+  (emacsql-with-transaction db
+    (when (= version 2)
+      (message "Upgrading Forge database from version 2 to 3...")
+      (emacsql db [:create-table pullreq-review-request $S1]
+               (cdr (assq 'pullreq-review-request forge--db-table-schemata)))
+      (emacsql db "PRAGMA user_version = 3")
+      (setq version 3)
+      (message "Upgrading Forge database from version 2 to 3...done"))
+    version))
 
 ;;; _
 (provide 'forge-db)
