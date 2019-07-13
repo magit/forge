@@ -283,6 +283,7 @@ identifier."
   (with-slots (number title unread-p closed) topic
     (insert (format (if width (format "%%-%is" (1+ width)) "%s")
                     (forge--format-topic-id topic prefix)))
+    (forge--insert-topic-marks topic)
     (insert " ")
     (insert (magit-log-propertize-keywords
              nil (propertize title 'face
@@ -312,6 +313,7 @@ identifier."
   '(forge-insert-topic-title
     forge-insert-topic-state
     forge-insert-topic-labels
+    forge-insert-topic-marks
     forge-insert-topic-assignees
     forge-insert-topic-review-requests))
 
@@ -433,6 +435,34 @@ identifier."
         (overlay-put o 'face (list :background color :foreground color2))
         (when description
           (overlay-put o 'help-echo description))))))
+
+(defvar forge-topic-marks-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-edit-thing] 'forge-edit-topic-marks)
+    map))
+
+(cl-defun forge-insert-topic-marks
+    (&optional (topic forge-buffer-topic))
+  (magit-insert-section (topic-marks)
+    (insert (format "%-11s" "Marks: "))
+    (if-let ((marks (closql--iref topic 'marks)))
+        (forge--insert-topic-marks topic t marks)
+      (insert (propertize "none" 'face 'magit-dimmed)))
+    (insert ?\n)))
+
+(defun forge--insert-topic-marks (topic &optional skip-separator marks)
+  (pcase-dolist (`(,name ,face ,description)
+                  (or marks (closql--iref topic 'marks)))
+    (if skip-separator
+        (setq skip-separator nil)
+      (insert " "))
+    (insert name)
+    (let ((o (make-overlay (- (point) (length name)) (point))))
+      (overlay-put o 'priority 2)
+      (overlay-put o 'evaporate t)
+      (overlay-put o 'face face)
+      (when description
+        (overlay-put o 'help-echo description)))))
 
 (defun forge--contrast-color (color)
   (if (> (forge--color-brightness color) 127) "black" "white"))

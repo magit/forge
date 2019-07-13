@@ -43,7 +43,7 @@
 (defclass forge-database (closql-database)
   ((object-class :initform forge-repository)))
 
-(defconst forge--db-version 3)
+(defconst forge--db-version 4)
 
 (defvar forge--db-connection nil
   "The EmacSQL database connection.")
@@ -153,7 +153,8 @@
       (participants :default eieio-unbound)
       (posts        :default eieio-unbound)
       (reactions    :default eieio-unbound)
-      (timeline     :default eieio-unbound)]
+      (timeline     :default eieio-unbound)
+      (marks        :default eieio-unbound)]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
@@ -173,6 +174,16 @@
       :on-delete :cascade)
      (:foreign-key
       [id] :references label [id]
+      :on-delete :cascade))
+
+    (issue-mark
+     [(issue :not-null)
+      (id :not-null)]
+     (:foreign-key
+      [issue] :references issue [id]
+      :on-delete :cascade)
+     (:foreign-key
+      [id] :references mark [id]
       :on-delete :cascade))
 
     (issue-post
@@ -199,6 +210,17 @@
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
+
+    (mark
+     [;; For now this is always nil because it seems more useful to
+      ;; share marks between repositories.  We cannot omit this slot
+      ;; though because `closql--iref' expects `id' to be the second
+      ;; slot.
+      repository
+      (id :not-null :primary-key)
+      name
+      face
+      description])
 
     (notification
      [(class :not-null)
@@ -251,7 +273,8 @@
       (reactions       :default eieio-unbound)
       (review-requests :default eieio-unbound)
       (reviews         :default eieio-unbound)
-      (timeline        :default eieio-unbound)]
+      (timeline        :default eieio-unbound)
+      (marks           :default eieio-unbound)]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
@@ -271,6 +294,16 @@
       :on-delete :cascade)
      (:foreign-key
       [id] :references label [id]
+      :on-delete :cascade))
+
+    (pullreq-mark
+     [(pullreq :not-null)
+      (id :not-null)]
+     (:foreign-key
+      [pullreq] :references pullreq [id]
+      :on-delete :cascade)
+     (:foreign-key
+      [id] :references mark [id]
       :on-delete :cascade))
 
     (pullreq-post
@@ -323,6 +356,18 @@
       (emacsql db "PRAGMA user_version = 3")
       (setq version 3)
       (message "Upgrading Forge database from version 2 to 3...done"))
+    (when (= version 3)
+      (message "Upgrading Forge database from version 3 to 4...")
+      (emacsql db [:drop-table notification])
+      (pcase-dolist (`(,table . ,schema) forge--db-table-schemata)
+        (when (memq table '(notification
+                            mark issue-mark pullreq-mark))
+          (emacsql db [:create-table $i1 $S2] table schema)))
+      (emacsql db [:alter-table issue   :add-column mark :default $i1] eieio-unbound)
+      (emacsql db [:alter-table pullreq :add-column mark :default $i1] eieio-unbound)
+      (emacsql db "PRAGMA user_version = 4")
+      (setq version 4)
+      (message "Upgrading Forge database from version 3 to 4...done"))
     version))
 
 ;;; _

@@ -431,6 +431,14 @@ point is currently on."
                  nil t
                  (mapconcat #'car (closql--iref topic 'labels) ",")))))
 
+(defun forge-edit-topic-marks (topic marks)
+  "Edit the marks of TOPIC."
+  (interactive
+   (let ((topic (forge-read-topic "Edit marks of")))
+     (list topic (forge-read-marks "Marks: " topic))))
+  (oset topic marks marks)
+  (magit-refresh))
+
 (defun forge-edit-topic-assignees (topic)
   "Edit the assignees of TOPIC."
   (interactive (list (forge-read-topic "Edit assignees of")))
@@ -610,6 +618,77 @@ information."
   (magit-worktree-checkout path
                            (let ((inhibit-magit-refresh t))
                              (forge-branch-pullreq pullreq))))
+
+;;; Marks
+
+(defun forge-create-mark (name face description)
+  "Define a new mark that topics can be marked with."
+  (interactive
+   (list (read-string "Name: ")
+         (magit-read-char-case "Set appearance using " nil
+           (?n "a face [n]ame"
+               (read-face-name "Face name: "))
+           (?s "face [s]exp"
+               (read-from-minibuffer
+                "Face sexp: "
+                "(:background \"\" :foreground \"\" :box t)"
+                read-expression-map t)))
+         (let ((str (read-string "Description: ")))
+           (and (not (equal str "")) str))))
+  (forge-sql [:insert-into mark :values $v1]
+             (vector nil (forge--uuid) name face description)))
+
+(defun forge-edit-mark (id name face description)
+  "Define a new mark that topics can be marked with."
+  (interactive
+   (pcase-let ((`(,id ,name ,face ,description)
+                (forge-read-mark "Edit mark")))
+     (list id
+           (read-string "Name: " name)
+           (magit-read-char-case "Set appearance using " nil
+             (?n "a face [n]ame"
+                 (read-face-name "Face name: " (and (symbolp face) face)))
+             (?s "face [s]exp"
+                 (read-from-minibuffer
+                  "Face sexp: "
+                  (if (listp face)
+                      (format "%S" face)
+                    "(:background \"\" :foreground \"\" :box t)")
+                  read-expression-map t)))
+           (let ((str (read-string "Description: " nil nil description)))
+             (and (not (equal str "")) str)))))
+  (forge-sql [:update mark
+              :set (= [name face description] $v1)
+              :where (= id $s2)]
+             (vector name face description) id))
+
+(defun forge-read-mark (prompt)
+  "Read a topic.  Return (ID NAME FACE DESCRIPTION)."
+  (let* ((marks (forge-sql [:select [id name face description] :from mark]))
+         (name (completing-read prompt (mapcar #'cadr marks) nil t)))
+    (--first (equal (cadr it) name) marks)))
+
+(defun forge-read-marks (prompt &optional topic)
+  "Read multiple mark names and return the respective ids."
+  (let ((marks (forge-sql [:select [name id] :from mark]))
+        (crm-separator ","))
+    (--map (cadr (assoc it marks))
+           (magit-completing-read-multiple*
+            prompt (mapcar #'car marks) nil t
+            (and topic
+                 (mapconcat #'car (closql--iref topic 'marks) ","))))))
+
+(defun forge-toggle-mark (mark)
+  "Toggle MARK for the current topic."
+  (if-let ((topic (forge-current-topic)))
+      (let* ((value (mapcar #'car (closql--iref topic 'marks)))
+             (value (if (member mark value)
+                        (delete mark value)
+                      (cons mark value)))
+             (marks (forge-sql [:select [name id] :from mark])))
+        (oset topic marks (--map (cadr (assoc it marks)) value))
+        (magit-refresh))
+    (user-error "There is no topic at point")))
 
 ;;; Misc
 

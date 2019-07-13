@@ -54,6 +54,7 @@
    (posts                :closql-class forge-issue-post)
    (reactions)
    (timeline)
+   (marks                :closql-table (issue-mark mark))
    ))
 
 (defclass forge-issue-post (forge-post)

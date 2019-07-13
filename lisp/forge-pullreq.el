@@ -65,6 +65,7 @@
    (review-requests      :closql-table (pullreq-review-request assignee))
    (reviews)
    (timeline)
+   (marks                :closql-table (pullreq-mark mark))
    ;; We don't use these fields:
    ;; includesCreatedEdit (huh?),
    ;; lastEditedAt (same as updatedAt?),
