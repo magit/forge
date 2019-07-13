@@ -281,16 +281,14 @@ identifier."
 
 (cl-defmethod forge--insert-topic-contents ((topic forge-topic) width prefix)
   (with-slots (number title unread-p closed) topic
-    (insert
-     (format (if width
-                 (format "%%-%is %%s" (1+ width))
-               "%s %s")
-             (forge--format-topic-id topic prefix)
-             (magit-log-propertize-keywords
-              nil (propertize title 'face
-                              (cond (unread-p 'forge-topic-unread)
-                                    (closed   'forge-topic-closed)
-                                    (t        'forge-topic-open))))))
+    (insert (format (if width (format "%%-%is" (1+ width)) "%s")
+                    (forge--format-topic-id topic prefix)))
+    (insert " ")
+    (insert (magit-log-propertize-keywords
+             nil (propertize title 'face
+                             (cond (unread-p 'forge-topic-unread)
+                                   (closed   'forge-topic-closed)
+                                   (t        'forge-topic-open)))))
     (forge--insert-topic-labels topic)
     (insert "\n")
     (magit-log-format-author-margin
