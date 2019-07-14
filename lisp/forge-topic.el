@@ -476,25 +476,24 @@ identifier."
         (t "#000000"))) ; Use fallback instead of invalid color.
 
 (defun forge--contrast-color (color)
-  (if (> (forge--color-brightness color) 127) "black" "white"))
+  "Return black or white depending on the luminance of COLOR."
+  (if (> (forge--x-color-luminance color) 0.5) "black" "white"))
 
-(defun forge--color-brightness (color)
-  ;; https://www.w3.org/TR/AERT/#color-contrast
-  ;; https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#RGB_colors
-  (let (r g b)
-    (save-match-data
-      (cond ((string-match "\\`#.\\{6\\}\\'" color)
-             (setq r (substring color 1 3))
-             (setq g (substring color 3 5))
-             (setq b (substring color 5 7)))
-            ((string-match "\\`#.\\{3\\}\\'" color)
-             (setq r (make-string 2 (aref color 1)))
-             (setq g (make-string 2 (aref color 2)))
-             (setq b (make-string 2 (aref color 3))))))
-    (/ (+ (* (read (concat "#x" r)) 299)
-          (* (read (concat "#x" g)) 587)
-          (* (read (concat "#x" b)) 114))
-       1000)))
+;; Copy of `rainbow-x-color-luminance'.
+(defun forge--x-color-luminance (color)
+  "Calculate the luminance of a color string (e.g. \"#ffaa00\", \"blue\").
+Return a value between 0 and 1."
+  (let ((values (x-color-values color)))
+    (forge--color-luminance (/ (nth 0 values) 256.0)
+                            (/ (nth 1 values) 256.0)
+                            (/ (nth 2 values) 256.0))))
+
+;; Copy of `rainbow-color-luminance'.
+;; Also see https://en.wikipedia.org/wiki/Relative_luminance.
+(defun forge--color-luminance (red green blue)
+  "Calculate the luminance of color composed of RED, GREEN and BLUE.
+Return a value between 0 and 1."
+  (/ (+ (* .2126 red) (* .7152 green) (* .0722 blue)) 256))
 
 (defvar forge-topic-assignees-section-map
   (let ((map (make-sparse-keymap)))
