@@ -427,12 +427,16 @@ identifier."
     (if skip-separator
         (setq skip-separator nil)
       (insert " "))
-    (let ((color2 (forge--contrast-color color)))
-      (insert (propertize name 'face (list :foreground color :box "black")))
+    (let* ((background color)
+           (foreground (forge--contrast-color background)))
+      (insert name)
       (let ((o (make-overlay (- (point) (length name)) (point))))
         (overlay-put o 'priority 2)
         (overlay-put o 'evaporate t)
-        (overlay-put o 'face (list :background color :foreground color2))
+        (overlay-put o 'face
+                     (list :background background
+                           :foreground foreground
+                           :box "black"))
         (when description
           (overlay-put o 'help-echo description))))))
 
