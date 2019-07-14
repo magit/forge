@@ -427,7 +427,7 @@ identifier."
     (if skip-separator
         (setq skip-separator nil)
       (insert " "))
-    (let* ((background color)
+    (let* ((background (forge--sanitize-color color))
            (foreground (forge--contrast-color background)))
       (insert name)
       (let ((o (make-overlay (- (point) (length name)) (point))))
@@ -468,6 +468,13 @@ identifier."
       (when description
         (overlay-put o 'help-echo description)))))
 
+(defun forge--sanitize-color (color)
+  (cond ((x-color-values color) color)
+        ;; Discard alpha information.
+        ((string-match-p "\\`#.\\{4\\}\\'" color) (substring color 0 3))
+        ((string-match-p "\\`#.\\{8\\}\\'" color) (substring color 0 6))
+        (t "#000000"))) ; Use fallback instead of invalid color.
+
 (defun forge--contrast-color (color)
   (if (> (forge--color-brightness color) 127) "black" "white"))
 
@@ -483,9 +490,7 @@ identifier."
             ((string-match "\\`#.\\{3\\}\\'" color)
              (setq r (make-string 2 (aref color 1)))
              (setq g (make-string 2 (aref color 2)))
-             (setq b (make-string 2 (aref color 3))))
-            (t
-             (error "Color does not have #RRGGBB or #RGB format"))))
+             (setq b (make-string 2 (aref color 3))))))
     (/ (+ (* (read (concat "#x" r)) 299)
           (* (read (concat "#x" g)) 587)
           (* (read (concat "#x" b)) 114))
