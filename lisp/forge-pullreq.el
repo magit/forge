@@ -268,6 +268,28 @@ yourself, in which case you probably should not reset either.
       "!"
     "#"))
 
+(defun forge-insert-assigned-pullreqs ()
+  (when-let ((repo (forge-get-repository nil)))
+    (unless (oref repo sparse-p)
+      (forge-insert-topics "Assigned pull requests"
+                           (forge--ls-assigned-pullreqs repo)
+                           (forge--topic-type-prefix repo 'pullreq)))))
+
+(defun forge--ls-assigned-pullreqs (repo)
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-pullreq (forge-db) row))
+          (forge-sql
+           [:select $i1 :from pullreq
+            :join pullreq_assignee :on (= pullreq_assignee:pullreq pullreq:id)
+            :join assignee         :on (= pullreq_assignee:id      assignee:id)
+            :where (and (= pullreq:repository $s2)
+                        (= assignee:login     $s3)
+                        (isnull pullreq:closed))
+            :order-by [(desc updated)]]
+           (vconcat (closql--table-columns (forge-db) 'pullreq t))
+           (oref repo id)
+           (ghub--username (ghub--host)))))
+
 ;;; _
 (provide 'forge-pullreq)
 ;;; forge-pullreq.el ends here

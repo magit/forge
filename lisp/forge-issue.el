@@ -153,6 +153,28 @@
                            (forge-ls-recent-topics repo 'issue)
                            (forge--topic-type-prefix repo 'issue)))))
 
+(defun forge-insert-assigned-issues ()
+  (when-let ((repo (forge-get-repository nil)))
+    (unless (oref repo sparse-p)
+      (forge-insert-topics "Assigned issues"
+                           (forge--ls-assigned-issues repo)
+                           (forge--topic-type-prefix repo 'issue)))))
+
+(defun forge--ls-assigned-issues (repo)
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-issue (forge-db) row))
+          (forge-sql
+           [:select $i1 :from [issue issue_assignee assignee]
+            :where (and (= issue_assignee:issue issue:id)
+                        (= issue_assignee:id    assignee:id)
+                        (= issue:repository     $s2)
+                        (= assignee:login       $s3)
+                        (isnull issue:closed))
+            :order-by [(desc updated)]]
+           (vconcat (closql--table-columns (forge-db) 'issue t))
+           (oref repo id)
+           (ghub--username (ghub--host)))))
+
 ;;; _
 (provide 'forge-issue)
 ;;; forge-issue.el ends here
