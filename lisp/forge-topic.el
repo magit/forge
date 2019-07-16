@@ -46,8 +46,12 @@ include (number . >) and (updated . string>)."
 All unread topics are always shown.  If the value of this option
 has the form (OPEN . CLOSED), then the integer OPEN specifies the
 maximal number of topics and CLOSED specifies the maximal number
-of closed topics.  The value can also be an integer, in which
-case it limits the number of closed topics only."
+of closed topics.  IF CLOSED is negative then show no closed
+topics until the command `forge-toggle-closed-visibility' changes
+the sign.
+
+The value can also be an integer, in which case it limits the
+number of closed topics only."
   :package-version '(forge . "0.1.0")
   :group 'forge
   :type '(choice (number :tag "Maximal number of closed issues")
@@ -178,7 +182,7 @@ This variable has to be customized before `forge' is loaded."
                         :where (and (= repository $s2)
                                     (isnull closed))]
                        table id)))
-    (unless (zerop closed-limit)
+    (when (> closed-limit 0)
       (mapc (lambda (row)
               (cl-pushnew row topics :test #'equal))
             (forge-sql [:select * :from $s1
