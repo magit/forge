@@ -95,6 +95,23 @@
                (forge--topic-list-columns-vector)
                (oref repo id))))
 
+;;;###autoload
+(defun forge-list-assigned-issues (repo)
+  "List issues assigned to you in a separate buffer."
+  (interactive (list (forge-get-repository t)))
+  (forge--list-topics 'forge-issue-list-mode nil
+    (forge-sql
+     [:select $i1 :from [issue issue_assignee assignee]
+      :where (and (= issue_assignee:issue issue:id)
+                  (= issue_assignee:id    assignee:id)
+                  (= issue:repository     $s2)
+                  (= assignee:login       $s3)
+                  (isnull issue:closed))
+      :order-by [(desc updated)]]
+     (forge--topic-list-columns-vector)
+     (oref repo id)
+     (ghub--username (ghub--host)))))
+
 (defun forge-list-visit-issue ()
   "View the issue at point in a separate buffer."
   (interactive)
@@ -115,6 +132,23 @@
     (forge-sql [:select $i1 :from pullreq :where (= repository $s2)]
                (forge--topic-list-columns-vector)
                (oref repo id))))
+
+;;;###autoload
+(defun forge-list-assigned-pullreqs (repo)
+  "List pull-requests assigned to you in a separate buffer."
+  (interactive (list (forge-get-repository t)))
+  (forge--list-topics 'forge-pullreq-list-mode nil
+    (forge-sql
+     [:select $i1 :from [pullreq pullreq_assignee assignee]
+      :where (and (= pullreq_assignee:pullreq pullreq:id)
+                  (= pullreq_assignee:id      assignee:id)
+                  (= pullreq:repository       $s2)
+                  (= assignee:login           $s3)
+                  (isnull pullreq:closed))
+      :order-by [(desc updated)]]
+     (forge--topic-list-columns-vector)
+     (oref repo id)
+     (ghub--username (ghub--host)))))
 
 (defun forge-list-visit-pullreq ()
   "View the pull-request at point in a separate buffer."
