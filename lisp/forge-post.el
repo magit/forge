@@ -116,7 +116,7 @@
 (defvar-local forge--cancel-post-function nil)
 (defvar-local forge--pre-post-buffer nil)
 
-(defun forge--prepare-post-buffer (filename &optional header)
+(defun forge--prepare-post-buffer (filename &optional header source)
   (let ((file (magit-git-dir
                (convert-standard-filename
                 (concat "magit/posts/" filename)))))
@@ -139,11 +139,15 @@
         (when (and (not resume) (string-prefix-p "new" filename))
           (let-alist (forge--topic-template
                       (forge-get-repository t)
-                      (if (string-suffix-p "issue" filename)
-                          'forge-issue
-                        'forge-pullreq))
+                      (if source 'forge-pullreq 'forge-issue))
             (insert .text)
-            (goto-char (or .position (point-min))))))
+            (if source
+                (progn
+                  (goto-char (point-min))
+                  (magit-rev-insert-format "# %B" source)
+                  (insert "\n----\n\n")
+                  (goto-char 3))
+              (goto-char (or .position (point-min)))))))
       buf)))
 
 (defun forge--display-post-buffer (buf)
