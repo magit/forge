@@ -708,7 +708,7 @@ information."
 (defun forge-toggle-closed-visibility ()
   "Toggle whether recently closed issues are shown."
   (interactive)
-  (make-variable-buffer-local 'forge-topic-list-limit)
+  (make-local-variable 'forge-topic-list-limit)
   (if (atom forge-topic-list-limit)
       (setq forge-topic-list-limit (cons forge-topic-list-limit 5))
     (setcdr forge-topic-list-limit (* -1 (cdr forge-topic-list-limit))))
