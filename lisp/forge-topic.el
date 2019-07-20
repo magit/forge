@@ -22,6 +22,7 @@
 
 (require 'bug-reference)
 (require 'markdown-mode)
+(require 'parse-time)
 
 (require 'forge)
 (require 'forge-post)
