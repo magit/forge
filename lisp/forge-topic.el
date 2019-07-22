@@ -161,6 +161,19 @@ This variable has to be customized before `forge' is loaded."
 (cl-defmethod forge-get-topic ((topic forge-topic))
   topic)
 
+(cl-defmethod forge-get-topic ((number integer))
+  (if (< number 0)
+      (forge-get-pullreq (abs number))
+    (or (forge-get-pullreq number)
+        (forge-get-issue number))))
+
+(defun forge--topic-string-to-number (s)
+  (save-match-data
+    (if (string-match "\\`\\([!#]\\)?\\([0-9]+\\)" s)
+        (* (if (equal (match-string 1 s) "!") -1 1)
+           (string-to-number (match-string 2 s)))
+      (error "forge--topic-string-to-number: Invalid argument %S" s))))
+
 (cl-defmethod forge-ls-recent-topics ((repo forge-repository) table)
   (let* ((id (oref repo id))
          (limit forge-topic-list-limit)
@@ -592,14 +605,8 @@ Return a value between 0 and 1."
                    prompt choices nil nil nil nil
                    (and default
                         (forge--topic-format-choice
-                         default (and (not gitlabp) "")))))
-         (number  (and (string-match "\\`\\([!#]*\\)\\([0-9]+\\)" choice)
-                       (string-to-number (match-string 2 choice)))))
-    (and number
-         (if (equal (match-string 1 choice) "!")
-             (forge-get-pullreq repo number)
-           (or (forge-get-issue repo number)
-               (forge-get-pullreq repo number))))))
+                         default (and (not gitlabp) ""))))))
+    (forge--topic-string-to-number choice)))
 
 (defun forge--topic-format-choice (topic &optional prefix)
   (format "%s%s  %s"

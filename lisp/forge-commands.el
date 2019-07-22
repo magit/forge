@@ -398,17 +398,23 @@ point is currently on."
       (insert (oref post body)))
     (forge--display-post-buffer buf)))
 
-(defun forge-edit-topic-title (topic)
-  "Edit the title of TOPIC."
+(defun forge-edit-topic-title (n)
+  "Edit the title of the current topic.
+If there is no current topic or with a prefix argument read a
+topic N and modify that instead."
   (interactive (list (forge-read-topic "Edit title of")))
-  (forge--set-topic-title
-   (forge-get-repository topic) topic
-   (read-string "Title: " (oref topic title))))
+  (let ((topic (forge-get-topic n)))
+    (forge--set-topic-title
+     (forge-get-repository topic) topic
+     (read-string "Title: " (oref topic title)))))
 
-(defun forge-edit-topic-state (topic)
-  "Close or reopen TOPIC."
+(defun forge-edit-topic-state (n)
+  "Close or reopen the current topic.
+If there is no current topic or with a prefix argument read a
+topic N and modify that instead."
   (interactive
-   (let ((topic (forge-read-topic "Close/reopen")))
+   (let* ((n (forge-read-topic "Close/reopen"))
+          (topic (forge-get-topic n)))
      (if (magit-y-or-n-p
           (format "%s %S"
                   (cl-ecase (oref topic state)
@@ -416,15 +422,19 @@ point is currently on."
                     (closed "Reopen")
                     (open   "Close"))
                   (forge--topic-format-choice topic)))
-         (list topic)
+         (list n)
        (user-error "Abort"))))
-  (forge--set-topic-state (forge-get-repository topic) topic))
+  (let ((topic (forge-get-topic n)))
+    (forge--set-topic-state (forge-get-repository topic) topic)))
 
-(defun forge-edit-topic-labels (topic)
-  "Edit the labels of TOPIC."
+(defun forge-edit-topic-labels (n)
+  "Edit the labels of the current topic.
+If there is no current topic or with a prefix argument read a
+topic N and modify that instead."
   (interactive (list (forge-read-topic "Edit labels of")))
-  (let ((repo (forge-get-repository topic))
-        (crm-separator ","))
+  (let* ((topic (forge-get-topic n))
+         (repo  (forge-get-repository topic))
+         (crm-separator ","))
     (forge--set-topic-labels
      repo topic (magit-completing-read-multiple*
                  "Labels: "
@@ -432,18 +442,23 @@ point is currently on."
                  nil t
                  (mapconcat #'car (closql--iref topic 'labels) ",")))))
 
-(defun forge-edit-topic-marks (topic marks)
-  "Edit the marks of TOPIC."
+(defun forge-edit-topic-marks (n marks)
+  "Edit the marks of the current topic.
+If there is no current topic or with a prefix argument read a
+topic N and modify that instead."
   (interactive
-   (let ((topic (forge-read-topic "Edit marks of")))
-     (list topic (forge-read-marks "Marks: " topic))))
-  (oset topic marks marks)
+   (let ((n (forge-read-topic "Edit marks of")))
+     (list n (forge-read-marks "Marks: " (forge-get-topic n)))))
+  (oset (forge-get-topic n) marks marks)
   (magit-refresh))
 
-(defun forge-edit-topic-assignees (topic)
-  "Edit the assignees of TOPIC."
+(defun forge-edit-topic-assignees (n)
+  "Edit the assignees of the current topic.
+If there is no current topic or with a prefix argument read a
+topic N and modify that instead."
   (interactive (list (forge-read-topic "Edit assignees of")))
-  (let* ((repo (forge-get-repository topic))
+  (let* ((topic (forge-get-topic n))
+         (repo  (forge-get-repository topic))
          (value (closql--iref topic 'assignees))
          (choices (mapcar #'cadr (oref repo assignees)))
          (crm-separator ","))
