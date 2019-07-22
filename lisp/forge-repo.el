@@ -233,9 +233,9 @@ repository, if any."
                            (oref default githost))))))
     (save-match-data
       (string-match "\\`\\([^/]+\\)/\\([^/]+\\) @\\(.+\\)\\'" choice)
-      (forge-get-repository (list (match-string 3 choice)
-                                  (match-string 1 choice)
-                                  (match-string 2 choice))))))
+      (list (match-string 3 choice)
+            (match-string 1 choice)
+            (match-string 2 choice)))))
 
 (cl-defmethod forge--topics-until ((repo forge-repository) until table)
   (if (oref repo sparse-p)
