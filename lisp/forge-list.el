@@ -164,17 +164,19 @@
 
 (defun forge--list-topics (mode buffer-name rows)
   (declare (indent 2))
-  (let ((topdir (magit-toplevel)))
+  (let ((repo (forge-get-repository t))
+        (topdir (magit-toplevel)))
     (with-current-buffer
         (get-buffer-create
          (or buffer-name
-             (let ((repo (forge-get-repository t)))
-               (format "*%s: %s/%s*"
-                       (substring (symbol-name mode) 0 -5)
-                       (oref repo owner)
-                       (oref repo name)))))
-      (setq default-directory topdir)
+             (format "*%s: %s/%s*"
+                     (substring (symbol-name mode) 0 -5)
+                     (oref repo owner)
+                     (oref repo name))))
       (funcall mode)
+      (setq forge-buffer-repository repo)
+      (when topdir
+        (setq default-directory topdir))
       (setq tabulated-list-entries
             (mapcar (lambda (row)
                       (list (car row)
