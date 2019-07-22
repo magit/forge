@@ -222,13 +222,14 @@ Prefer a topic over a branch and that over a commit."
   (interactive)
   (if-let ((topic (forge-current-topic)))
       (forge-browse topic)
-    (user-error "There is no topic at point")))
+    (user-error "There is no current topic")))
 
 ;;;###autoload
-(defun forge-browse-pullreqs (repo)
-  "Visit the url corresponding to REPO's pull-requests using a browser."
-  (interactive (list (forge-get-repository 'stub)))
-  (browse-url (forge--format repo 'pullreqs-url-format)))
+(defun forge-browse-pullreqs ()
+  "Visit the pull-requests of the current repository using a browser."
+  (interactive)
+  (browse-url (forge--format (forge-get-repository 'stub)
+                             'pullreqs-url-format)))
 
 ;;;###autoload
 (defun forge-browse-pullreq (n)
@@ -237,10 +238,11 @@ Prefer a topic over a branch and that over a commit."
   (forge-browse (forge-get-pullreq n)))
 
 ;;;###autoload
-(defun forge-browse-issues (repo)
-  "Visit the url corresponding to REPO's issues using a browser."
-  (interactive (list (forge-get-repository 'stub)))
-  (browse-url (forge--format repo 'issues-url-format)))
+(defun forge-browse-issues ()
+  "Visit the issues of the current repository using a browser."
+  (interactive)
+  (browse-url (forge--format (forge-get-repository 'stub)
+                             'issues-url-format)))
 
 ;;;###autoload
 (defun forge-browse-issue (n)

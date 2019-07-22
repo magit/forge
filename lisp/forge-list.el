@@ -87,19 +87,20 @@
 ;;;; Issue
 
 ;;;###autoload
-(defun forge-list-issues (repo)
-  "List issues in a separate buffer."
-  (interactive (list (forge-get-repository t)))
-  (forge--list-topics 'forge-issue-list-mode nil
+(defun forge-list-issues (id)
+  "List issues of the current repository in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)))
+  (forge--list-topics id 'forge-issue-list-mode nil
     (forge-sql [:select $i1 :from issue :where (= repository $s2)]
                (forge--topic-list-columns-vector)
-               (oref repo id))))
+               id)))
 
 ;;;###autoload
-(defun forge-list-assigned-issues (repo)
-  "List issues assigned to you in a separate buffer."
-  (interactive (list (forge-get-repository t)))
-  (forge--list-topics 'forge-issue-list-mode nil
+(defun forge-list-assigned-issues (id)
+  "List issues of the current repository that are assigned to you.
+List them in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)))
+  (forge--list-topics id 'forge-issue-list-mode nil
     (forge-sql
      [:select $i1 :from [issue issue_assignee assignee]
       :where (and (= issue_assignee:issue issue:id)
@@ -109,8 +110,7 @@
                   (isnull issue:closed))
       :order-by [(desc updated)]]
      (forge--topic-list-columns-vector)
-     (oref repo id)
-     (ghub--username (ghub--host)))))
+     id (ghub--username (ghub--host)))))
 
 (defun forge-list-visit-issue ()
   "View the issue at point in a separate buffer."
@@ -125,19 +125,20 @@
 ;;;; Pullreq
 
 ;;;###autoload
-(defun forge-list-pullreqs (repo)
-  "List pull-requests in a separate buffer."
-  (interactive (list (forge-get-repository t)))
-  (forge--list-topics 'forge-pullreq-list-mode nil
+(defun forge-list-pullreqs (id)
+  "List pull-requests of the current repository in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)))
+  (forge--list-topics id 'forge-pullreq-list-mode nil
     (forge-sql [:select $i1 :from pullreq :where (= repository $s2)]
                (forge--topic-list-columns-vector)
-               (oref repo id))))
+               id)))
 
 ;;;###autoload
-(defun forge-list-assigned-pullreqs (repo)
-  "List pull-requests assigned to you in a separate buffer."
-  (interactive (list (forge-get-repository t)))
-  (forge--list-topics 'forge-pullreq-list-mode nil
+(defun forge-list-assigned-pullreqs (id)
+  "List pull-requests of the current repository that are assigned to you.
+List them in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)))
+  (forge--list-topics id 'forge-pullreq-list-mode nil
     (forge-sql
      [:select $i1 :from [pullreq pullreq_assignee assignee]
       :where (and (= pullreq_assignee:pullreq pullreq:id)
@@ -147,8 +148,7 @@
                   (isnull pullreq:closed))
       :order-by [(desc updated)]]
      (forge--topic-list-columns-vector)
-     (oref repo id)
-     (ghub--username (ghub--host)))))
+     id (ghub--username (ghub--host)))))
 
 (defun forge-list-visit-pullreq ()
   "View the pull-request at point in a separate buffer."
@@ -162,9 +162,9 @@
 
 ;;; Internal
 
-(defun forge--list-topics (mode buffer-name rows)
+(defun forge--list-topics (repo-id mode buffer-name rows)
   (declare (indent 2))
-  (let ((repo (forge-get-repository t))
+  (let ((repo (forge-get-repository (list :id repo-id)))
         (topdir (magit-toplevel)))
     (with-current-buffer
         (get-buffer-create
