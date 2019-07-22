@@ -153,12 +153,12 @@
 (defun forge-list-visit-pullreq ()
   "View the pull-request at point in a separate buffer."
   (interactive)
-  (forge-visit-pullreq (forge-get-pullreq (tabulated-list-get-id))))
+  (forge-visit-pullreq (tabulated-list-get-id)))
 
 (defun forge-list-browse-pullreq ()
   "Visit the url corresponding to the pull-request at point in a browser."
   (interactive)
-  (forge-browse-pullreq (forge-get-pullreq (tabulated-list-get-id))))
+  (forge-browse-pullreq (tabulated-list-get-id)))
 
 ;;; Internal
 

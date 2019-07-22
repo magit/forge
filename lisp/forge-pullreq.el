@@ -146,22 +146,9 @@
                    (mapcar format choices)
                    nil nil nil nil
                    (and default
-                        (funcall format default))))
-         (number  (and (string-match "\\([0-9]+\\)" choice)
-                       (string-to-number (match-string 1 choice)))))
-    (and number
-         (forge-get-pullreq repo number))))
-
-(defun forge-read-pullreq-or-number (prompt &optional type)
-  (when (eq type t)
-    (setq type (if current-prefix-arg nil 'open)))
-  (if (forge--childp (forge-get-repository t) 'forge-unusedapi-repository)
-      (let* ((num (read-number (concat prompt ": ")))
-             (ref (forge--pullreq-ref num)))
-        (unless (magit-ref-exists-p ref)
-          (user-error "Reference `%s' doesn't exist.  Maybe pull first?" ref))
-        num)
-    (forge-read-pullreq prompt type)))
+                        (funcall format default)))))
+    (and (string-match "\\`\\([0-9]+\\)" choice)
+         (string-to-number (match-string 1 choice)))))
 
 (defun forge--pullreq-branch (pullreq &optional confirm-reset)
   (with-slots (head-ref number cross-repo-p editable-p) pullreq

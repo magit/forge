@@ -191,7 +191,7 @@
                  (forge--childp repo 'forge-github-repository)
                  (fboundp 'forge-pullreq-p)
                  (forge-pullreq-p topic))
-            (forge--pull-pullreq repo topic)
+            (forge--pull-pullreq repo (oref topic number))
           (forge-pull))))))
 
 (defun forge--post-submit-errorback ()

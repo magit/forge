@@ -133,15 +133,14 @@ If pulling is too slow, then also consider setting the Git variable
                   (oref repo forge)))))
 
 ;;;###autoload
-(defun forge-pull-pullreq (pullreq)
-  "Pull a single pull-request from the forge repository.
-Normally you wouldn't want to pull a single pull-request by
-itself, but due to a bug in the Github API you might sometimes
-have to do so.  See https://platform.github.community/t/7284."
+(defun forge-pull-pullreq (n)
+  "Pull the API data for the current pull-request.
+If there is no current pull-request or with a prefix argument
+read a pull-request N to pull."
   (interactive (list (forge-read-pullreq "Pull pull-request" t)))
-  (forge--pull-pullreq (forge-get-repository pullreq) pullreq))
+  (forge--pull-pullreq (forge-get-repository t) n))
 
-(cl-defmethod forge--pull-pullreq ((_repo forge-repository) _pullreq)) ; NOOP
+(cl-defmethod forge--pull-pullreq ((_repo forge-repository) _n)) ; NOOP
 
 ;;; Browse
 
@@ -232,10 +231,10 @@ Prefer a topic over a branch and that over a commit."
   (browse-url (forge--format repo 'pullreqs-url-format)))
 
 ;;;###autoload
-(defun forge-browse-pullreq (pullreq)
-  "Visit the url corresponding to PULLREQ using a browser."
+(defun forge-browse-pullreq (n)
+  "Visit the url corresponding to pullreq N using a browser."
   (interactive (list (forge-read-pullreq "Browse pull-request" t)))
-  (forge-browse pullreq))
+  (forge-browse (forge-get-pullreq n)))
 
 ;;;###autoload
 (defun forge-browse-issues (repo)
@@ -270,10 +269,10 @@ read an issue N to visit."
     (user-error "There is no topic at point")))
 
 ;;;###autoload
-(defun forge-visit-pullreq (pullreq)
+(defun forge-visit-pullreq (n)
   "View the pull-request at point in a separate buffer."
   (interactive (list (forge-read-pullreq "View pull-request" t)))
-  (forge-visit pullreq))
+  (forge-visit (forge-get-pullreq n)))
 
 ;;;###autoload
 (defun forge-visit-issue (n)
@@ -482,10 +481,13 @@ topic N and modify that instead."
           'confirm)
         (mapconcat #'car value ","))))))
 
-(defun forge-edit-topic-review-requests (topic)
-  "Edit the review-requests of TOPIC."
+(defun forge-edit-topic-review-requests (n)
+  "Edit the review-requests the current pull-request.
+If there is no current topic or with a prefix argument read a
+topic N and modify that instead."
   (interactive (list (forge-read-pullreq "Request review for")))
-  (let* ((repo (forge-get-repository topic))
+  (let* ((topic (forge-get-pullreq n))
+         (repo  (forge-get-repository topic))
          (value (closql--iref topic 'review-requests))
          (choices (mapcar #'cadr (oref repo assignees)))
          (crm-separator ","))
@@ -508,34 +510,34 @@ topic N and modify that instead."
 ;;; Branch
 
 ;;;###autoload
-(defun forge-branch-pullreq (pullreq)
+(defun forge-branch-pullreq (n)
   "Create and configure a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (forge-read-pullreq-or-number "Branch pull request" t)))
-  (forge--branch-pullreq (forge-get-repository t) pullreq))
+  (interactive (list (forge-read-pullreq "Branch pull request" t)))
+  (forge--branch-pullreq (forge-get-repository t) n))
 
-(cl-defmethod forge--branch-pullreq ((_repo forge-unusedapi-repository) number)
+(cl-defmethod forge--branch-pullreq ((_repo forge-unusedapi-repository) n)
   ;; We don't know enough to do a good job.
-  (let ((branch (format "pr-%s" number)))
+  (let ((branch (format "pr-%s" n)))
     (when (magit-branch-p branch)
       (user-error "Branch `%s' already exists" branch))
-    (magit-git "branch" branch (forge--pullreq-ref number))
+    (magit-git "branch" branch (forge--pullreq-ref n))
     ;; More often than not this is the correct target branch.
     (magit-call-git "branch" branch "--set-upstream-to=master")
-    (magit-set (number-to-string number) "branch" branch "pullRequest")
+    (magit-set (number-to-string n) "branch" branch "pullRequest")
     (magit-refresh)
     branch))
 
-(cl-defmethod forge--branch-pullreq ((repo forge-repository) pullreq)
+(cl-defmethod forge--branch-pullreq ((repo forge-repository) n)
   (with-slots (number title editable-p cross-repo-p state
                       base-ref base-repo
                       head-ref head-repo head-user)
-      pullreq
+      (forge-get-pullreq repo n)
     (let* ((host (oref repo githost))
            (upstream (oref repo remote))
            (upstream-url (magit-git-string "remote" "get-url" upstream))
            (remote head-user)
-           (branch (forge--pullreq-branch pullreq t))
+           (branch (forge--pullreq-branch (forge-get-pullreq repo n) t))
            (pr-branch head-ref))
       (when (string-match-p ":" pr-branch)
         ;; Such a branch name would be invalid.  If we encounter
@@ -597,26 +599,28 @@ because the source branch has been deleted"))
       branch)))
 
 ;;;###autoload
-(defun forge-checkout-pullreq (pullreq)
+(defun forge-checkout-pullreq (n)
   "Create, configure and checkout a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (forge-read-pullreq-or-number "Checkout pull request" t)))
-  (magit-checkout
-   (or (if (not (eq (oref pullreq state) 'open))
-           (magit-ref-p (format "refs/pullreqs/%s"
-                                (oref pullreq number)))
-         (magit-branch-p (forge--pullreq-branch pullreq)))
-       (let ((inhibit-magit-refresh t))
-         (forge-branch-pullreq pullreq)))))
+  (interactive (list (forge-read-pullreq "Checkout pull request" t)))
+  (let ((pullreq (forge-get-pullreq n)))
+    (magit-checkout
+     (or (if (not (eq (oref pullreq state) 'open))
+             (magit-ref-p (format "refs/pullreqs/%s"
+                                  (oref pullreq number)))
+           (magit-branch-p (forge--pullreq-branch pullreq)))
+         (let ((inhibit-magit-refresh t))
+           (forge-branch-pullreq n))))))
 
 ;;;###autoload
-(defun forge-checkout-worktree (path pullreq)
+(defun forge-checkout-worktree (path n)
   "Create, configure and checkout a new worktree from a pull-request.
 This is like `magit-checkout-pull-request', except that it
 also creates a new worktree. Please see the manual for more
 information."
   (interactive
-   (let ((pullreq (forge-read-pullreq-or-number "Checkout pull request" t)))
+   (let* ((n (forge-read-pullreq "Checkout pull request" t))
+          (pullreq (forge-get-pullreq n)))
      (with-slots (number head-ref) pullreq
        (let ((path (let ((branch (forge--pullreq-branch pullreq t)))
                      (read-directory-name
@@ -630,14 +634,14 @@ information."
                         (format "%s-%s" number head-ref))))))
          (when (equal path "")
            (user-error "The empty string isn't a valid path"))
-         (list path pullreq)))))
+         (list path n)))))
   (when (and (file-exists-p path)
              (not (and (file-directory-p path)
                        (= (length (directory-files "/tmp/testing/")) 2))))
     (user-error "%s already exists and isn't empty" path))
   (magit-worktree-checkout path
                            (let ((inhibit-magit-refresh t))
-                             (forge-branch-pullreq pullreq))))
+                             (forge-branch-pullreq n))))
 
 ;;; Marks
 

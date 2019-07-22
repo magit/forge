@@ -94,14 +94,14 @@ repositories.
        (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
      :auth 'forge)))
 
-(cl-defmethod forge--pull-pullreq ((repo forge-github-repository) pullreq)
+(cl-defmethod forge--pull-pullreq ((repo forge-github-repository) n)
   ;; This function is only required because of a Github bug:
   ;; https://platform.github.community/t/7284
   (let ((buffer (current-buffer)))
     (ghub-fetch-pullreq
      (oref repo owner)
      (oref repo name)
-     (oref pullreq number)
+     n
      (lambda (data)
        (forge--update-pullreq repo data nil)
        (with-current-buffer
