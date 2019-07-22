@@ -92,6 +92,7 @@ repositories.
          (forge--git-fetch buf dir repo)))
      `((issues-until       . ,(forge--topics-until repo until 'issue))
        (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
+     :host (oref repo apihost)
      :auth 'forge)))
 
 (cl-defmethod forge--pull-pullreq ((repo forge-github-repository) n)
@@ -107,7 +108,9 @@ repositories.
        (with-current-buffer
            (if (buffer-live-p buffer) buffer (current-buffer))
          (magit-refresh)))
-     nil :auth 'forge)))
+     nil
+     :host (oref repo apihost)
+     :auth 'forge)))
 
 (cl-defmethod forge--update-repository ((repo forge-github-repository) data)
   (let-alist data
