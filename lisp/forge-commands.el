@@ -244,10 +244,12 @@ Prefer a topic over a branch and that over a commit."
   (browse-url (forge--format repo 'issues-url-format)))
 
 ;;;###autoload
-(defun forge-browse-issue (issue)
-  "Visit the url corresponding to ISSUE using a browser."
+(defun forge-browse-issue (n)
+  "Visit the current issue using a browser.
+If there is no current issue or with a prefix argument
+read an issue N to visit."
   (interactive (list (forge-read-issue "Browse issue" t)))
-  (forge-browse issue))
+  (forge-browse (forge-get-issue n)))
 
 ;;;###autoload
 (defun forge-browse-post ()
@@ -274,10 +276,12 @@ Prefer a topic over a branch and that over a commit."
   (forge-visit pullreq))
 
 ;;;###autoload
-(defun forge-visit-issue (issue)
-  "View the issue at point in a separate buffer."
+(defun forge-visit-issue (n)
+  "Visit the current issue in a separate buffer.
+If there is no current issue or with a prefix argument
+read an issue N to visit instead."
   (interactive (list (forge-read-issue "View issue" t)))
-  (forge-visit issue))
+  (forge-visit (forge-get-issue n)))
 
 ;;; Create
 
@@ -296,12 +300,12 @@ Prefer a topic over a branch and that over a commit."
       (setq forge--submit-post-function 'forge--submit-create-pullreq))
     (forge--display-post-buffer buf)))
 
-(defun forge-create-pullreq-from-issue (issue source target)
+(defun forge-create-pullreq-from-issue (n source target)
   "Convert an existing issue into a pull-request."
-  (interactive (cons (oref (forge-read-issue "Convert issue") number)
+  (interactive (cons (forge-read-issue "Convert issue")
                      (forge-create-pullreq--read-args)))
   (forge--create-pullreq-from-issue (forge-get-repository t)
-                                    issue source target))
+                                    n source target))
 
 (defun forge-create-pullreq--read-args ()
   (let* ((source  (magit-completing-read

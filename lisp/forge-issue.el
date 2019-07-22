@@ -113,11 +113,9 @@
                    prompt
                    (mapcar format choices)
                    nil nil nil nil
-                   (and default (funcall format default))))
-         (number  (and (string-match "\\([0-9]+\\)" choice)
-                       (string-to-number (match-string 1 choice)))))
-    (and number
-         (forge-get-issue repo number))))
+                   (and default (funcall format default)))))
+    (and (string-match "\\`\\([0-9]+\\)" choice)
+         (string-to-number (match-string 1 choice)))))
 
 (cl-defmethod forge-get-url ((issue forge-issue))
   (forge--format issue 'issue-url-format))

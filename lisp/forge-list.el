@@ -115,12 +115,12 @@
 (defun forge-list-visit-issue ()
   "View the issue at point in a separate buffer."
   (interactive)
-  (forge-visit-issue (forge-get-issue (tabulated-list-get-id))))
+  (forge-visit-issue (tabulated-list-get-id)))
 
 (defun forge-list-browse-issue ()
   "Visit the url corresponding to the issue at point in a browser."
   (interactive)
-  (forge-browse-issue (forge-get-issue (tabulated-list-get-id))))
+  (forge-browse-issue (tabulated-list-get-id)))
 
 ;;;; Pullreq
 
