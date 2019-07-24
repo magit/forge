@@ -161,6 +161,12 @@ This variable has to be customized before `forge' is loaded."
 (cl-defmethod forge-get-topic ((topic forge-topic))
   topic)
 
+(cl-defmethod forge-get-topic ((repo forge-repository) number)
+  (if (< number 0)
+      (forge-get-pullreq repo (abs number))
+    (or (forge-get-pullreq repo number)
+        (forge-get-issue repo number))))
+
 (cl-defmethod forge-get-topic ((number integer))
   (if (< number 0)
       (forge-get-pullreq (abs number))
