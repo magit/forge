@@ -32,13 +32,16 @@
   :options '(hl-line-mode))
 
 ;;; Modes
-;;;; Topic
+;;;; Topics
 
 (defvar forge-topic-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map (kbd "'") 'forge-dispatch)
-    (define-key map (kbd "?") 'magit-dispatch)
+    (define-key map (kbd "RET") 'forge-visit-topic)
+    (define-key map [return]    'forge-visit-topic)
+    (define-key map (kbd "o")   'forge-browse-topic)
+    (define-key map (kbd "'")   'forge-dispatch)
+    (define-key map (kbd "?")   'magit-dispatch)
     map)
   "Local keymap for Forge-Topic-List mode buffers.")
 
@@ -53,31 +56,9 @@
                                                 forge-topic-list-columns)))
   (tabulated-list-init-header))
 
-;;;; Issue
-
-(defvar forge-issue-list-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map forge-topic-list-mode-map)
-    (define-key map (kbd "RET") 'forge-list-visit-issue)
-    (define-key map [return]    'forge-list-visit-issue)
-    (define-key map (kbd "o")   'forge-list-browse-issue)
-    map)
-  "Local keymap for Forge-Issue-List mode buffers.")
-
 (define-derived-mode forge-issue-list-mode forge-topic-list-mode
   "Issues"
   "Major mode for browsing a list of issues.")
-
-;;;; Pullreq
-
-(defvar forge-pullreq-list-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map forge-topic-list-mode-map)
-    (define-key map (kbd "RET") 'forge-list-visit-pullreq)
-    (define-key map [return]    'forge-list-visit-pullreq)
-    (define-key map (kbd "o")   'forge-list-browse-pullreq)
-    map)
-  "Local keymap for Forge-Pullreq-List mode buffers.")
 
 (define-derived-mode forge-pullreq-list-mode forge-topic-list-mode
   "Pull-Requests"
@@ -112,16 +93,6 @@ List them in a separate buffer."
      (forge--topic-list-columns-vector)
      id (ghub--username (ghub--host)))))
 
-(defun forge-list-visit-issue ()
-  "View the issue at point in a separate buffer."
-  (interactive)
-  (forge-visit-issue (tabulated-list-get-id)))
-
-(defun forge-list-browse-issue ()
-  "Visit the url corresponding to the issue at point in a browser."
-  (interactive)
-  (forge-browse-issue (tabulated-list-get-id)))
-
 ;;;; Pullreq
 
 ;;;###autoload
@@ -150,16 +121,6 @@ List them in a separate buffer."
      (forge--topic-list-columns-vector)
      id (ghub--username (ghub--host)))))
 
-(defun forge-list-visit-pullreq ()
-  "View the pull-request at point in a separate buffer."
-  (interactive)
-  (forge-visit-pullreq (tabulated-list-get-id)))
-
-(defun forge-list-browse-pullreq ()
-  "Visit the url corresponding to the pull-request at point in a browser."
-  (interactive)
-  (forge-browse-pullreq (tabulated-list-get-id)))
-
 ;;; Internal
 
 (defun forge--list-topics (repo-id mode buffer-name rows)
@@ -185,7 +146,8 @@ List them in a separate buffer."
                                           (if-let ((pp (nth 5 col)))
                                               (funcall pp val)
                                             (if val (format "%s" val) "")))
-                                        row forge-topic-list-columns))))
+                                        (cdr row)
+                                        forge-topic-list-columns))))
                     rows))
       (tabulated-list-print)
       (switch-to-buffer (current-buffer)))))
@@ -200,11 +162,11 @@ List them in a separate buffer."
 This assumes that `number' is the first column, otherwise
 it silently fails."
   (ignore-errors
-    (> (car a)
-       (car b))))
+    (> (read (aref (cadr a) 0))
+       (read (aref (cadr b) 0)))))
 
 (defun forge--topic-list-columns-vector (&optional qualify)
-  (let ((lst (--map (nth 4 it) forge-topic-list-columns)))
+  (let ((lst (cons 'id (--map (nth 4 it) forge-topic-list-columns))))
     (vconcat (if qualify (-replace 'name 'packages:name lst) lst))))
 
 ;;; _

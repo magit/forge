@@ -82,7 +82,9 @@
 (defun forge-current-topic ()
   (or (forge-topic-at-point)
       (and (derived-mode-p 'forge-topic-mode)
-           forge-buffer-topic)))
+           forge-buffer-topic)
+      (and (derived-mode-p 'forge-topic-list-mode)
+           (forge-get-topic (tabulated-list-get-id)))))
 
 (defun forge--pullreq-from-rev (rev)
   (when-let ((repo    (forge-get-repository nil))
