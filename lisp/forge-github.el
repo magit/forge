@@ -95,16 +95,17 @@ repositories.
      :host (oref repo apihost)
      :auth 'forge)))
 
-(cl-defmethod forge--pull-pullreq ((repo forge-github-repository) n)
-  ;; This function is only required because of a Github bug:
-  ;; https://platform.github.community/t/7284
-  (let ((buffer (current-buffer)))
-    (ghub-fetch-pullreq
+(cl-defmethod forge--pull-topic ((repo forge-github-repository) n)
+  (let ((buffer (current-buffer))
+        (pullreqp (forge-get-pullreq repo n)))
+    (funcall
+     (if pullreqp #'ghub-fetch-pullreq #'ghub-fetch-issue)
      (oref repo owner)
      (oref repo name)
      n
      (lambda (data)
-       (forge--update-pullreq repo data nil)
+       (funcall (if pullreqp #'forge--update-pullreq #'forge--update-issue)
+                repo data nil)
        (with-current-buffer
            (if (buffer-live-p buffer) buffer (current-buffer))
          (magit-refresh)))

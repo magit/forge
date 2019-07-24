@@ -133,14 +133,16 @@ If pulling is too slow, then also consider setting the Git variable
                   (oref repo forge)))))
 
 ;;;###autoload
-(defun forge-pull-pullreq (n)
-  "Pull the API data for the current pull-request.
-If there is no current pull-request or with a prefix argument
-read a pull-request N to pull."
-  (interactive (list (forge-read-pullreq "Pull pull-request" t)))
-  (forge--pull-pullreq (forge-get-repository t) n))
+(defun forge-pull-topic (n)
+  "Pull the API data for the current topic.
+If there is no current topic or with a prefix argument read a
+topic N to pull instead."
+  (interactive (list (forge-read-topic "Pull topic")))
+  (forge--pull-topic (forge-get-repository t) n))
 
-(cl-defmethod forge--pull-pullreq ((_repo forge-repository) _n)) ; NOOP
+(cl-defmethod forge--pull-topic ((repo forge-repository) _n)
+  (error "Fetching an individual topic not implemented for %s"
+         (eieio-object-class repo)))
 
 ;;; Browse
 
