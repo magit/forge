@@ -51,9 +51,10 @@
   (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "#" nil))
-  (setq tabulated-list-format   (vconcat (--map `(,@(-take 3 it)
-                                                  ,@(-flatten (nth 3 it)))
-                                                forge-topic-list-columns)))
+  (setq tabulated-list-format
+        (vconcat (--map `(,@(-take 3 it)
+                          ,@(-flatten (nth 3 it)))
+                        forge-topic-list-columns)))
   (tabulated-list-init-header))
 
 (define-derived-mode forge-issue-list-mode forge-topic-list-mode
