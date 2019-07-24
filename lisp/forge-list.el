@@ -191,12 +191,17 @@ List them in a separate buffer."
       (switch-to-buffer (current-buffer)))))
 
 (defvar forge-topic-list-columns
-  '(("#" 5
-     (lambda (a b)
-       (> (car a) (car b)))
-     (:right-align t) number nil)
+  '(("#" 5 forge-topic-list-sort-by-number (:right-align t) number nil)
     ("Title" 35 t nil title  nil)
     ))
+
+(defun forge-topic-list-sort-by-number (a b)
+  "Sort the `tabulated-list-entries' by topic number.
+This assumes that `number' is the first column, otherwise
+it silently fails."
+  (ignore-errors
+    (> (car a)
+       (car b))))
 
 (defun forge--topic-list-columns-vector (&optional qualify)
   (let ((lst (--map (nth 4 it) forge-topic-list-columns)))
