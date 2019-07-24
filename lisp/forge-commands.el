@@ -268,7 +268,7 @@ read an issue N to visit."
 (defun forge-visit-topic ()
   "View the topic at point in a separate buffer."
   (interactive)
-  (if-let ((topic (forge-topic-at-point)))
+  (if-let ((topic (forge-current-topic)))
       (forge-visit topic)
     (user-error "There is no topic at point")))
 
