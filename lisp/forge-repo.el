@@ -73,7 +73,8 @@
    (labels                    :closql-table label)
    (pullreqs                  :closql-class forge-pullreq)
    (revnotes                  :closql-class forge-revnote)
-   (selective-p               :initform nil))
+   (selective-p               :initform nil)
+   (worktree                  :initform nil))
   :abstract t)
 
 (defclass forge-unusedapi-repository (forge-repository) () :abstract t)
@@ -152,7 +153,9 @@ repository, if any."
                              (car remotes)))))
           (if-let ((url (and remote
                              (magit-git-string "remote" "get-url" remote))))
-              (forge-get-repository url remote demand)
+              (when-let ((repo (forge-get-repository url remote demand)))
+                (oset repo worktree (magit-toplevel))
+                repo)
             (when (memq demand forge--signal-no-entry)
               (error
                "Cannot determine forge repository.  %s\n%s  %s"
