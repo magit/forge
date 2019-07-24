@@ -776,6 +776,29 @@ upstream remote.  Also fetch from REMOTE."
       (magit-git-fetch remote (magit-fetch-arguments)))))
 
 ;;;###autoload
+(defun forge-add-repository (url)
+  "Add a repository to the database.
+Offer to either pull topics (now and in the future) or to only
+pull individual topics when the user invokes `forge-pull-topic'."
+  (declare (interactive-only t))
+  (interactive
+   (let ((str (magit-read-string-ns
+               "Add repository to database (url or name)"
+               (when-let ((repo (forge-get-repository 'stub))
+                          (remote (oref repo remote)))
+                 (magit-git-string "remote" "get-url" remote)))))
+     (if (string-match-p "\\(://\\|@\\)" str)
+         (list str)
+       (list (magit-clone--name-to-url str)))))
+  (if (forge-get-repository url nil 'full)
+      (user-error "%s is already tracked in Forge database" url)
+    (let ((repo (forge-get-repository url nil 'create)))
+      (oset repo sparse-p nil)
+      (magit-read-char-case "Pull " nil
+        (?a "[a]ll topics"        (forge-pull repo))
+        (?i "[i]ndividual topics" (oset repo selective-p t))))))
+
+;;;###autoload
 (defun forge-remove-repository (host owner name)
   "Remove a repository from the database."
   (interactive
