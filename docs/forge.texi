@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-152-g9510caa+1)
+@subtitle for version 0.1.0 (v0.1.0-184-gc1a5db6+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-152-g9510caa+1).
+This manual is for Forge version 0.1.0 (v0.1.0-184-gc1a5db6+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -797,8 +797,62 @@ defined in @code{magit-mode-map}).
 @node Listing Topics and Notifications
 @subsection Listing Topics and Notifications
 
-Magit's status buffer contains lists of issues and pull-requests, but
-you can also list topics as well as notifications in separate buffers.
+By default Forge lists a subset of topics directly in the Magit status
+buffer.  It also provides commands to list topics and notifications in
+separate buffers.
+
+Forge adds the following two functions to @code{magit-status-sections-hook}:
+
+@defun forge-insert-pullreqs
+
+This function inserts a list of mostly recent and/or open
+pull-requests.
+@end defun
+
+@defun forge-insert-issues
+
+This function inserts a list of mostly recent and/or open issues.
+@end defun
+
+@itemize
+@item
+User Options: forge-topic-list-limit
+
+This option limits the number of topics listed by the above
+functions.
+
+All unread topics are always shown.  If the value of this option has
+the form @code{(OPEN . CLOSED)}, then the integer @code{OPEN} specifies the
+maximal number of topics and @code{CLOSED} specifies the maximal number of
+closed topics.  IF @code{CLOSED} is negative then show no closed topics
+until the command @code{forge-toggle-closed-visibility} changes the sign.
+
+@end itemize
+
+@cindex forge-toggle-closed-visibility
+@deffn Command forge-toggle-closed-visibility
+
+This command toggles whether the above two functions list recently
+closed issues in the current buffer.
+@end deffn
+
+The following two functions are also suitable for
+@code{magit-status-sections-hook}:
+
+@defun forge-insert-assigned-pullreqs
+
+This function inserts a list of open pull-requests that are assigned
+to you.
+@end defun
+
+@defun forge-insert-assigned-issues
+
+This function inserts a list of open issues that are assigned to
+you.
+@end defun
+
+The following commands list notifications and topics in dedicated
+buffers:
 
 @table @asis
 @kindex ' l
@@ -821,7 +875,22 @@ separate buffer.
 
 This command lists the current repository's issues in a separate
 buffer.
+
 @end table
+
+@cindex forge-list-assigned-pullreqs
+@deffn Command forge-list-assigned-pullreqs
+
+This command lists the current repository's open issues that are
+assigned to you in a separate buffer.
+@end deffn
+
+@cindex forge-list-assigned-issues
+@deffn Command forge-list-assigned-issues
+
+This command lists the current repository's open pull-requests that
+are assigned to you in a separate buffer.
+@end deffn
 
 @node Creating Topics
 @subsection Creating Topics
@@ -903,12 +972,31 @@ and "closed".
 This command reads a list of labels for an existing topic in the
 minibuffer.
 
+@kindex C-c C-e [on "Marks" section]
+@cindex forge-edit-topic-marks
+@item @kbd{C-c C-e [on "Marks" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-marks})
+
+This command reads a list of marks for an existing topic in the
+minibuffer.
+
+Marks are like labels except that they are not shared with anyone
+else.  To create a mark that topics can subsequently be marked with
+use the command @code{forge-create-mark}.  Existing marks can be edited
+using the command @code{forge-edit-mark}.
+
 @kindex C-c C-e [on "Assignees" section]
 @cindex forge-edit-topic-assignees
 @item @kbd{C-c C-e [on "Assignees" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-assignees})
 
 This command reads a list of assignees for an existing topic in the
 minibuffer.
+
+@kindex C-c C-e [on "Review-Requests" section]
+@cindex forge-edit-topic-review-requests
+@item @kbd{C-c C-e [on "Review-Requests" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-review-requests})
+
+This command reads a list of people who you would like to review an
+existing topic in the minibuffer.
 
 @kindex C-c C-k [on a comment section]
 @cindex forge-delete-comment

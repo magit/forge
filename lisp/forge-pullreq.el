@@ -235,6 +235,8 @@ yourself, in which case you probably should not reset either.
     map))
 
 (defun forge-insert-pullreqs ()
+  "Insert a list of mostly recent and/or open pull-requests.
+Also see option `forge-topic-list-limit'."
   (when-let ((repo (forge-get-repository nil)))
     (unless (oref repo sparse-p)
       (forge-insert-topics "Pull requests"
@@ -269,6 +271,7 @@ yourself, in which case you probably should not reset either.
     "#"))
 
 (defun forge-insert-assigned-pullreqs ()
+  "Insert a list of open pull-requests that are assigned to you."
   (when-let ((repo (forge-get-repository nil)))
     (unless (oref repo sparse-p)
       (forge-insert-topics "Assigned pull requests"

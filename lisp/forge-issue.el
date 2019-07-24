@@ -145,6 +145,8 @@
     map))
 
 (defun forge-insert-issues ()
+  "Insert a list of mostly recent and/or open issues.
+Also see option `forge-topic-list-limit'."
   (when-let ((repo (forge-get-repository nil)))
     (when (and (not (oref repo sparse-p))
                (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE
@@ -154,6 +156,7 @@
                            (forge--topic-type-prefix repo 'issue)))))
 
 (defun forge-insert-assigned-issues ()
+  "Insert a list of open issues that are assigned to you."
   (when-let ((repo (forge-get-repository nil)))
     (unless (oref repo sparse-p)
       (forge-insert-topics "Assigned issues"
