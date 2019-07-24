@@ -293,6 +293,14 @@ read an issue N to visit instead."
   (interactive (list (forge-read-issue "View issue" t)))
   (forge-visit (forge-get-issue n)))
 
+;;;###autoload
+(defun forge-visit-repository ()
+  "View the current repository in a separate buffer."
+  (interactive)
+  (if-let ((repo (forge-current-repository)))
+      (forge-visit repo)
+    (user-error "There is no current forge repository")))
+
 ;;; Create
 
 (defun forge-create-pullreq (source target)

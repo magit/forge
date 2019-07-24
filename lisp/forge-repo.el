@@ -222,6 +222,20 @@ repository, if any."
 
 ;;; Utilities
 
+(defun forge-repository-at-point ()
+  (magit-section-value-if 'forge-repo))
+
+(defun forge-current-repository ()
+  (or (forge-repository-at-point)
+      (and (derived-mode-p 'forge-repository-list-mode)
+           (forge-get-repository (list :id (tabulated-list-get-id))))))
+
+(cl-defmethod forge-visit ((repo forge-repository))
+  (let ((worktree (oref repo worktree)))
+    (if (and worktree (file-directory-p worktree))
+        (magit-status-setup-buffer worktree)
+      (forge-list-issues (oref repo id)))))
+
 (defun forge--get-remote ()
   (or (magit-get "forge.remote") "origin"))
 
