@@ -128,6 +128,9 @@ forges and hosts."
 
 (defconst forge--signal-no-entry '(t stub create))
 
+(cl-defmethod forge-get-repository (((_ id) (head :id)))
+  (closql-get (forge-db) id 'forge-repository))
+
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
   "Return the current forge repository.
 
