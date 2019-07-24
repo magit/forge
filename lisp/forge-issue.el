@@ -77,6 +77,9 @@
 
 ;;; Query
 
+(cl-defmethod forge-get-repository ((post forge-issue-post))
+  (forge-get-repository (forge-get-issue post)))
+
 (cl-defmethod forge-get-topic ((post forge-issue-post))
   (forge-get-issue post))
 

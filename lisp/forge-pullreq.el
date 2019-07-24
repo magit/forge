@@ -106,6 +106,9 @@
 
 ;;; Query
 
+(cl-defmethod forge-get-repository ((post forge-pullreq-post))
+  (forge-get-repository (forge-get-pullreq post)))
+
 (cl-defmethod forge-get-topic ((post forge-pullreq-post))
   (forge-get-pullreq post))
 
@@ -128,9 +131,6 @@
   (closql-get (forge-db)
               (oref post pullreq)
               'forge-pullreq))
-
-(cl-defmethod forge-get-repository ((post forge-pullreq-post))
-  (forge-get-repository (forge-get-pullreq post)))
 
 (cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type)
   (forge-ls-topics repo 'forge-pullreq type))
