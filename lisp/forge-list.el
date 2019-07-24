@@ -31,6 +31,11 @@
   :type 'hook
   :options '(hl-line-mode))
 
+(defvar forge-topic-list-columns
+  '(("#" 5 forge-topic-list-sort-by-number (:right-align t) number nil)
+    ("Title" 35 t nil title  nil)
+    ))
+
 ;;; Modes
 ;;;; Topics
 
@@ -152,11 +157,6 @@ List them in a separate buffer."
                     rows))
       (tabulated-list-print)
       (switch-to-buffer (current-buffer)))))
-
-(defvar forge-topic-list-columns
-  '(("#" 5 forge-topic-list-sort-by-number (:right-align t) number nil)
-    ("Title" 35 t nil title  nil)
-    ))
 
 (defun forge-topic-list-sort-by-number (a b)
   "Sort the `tabulated-list-entries' by topic number.
