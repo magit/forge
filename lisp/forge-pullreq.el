@@ -109,14 +109,20 @@
 (cl-defmethod forge-get-topic ((post forge-pullreq-post))
   (forge-get-pullreq post))
 
-(cl-defmethod forge-get-pullreq ((repo forge-repository) number)
+(cl-defmethod forge-get-pullreq ((repo forge-repository) number-or-id)
   (closql-get (forge-db)
-              (forge--object-id 'forge-pullreq repo number)
+              (if (numberp number-or-id)
+                  (forge--object-id 'forge-pullreq repo number-or-id)
+                number-or-id)
               'forge-pullreq))
 
 (cl-defmethod forge-get-pullreq ((number integer))
   (when-let ((repo (forge-get-repository t)))
     (forge-get-pullreq repo number)))
+
+(cl-defmethod forge-get-pullreq ((id string))
+  (when-let ((repo (forge-get-repository t)))
+    (forge-get-pullreq repo id)))
 
 (cl-defmethod forge-get-pullreq ((post forge-pullreq-post))
   (closql-get (forge-db)

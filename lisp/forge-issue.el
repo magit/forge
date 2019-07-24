@@ -80,14 +80,20 @@
 (cl-defmethod forge-get-topic ((post forge-issue-post))
   (forge-get-issue post))
 
-(cl-defmethod forge-get-issue ((repo forge-repository) number)
+(cl-defmethod forge-get-issue ((repo forge-repository) number-or-id)
   (closql-get (forge-db)
-              (forge--object-id 'forge-issue repo number)
+              (if (numberp number-or-id)
+                  (forge--object-id 'forge-issue repo number-or-id)
+                number-or-id)
               'forge-issue))
 
 (cl-defmethod forge-get-issue ((number integer))
   (when-let ((repo (forge-get-repository t)))
     (forge-get-issue repo number)))
+
+(cl-defmethod forge-get-issue ((id string))
+  (when-let ((repo (forge-get-repository t)))
+    (forge-get-issue repo id)))
 
 (cl-defmethod forge-get-issue ((post forge-issue-post))
   (closql-get (forge-db)
