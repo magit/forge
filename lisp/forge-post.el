@@ -189,8 +189,9 @@
           (if (buffer-live-p prevbuf) prevbuf (current-buffer))
         (if (and topic
                  (forge--childp repo 'forge-github-repository)
-                 (fboundp 'forge-pullreq-p)
-                 (forge-pullreq-p topic))
+                 (or (and (fboundp 'forge-pullreq-p)
+                          (forge-pullreq-p topic))
+                     (oref repo selective-p)))
             (forge--pull-topic repo (oref topic number))
           (forge-pull))))))
 

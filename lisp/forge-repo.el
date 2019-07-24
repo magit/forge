@@ -72,7 +72,8 @@
    (issues                    :closql-class forge-issue)
    (labels                    :closql-table label)
    (pullreqs                  :closql-class forge-pullreq)
-   (revnotes                  :closql-class forge-revnote))
+   (revnotes                  :closql-class forge-revnote)
+   (selective-p               :initform nil))
   :abstract t)
 
 (defclass forge-unusedapi-repository (forge-repository) () :abstract t)

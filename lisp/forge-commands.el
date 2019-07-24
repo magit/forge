@@ -82,6 +82,13 @@ If pulling is too slow, then also consider setting the Git variable
       (unless repo
         (setq repo (forge-get-repository 'create))
         (setq create t)))
+    (when (oref repo selective-p)
+      (if (yes-or-no-p
+           (format "Always pull all of %s/%s's topics going forward?"
+                   (oref repo owner)
+                   (oref repo name)))
+          (oset repo selective-p nil)
+        (user-error "Abort")))
     (setq forge--mode-line-buffer (current-buffer))
     (when-let ((remote  (oref repo remote))
                (refspec (oref repo pullreq-refspec)))
