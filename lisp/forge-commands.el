@@ -402,7 +402,8 @@ point is currently on."
 (defun forge-edit-post ()
   "Edit an existing post."
   (interactive)
-  (let* ((post (forge-post-at-point))
+  (let* ((post (or (forge-post-at-point)
+                   (user-error "There is no current post")))
          (buf (cl-typecase post
                 (forge-topic
                  (forge--prepare-post-buffer
