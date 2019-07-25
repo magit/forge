@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-184-gc1a5db6+1)
+@subtitle for version 0.1.0 (v0.1.0-210-gd877646+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-184-gc1a5db6+1).
+This manual is for Forge version 0.1.0 (v0.1.0-210-gd877646+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -326,8 +326,8 @@ Stgit Caveats
 @item
 Stgit cannot show logs for branches beside "master".  For that
 reason Forge takes users to a page listing the branches when they
-request a log a particular branch (even for "master" whose log is
-just one click away from there).
+request the log for a particular branch (even for "master" whose
+log is just one click away from there).
 @end itemize
 
 Stgit Hosts
@@ -347,8 +347,8 @@ Srht Caveats
 @item
 Srht cannot show logs for branches beside "master".  For that
 reason Forge takes users to a page listing the branches when they
-request a log a particular branch (even for "master" whose log is
-just one click away from there).
+request the log for a particular branch (even for "master" whose
+log is just one click away from there).
 @end itemize
 
 Srht Hosts
@@ -421,12 +421,16 @@ Or if you use @code{use-package}:
 @section Initial Pull
 
 To start using Forge in a certain repository visit the Magit status
-buffer for that repository and type @code{f y} (@code{forge-pull}).
+buffer for that repository and type @code{f y} (@code{forge-pull}).  Alternatively
+you can use @code{M-x forge-add-repostiory}, which makes it possible to add a
+forge repository without pulling all topics and even without having to
+clone the respective Git repository.
 
-The first time you do that for any repository from @uref{https://github.com}
-you will be guided through the process of creating the API token.  For
-other forges as well as for other Github instances some additional
-setup is required @strong{before} you do so.  See @ref{Token Creation}.
+When adding the first repository from @uref{https://github.com} to your local
+database you will be guided through the process of creating the API
+token.  For other forges as well as for other Github instances some
+additional setup is required @strong{before} you can add the first repository.
+See @ref{Token Creation}.
 
 The first time @code{forge-pull} is run in a repository, an entry for that
 repository is added to the database and a new value is added to the
@@ -781,8 +785,8 @@ branch over a commit.
 @cindex forge-visit-topic
 @item @kbd{C-c C-v} @tie{}@tie{}@tie{}@tie{}(@code{forge-visit-topic})
 
-These commands visit the pull-request or issue at point in a
-separate buffer.
+These commands visit the pull-request(s), issue(s), or repository in
+a separate buffer.
 
 The @code{RET} binding is only available when point is on a issue or
 pull-request section because that key is already bound to something
@@ -851,10 +855,16 @@ This function inserts a list of open issues that are assigned to
 you.
 @end defun
 
-The following commands list notifications and topics in dedicated
-buffers:
+The following commands list repositories, notifications and topics in
+dedicated buffers:
 
 @table @asis
+@kindex ' r
+@cindex forge-list-repositories
+@item @kbd{' r} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-repositories})
+
+This command lists all known repositories in a separate buffer.
+
 @kindex ' l
 @cindex forge-list-notifications
 @item @kbd{' l} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-notifications})
@@ -1032,10 +1042,27 @@ buffer.
 @node Miscellaneous
 @section Miscellaneous
 
-@table @asis
-@kindex M-x forge-reset-database
+@cindex forge-add-repository
+@deffn Command forge-add-repository
+
+This command reads a repository from the user and adds it to the
+database.  The repository can be provided as URL, as a name, or in
+the form OWNER/NAME@.  This is subject to @code{magit-clone-name-alist}.
+
+This command offer to either pull topics (now and in the future) or
+to only pull individual topics when the user invokes
+@code{forge-pull-topic}.
+@end deffn
+
+@cindex forge-remove-repository
+@deffn Command forge-remove-repository
+
+This command reads a repository and remove it from the local
+database.
+@end deffn
+
 @cindex forge-reset-database
-@item @kbd{M-x forge-reset-database} @tie{}@tie{}@tie{}@tie{}(@code{forge-reset-database})
+@deffn Command forge-reset-database
 
 This command moves the current database file to the trash and
 creates a new empty database.
@@ -1043,6 +1070,6 @@ creates a new empty database.
 This is useful after the database's table schemata have changed,
 which will happen a few times while the Forge functionality is still
 under heavy development.
-@end table
+@end deffn
 
 @bye

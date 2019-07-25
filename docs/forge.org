@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-184-gc1a5db6+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-210-gd877646+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-184-gc1a5db6+1).
+This manual is for Forge version 0.1.0 (v0.1.0-210-gd877646+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -202,8 +202,8 @@ also see [[*Getting Started]].
 
   - Stgit cannot show logs for branches beside "master".  For that
     reason Forge takes users to a page listing the branches when they
-    request a log a particular branch (even for "master" whose log is
-    just one click away from there).
+    request the log for a particular branch (even for "master" whose
+    log is just one click away from there).
 
   Stgit Hosts
 
@@ -215,8 +215,8 @@ also see [[*Getting Started]].
 
   - Srht cannot show logs for branches beside "master".  For that
     reason Forge takes users to a page listing the branches when they
-    request a log a particular branch (even for "master" whose log is
-    just one click away from there).
+    request the log for a particular branch (even for "master" whose
+    log is just one click away from there).
 
   Srht Hosts
 
@@ -271,12 +271,16 @@ Or if you use ~use-package~:
 ** Initial Pull
 
 To start using Forge in a certain repository visit the Magit status
-buffer for that repository and type ~f y~ (~forge-pull~).
+buffer for that repository and type ~f y~ (~forge-pull~).  Alternatively
+you can use ~M-x forge-add-repostiory~, which makes it possible to add a
+forge repository without pulling all topics and even without having to
+clone the respective Git repository.
 
-The first time you do that for any repository from https://github.com
-you will be guided through the process of creating the API token.  For
-other forges as well as for other Github instances some additional
-setup is required *before* you do so.  See [[*Token Creation]].
+When adding the first repository from https://github.com to your local
+database you will be guided through the process of creating the API
+token.  For other forges as well as for other Github instances some
+additional setup is required *before* you can add the first repository.
+See [[*Token Creation]].
 
 The first time ~forge-pull~ is run in a repository, an entry for that
 repository is added to the database and a new value is added to the
@@ -559,8 +563,8 @@ on a commit or branch section.
 - Key: RET, forge-visit-TYPE
 - Key: C-c C-v, forge-visit-topic
 
-  These commands visit the pull-request or issue at point in a
-  separate buffer.
+  These commands visit the pull-request(s), issue(s), or repository in
+  a separate buffer.
 
   The ~RET~ binding is only available when point is on a issue or
   pull-request section because that key is already bound to something
@@ -617,8 +621,12 @@ The following two functions are also suitable for
   This function inserts a list of open issues that are assigned to
   you.
 
-The following commands list notifications and topics in dedicated
-buffers:
+The following commands list repositories, notifications and topics in
+dedicated buffers:
+
+- Key: ' r, forge-list-repositories
+
+  This command lists all known repositories in a separate buffer.
 
 - Key: ' l, forge-list-notifications
 
@@ -744,7 +752,22 @@ The following commands are available in buffers used to edit posts:
 
 ** Miscellaneous
 
-- Key: M-x forge-reset-database, forge-reset-database
+- Command: forge-add-repository
+
+  This command reads a repository from the user and adds it to the
+  database.  The repository can be provided as URL, as a name, or in
+  the form OWNER/NAME.  This is subject to ~magit-clone-name-alist~.
+
+  This command offer to either pull topics (now and in the future) or
+  to only pull individual topics when the user invokes
+  ~forge-pull-topic~.
+
+- Command: forge-remove-repository
+
+  This command reads a repository and remove it from the local
+  database.
+
+- Command: forge-reset-database
 
   This command moves the current database file to the trash and
   creates a new empty database.

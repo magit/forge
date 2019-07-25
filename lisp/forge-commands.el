@@ -264,25 +264,27 @@ read an issue N to visit."
 
 ;;;###autoload
 (defun forge-browse-post ()
-  "Visit the url corresponding to the post at point using a browser."
+  "Visit the current post using a browser."
   (interactive)
   (if-let ((post (forge-post-at-point)))
       (forge-browse post)
-    (user-error "There is no post at point")))
+    (user-error "There is no current post")))
 
 ;;; Visit
 
 ;;;###autoload
 (defun forge-visit-topic ()
-  "View the topic at point in a separate buffer."
+  "View the current topic in a separate buffer."
   (interactive)
   (if-let ((topic (forge-current-topic)))
       (forge-visit topic)
-    (user-error "There is no topic at point")))
+    (user-error "There is no current topic")))
 
 ;;;###autoload
 (defun forge-visit-pullreq (n)
-  "View the pull-request at point in a separate buffer."
+  "View the current pull-request in a separate buffer.
+If there is no current pull-request or with a prefix argument
+read pull-request N to visit instead."
   (interactive (list (forge-read-pullreq "View pull-request" t)))
   (forge-visit (forge-get-pullreq n)))
 
@@ -400,7 +402,7 @@ point is currently on."
 ;;; Edit
 
 (defun forge-edit-post ()
-  "Edit an existing post."
+  "Edit the current post."
   (interactive)
   (let* ((post (or (forge-post-at-point)
                    (user-error "There is no current post")))
