@@ -46,7 +46,8 @@ for a repository using the command `forge-add-pullreq-refspec'."
 (define-transient-command forge-dispatch ()
   "Dispatch a forge command."
   [["Fetch"
-    ("f f" "topics"        forge-pull)
+    ("f f" "all topics"    forge-pull)
+    ("f t" "one topic"     forge-pull-topic)
     ("f n" "notifications" forge-pull-notifications)]
    ["List"
     ("l i" "issues"        forge-list-issues)
