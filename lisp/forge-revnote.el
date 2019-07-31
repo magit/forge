@@ -31,7 +31,6 @@
    (closql-primary-key   :initform id)
    ;; (closql-order-by      :initform [(desc number)])
    (closql-foreign-key   :initform repository)
-   (closql-foreign-table :initform repository)
    (closql-class-prefix  :initform "forge-")
    (id                   :initarg :id)
    (repository           :initarg :repository)
