@@ -306,7 +306,9 @@ repository, if any."
     (when (buffer-live-p forge--mode-line-buffer)
       (with-current-buffer forge--mode-line-buffer
         (setq mode-line-process
-              (concat " " (propertize msg 'face 'magit-mode-line-process))))
+              (if done
+                  nil
+                (concat " " (propertize msg 'face 'magit-mode-line-process)))))
       (force-mode-line-update t))))
 
 ;;; _
