@@ -139,16 +139,19 @@ This variable has to be customized before `forge' is loaded."
     'utf-8)
    t))
 
-(cl-defmethod forge--object-id ((prefix string) id)
+(cl-defmethod forge--object-id ((prefix string) number-or-id)
   (base64-encode-string
    (encode-coding-string
     (format "%s:%s"
             (base64-decode-string prefix)
-            ;; TODO Simply use `id', which is always an integer, except
-            ;; when called by `forge--update-labels(gitlab)', in which
-            ;; case the string also shouldn't be decoded because it is
-            ;; NOT base64 encoded.
-            (or (ignore-errors (base64-decode-string id)) id))
+            (if (numberp number-or-id)
+                number-or-id
+              ;; Currently every id is base64 encode.  Unfortunately
+              ;; we cannot use the ids of Gitlab labels (see comment
+              ;; in the respective `forge--update-labels' method),
+              ;; and have to use their names, which are not encoded.
+              (or (ignore-errors (base64-decode-string number-or-id))
+                  number-or-id)))
     'utf-8)
    t))
 
