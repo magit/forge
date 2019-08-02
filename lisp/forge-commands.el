@@ -806,8 +806,8 @@ pull individual topics when the user invokes `forge-pull-topic'."
 (defun forge-remove-repository (host owner name)
   "Remove a repository from the database."
   (interactive
-   (with-slots (githost owner name)
-       (forge-read-repository "Remove repository from db")
+   (pcase-let ((`(,githost ,owner ,name)
+                (forge-read-repository "Remove repository from db")))
      (if (yes-or-no-p
           (format "Do you really want to remove \"%s/%s @%s\" from the db? "
                   owner name githost))
