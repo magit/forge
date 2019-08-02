@@ -247,7 +247,8 @@ repository, if any."
                          (forge-sql [:select [githost owner name]
                                      :from repository]))
                  nil t nil nil
-                 (when-let ((default (forge-get-repository nil)))
+                 (when-let ((default (or (forge-current-repository)
+                                         (forge-get-repository nil))))
                    (format "%s/%s @%s"
                            (oref default owner)
                            (oref default name)
