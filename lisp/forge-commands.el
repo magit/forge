@@ -830,6 +830,9 @@ heavy development."
     (delete-file forge-database-file t)
     (magit-refresh)))
 
+(magit-define-section-jumper forge-jump-to-pullreqs "Pull requests" pullreqs)
+(magit-define-section-jumper forge-jump-to-issues "Issues" issues)
+
 ;;; _
 (provide 'forge-commands)
 ;;; forge-commands.el ends here
