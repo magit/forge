@@ -162,11 +162,11 @@
                 ;; Such a branch name would be invalid.  If we encounter
                 ;; this, then it means that we are dealing with a Gitlab
                 ;; pull-request whose source branch has been deleted.
-                (string-match-p ":" branch))
+                (string-match-p ":" branch)
+                ;; These are usually the target, not soruce, of a pr.
+                (member branch '("master" "next" "maint")))
         (setq branch branch-n))
       (when (and confirm-reset (magit-branch-p branch))
-        (when (member branch '("master" "next" "maint"))
-          (setq branch branch-n))
         (when (magit-branch-p branch)
           (if (string-prefix-p "pr-" branch)
               (unless (y-or-n-p
