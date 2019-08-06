@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-210-gd877646+1)
+@subtitle for version 0.1.0 (v0.1.0-220-gd57ab59+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-210-gd877646+1).
+This manual is for Forge version 0.1.0 (v0.1.0-220-gd57ab59+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>

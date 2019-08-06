@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-210-gd877646+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-220-gd57ab59+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-210-gd877646+1).
+This manual is for Forge version 0.1.0 (v0.1.0-220-gd57ab59+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -799,8 +799,6 @@ General Public License for more details.
 
 # IMPORTANT: Also update ORG_ARGS and ORG_EVAL in the Makefile.
 # Local Variables:
-# eval: (require 'magit-utils nil t)
-# eval: (require 'org-man     nil t)
 # eval: (require 'ox-extra    nil t)
 # eval: (require 'ox-texinfo+ nil t)
 # eval: (and (featurep 'ox-extra) (ox-extras-activate '(ignore-headlines)))
