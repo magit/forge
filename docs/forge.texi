@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-220-gd57ab59+1)
+@subtitle for version 0.1.0 (v0.1.0-221-gb49b91b+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-220-gd57ab59+1).
+This manual is for Forge version 0.1.0 (v0.1.0-221-gb49b91b+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -422,7 +422,7 @@ Or if you use @code{use-package}:
 
 To start using Forge in a certain repository visit the Magit status
 buffer for that repository and type @code{f y} (@code{forge-pull}).  Alternatively
-you can use @code{M-x forge-add-repostiory}, which makes it possible to add a
+you can use @code{M-x forge-add-repository}, which makes it possible to add a
 forge repository without pulling all topics and even without having to
 clone the respective Git repository.
 
@@ -1049,7 +1049,7 @@ This command reads a repository from the user and adds it to the
 database.  The repository can be provided as URL, as a name, or in
 the form OWNER/NAME@.  This is subject to @code{magit-clone-name-alist}.
 
-This command offer to either pull topics (now and in the future) or
+This command offers to either pull topics (now and in the future) or
 to only pull individual topics when the user invokes
 @code{forge-pull-topic}.
 @end deffn
