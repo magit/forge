@@ -117,7 +117,8 @@ If pulling is too slow, then also consider setting the Git variable
       (message "Please enter a date in the format YYYY-MM-DD.")
       (sit-for 1))))
 
-(cl-defmethod forge--pull ((_repo forge-noapi-repository) _until)) ; NOOP
+(cl-defmethod forge--pull ((repo forge-noapi-repository) _until) ; NOOP
+  (forge--msg repo t t "Pulling from REPO is not supported"))
 
 (cl-defmethod forge--pull ((repo forge-unusedapi-repository) _until)
   (oset repo sparse-p nil)
