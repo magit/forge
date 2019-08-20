@@ -57,12 +57,14 @@
                   (when (magit-get-boolean "forge.omitExpensive")
                     (setq val (nconc `((assignees) (forks) (labels)) val)))
                   )
+                 ((not (assq 'issues    val)) (forge--fetch-issues     repo cb until))
                  (t
                   (forge--msg repo t t   "Pulling REPO")
                   (forge--msg repo t nil "Storing REPO")
                   (emacsql-with-transaction (forge-db)
                     (let-alist val
                       (forge--update-repository repo val)
+                      (dolist (v .issues) (forge--update-issue repo v))
                       )
                     (oset repo sparse-p nil))
                   (forge--msg repo t t "Storing REPO")
@@ -100,6 +102,104 @@ Return data through CALLBACK."
     (oset repo wiki-p         .has_wiki)
     (oset repo stars          nil)
     (oset repo watchers       nil)))
+
+;;;; Issues
+
+(cl-defmethod forge--fetch-issues ((repo forge-bitbucket-repository) callback until)
+  "Fetch issues for a bitbucket REPO."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (let ((query '((sort . "updated_on")
+                 (fields . "-values.repository.links,-values.reporter.links,-values.assignee.links,+values.links.comments.*")
+                 ))
+        (cb (let (val cur cnt pos)
+              (lambda (cb &optional v)
+                (cond
+                 ((not pos)
+                  (if (setq cur (setq val v))
+                      (progn
+                        (setq pos 1)
+                        (setq cnt (length val))
+                        (forge--msg nil nil nil "Pulling issue %s/%s" pos cnt)
+                        (forge--fetch-issue-posts repo cur cb))
+                    (forge--msg repo t t "Pulling REPO issues")
+                    (funcall callback callback (cons 'issues val))))
+                 (t
+                  (if (setq cur (cdr cur))
+                      (progn
+                        (cl-incf pos)
+                        (forge--msg nil nil nil "Pulling issue %s/%s" pos cnt)
+                        (forge--fetch-issue-posts repo cur cb))
+                    (forge--msg repo t t "Pulling REPO issues")
+                    (funcall callback callback (cons 'issues val)))))))))
+    (when until
+      (push (cons 'q (concat "updated_on>" (forge--topics-until repo until 'issue)))
+            query))
+    (forge--msg repo t nil "Pulling REPO issues")
+    (forge--buck-get repo "/repositories/:project/issues" nil
+      :query query
+      :unpaginate t
+      :callback (lambda (value _headers _status _req)
+                  (funcall cb cb value)))))
+
+(cl-defmethod forge--fetch-issue-posts ((repo forge-bitbucket-repository) cur cb)
+  "Fetch comments for REPO issue CUR.
+Callback function CB should accept itself as argument."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  ;;(message "%s" (pp-to-string (car cur)))
+  (let-alist (car cur)
+    (forge--buck-get repo
+      (format "/repositories/%s/issues/%s/comments" .repository.full_name .id)
+      nil
+      :unpaginate t
+      :callback (lambda (value _headers _status _req)
+                  (setf (alist-get 'comments (car cur)) value)
+                  (funcall cb cb)))))
+
+(cl-defmethod forge--update-issue ((repo forge-bitbucket-repository) data)
+  (emacsql-with-transaction (forge-db)
+    (let-alist data
+      (let* ((issue-id (forge--object-id 'forge-issue repo .id))
+             (issue
+              (forge-issue
+               :id           issue-id
+               :repository   (oref repo id)
+               :number       .id
+               :state        (pcase-exhaustive .state
+                               ("new" 'open)
+                               ("open" 'open)
+                               ("resolved" 'closed)
+                               ("on hold" 'open)
+                               ("invalid" 'closed)
+                               ("duplicate" 'closed)
+                               ("wontfix" 'closed)
+                               ("closed" 'closed))
+               :author       .reporter.nickname
+               :title        .title
+               :created      (forge--bitbucket-hack-iso8601 .created_on)
+               :updated      (forge--bitbucket-hack-iso8601 .updated_on)
+               ;; Bitbucket does not list when the issue was closed.
+               ;; Just set it to 1 if it is in one of the closed
+               ;; states, so that this slot at least can serve as a
+               ;; boolean.
+               :closed       (and (member .state
+                                          '("resolved" "invalid" "duplicate" "wontfix" "closed"))
+                                  1)
+               :locked-p     nil
+               :milestone    .milestone.name
+               :body         (forge--sanitize-string .content.raw))))
+        (closql-insert (forge-db) issue t)
+        (dolist (c .comments)
+          (let-alist c
+            (let ((post
+                   (forge-issue-post
+                    :id      (forge--object-id issue-id .id)
+                    :issue   issue-id
+                    :number  .id
+                    :author  .user.nickname
+                    :created (forge--bitbucket-hack-iso8601 .created_on)
+                    :updated (forge--bitbucket-hack-iso8601 .updated_on)
+                    :body    (forge--sanitize-string .content.raw))))
+              (closql-insert (forge-db) post t))))))))
 
 ;;; Utilities
 
