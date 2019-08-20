@@ -308,7 +308,8 @@ repository, if any."
         (setq mode-line-process
               (if done
                   nil
-                (concat " " (propertize msg 'face 'magit-mode-line-process)))))
+                (concat " " (propertize msg 'font-lock-face
+                                        'magit-mode-line-process)))))
       (force-mode-line-update t))))
 
 ;;; _

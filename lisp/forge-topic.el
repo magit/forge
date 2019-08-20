@@ -290,7 +290,7 @@ This variable has to be customized before `forge' is loaded."
       (magit-insert-section ((eval list-section-type) nil t)
         (magit-insert-heading
           (format "%s (%s)"
-                  (propertize heading 'face 'magit-section-heading)
+                  (propertize heading 'font-lock-face 'magit-section-heading)
                   (length topics)))
         (magit-make-margin-overlay nil t)
         (magit-insert-section-body
@@ -315,7 +315,7 @@ identifier."
   (propertize (format "%s%s"
                       (or prefix (forge--topic-type-prefix topic))
                       (oref topic number))
-              'face 'magit-dimmed))
+              'font-lock-face 'magit-dimmed))
 
 (cl-defmethod forge--insert-topic-contents ((topic forge-topic) width prefix)
   (with-slots (number title unread-p closed) topic
@@ -324,7 +324,7 @@ identifier."
     (forge--insert-topic-marks topic)
     (insert " ")
     (insert (magit-log-propertize-keywords
-             nil (propertize title 'face
+             nil (propertize title 'font-lock-face
                              (cond (unread-p 'forge-topic-unread)
                                    (closed   'forge-topic-closed)
                                    (t        'forge-topic-open)))))
@@ -399,13 +399,13 @@ identifier."
             (let ((heading
                    (format-spec
                     forge-post-heading-format
-                    `((?a . ,(propertize author  'face 'forge-post-author))
-                      (?c . ,(propertize created 'face 'forge-post-date))
+                    `((?a . ,(propertize author  'font-lock-face 'forge-post-author))
+                      (?c . ,(propertize created 'font-lock-face 'forge-post-date))
                       (?C . ,(propertize (apply #'format "%s %s ago"
                                                 (magit--age
                                                  (float-time
                                                   (date-to-time created))))
-                                         'face 'forge-post-date))))))
+                                         'font-lock-face 'forge-post-date))))))
               (add-face-text-property 0 (length heading)
                                       'magit-diff-hunk-heading t heading)
               (magit-insert-heading heading))
@@ -451,13 +451,13 @@ identifier."
     (insert (format "%-11s" "Labels: "))
     (if-let ((labels (closql--iref topic 'labels)))
         (forge--insert-topic-labels topic t labels)
-      (insert (propertize "none" 'face 'magit-dimmed)))
+      (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
 
 (defun forge--format-topic-labels (topic)
   (when-let ((labels (closql--iref topic 'labels)))
     (mapconcat (pcase-lambda (`(,name ,color ,_desc))
-                 (propertize name 'face (list :box color)))
+                 (propertize name 'font-lock-face (list :box color)))
                labels " ")))
 
 (defun forge--insert-topic-labels (topic &optional skip-separator labels)
@@ -472,7 +472,7 @@ identifier."
       (let ((o (make-overlay (- (point) (length name)) (point))))
         (overlay-put o 'priority 2)
         (overlay-put o 'evaporate t)
-        (overlay-put o 'face
+        (overlay-put o 'font-lock-face
                      (list :background background
                            :foreground foreground
                            :box "black"))
@@ -490,7 +490,7 @@ identifier."
     (insert (format "%-11s" "Marks: "))
     (if-let ((marks (closql--iref topic 'marks)))
         (forge--insert-topic-marks topic t marks)
-      (insert (propertize "none" 'face 'magit-dimmed)))
+      (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
 
 (defun forge--insert-topic-marks (topic &optional skip-separator marks)
@@ -503,7 +503,7 @@ identifier."
     (let ((o (make-overlay (- (point) (length name)) (point))))
       (overlay-put o 'priority 2)
       (overlay-put o 'evaporate t)
-      (overlay-put o 'face face)
+      (overlay-put o 'font-lock-face face)
       (when description
         (overlay-put o 'help-echo description)))))
 
@@ -539,13 +539,13 @@ Return a value between 0 and 1."
   (when (forge-pullreq-p topic)
     (magit-insert-section (topic-refs)
       (with-slots (cross-repo-p base-repo base-ref head-repo head-ref) topic
-        (let ((separator (propertize ":" 'face 'magit-dimmed))
-              (deleted (propertize "(deleted)" 'face 'magit-dimmed)))
+        (let ((separator (propertize ":" 'font-lock-face 'magit-dimmed))
+              (deleted (propertize "(deleted)" 'font-lock-face 'magit-dimmed)))
           (insert (format "%-11s" "Refs: ")
                   (if cross-repo-p
                       (concat base-repo separator base-ref)
                     base-ref)
-                  (propertize "..." 'face 'magit-dimmed)
+                  (propertize "..." 'font-lock-face 'magit-dimmed)
                   (if cross-repo-p
                       (if (and head-repo head-ref)
                           (concat head-repo separator head-ref)
@@ -566,7 +566,7 @@ Return a value between 0 and 1."
         (insert (mapconcat (pcase-lambda (`(,login ,name))
                              (format "%s (@%s)" name login))
                            assignees ", "))
-      (insert (propertize "none" 'face 'magit-dimmed)))
+      (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
 
 (defvar forge-topic-review-requests-section-map
@@ -584,7 +584,7 @@ Return a value between 0 and 1."
           (insert (mapconcat (pcase-lambda (`(,login ,name))
                                (format "%s (@%s)" name login))
                              review-requests ", "))
-        (insert (propertize "none" 'face 'magit-dimmed)))
+        (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
       (insert ?\n))))
 
 (defun forge--fontify-markdown (text)

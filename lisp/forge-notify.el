@@ -114,7 +114,7 @@
           (magit-insert-section (forge-repo repo)
             (magit-insert-heading
               (propertize (format "%s/%s:" (oref repo owner) (oref repo name))
-                          'face 'bold))
+                          'font-lock-face 'bold))
             (dolist (notify ns)
               (with-slots (type topic title url unread-p) notify
                 (pcase type
@@ -129,9 +129,9 @@
                       (format "%s %s\n"
                               (propertize (substring (match-string 0 url)
                                                      0 (magit-abbrev-length))
-                                          'face 'magit-hash)
+                                          'font-lock-face 'magit-hash)
                               (magit-log-propertize-keywords
-                               nil (propertize title 'face
+                               nil (propertize title 'font-lock-face
                                                (if unread-p
                                                    'forge-topic-unread
                                                  'forge-topic-open)))))))
@@ -141,7 +141,7 @@
                    ;; we do not know how to handle properly yet.
                    (magit-insert-section (notification notify)
                      (insert (propertize (format "(%s) %s\n" type title)
-                                         'face 'error)))))))
+                                         'font-lock-face 'error)))))))
             (insert ?\n)))))))
 
 ;;; _

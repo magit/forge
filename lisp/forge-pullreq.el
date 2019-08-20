@@ -252,9 +252,9 @@ Also see option `forge-topic-list-limit'."
   (propertize (format "%s%s"
                       (or prefix (forge--topic-type-prefix pullreq))
                       (oref pullreq number))
-              'face (if (oref pullreq merged)
-                        'forge-topic-merged
-                      'forge-topic-unmerged)))
+              'font-lock-face (if (oref pullreq merged)
+                                  'forge-topic-merged
+                                'forge-topic-unmerged)))
 
 (cl-defmethod forge--topic-type-prefix ((pullreq forge-pullreq))
   (if (forge--childp (forge-get-repository pullreq) 'forge-gitlab-repository)
