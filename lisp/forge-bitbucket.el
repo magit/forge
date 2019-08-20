@@ -39,6 +39,68 @@
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/pull-requests/new")))
 
+;;; Pull
+;;;; Repository
+
+(cl-defmethod forge--pull ((repo forge-bitbucket-repository) until)
+  "Pull REPO data no older than UNTIL."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
+                            (current-buffer)))
+                  (dir default-directory)
+                  (val nil))
+              (lambda (cb &optional v)
+                (when v (if val (push v val) (setq val v)))
+                (cond
+                 ((not val)
+                  (forge--fetch-repository repo cb)
+                  (when (magit-get-boolean "forge.omitExpensive")
+                    (setq val (nconc `((assignees) (forks) (labels)) val)))
+                  )
+                 (t
+                  (forge--msg repo t t   "Pulling REPO")
+                  (forge--msg repo t nil "Storing REPO")
+                  (emacsql-with-transaction (forge-db)
+                    (let-alist val
+                      (forge--update-repository repo val)
+                      )
+                    (oset repo sparse-p nil))
+                  (forge--msg repo t t "Storing REPO")
+                  (forge--git-fetch buf dir repo)))))))
+    (funcall cb cb)))
+
+(cl-defmethod forge--fetch-repository ((repo forge-bitbucket-repository) callback)
+  "Fetch basic data for REPO.
+Return data through CALLBACK."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (forge--buck-get repo "/repositories/:project" nil
+    ;; Use the fields query to exclude unused data from the response
+    ;; https://developer.atlassian.com/bitbucket/api/2/reference/meta/partial-response
+    :query '((fields . "-links,-scm,-language,-mainbranch.type,-owner.links"))
+    :callback (lambda (value _headers _status _req)
+                (funcall callback callback value))))
+
+(cl-defmethod forge--update-repository ((repo forge-bitbucket-repository) data)
+  "Store forge DATA in REPO."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (let-alist data
+    (oset repo created        (forge--bitbucket-hack-iso8601 .created_on))
+    (oset repo updated        (forge--bitbucket-hack-iso8601 .updated_on))
+    (oset repo pushed         nil)
+    (oset repo parent         nil)
+    (oset repo description    .description)
+    (oset repo homepage       .website)
+    (oset repo default-branch .mainbranch.name)
+    (oset repo archived-p     nil)
+    (oset repo fork-p         nil)
+    (oset repo locked-p       nil)
+    (oset repo mirror-p       nil)
+    (oset repo private-p      .is_private)
+    (oset repo issues-p       .has_issues)
+    (oset repo wiki-p         .has_wiki)
+    (oset repo stars          nil)
+    (oset repo watchers       nil)))
+
 ;;; Utilities
 
 (defun forge--bitbucket-hack-iso8601 (time)
