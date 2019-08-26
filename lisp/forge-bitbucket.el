@@ -41,6 +41,13 @@
 
 ;;; Utilities
 
+(defun forge--bitbucket-hack-iso8601 (time)
+  "Return TIME - an ISO8601 timestamp - with no more than three second decimals."
+  (and time
+    (if (string-match "T[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\\.[0-9]\\{3\\}\\([0-9]+\\)" time)
+        (replace-match "" nil t time 1)
+      time)))
+
 (cl-defun forge--buck-get (obj resource
                                &optional params
                                &key query payload headers
