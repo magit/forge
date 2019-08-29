@@ -22,6 +22,7 @@
 
 (require 'buck)
 (require 'forge)
+(require 'seq)
 
 ;;; Class
 
@@ -60,16 +61,39 @@
                  ((not (assq 'issues    val)) (forge--fetch-issues     repo cb until))
                  (t
                   (forge--msg repo t t   "Pulling REPO")
+                  (forge--msg repo t nil "Extracting assignees from REPO")
+                  (let (assignees)
+                    (dolist (issue (alist-get 'issues val))
+                      (setq assignees
+                            (seq-uniq (append (forge--bitbucket-issue-users issue)
+                                              assignees))))
+                    (setq val (cons (cons 'assignees assignees) val)))
+                  (forge--msg repo t t   "Extracting assignees from REPO")
                   (forge--msg repo t nil "Storing REPO")
                   (emacsql-with-transaction (forge-db)
                     (let-alist val
                       (forge--update-repository repo val)
+                      (forge--update-assignees  repo .assignees)
                       (dolist (v .issues) (forge--update-issue repo v))
                       )
                     (oset repo sparse-p nil))
                   (forge--msg repo t t "Storing REPO")
                   (forge--git-fetch buf dir repo)))))))
     (funcall cb cb)))
+
+(defun forge--bitbucket-issue-users (issue)
+  "Return a list of unique users associated with ISSUE."
+  (let (users)
+    (let-alist issue
+      (when .reporter (push (forge--bitbucket-make-assignee .reporter) users))
+      (when .assignee (push (forge--bitbucket-make-assignee .assignee) users))
+      (when .comments
+        (dolist (comment .comments)
+          (let-alist comment
+            (when .user (push (forge--bitbucket-make-assignee .user) users))))))
+    (seq-uniq users (lambda (u1 u2)
+                      (string= (cdr (assq 'uuid u1))
+                               (cdr (assq 'uuid u2)))))))
 
 (cl-defmethod forge--fetch-repository ((repo forge-bitbucket-repository) callback)
   "Fetch basic data for REPO.
@@ -188,6 +212,9 @@ Callback function CB should accept itself as argument."
                :milestone    .milestone.name
                :body         (forge--sanitize-string .content.raw))))
         (closql-insert (forge-db) issue t)
+        (when .assignee
+          (forge--set-id-slot repo issue 'assignees
+                              (list (forge--bitbucket-make-assignee .assignee))))
         (dolist (c .comments)
           (let-alist c
             (let ((post
@@ -200,6 +227,32 @@ Callback function CB should accept itself as argument."
                     :updated (forge--bitbucket-hack-iso8601 .updated_on)
                     :body    (forge--sanitize-string .content.raw))))
               (closql-insert (forge-db) post t))))))))
+
+;;; Assignees
+
+(defun forge--bitbucket-make-assignee (assignee)
+  "Create an assigne alist from a bitbucket ASSIGNEE json alist."
+  (let-alist assignee
+    (list (cons 'id .uuid)
+          (cons 'name .display_name)
+          (cons 'username .nickname))))
+
+(cl-defmethod forge--update-assignees ((repo forge-bitbucket-repository) data)
+  "Store assignee DATA in REPO."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (oset repo assignees
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      ;; For other forges we don't need to store `id'
+                      ;; but here we do because that's what has to be
+                      ;; used when assigning issues.
+                      (list (forge--object-id id .id)
+                            .username
+                            .name
+                            .id)))
+                  data))))
+
 
 ;;; Utilities
 
