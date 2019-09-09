@@ -147,7 +147,7 @@ valid values are:
 * `create' This value is only intended to be used by commands
   that fetch data from the API.  If the repository is stored in
   the database, then return that, regardless of whether the
-  object is sparse or not.  If the repository is not store in the
+  object is sparse or not.  If the repository is not stored in the
   database, then make an API request to determine the ID used on
   the forge, derive our own ID from that, and store a new sparse
   object in the database and return it.
