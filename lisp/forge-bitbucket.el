@@ -278,6 +278,23 @@ Callback function CB should accept itself as argument."
                     :callback  (forge--post-submit-callback)
                     :errorback (forge--post-submit-errorback)))
 
+(cl-defmethod forge--set-topic-field
+  ((_repo forge-bitbucket-repository) topic field value)
+  "Set a TOPIC FIELD to VALUE."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (forge--buck-put topic
+    (cl-typecase topic
+      (forge-pullreq "/repositories/:project/pullrequests/:number") ; TODO: Not sure this works
+      (forge-issue   "/repositories/:project/issues/:number"))
+    `((,field . ,value))
+    :callback (forge--set-field-callback)))
+
+(cl-defmethod forge--set-topic-title
+  ((repo forge-bitbucket-repository) topic title)
+  "Set the bitbucket REPO TOPIC TITLE."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (forge--set-topic-field repo topic 'title title))
+
 (cl-defmethod forge--topic-templates ((_repo forge-bitbucket-repository)
                                       (_topic (subclass forge-issue)))
   "Bitbucket does not support issue templates."
