@@ -255,6 +255,19 @@ Callback function CB should accept itself as argument."
 
 ;;; Mutations
 
+(cl-defmethod forge--submit-create-issue ((_ forge-bitbucket-repository) repo)
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (let-alist (forge--topic-parse-buffer)
+    (forge--buck-post repo "/repositories/:project/issues/"
+      nil
+      :payload `((title    . , .title)
+                 (priority . "major") ;TODO set other priorities in buffer
+                 (kind     . "bug") ;TODO set other kinds in buffer
+                 (content  . ((raw    . , .body)
+                              (markup . "markdown"))) ; TODO enable other markups
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback)))))
+
 (cl-defmethod forge--submit-create-post ((_repo forge-bitbucket-repository) topic)
   (forge--buck-post topic
                     (if (forge-issue-p topic)
@@ -264,6 +277,35 @@ Callback function CB should accept itself as argument."
                     :payload `((content . ((raw . ,(string-trim (buffer-string))))))
                     :callback  (forge--post-submit-callback)
                     :errorback (forge--post-submit-errorback)))
+
+(cl-defmethod forge--topic-templates ((_repo forge-bitbucket-repository)
+                                      (_topic (subclass forge-issue)))
+  "Bitbucket does not support issue templates."
+  ;; checkdoc-params: (forge-bitbucket-repository subclass forge-issue)
+  nil)
+
+(cl-defmethod forge--topic-templates ((repo forge-bitbucket-repository)
+                                      (_topic (subclass forge-pullreq)))
+  "Return PULL_REQUEST_TEMPLATE.md files as `refined-bitbake'.
+bitbake.org does not support pull request templates, but the
+`refined-bitbake' browser extension (
+https://github.com/refined-bitbucket/refined-bitbucket) does;
+ /PULL_REQUEST_TEMPLATE.md
+ /docs/PULL_REQUEST_TEMPLATE.md
+ /.github/PULL_REQUEST_TEMPLATE.md
+ /.bitbucket/PULL_REQUEST_TEMPLATE.md
+Return the same list of files, if present in REPO's default branch."
+  ;; checkdoc-params: (forge-bitbucket-repository subclass forge-pullreq)
+  (list
+   (car
+    (sort
+     (cl-remove-if-not
+      (apply-partially #'string-match-p
+                       "\\`\\(\\(docs\\|.github\\|.bitbucket\\)/\\)?PULL_REQUEST_TEMPLATE.md\\'")
+      (magit-revision-files (oref repo default-branch)))
+     (lambda (a b)
+       ;; by ridiculous coincidence the shortest filename is the best match.
+       (< (length a) (length b)))))))
 
 ;;; Utilities
 
