@@ -295,6 +295,15 @@ Callback function CB should accept itself as argument."
   ;; checkdoc-params: (forge-bitbucket-repository)
   (forge--set-topic-field repo topic 'title title))
 
+(cl-defmethod forge--set-topic-state
+  ((repo forge-bitbucket-repository) topic)
+  "Change the state of bitbucket REPO TOPIC."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (forge--set-topic-field repo topic 'state
+                          (cl-ecase (oref topic state) ; TODO: Handle bitbucket states better
+                            (closed "open")
+                            (open   "closed"))))
+
 (cl-defmethod forge--topic-templates ((_repo forge-bitbucket-repository)
                                       (_topic (subclass forge-issue)))
   "Bitbucket does not support issue templates."
