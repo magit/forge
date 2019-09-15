@@ -278,6 +278,23 @@ Callback function CB should accept itself as argument."
                     :callback  (forge--post-submit-callback)
                     :errorback (forge--post-submit-errorback)))
 
+(cl-defmethod forge--submit-edit-post ((_ forge-bitbucket-repository) post)
+  "Edit a topic or POST."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (forge--buck-put post
+    (cl-etypecase post
+      (forge-pullreq "/repositories/:project/pullrequests/:number")
+      (forge-issue   "/repositories/:project/issues/:number")
+      (forge-pullreq-post "/repositories/:project/pullrequests/:topic/comments/:number")
+      (forge-issue-post "/repositories/:project/issues/:topic/comments/:number"))
+    (if (cl-typep post 'forge-topic)
+        (let-alist (forge--topic-parse-buffer)
+          `((title . , .title)
+            (content . ((raw . , .body)))))
+      `((content . ((raw . ,(string-trim (buffer-string)))))))
+    :callback  (forge--post-submit-callback)
+    :errorback (forge--post-submit-errorback)))
+
 (defun forge--put-topic-json (topic json)
   "TOPIC JSON."
   (forge--buck-put topic
