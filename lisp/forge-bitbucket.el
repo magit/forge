@@ -304,6 +304,12 @@ Callback function CB should accept itself as argument."
                             (closed "open")
                             (open   "closed"))))
 
+(cl-defmethod forge--set-topic-labels
+  ((_repo forge-bitbucket-repository) _topic _labels)
+  "Bitbucket does not support labels."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (user-error "Bitbucket does not support labels"))
+
 (cl-defmethod forge--topic-templates ((_repo forge-bitbucket-repository)
                                       (_topic (subclass forge-issue)))
   "Bitbucket does not support issue templates."
