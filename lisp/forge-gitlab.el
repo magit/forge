@@ -458,13 +458,11 @@ it is all or nothing.")
 
 (cl-defmethod forge--submit-edit-post ((_ forge-gitlab-repository) post)
   (forge--glab-put post
-    (cl-typecase post
+    (cl-etypecase post
       (forge-pullreq "/projects/:project/merge_requests/:number")
       (forge-issue   "/projects/:project/issues/:number")
-      (forge-post
-       (if (forge-issue-p (forge-get-topic post))
-           "/projects/:project/issues/:topic/notes/:number"
-         "/projects/:project/merge_requests/:topic/notes/:number")))
+      (forge-issue-post "/projects/:project/issues/:topic/notes/:number")
+      (forge-pullreq-post "/projects/:project/merge_requests/:topic/notes/:number"))
     (if (cl-typep post 'forge-topic)
         (let-alist (forge--topic-parse-buffer)
           ;; Keep Gitlab from claiming that the user
