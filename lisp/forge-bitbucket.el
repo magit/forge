@@ -339,6 +339,15 @@ Callback function CB should accept itself as argument."
          (user (caddr (assoc (car assignees) users))))
     (forge--put-topic-json topic `((assignee . ((username . ,(car assignees))))))))
 
+(cl-defmethod forge--delete-comment ((_repo forge-bitbucket-repository) post)
+  "Delete a Bitbucket topic POST, which must be a comment."
+  ;; checkdoc-params: (forge-bitbucket-repository)
+  (forge--buck-delete
+   post
+   (cl-etypecase post
+     (forge-pullreq-post "/repositories/:project/pullrequests/:topic/comments/:number")
+     (forge-issue-post   "/repositories/:project/issues/:topic/comments/:number"))))
+
 (cl-defmethod forge--topic-templates ((_repo forge-bitbucket-repository)
                                       (_topic (subclass forge-issue)))
   "Bitbucket does not support issue templates."
