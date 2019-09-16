@@ -728,9 +728,9 @@ a post visits that post in a browser.
   This command reads a list of people who you would like to review an
   existing topic in the minibuffer.
 
-- Key: C-c C-k [on a comment section], forge-delete-comment
+- Key: C-c C-k [on a post section], forge-delete-post
 
-  This command deletes the comment at point.
+  This command deletes the post at point.
 
 Creating a new post and editing an existing post are similar to
 creating a new commit and editing the message of an existing commit.

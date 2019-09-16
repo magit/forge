@@ -525,12 +525,14 @@ topic N and modify that instead."
 
 ;;; Delete
 
-(defun forge-delete-comment (comment)
-  "Delete the comment at point."
-  (interactive (list (or (forge-comment-at-point)
+(defun forge-delete-post (post)
+  "Delete the POST at point."
+  (interactive (list (or (forge-post-at-point)
                          (user-error "There is no post at point"))))
   (when (yes-or-no-p "Do you really want to delete the selected comment? ")
-    (forge--delete-comment (forge-get-repository t) comment)))
+    (forge--delete-post (forge-get-repository t) post)
+    (closql-delete post)
+    (magit-refresh)))
 
 ;;; Branch
 
