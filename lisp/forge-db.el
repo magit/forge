@@ -44,6 +44,10 @@
   ((object-class :initform forge-repository)))
 
 (defconst forge--db-version 6)
+(defconst forge--sqlite-available-p
+  (with-demoted-errors "Forge initialization: %S"
+    (emacsql-sqlite-ensure-binary)
+    t))
 
 (defvar forge--db-connection nil
   "The EmacSQL database connection.")

@@ -848,7 +848,7 @@ some `bug-reference' variables to the appropriate values."
       (add-hook 'completion-at-point-functions
                 'forge-topic-completion-at-point nil t))))
 
-(unless noninteractive
+(when (and (not noninteractive) forge--sqlite-available-p)
   (dolist (hook forge-bug-reference-hooks)
     (add-hook hook #'forge-bug-reference-setup)))
 

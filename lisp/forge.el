@@ -58,9 +58,9 @@
 (require 'forge-list)
 
 ;;; Add Sections
-
-(magit-add-section-hook 'magit-status-sections-hook 'forge-insert-pullreqs nil t)
-(magit-add-section-hook 'magit-status-sections-hook 'forge-insert-issues   nil t)
+(when forge--sqlite-available-p
+  (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-pullreqs nil t)
+  (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-issues   nil t))
 
 ;;; Add Bindings
 
