@@ -528,7 +528,7 @@ topic N and modify that instead."
 (defun forge-delete-comment (comment)
   "Delete the comment at point."
   (interactive (list (or (forge-comment-at-point)
-                         (user-error "There is no post at point"))))
+                         (user-error "There is no comment at point"))))
   (when (yes-or-no-p "Do you really want to delete the selected comment? ")
     (forge--delete-comment (forge-get-repository t) comment)))
 
