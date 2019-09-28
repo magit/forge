@@ -68,8 +68,9 @@
 (defun forge-comment-at-point ()
   (and (magit-section-value-if '(post))
        (let ((post (oref (magit-current-section) value)))
-         (or (forge-pullreq-post-p post)
-             (forge-issue-post-p post)))))
+         (and (or (forge-pullreq-post-p post)
+                  (forge-issue-post-p post))
+              post))))
 
 (defun forge-topic-at-point ()
   (or (magit-section-value-if '(issue pullreq))
