@@ -39,6 +39,98 @@
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/pull-requests/new")))
 
+;;; Utilities
+
+(cl-defun forge--buck-get (obj resource
+                               &optional params
+                               &key query payload headers
+                               silent unpaginate noerror reader
+                               username host
+                               callback errorback extra)
+  "Perform a GET request to the bibucket API.
+OBJ is any forge struct, used to transform RESOURCE."
+  (declare (indent defun))
+  (buck-get (if obj (forge--format-resource obj resource) resource)
+            params
+            :host (or host (oref (forge-get-repository obj) apihost))
+            :auth 'forge
+            :query query :payload payload :headers headers
+            :silent silent :unpaginate unpaginate
+            :noerror noerror :reader reader
+            :username username
+            :callback callback
+            :errorback (or errorback (and callback t))
+            :extra extra))
+
+(cl-defun forge--buck-put (obj resource
+                               &optional params
+                               &key query payload headers
+                               silent unpaginate noerror reader
+                               host callback errorback)
+  "Perform a PUT request to the bitbucket API.
+OBJ is any forge struct, used to transform RESOURCE.  The API
+call is done using the `buck' API of ghub.el.  PARAMS, QUERY,
+PAYLOAD, HEADERS, SILENT, UNPAGINATE, NOERROR, READER, HOST,
+CALLBACK, and ERRORBACK is passed unmodified to `buck-put'.
+If HOST is nil, use the `apihost' of the OBJ repository.
+RESOURCE is not transformed if OBJ is nil.  If ERRORBACK is nil,
+use CALLBACK for errors too."
+  (declare (indent defun))
+  (buck-put (if obj (forge--format-resource obj resource) resource)
+            params
+            :host (or host (oref (forge-get-repository obj) apihost))
+            :auth 'forge
+            :query query :payload payload :headers headers
+            :silent silent :unpaginate unpaginate
+            :noerror noerror :reader reader
+            :callback callback
+            :errorback (or errorback (and callback t))))
+
+(cl-defun forge--buck-post (obj resource
+                                &optional params
+                                &key query payload headers
+                                silent unpaginate noerror reader
+                                username host
+                                callback errorback extra)
+  "Perform a POST request to the bitbucket API.
+OBJ is any forge struct, used to transform RESOURCE.  The API
+call is done using the `buck' API of ghub.el.  PARAMS,
+QUERY, PAYLOAD, HEADERS, SILENT, UNPAGINATE, NOERROR, READER,
+USERNAME, HOST, CALLBACK, ERRORCALLBACK, and EXTRA is passed
+unmodified to `buck-post'.
+If HOST is nil, use the `apihost' of the OBJ repository.
+RESOURCE is not transformed if OBJ is nil.
+If ERRORBACK is nil, use CALLBACK for errors too."
+  (declare (indent defun))
+  (setq host (or host (oref (forge-get-repository obj) apihost)))
+  (buck-post (if obj (forge--format-resource obj resource) resource)
+             params
+             :host host
+             :auth 'forge
+             :query query :payload payload :headers headers
+             :silent silent :unpaginate unpaginate
+             :noerror noerror :reader reader
+             :username username
+             :callback callback
+             :errorback (or errorback (and callback t))
+             :extra extra))
+
+(cl-defun forge--buck-delete (obj resource
+                                  &optional params
+                                  &key query payload headers
+                                  silent unpaginate noerror reader
+                                  host callback errorback)
+  (declare (indent defun))
+  (buck-delete (if obj (forge--format-resource obj resource) resource)
+               params
+               :host (or host (oref (forge-get-repository obj) apihost))
+               :auth 'forge
+               :query query :payload payload :headers headers
+               :silent silent :unpaginate unpaginate
+               :noerror noerror :reader reader
+               :callback callback
+               :errorback (or errorback (and callback t))))
+
 ;;; _
 (provide 'forge-bitbucket)
 ;;; forge-bitbucket.el ends here
