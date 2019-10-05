@@ -147,7 +147,7 @@ List them in a separate buffer."
                   (isnull issue:closed))
       :order-by [(desc updated)]]
      (forge--topic-list-columns-vector)
-     id (ghub--username (ghub--host)))))
+     id (ghub--username (forge-get-repository (list :id id))))))
 
 ;;;; Pullreq
 
@@ -175,7 +175,7 @@ List them in a separate buffer."
                   (isnull pullreq:closed))
       :order-by [(desc updated)]]
      (forge--topic-list-columns-vector)
-     id (ghub--username (ghub--host)))))
+     id (ghub--username (forge-get-repository (list :id id))))))
 
 ;;;; Repository
 

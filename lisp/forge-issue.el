@@ -181,7 +181,7 @@ Also see option `forge-topic-list-limit'."
             :order-by [(desc updated)]]
            (vconcat (closql--table-columns (forge-db) 'issue t))
            (oref repo id)
-           (ghub--username (ghub--host)))))
+           (ghub--username repo))))
 
 ;;; _
 (provide 'forge-issue)
