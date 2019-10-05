@@ -57,7 +57,8 @@ for a repository using the command `forge-add-pullreq-refspec'."
    ["Create"
     ("c i" "issue"         forge-create-issue)
     ("c p" "pull-request"  forge-create-pullreq)
-    ("c u" "pull-request from issue" forge-create-pullreq-from-issue)]]
+    ("c u" "pull-request from issue" forge-create-pullreq-from-issue
+     :if (lambda () (forge-github-repository-p (forge-get-repository nil))))]]
   [["Configure"
     ("r" "forge.repository" forge-forge.remote)]])
 
