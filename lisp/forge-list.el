@@ -146,7 +146,7 @@ List them in a separate buffer."
                   (= assignee:login       $s3)
                   (isnull issue:closed))
       :order-by [(desc updated)]]
-     (forge--topic-list-columns-vector)
+     (forge--topic-list-columns-vector 'issue)
      id (ghub--username (forge-get-repository (list :id id))))))
 
 ;;;; Pullreq
@@ -174,7 +174,7 @@ List them in a separate buffer."
                   (= assignee:login           $s3)
                   (isnull pullreq:closed))
       :order-by [(desc updated)]]
-     (forge--topic-list-columns-vector)
+     (forge--topic-list-columns-vector 'pullreq)
      id (ghub--username (forge-get-repository (list :id id))))))
 
 ;;;; Repository
@@ -229,12 +229,19 @@ it silently fails."
     (> (read (aref (cadr a) 0))
        (read (aref (cadr b) 0)))))
 
-(defun forge--topic-list-columns-vector (&optional qualify)
-  (forge--list-columns-vector forge-topic-list-columns qualify))
+(defun forge--topic-list-columns-vector (&optional table)
+  (forge--list-columns-vector forge-topic-list-columns table))
 
-(defun forge--list-columns-vector (columns &optional qualify)
-  (let ((lst (cons 'id (--map (nth 4 it) columns))))
-    (vconcat (if qualify (-replace 'name 'packages:name lst) lst))))
+(defun forge--list-columns-vector (columns &optional table)
+  (let ((columns (cons 'id (--map (nth 4 it) columns))))
+    (vconcat (if table
+                 (let ((table (symbol-name table)))
+                   (--map (let ((col (symbol-name it)))
+                            (if (string-match-p ":" col)
+                                it
+                              (intern (concat table ":" col))))
+                          columns))
+               columns))))
 
 ;;; _
 (provide 'forge-list)
