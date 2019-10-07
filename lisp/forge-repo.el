@@ -100,12 +100,7 @@ forges and hosts."
                                owner name
                                :host apihost
                                :auth 'forge
-                               :forge (cl-ecase class
-                                        (forge-github-repository    'ghub)
-                                        (forge-gitlab-repository    'glab)
-                                        (forge-gitea-repository     'gtea)
-                                        (forge-gogs-repository      'gogs)
-                                        (forge-bitbucket-repository 'buck))))))
+                               :forge (forge--ghub-type-symbol class)))))
     (cons (base64-encode-string
            (format "%s:%s" id
                    (cond (stub path)
