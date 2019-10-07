@@ -313,14 +313,14 @@ repository, if any."
       (force-mode-line-update t))))
 
 (cl-defmethod ghub--host ((repo forge-repository))
-  (cl-call-next-method (forge--ghub-type-symbol repo)))
+  (cl-call-next-method (forge--ghub-type-symbol (eieio-object-class repo))))
 
 (cl-defmethod ghub--username ((repo forge-repository))
-  (let ((sym (forge--ghub-type-symbol repo)))
+  (let ((sym (forge--ghub-type-symbol (eieio-object-class repo))))
     (cl-call-next-method (ghub--host sym) sym)))
 
-(defun forge--ghub-type-symbol (repo)
-  (cl-ecase (eieio-object-class repo)
+(defun forge--ghub-type-symbol (class)
+  (cl-ecase class
     (forge-github-repository    'github)
     (forge-gitlab-repository    'gitlab)
     (forge-gitea-repository     'gittea)
