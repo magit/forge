@@ -321,8 +321,12 @@ repository, if any."
 
 (defun forge--ghub-type-symbol (class)
   (cl-ecase class
+    ;; This package does not define a `forge-gitlab-http-repository'
+    ;; class, but we suggest at #9 that users define such a class if
+    ;; they must connect to a Gitlab instance that uses http instead
+    ;; of https.
+    ((forge-gitlab-repository forge-gitlab-http-repository) 'gitlab)
     (forge-github-repository    'github)
-    (forge-gitlab-repository    'gitlab)
     (forge-gitea-repository     'gittea)
     (forge-gogs-repository      'gogs)
     (forge-bitbucket-repository 'bitbucket)))
