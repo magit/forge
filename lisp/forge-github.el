@@ -317,7 +317,7 @@ repositories.
                         (forge--ghub-get nil "/notifications"
                                          '((all . "true"))
                                          :host apihost :unpaginate t)))
-         (groups (-partition-all 100 notifs))
+         (groups (-partition-all 50 notifs))
          (pages  (length groups))
          (page   0)
          (result nil))
