@@ -187,7 +187,7 @@ Prefer a topic over a branch and that over a commit."
       (if-let ((branch (-some (lambda (branch)
                                 (magit-rev-ancestor-p rev branch))
                               (cl-set-difference
-                               (magit-list-remote-branch-names remote)
+                               (magit-list-remote-branch-names)
                                branches :test #'equal))))
           (setq repo (forge-get-repository
                       'stub (cdr (magit-split-branch-name branch))))
