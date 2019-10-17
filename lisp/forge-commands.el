@@ -177,18 +177,10 @@ Prefer a topic over a branch and that over a commit."
                                     nil nil nil 'magit-revision-history
                                     (magit-branch-or-commit-at-point))
              (user-error "Nothing selected"))))
-  (let* ((repo (forge-get-repository 'stub))
-         (remote (oref repo remote))
-         (branches (magit-list-remote-branch-names remote))
-         (available (-any-p (lambda (branch)
-                              (magit-rev-ancestor-p rev branch))
-                            branches)))
-    (unless available
-      (if-let ((branch (-some (lambda (branch)
-                                (magit-rev-ancestor-p rev branch))
-                              (cl-set-difference
-                               (magit-list-remote-branch-names)
-                               branches :test #'equal))))
+  (let ((repo (forge-get-repository 'stub)))
+    (unless (magit-list-containing-branches
+             rev "-r" (concat (oref repo remote) "/*"))
+      (if-let ((branch (car (magit-list-containing-branches rev "-r"))))
           (setq repo (forge-get-repository
                       'stub (cdr (magit-split-branch-name branch))))
         (message "%s does not appear to be available on any remote.  %s"
