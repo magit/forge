@@ -119,7 +119,7 @@ If this is nil, then `forge-pull-notifications' has to be used."
 The hierarchy is repository > topic > post.
 For other objects return nil.")
 
-(cl-defgeneric forge-get-repository ()
+(cl-defgeneric forge-get-repository (demand)
   "Return a forge repository object or nil, or signal an error.
 
 The DEMAND argument controls what to do when the object isn't
