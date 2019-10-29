@@ -169,7 +169,9 @@ repository, if any."
 
 (cl-defmethod forge-get-repository (((host owner name) list)
 				    &optional remote demand)
-  "Return the repository identified by HOST, OWNER and NAME."
+  "((host owner name) &optional remote demand)
+
+Return the repository identified by HOST, OWNER and NAME."
   (if-let ((spec (assoc host forge-alist)))
       (pcase-let ((`(,githost ,apihost ,forge ,class) spec))
         (let* ((row (car (forge-sql [:select * :from repository
