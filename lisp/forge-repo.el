@@ -251,10 +251,11 @@ Return the repository identified by HOST, OWNER and NAME."
                            (oref default name)
                            (oref default githost))))))
     (save-match-data
-      (string-match "\\`\\([^/]+\\)/\\([^/]+\\) @\\(.+\\)\\'" choice)
-      (list (match-string 3 choice)
-            (match-string 1 choice)
-            (match-string 2 choice)))))
+      (if (string-match "\\`\\(.+\\)/\\([^/]+\\) @\\(.+\\)\\'" choice)
+          (list (match-string 3 choice)
+                (match-string 1 choice)
+                (match-string 2 choice))
+        (error "BUG")))))
 
 (cl-defmethod forge--topics-until ((repo forge-repository) until table)
   (if (oref repo sparse-p)
