@@ -227,7 +227,8 @@ at that time."
   (concat "\\`\\(?:git://\\|[^/@]+@\\|ssh://\\(?:[^/@]+@\\)?"
           "\\|https?://\\(?:[^/@]+@\\)?\\)"
           (regexp-opt (mapcar #'car forge-alist) t)
-          "[:/]\\(.+?\\)"
+          "\\(?:/\\|:/?\\)"
+          "\\(.+?\\)"
           "\\(?:\\.git\\|/\\)?\\'"))
 
 (defun forge--split-remote-url (remote)
