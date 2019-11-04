@@ -65,7 +65,8 @@ repositories.
 ;;; Pull
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-github-repository) until)
+(cl-defmethod forge--pull ((repo forge-github-repository) until
+                           &optional callback)
   (let ((buf (current-buffer))
         (dir default-directory))
     (ghub-fetch-repository
@@ -85,11 +86,13 @@ repositories.
            (forge--update-revnotes   repo .commitComments))
          (oset repo sparse-p nil))
        (forge--msg repo t t   "Storing REPO")
-       (if forge-pull-notifications
-           (forge--pull-notifications (eieio-object-class repo)
-                                      (oref repo githost)
-                                      (lambda () (forge--git-fetch buf dir repo)))
-         (forge--git-fetch buf dir repo)))
+       (cond
+        (callback (funcall callback))
+        (forge-pull-notifications
+         (forge--pull-notifications (eieio-object-class repo)
+                                    (oref repo githost)
+                                    (lambda () (forge--git-fetch buf dir repo))))
+        (t (forge--git-fetch buf dir repo))))
      `((issues-until       . ,(forge--topics-until repo until 'issue))
        (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
      :host (oref repo apihost)
