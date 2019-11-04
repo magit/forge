@@ -63,12 +63,7 @@
   "Major mode for browsing a list of topics."
   (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
-  (setq tabulated-list-sort-key (cons "#" nil))
-  (setq tabulated-list-format
-        (vconcat (--map `(,@(-take 3 it)
-                          ,@(-flatten (nth 3 it)))
-                        forge-topic-list-columns)))
-  (tabulated-list-init-header))
+  (setq tabulated-list-sort-key (cons "#" nil)))
 
 (define-derived-mode forge-issue-list-mode forge-topic-list-mode
   "Issues"
@@ -192,10 +187,11 @@ Here \"known\" means that an entry exists in the local database."
 
 ;;; Internal
 
-(defun forge--list-topics (repo-id mode buffer-name rows)
-  (declare (indent 2))
-  (let ((repo (forge-get-repository (list :id repo-id)))
-        (topdir (magit-toplevel)))
+(defun forge--list-topics (repo-id mode buffer-name rows &optional columns)
+  (declare (indent 3))
+  (let ((repo (and repo-id (forge-get-repository (list :id repo-id))))
+        (topdir (magit-toplevel))
+        (columns (or columns forge-topic-list-columns)))
     (with-current-buffer
         (get-buffer-create
          (or buffer-name
@@ -207,6 +203,10 @@ Here \"known\" means that an entry exists in the local database."
       (setq forge-buffer-repository repo)
       (when topdir
         (setq default-directory topdir))
+      (setq tabulated-list-format
+            (vconcat (--map `(,@(-take 3 it)
+                              ,@(-flatten (nth 3 it)))
+                            columns)))
       (setq tabulated-list-entries
             (mapcar (lambda (row)
                       (list (car row)
@@ -216,8 +216,9 @@ Here \"known\" means that an entry exists in the local database."
                                               (funcall pp val)
                                             (if val (format "%s" val) "")))
                                         (cdr row)
-                                        forge-topic-list-columns))))
+                                        columns))))
                     rows))
+      (tabulated-list-init-header)
       (tabulated-list-print)
       (switch-to-buffer (current-buffer)))))
 
