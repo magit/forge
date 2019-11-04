@@ -36,6 +36,13 @@
     ("Title" 35 t nil title  nil)
     ))
 
+(defvar forge-global-topic-list-columns
+  '(("Owner"    15 t   nil repository:owner nil)
+    ("Name"     20 t   nil repository:name  nil)
+    ("#"         5 forge-topic-list-sort-by-number (:right-align t) number nil)
+    ("Title"    35 t   nil title nil)
+    ))
+
 (defvar forge-repository-list-columns
   '(("Owner"    20 t   nil owner nil)
     ("Name"     20 t   nil name  nil)
@@ -43,6 +50,23 @@
     ("S"         1 t   nil selective-p nil)
     ("Worktree" 99 t   nil worktree nil)
     ))
+
+(defcustom forge-owned-accounts nil
+  "A list of accounts that are owned by you.
+This should include your username as well as any organization
+that you own.  Used by the commands `forge-list-owned-issues'
+and `forge-list-owned-pullreqs'."
+  :package-version '(forge . "0.2.0")
+  :group 'forge
+  :type '(repeat (string :tag "Account")))
+
+(defcustom forge-owned-blacklist nil
+  "A list of repositories that are not considered to be owned by you.
+This is a list of package names.  Used by the commands
+`forge-list-owned-issues' and `forge-list-owned-pullreqs'."
+  :package-version '(forge . "0.2.0")
+  :group 'forge
+  :type '(repeat (string :tag "Name")))
 
 ;;; Modes
 ;;;; Topics
@@ -144,6 +168,28 @@ List them in a separate buffer."
      (forge--topic-list-columns-vector 'issue)
      id (ghub--username (forge-get-repository (list :id id))))))
 
+;;;###autoload
+(defun forge-list-owned-issues ()
+  "List open issues from all your Github repositories.
+Options `forge-owned-accounts' and `forge-owned-blacklist'
+controls which repositories are considered to be owned by you.
+Only Github is supported for now."
+  (interactive)
+  (forge--list-topics nil 'forge-issue-list-mode "My issues"
+    (forge-sql
+     [:select $i1 :from [issue repository]
+      :where (and (= issue:repository repository:id)
+                  (in repository:owner $v2)
+                  (not (in repository:name $v3))
+                  (isnull issue:closed))
+      :order-by [(asc repository:owner)
+                 (asc repository:name)
+                 (desc issue:number)]]
+     (forge--list-columns-vector forge-global-topic-list-columns 'issue)
+     (vconcat forge-owned-accounts)
+     (vconcat forge-owned-blacklist))
+    forge-global-topic-list-columns))
+
 ;;;; Pullreq
 
 ;;;###autoload
@@ -171,6 +217,28 @@ List them in a separate buffer."
       :order-by [(desc updated)]]
      (forge--topic-list-columns-vector 'pullreq)
      id (ghub--username (forge-get-repository (list :id id))))))
+
+;;;###autoload
+(defun forge-list-owned-pullreqs ()
+  "List open pull-requests from all your Github repositories.
+Options `forge-owned-accounts' and `forge-owned-blacklist'
+controls which repositories are considered to be owned by you.
+Only Github is supported for now."
+  (interactive)
+  (forge--list-topics nil 'forge-pullreq-list-mode "My pullreqs"
+    (forge-sql
+     [:select $i1 :from [pullreq repository]
+      :where (and (= pullreq:repository repository:id)
+                  (in repository:owner $v2)
+                  (not (in repository:name $v3))
+                  (isnull pullreq:closed))
+      :order-by [(asc repository:owner)
+                 (asc repository:name)
+                 (desc pullreq:number)]]
+     (forge--list-columns-vector forge-global-topic-list-columns 'pullreq)
+     (vconcat forge-owned-accounts)
+     (vconcat forge-owned-blacklist))
+    forge-global-topic-list-columns))
 
 ;;;; Repository
 

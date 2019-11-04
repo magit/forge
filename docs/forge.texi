@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-221-gb49b91b+1)
+@subtitle for version 0.1.0 (v0.1.0-246-g267bcca9+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-221-gb49b91b+1).
+This manual is for Forge version 0.1.0 (v0.1.0-246-g267bcca9+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -901,6 +901,37 @@ assigned to you in a separate buffer.
 This command lists the current repository's open pull-requests that
 are assigned to you in a separate buffer.
 @end deffn
+
+@cindex forge-list-owned-pullreqs
+@deffn Command forge-list-owned-pullreqs
+
+This command lists open pull-requests from all the repositories that
+you own.  Options @code{forge-owned-accounts} and @code{forge-owned-blacklist}
+controls which repositories are considered to be owned by you.  Only
+Github is supported for now.
+@end deffn
+
+@cindex forge-list-owned-issues
+@deffn Command forge-list-owned-issues
+
+This command lists open issues from all the repositories that
+you own.  Options @code{forge-owned-accounts} and @code{forge-owned-blacklist}
+controls which repositories are considered to be owned by you.  Only
+Github is supported for now.
+@end deffn
+
+@defopt forge-owned-accounts
+
+This is a list of accounts that are owned by you.  This should
+include your username as well as any organization that you own.
+@end defopt
+
+@defopt forge-owned-blacklist
+
+This is a list of repository names that are considered to not be
+owned by you even though they would have been considered to be owned
+by you based on @code{forge-owned-accounts}.
+@end defopt
 
 @node Creating Topics
 @subsection Creating Topics

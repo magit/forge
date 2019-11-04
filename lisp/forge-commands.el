@@ -53,7 +53,9 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("l i" "issues"        forge-list-issues)
     ("l p" "pull-requests" forge-list-pullreqs)
     ("l n" "notifications" forge-list-notifications)
-    ("l r" "repositories"  forge-list-repositories)]
+    ("l r" "repositories"  forge-list-repositories)
+    (7 "o p" "owned issues"        forge-list-owned-issues)
+    (7 "o p" "owned pull-requests" forge-list-owned-pullreqs)]
    ["Create"
     ("c i" "issue"         forge-create-issue)
     ("c p" "pull-request"  forge-create-pullreq)
