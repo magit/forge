@@ -160,7 +160,7 @@
                 ;; this, then it means that we are dealing with a Gitlab
                 ;; pull-request whose source branch has been deleted.
                 (string-match-p ":" branch)
-                ;; These are usually the target, not soruce, of a pr.
+                ;; These are usually the target, not source, of a pr.
                 (member branch '("master" "next" "maint")))
         (setq branch branch-n))
       (when (and confirm-reset (magit-branch-p branch))

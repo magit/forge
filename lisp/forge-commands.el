@@ -32,7 +32,7 @@ a repository also adds a refspec that fetches all pull-requests.
 In repositories with huge numbers of pull-requests you might want
 to not do so, in which case you should set this option to `ask'.
 
-You can also set this to nil and later add the refspec exlicitly
+You can also set this to nil and later add the refspec explicitly
 for a repository using the command `forge-add-pullreq-refspec'."
   :package-version '(forge . "0.2.0")
   :group 'forge
