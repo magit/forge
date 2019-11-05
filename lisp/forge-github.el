@@ -28,7 +28,7 @@
 
 ;;; Variables
 
-(defvar forge-github-token-scopes '(repo)
+(defvar forge-github-token-scopes '(repo user read:org)
   "The Github API scopes needed by Forge.
 
 +Visit https://github.com/settings/tokens to change the scopes
@@ -392,6 +392,64 @@
     (when-let ((notif (forge-get-notification topic)))
       (oset topic unread-p nil)
       (forge--ghub-patch notif "/notifications/threads/:thread-id"))))
+
+;;;; Miscellaneous
+
+(cl-defmethod forge--add-user-repos
+  ((class (subclass forge-github-repository)) host user)
+  (forge--fetch-user-repos
+   class (forge--as-apihost host) user
+   (apply-partially 'forge--batch-add-callback (forge--as-githost host) user)))
+
+(cl-defmethod forge--add-organization-repos
+  ((class (subclass forge-github-repository)) host org)
+  (forge--fetch-organization-repos
+   class (forge--as-apihost host) org
+   (apply-partially 'forge--batch-add-callback (forge--as-githost host) org)))
+
+(cl-defmethod forge--fetch-user-repos
+  ((_ (subclass forge-github-repository)) host user callback)
+  (ghub--graphql-vacuum
+   '(query (user
+            [(login $login String!)]
+            (repositories
+             [(:edges t)
+	      (ownerAffiliations . (OWNER))]
+             name)))
+   `((login . ,user))
+   (lambda (d)
+     (funcall callback
+              (--map (alist-get 'name it)
+                     (let-alist d .user.repositories))))
+   nil :host host))
+
+(cl-defmethod forge--fetch-organization-repos
+  ((_ (subclass forge-github-repository)) host org callback)
+  (ghub--graphql-vacuum
+   '(query (organization
+	    [(login $login String!)]
+	    (repositories [(:edges t)] name)))
+   `((login . ,org))
+   (lambda (d)
+     (funcall callback
+              (--map (alist-get 'name it)
+                     (let-alist d .organization.repositories))))
+   nil :host host))
+
+(defun forge--batch-add-callback (host owner names)
+  (let ((repos (cl-mapcan (lambda (name)
+                            (let ((repo (forge-get-repository
+                                         (list host owner name)
+                                         nil 'create)))
+                              (and (oref repo sparse-p)
+                                   (list repo))))
+                          names))
+        cb)
+    (setq cb (lambda ()
+               (when-let ((repo (pop repos)))
+                 (message "Adding %s..." (oref repo name))
+                 (forge--pull repo nil cb))))
+    (funcall cb)))
 
 ;;; Mutations
 

@@ -799,6 +799,26 @@ pull individual topics when the user invokes `forge-pull-topic'."
         (?i "[i]ndividual topics" (oset repo selective-p t))))))
 
 ;;;###autoload
+(defun forge-add-user-repositories (host user)
+  "Add all of USER's repositories from HOST to the database.
+This may take a while.  Only Github is supported at the moment."
+  (interactive
+   (list (forge-read-host "Add repositories from Github host"
+                          'forge-github-repository)
+         (read-string "User: ")))
+  (forge--add-user-repos 'forge-github-repository host user))
+
+;;;###autoload
+(defun forge-add-organization-repositories (host organization)
+  "Add all of ORGANIZATION's repositories from HOST to the database.
+This may take a while.  Only Github is supported at the moment."
+  (interactive
+   (list (forge-read-host "Add repositories from Github host"
+                          'forge-github-repository)
+         (read-string "Organization: ")))
+  (forge--add-organization-repos 'forge-github-repository host organization))
+
+;;;###autoload
 (defun forge-remove-repository (host owner name)
   "Remove a repository from the database."
   (interactive
