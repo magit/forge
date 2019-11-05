@@ -31,20 +31,9 @@
 (defvar forge-github-token-scopes '(repo)
   "The Github API scopes needed by Forge.
 
-`repo' is the only required scope.  Without this scope none of
-Forge's features that use the API work.  Instead of this scope
-you could use `public_repo' if you are only interested in public
-repositories.
-
-`repo' Grants read/write access to code, commit statuses,
-  invitations, collaborators, adding team memberships, and
-  deployment statuses for public and private repositories
-  and organizations.
-
-`public_repo' Grants read/write access to code, commit statuses,
-  collaborators, and deployment statuses for public repositories
-  and organizations. Also required for starring public
-  repositories.")
++Visit https://github.com/settings/tokens to change the scopes
++of existing tokens and for a list of all available scopes see
++https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps.")
 
 ;;; Class
 
