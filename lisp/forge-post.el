@@ -105,8 +105,14 @@
 
 (defvar forge-post-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-c") 'forge-post-submit)
-    (define-key map (kbd "C-c C-k") 'forge-post-cancel)
+    (define-key map (kbd "C-c C-c")                      'forge-post-submit)
+    (define-key map [remap evil-save-and-close]          'forge-post-submit)
+    (define-key map [remap evil-save-modified-and-close] 'forge-post-submit)
+    (define-key map (kbd "C-c C-k")                      'forge-post-cancel)
+    (define-key map [remap kill-buffer]                  'forge-post-cancel)
+    (define-key map [remap ido-kill-buffer]              'forge-post-cancel)
+    (define-key map [remap iswitchb-kill-buffer]         'forge-post-cancel)
+    (define-key map [remap evil-quit]                    'forge-post-cancel)
     map))
 
 (define-derived-mode forge-post-mode gfm-mode "Forge-Post" "")
