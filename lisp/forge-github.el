@@ -607,6 +607,14 @@
         ;; so Forge doesn't support them either.
         ))))
 
+(cl-defmethod forge--fork-repository ((repo forge-github-repository) fork)
+  (with-slots (owner name) repo
+    (forge--ghub-post repo
+                      (format "/repos/%s/%s/forks" owner name)
+                      (and (not (equal fork (ghub--username (ghub--host nil))))
+                           `((organization . ,fork))))
+    (ghub-wait (format "/repos/%s/%s" fork name) nil :auth 'forge)))
+
 ;;; Utilities
 
 (cl-defun forge--ghub-get (obj resource

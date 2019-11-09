@@ -734,6 +734,27 @@ information."
         (magit-refresh))
     (user-error "There is no topic at point")))
 
+;;; Fork
+
+;;;###autoload
+(defun forge-fork (fork remote)
+  "Fork the current repository to FORK and add it as a REMOTE.
+Currently this only support Github.com."
+  (interactive
+   (let ((fork (magit-completing-read "Fork to"
+                                      (mapcar #'car forge-owned-accounts))))
+     (list fork
+           (read-string "Remote name: "
+                        (or (plist-get (cdr (assoc fork forge-owned-accounts))
+                                       'remote-name)
+                            fork)))))
+  (let ((repo (forge-get-repository 'stub)))
+    (forge--fork-repository repo fork)
+    (magit-remote-add remote
+                      (magit-clone--name-to-url
+                       (concat fork "/" (oref repo name)))
+                      (list "--fetch"))))
+
 ;;; Misc
 
 (define-infix-command forge-forge.remote ()

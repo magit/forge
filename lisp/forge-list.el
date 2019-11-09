@@ -57,7 +57,12 @@ This should include your username as well as any organization
 that you own.  Used by the commands `forge-list-owned-issues',
 `forge-list-owned-pullreqs' and `forge-fork'.
 
-Each element has the form (ACCOUNT . PLIST)."
+Each element has the form (ACCOUNT . PLIST).  The following
+properties are currently being used:
+
+`remote-name' The default name suggested by `forge-fork' for a
+  fork created within this account.  If unspecified, then the
+  name of the account is used."
   :package-version '(forge . "0.2.0")
   :group 'forge
   :type '(repeat (cons (string :tag "Account") plist)))
