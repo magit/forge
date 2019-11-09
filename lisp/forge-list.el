@@ -52,13 +52,15 @@
     ))
 
 (defcustom forge-owned-accounts nil
-  "A list of accounts that are owned by you.
+  "An alist of accounts that are owned by you.
 This should include your username as well as any organization
-that you own.  Used by the commands `forge-list-owned-issues'
-and `forge-list-owned-pullreqs'."
+that you own.  Used by the commands `forge-list-owned-issues',
+`forge-list-owned-pullreqs' and `forge-fork'.
+
+Each element has the form (ACCOUNT . PLIST)."
   :package-version '(forge . "0.2.0")
   :group 'forge
-  :type '(repeat (string :tag "Account")))
+  :type '(repeat (cons (string :tag "Account") plist)))
 
 (defcustom forge-owned-blacklist nil
   "A list of repositories that are not considered to be owned by you.
@@ -186,7 +188,7 @@ Only Github is supported for now."
                  (asc repository:name)
                  (desc issue:number)]]
      (forge--list-columns-vector forge-global-topic-list-columns 'issue)
-     (vconcat forge-owned-accounts)
+     (vconcat (mapcar #'car forge-owned-accounts))
      (vconcat forge-owned-blacklist))
     forge-global-topic-list-columns))
 
@@ -236,7 +238,7 @@ Only Github is supported for now."
                  (asc repository:name)
                  (desc pullreq:number)]]
      (forge--list-columns-vector forge-global-topic-list-columns 'pullreq)
-     (vconcat forge-owned-accounts)
+     (vconcat (mapcar #'car forge-owned-accounts))
      (vconcat forge-owned-blacklist))
     forge-global-topic-list-columns))
 
