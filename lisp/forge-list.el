@@ -127,24 +127,37 @@ This is a list of package names.  Used by the commands
         (vconcat (--map `(,@(-take 3 it)
                           ,@(-flatten (nth 3 it)))
                         forge-repository-list-columns)))
-  (add-hook 'tabulated-list-revert-hook 'forge-repository-list-refresh nil t)
   (tabulated-list-init-header))
 
 (defun forge-repository-list-refresh ()
   (setq tabulated-list-entries
-        (mapcar (lambda (row)
-                  (list (car row)
-                        (vconcat
-                         (cl-mapcar (lambda (val col)
-                                      (if-let ((pp (nth 5 col)))
-                                          (funcall pp val)
-                                        (if val (format "%s" val) "")))
-                                    (cdr row)
-                                    forge-repository-list-columns))))
+        (mapcar #'forge-repository-list-format-entry
                 (forge-sql [:select $i1 :from repository
                             :order-by [(asc owner) (asc name)]]
                            (forge--list-columns-vector
                             forge-repository-list-columns)))))
+
+(defun forge-repository-list-owned-refresh ()
+  (setq tabulated-list-entries
+        (mapcar #'forge-repository-list-format-entry
+                (forge-sql [:select $i1 :from repository
+                            :where (and (in owner $v2)
+                                        (not (in name $v3)))
+                            :order-by [(asc owner) (asc name)]]
+                           (forge--list-columns-vector
+                            forge-repository-list-columns)
+                           (vconcat (mapcar #'car forge-owned-accounts))
+                           (vconcat forge-owned-blacklist)))))
+
+(defun forge-repository-list-format-entry (row)
+  (list (car row)
+        (vconcat
+         (cl-mapcar (lambda (val col)
+                      (if-let ((pp (nth 5 col)))
+                          (funcall pp val)
+                        (if val (format "%s" val) "")))
+                    (cdr row)
+                    forge-repository-list-columns))))
 
 ;;; Commands
 ;;;; Issue
@@ -257,6 +270,24 @@ Here \"known\" means that an entry exists in the local database."
   (with-current-buffer (get-buffer-create "*Forge Repositories*")
     (forge-repository-list-mode)
     (forge-repository-list-refresh)
+    (add-hook 'tabulated-list-revert-hook
+              'forge-repository-list-refresh nil t)
+    (tabulated-list-print)
+    (switch-to-buffer (current-buffer))))
+
+;;;###autoload
+(defun forge-list-owned-repositories ()
+  "List your own known repositories in a separate buffer.
+Here \"known\" means that an entry exists in the local database
+and options `forge-owned-accounts' and `forge-owned-blacklist'
+controls which repositories are considered to be owned by you.
+Only Github is supported for now."
+  (interactive)
+  (with-current-buffer (get-buffer-create "*Forge Owned Repositories*")
+    (forge-repository-list-mode)
+    (forge-repository-list-owned-refresh)
+    (add-hook 'tabulated-list-revert-hook
+              'forge-repository-list-owned-refresh nil t)
     (tabulated-list-print)
     (switch-to-buffer (current-buffer))))
 
