@@ -172,20 +172,20 @@ This variable has to be customized before `forge' is loaded."
   (if (numberp number-or-id)
       (if (< number-or-id 0)
           (forge-get-pullreq repo (abs number-or-id))
-        (or (forge-get-pullreq repo number-or-id)
-            (forge-get-issue repo number-or-id)))
-    (or (forge-get-pullreq number-or-id)
-        (forge-get-issue number-or-id))))
+        (or (forge-get-issue repo number-or-id)
+            (forge-get-pullreq repo number-or-id)))
+    (or (forge-get-issue number-or-id)
+        (forge-get-pullreq number-or-id))))
 
 (cl-defmethod forge-get-topic ((number integer))
   (if (< number 0)
       (forge-get-pullreq (abs number))
-    (or (forge-get-pullreq number)
-        (forge-get-issue number))))
+    (or (forge-get-issue number)
+        (forge-get-pullreq number))))
 
 (cl-defmethod forge-get-topic ((id string))
-  (or (forge-get-pullreq id)
-      (forge-get-issue id)))
+  (or (forge-get-issue id)
+      (forge-get-pullreq id)))
 
 (defun forge--topic-string-to-number (s)
   (save-match-data
