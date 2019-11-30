@@ -226,7 +226,7 @@ at that time."
 (defun forge--url-regexp ()
   (concat "\\`\\(?:git://\\|"
           "[^/@]+@\\|"
-          "ssh://\\(?:[^/@]+@\\)?\\|"
+          "\\(?:ssh\\|ssh\\+git\\|git\\+ssh\\)://\\(?:[^/@]+@\\)?\\|"
           "https?://\\(?:[^/@]+@\\)?\\)"
           (regexp-opt (mapcar #'car forge-alist) t)
           "\\(?:/\\|:/?\\)"
