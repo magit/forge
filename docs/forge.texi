@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-251-gae724649+1)
+@subtitle for version 0.1.0 (v0.1.0-263-g1a28ada5+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-251-gae724649+1).
+This manual is for Forge version 0.1.0 (v0.1.0-263-g1a28ada5+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -1109,6 +1109,19 @@ This may take a while. Only Github is supported at the moment.
 
 This command reads a repository and remove it from the local
 database.
+@end deffn
+
+@cindex forge-remove-topic-locally
+@deffn Command forge-remove-topic-locally
+
+This command reads a topic and remove it from the local database.
+The topic is not removed from the forge and it is later modified,
+then it will be added to the database again.
+
+Due to how the supported APIs work, it would be too expensive to
+automatically remove topics from the local datbase that were removed
+from the forge.  The only purpose of this command is to allow you to
+manually clean up the local database.
 @end deffn
 
 @cindex forge-reset-database

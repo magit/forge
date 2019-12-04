@@ -855,6 +855,20 @@ This may take a while.  Only Github is supported at the moment."
   (magit-refresh))
 
 ;;;###autoload
+(defun forge-remove-topic-locally (n)
+  "Remove a topic from the local database only.
+Due to how the supported APIs work, it would be too expensive to
+automatically remove topics from the local datbase that were
+removed from the forge.  The purpose of this command is to allow
+you to manually clean up the local database."
+  (interactive (list (forge-read-topic "Delete topic LOCALLY only")))
+  (closql-delete (forge-get-topic n))
+  (if (and (derived-mode-p 'forge-topic-mode)
+           (eq n (oref forge-buffer-topic number)))
+      (kill-buffer (current-buffer))
+    (magit-refresh)))
+
+;;;###autoload
 (defun forge-reset-database ()
   "Move the current database file to the trash.
 This is useful after the database scheme has changed, which will
