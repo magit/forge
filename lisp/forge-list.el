@@ -305,7 +305,8 @@ Only Github is supported for now."
                      (substring (symbol-name mode) 0 -5)
                      (oref repo owner)
                      (oref repo name))))
-      (funcall mode)
+      (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
+        (funcall mode))
       (setq forge-buffer-repository repo)
       (when topdir
         (setq default-directory topdir))
