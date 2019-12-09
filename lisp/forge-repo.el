@@ -198,17 +198,19 @@ Return the repository identified by HOST, OWNER and NAME."
             (pcase-let ((`(,id . ,forge-id)
                          (forge--repository-ids class host owner name
                                                 (eq demand 'stub))))
-              (setq obj (funcall class
-                                 :id       id
-                                 :forge-id forge-id
-                                 :forge    forge
-                                 :owner    owner
-                                 :name     name
-                                 :apihost  apihost
-                                 :githost  githost
-                                 :remote   remote)))
-            (when (eq demand 'create)
-              (closql-insert (forge-db) obj)))
+              ;; The repo might have been renamed on the forge.  #188
+              (unless (setq obj (forge-get-repository (list :id id)))
+                (setq obj (funcall class
+                                   :id       id
+                                   :forge-id forge-id
+                                   :forge    forge
+                                   :owner    owner
+                                   :name     name
+                                   :apihost  apihost
+                                   :githost  githost
+                                   :remote   remote))
+                (when (eq demand 'create)
+                  (closql-insert (forge-db) obj)))))
           obj))
     (when (memq demand forge--signal-no-entry)
       (error "Cannot determine forge repository.  No entry for %S in %s"
