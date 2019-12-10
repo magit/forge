@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-263-g1a28ada5+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-267-ge9f18b98+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-263-g1a28ada5+1).
+This manual is for Forge version 0.1.0 (v0.1.0-267-ge9f18b98+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@bernoul.li>
@@ -345,12 +345,22 @@ the key for ~git@github.com:magit/forge.git~ is ~github.com~.
 * Usage
 ** _ :ignore:
 
-Once information has been fetched from a repository's forge, Forge
-adds two additional sections named "Pull requests" and "Issues" to
-Magit's status buffer.  Some of Forge's commands are only bound when
-point is within one of these sections but other commands are also
-available elsewhere in Magit's status buffer and/or from Magit's
-transient commands.
+Once information has been pulled from a repository's forge for the
+first time, Forge adds two additional sections, named "Pull requests"
+and "Issues" to Magit's status buffer.  It is also possible to add a
+repository to the local database without pulling all the data, which
+is useful if you want to create a single pull-request.
+
+- Key: ' a, forge-add-repository
+
+  This commnand add a repository to the database.
+
+  It offers to either pull topics (now and in the future) or to only
+  pull individual topics when the user invokes ~forge-pull-topic~.
+
+Some of Forge's commands are only bound when point is within one of
+these sections but other commands are also available elsewhere in
+Magit's status buffer and/or from Magit's transient commands.
 
 - Key: ', forge-dispatch
 
@@ -826,6 +836,15 @@ The following commands are available in buffers used to edit posts:
   This is useful after the database's table schemata have changed,
   which will happen a few times while the Forge functionality is still
   under heavy development.
+
+* FAQ
+:PROPERTIES:
+:APPENDIX:   t
+:END:
+** Is it possible to create a single pull-request without pulling everything?
+
+Yes.  ~M-x forge-add-repository~ offers to add a repository to the
+database without also fetching all pull-requests and issues.
 
 * _ Copying
 :PROPERTIES:

@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-263-g1a28ada5+1)
+@subtitle for version 0.1.0 (v0.1.0-267-ge9f18b98+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-263-g1a28ada5+1).
+This manual is for Forge version 0.1.0 (v0.1.0-267-ge9f18b98+1).
 
 @quotation
 Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
@@ -71,6 +71,7 @@ General Public License for more details.
 * Supported Forges and Hosts::
 * Getting Started::
 * Usage::
+* FAQ::
 
 @detailmenu
 --- The Detailed Node Listing ---
@@ -94,6 +95,10 @@ Working with Topics
 * Creating Topics::
 * Editing Topics and Posts::
 
+
+FAQ
+
+* Is it possible to create a single pull-request without pulling everything?::
 
 @end detailmenu
 @end menu
@@ -496,12 +501,26 @@ the key for @code{git@@github.com:magit/forge.git} is @code{github.com}.
 @node Usage
 @chapter Usage
 
-Once information has been fetched from a repository's forge, Forge
-adds two additional sections named "Pull requests" and "Issues" to
-Magit's status buffer.  Some of Forge's commands are only bound when
-point is within one of these sections but other commands are also
-available elsewhere in Magit's status buffer and/or from Magit's
-transient commands.
+Once information has been pulled from a repository's forge for the
+first time, Forge adds two additional sections, named "Pull requests"
+and "Issues" to Magit's status buffer.  It is also possible to add a
+repository to the local database without pulling all the data, which
+is useful if you want to create a single pull-request.
+
+@table @asis
+@kindex ' a
+@cindex forge-add-repository
+@item @kbd{' a} @tie{}@tie{}@tie{}@tie{}(@code{forge-add-repository})
+
+This commnand add a repository to the database.
+
+It offers to either pull topics (now and in the future) or to only
+pull individual topics when the user invokes @code{forge-pull-topic}.
+@end table
+
+Some of Forge's commands are only bound when point is within one of
+these sections but other commands are also available elsewhere in
+Magit's status buffer and/or from Magit's transient commands.
 
 @table @asis
 @kindex '
@@ -1134,5 +1153,18 @@ This is useful after the database's table schemata have changed,
 which will happen a few times while the Forge functionality is still
 under heavy development.
 @end deffn
+
+@node FAQ
+@appendix FAQ
+
+@menu
+* Is it possible to create a single pull-request without pulling everything?::
+@end menu
+
+@node Is it possible to create a single pull-request without pulling everything?
+@appendixsec Is it possible to create a single pull-request without pulling everything?
+
+Yes.  @code{M-x forge-add-repository} offers to add a repository to the
+database without also fetching all pull-requests and issues.
 
 @bye

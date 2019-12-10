@@ -63,6 +63,7 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("c u" "pull-request from issue" forge-create-pullreq-from-issue
      :if (lambda () (forge-github-repository-p (forge-get-repository nil))))]]
   [["Configure"
+    ("a" "add repository to database" forge-add-repository)
     ("r" "forge.repository" forge-forge.remote)]])
 
 ;;; Pull
@@ -817,8 +818,10 @@ pull individual topics when the user invokes `forge-pull-topic'."
     (let ((repo (forge-get-repository url nil 'create)))
       (oset repo sparse-p nil)
       (magit-read-char-case "Pull " nil
-        (?a "[a]ll topics"        (forge-pull repo))
-        (?i "[i]ndividual topics" (oset repo selective-p t))))))
+        (?a "[a]ll topics"
+            (forge-pull repo))
+        (?i "[i]ndividual topics (useful for casual contributors)"
+            (oset repo selective-p t))))))
 
 ;;;###autoload
 (defun forge-add-user-repositories (host user)

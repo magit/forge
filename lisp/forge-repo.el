@@ -189,7 +189,7 @@ Return the repository identified by HOST, OWNER and NAME."
                           (oref obj sparse-p)))
                  (error "Cannot use `%s' in %S yet.\n%s"
                         this-command (magit-toplevel)
-                        "Use `M-x forge-pull' before trying again."))
+                        "Use `M-x forge-add-repository' before trying again."))
                 ((and (eq demand 'full) obj
                       (oref obj sparse-p))
                  (setq obj nil)))
