@@ -374,7 +374,14 @@ identifier."
                         (oref repo owner)
                         (oref repo name)
                         ident))
-         (magit-generate-buffer-name-function (lambda (_mode _value) name)))
+         (magit-generate-buffer-name-function (lambda (_mode _value) name))
+         (current-repo (forge-get-repository nil))
+         (default-directory (if (and current-repo
+                                     (eq (oref current-repo id)
+                                         (oref repo id)))
+                                default-directory
+                              (or (oref repo worktree)
+                                  default-directory))))
     (magit-setup-buffer #'forge-topic-mode t
       (forge-buffer-topic topic)
       (forge-buffer-topic-ident ident))))
