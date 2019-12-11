@@ -170,7 +170,7 @@ This is a list of package names.  Used by the commands
 (defun forge-list-issues (id)
   "List issues of the current repository in a separate buffer."
   (interactive (list (oref (forge-get-repository t) id)))
-  (forge--list-topics id 'forge-issue-list-mode nil
+  (forge-topic-list-setup id 'forge-issue-list-mode nil
     (forge-sql [:select $i1 :from issue :where (= repository $s2)]
                (forge--topic-list-columns-vector)
                id)))
@@ -180,7 +180,7 @@ This is a list of package names.  Used by the commands
   "List issues of the current repository that are assigned to you.
 List them in a separate buffer."
   (interactive (list (oref (forge-get-repository t) id)))
-  (forge--list-topics id 'forge-issue-list-mode nil
+  (forge-topic-list-setup id 'forge-issue-list-mode nil
     (forge-sql
      [:select $i1 :from [issue issue_assignee assignee]
       :where (and (= issue_assignee:issue issue:id)
@@ -199,7 +199,7 @@ Options `forge-owned-accounts' and `forge-owned-blacklist'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (forge--list-topics nil 'forge-issue-list-mode "My issues"
+  (forge-topic-list-setup nil 'forge-issue-list-mode "My issues"
     (forge-sql
      [:select $i1 :from [issue repository]
       :where (and (= issue:repository repository:id)
@@ -220,7 +220,7 @@ Only Github is supported for now."
 (defun forge-list-pullreqs (id)
   "List pull-requests of the current repository in a separate buffer."
   (interactive (list (oref (forge-get-repository t) id)))
-  (forge--list-topics id 'forge-pullreq-list-mode nil
+  (forge-topic-list-setup id 'forge-pullreq-list-mode nil
     (forge-sql [:select $i1 :from pullreq :where (= repository $s2)]
                (forge--topic-list-columns-vector)
                id)))
@@ -230,7 +230,7 @@ Only Github is supported for now."
   "List pull-requests of the current repository that are assigned to you.
 List them in a separate buffer."
   (interactive (list (oref (forge-get-repository t) id)))
-  (forge--list-topics id 'forge-pullreq-list-mode nil
+  (forge-topic-list-setup id 'forge-pullreq-list-mode nil
     (forge-sql
      [:select $i1 :from [pullreq pullreq_assignee assignee]
       :where (and (= pullreq_assignee:pullreq pullreq:id)
@@ -249,7 +249,7 @@ Options `forge-owned-accounts' and `forge-owned-blacklist'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (forge--list-topics nil 'forge-pullreq-list-mode "My pullreqs"
+  (forge-topic-list-setup nil 'forge-pullreq-list-mode "My pullreqs"
     (forge-sql
      [:select $i1 :from [pullreq repository]
       :where (and (= pullreq:repository repository:id)
@@ -287,7 +287,7 @@ Only Github is supported for now."
 
 ;;; Internal
 
-(defun forge--list-topics (repo-id mode buffer-name rows &optional columns)
+(defun forge-topic-list-setup (repo-id mode buffer-name rows &optional columns)
   (declare (indent 3))
   (let ((repo (and repo-id (forge-get-repository (list :id repo-id))))
         (topdir (magit-toplevel))
