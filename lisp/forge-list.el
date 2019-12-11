@@ -175,7 +175,8 @@ This is a list of package names.  Used by the commands
 
 (defun forge-repository-list-setup (fn buf)
   (with-current-buffer (get-buffer-create buf)
-    (forge-repository-list-mode)
+    (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
+      (forge-repository-list-mode))
     (funcall fn)
     (add-hook 'tabulated-list-revert-hook fn nil t)
     (tabulated-list-print)
