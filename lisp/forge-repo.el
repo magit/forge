@@ -122,6 +122,7 @@ forges and hosts."
           their-id)))
 
 (defvar-local forge-buffer-repository nil)
+(put 'forge-buffer-repository 'permanent-local t)
 
 (defconst forge--signal-no-entry '(t stub create))
 
