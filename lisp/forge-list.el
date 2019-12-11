@@ -75,6 +75,11 @@ This is a list of package names.  Used by the commands
   :group 'forge
   :type '(repeat (string :tag "Name")))
 
+;;; Variables
+
+(defvar-local forge--tabulated-list-columns nil)
+(put 'forge--tabulated-list-columns 'permanent-local t)
+
 ;;; Modes
 ;;;; Topics
 
@@ -121,6 +126,7 @@ This is a list of package names.  Used by the commands
   "Repositories"
   "Major mode for browsing a list of repositories."
   (setq-local x-stretch-cursor  nil)
+  (setq forge--tabulated-list-columns forge-repository-list-columns)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "Owner" nil))
   (setq tabulated-list-format
@@ -308,6 +314,7 @@ Only Github is supported for now."
       (setq forge-buffer-repository repo)
       (when topdir
         (setq default-directory topdir))
+      (setq forge--tabulated-list-columns columns)
       (setq tabulated-list-format
             (vconcat (--map `(,@(-take 3 it)
                               ,@(-flatten (nth 3 it)))
