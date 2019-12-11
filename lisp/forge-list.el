@@ -109,6 +109,34 @@ This is a list of package names.  Used by the commands
   "Pull-Requests"
   "Major mode for browsing a list of pull-requests.")
 
+(defun forge-topic-list-setup (repo-id mode buffer-name rows &optional columns)
+  (declare (indent 3))
+  (let ((repo (and repo-id (forge-get-repository (list :id repo-id))))
+        (topdir (magit-toplevel))
+        (columns (or columns forge-topic-list-columns)))
+    (with-current-buffer
+        (get-buffer-create
+         (or buffer-name
+             (format "*%s: %s/%s*"
+                     (substring (symbol-name mode) 0 -5)
+                     (oref repo owner)
+                     (oref repo name))))
+      (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
+        (funcall mode))
+      (setq forge-buffer-repository repo)
+      (when topdir
+        (setq default-directory topdir))
+      (setq forge--tabulated-list-columns columns)
+      (setq tabulated-list-format
+            (vconcat (--map `(,@(-take 3 it)
+                              ,@(-flatten (nth 3 it)))
+                            columns)))
+      (setq tabulated-list-entries
+            (mapcar #'forge--tablist-format-entry rows))
+      (tabulated-list-init-header)
+      (tabulated-list-print)
+      (switch-to-buffer (current-buffer)))))
+
 ;;;; Repository
 
 (defvar forge-repository-list-mode-map
@@ -286,34 +314,6 @@ Only Github is supported for now."
                                "*Forge Owned Repositories*"))
 
 ;;; Internal
-
-(defun forge-topic-list-setup (repo-id mode buffer-name rows &optional columns)
-  (declare (indent 3))
-  (let ((repo (and repo-id (forge-get-repository (list :id repo-id))))
-        (topdir (magit-toplevel))
-        (columns (or columns forge-topic-list-columns)))
-    (with-current-buffer
-        (get-buffer-create
-         (or buffer-name
-             (format "*%s: %s/%s*"
-                     (substring (symbol-name mode) 0 -5)
-                     (oref repo owner)
-                     (oref repo name))))
-      (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
-        (funcall mode))
-      (setq forge-buffer-repository repo)
-      (when topdir
-        (setq default-directory topdir))
-      (setq forge--tabulated-list-columns columns)
-      (setq tabulated-list-format
-            (vconcat (--map `(,@(-take 3 it)
-                              ,@(-flatten (nth 3 it)))
-                            columns)))
-      (setq tabulated-list-entries
-            (mapcar #'forge--tablist-format-entry rows))
-      (tabulated-list-init-header)
-      (tabulated-list-print)
-      (switch-to-buffer (current-buffer)))))
 
 (defun forge-topic-list-sort-by-number (a b)
   "Sort the `tabulated-list-entries' by topic number.
