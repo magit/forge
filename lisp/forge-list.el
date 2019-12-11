@@ -186,8 +186,7 @@ This is a list of package names.  Used by the commands
         (mapcar #'forge--tablist-format-entry
                 (forge-sql [:select $i1 :from repository
                             :order-by [(asc owner) (asc name)]]
-                           (forge--list-columns-vector
-                            forge-repository-list-columns)))))
+                           (forge--tablist-columns-vector)))))
 
 (defun forge-repository-list-owned-refresh ()
   (setq tabulated-list-entries
@@ -196,8 +195,7 @@ This is a list of package names.  Used by the commands
                             :where (and (in owner $v2)
                                         (not (in name $v3)))
                             :order-by [(asc owner) (asc name)]]
-                           (forge--list-columns-vector
-                            forge-repository-list-columns)
+                           (forge--tablist-columns-vector)
                            (vconcat (mapcar #'car forge-owned-accounts))
                            (vconcat forge-owned-blacklist)))))
 
@@ -211,7 +209,7 @@ This is a list of package names.  Used by the commands
   (forge-topic-list-setup #'forge-issue-list-mode id nil nil
     (lambda ()
       (forge-sql [:select $i1 :from issue :where (= repository $s2)]
-                 (forge--topic-list-columns-vector)
+                 (forge--tablist-columns-vector)
                  id))))
 
 ;;;###autoload
@@ -228,7 +226,7 @@ List them in a separate buffer."
                               (= assignee:login       $s3)
                               (isnull issue:closed))
                   :order-by [(desc updated)]]
-                 (forge--topic-list-columns-vector 'issue)
+                 (forge--tablist-columns-vector 'issue)
                  id (ghub--username (forge-get-repository (list :id id)))))))
 
 ;;;###autoload
@@ -249,7 +247,7 @@ Only Github is supported for now."
                   :order-by [(asc repository:owner)
                              (asc repository:name)
                              (desc issue:number)]]
-                 (forge--list-columns-vector forge--tabulated-list-columns 'issue)
+                 (forge--tablist-columns-vector 'issue)
                  (vconcat (mapcar #'car forge-owned-accounts))
                  (vconcat forge-owned-blacklist)))))
 
@@ -262,7 +260,7 @@ Only Github is supported for now."
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
     (lambda ()
       (forge-sql [:select $i1 :from pullreq :where (= repository $s2)]
-                 (forge--topic-list-columns-vector)
+                 (forge--tablist-columns-vector)
                  id))))
 
 ;;;###autoload
@@ -279,7 +277,7 @@ List them in a separate buffer."
                               (= assignee:login           $s3)
                               (isnull pullreq:closed))
                   :order-by [(desc updated)]]
-                 (forge--list-columns-vector forge--tabulated-list-columns 'pullreq)
+                 (forge--tablist-columns-vector 'pullreq)
                  id (ghub--username (forge-get-repository (list :id id)))))))
 
 ;;;###autoload
@@ -335,11 +333,8 @@ it silently fails."
     (> (read (aref (cadr a) 0))
        (read (aref (cadr b) 0)))))
 
-(defun forge--topic-list-columns-vector (&optional table)
-  (forge--list-columns-vector forge-topic-list-columns table))
-
-(defun forge--list-columns-vector (columns &optional table)
-  (let ((columns (cons 'id (--map (nth 4 it) columns))))
+(defun forge--tablist-columns-vector (&optional table)
+  (let ((columns (cons 'id (--map (nth 4 it) forge--tabulated-list-columns))))
     (vconcat (if table
                  (let ((table (symbol-name table)))
                    (--map (let ((col (symbol-name it)))
