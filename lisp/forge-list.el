@@ -129,6 +129,14 @@ This is a list of package names.  Used by the commands
                         forge-repository-list-columns)))
   (tabulated-list-init-header))
 
+(defun forge-repository-list-setup (fn buf)
+  (with-current-buffer (get-buffer-create buf)
+    (forge-repository-list-mode)
+    (funcall fn)
+    (add-hook 'tabulated-list-revert-hook fn nil t)
+    (tabulated-list-print)
+    (switch-to-buffer (current-buffer))))
+
 (defun forge-repository-list-refresh ()
   (setq tabulated-list-entries
         (mapcar #'forge-repository-list-format-entry
@@ -267,13 +275,8 @@ Only Github is supported for now."
   "List known repositories in a separate buffer.
 Here \"known\" means that an entry exists in the local database."
   (interactive)
-  (with-current-buffer (get-buffer-create "*Forge Repositories*")
-    (forge-repository-list-mode)
-    (forge-repository-list-refresh)
-    (add-hook 'tabulated-list-revert-hook
-              'forge-repository-list-refresh nil t)
-    (tabulated-list-print)
-    (switch-to-buffer (current-buffer))))
+  (forge-repository-list-setup #'forge-repository-list-refresh
+                               "*Forge Repositories*"))
 
 ;;;###autoload
 (defun forge-list-owned-repositories ()
@@ -283,13 +286,8 @@ and options `forge-owned-accounts' and `forge-owned-blacklist'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (with-current-buffer (get-buffer-create "*Forge Owned Repositories*")
-    (forge-repository-list-mode)
-    (forge-repository-list-owned-refresh)
-    (add-hook 'tabulated-list-revert-hook
-              'forge-repository-list-owned-refresh nil t)
-    (tabulated-list-print)
-    (switch-to-buffer (current-buffer))))
+  (forge-repository-list-setup #'forge-repository-list-owned-refresh
+                               "*Forge Owned Repositories*"))
 
 ;;; Internal
 
