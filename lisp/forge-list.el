@@ -145,7 +145,7 @@ This is a list of package names.  Used by the commands
 
 (defun forge-repository-list-refresh ()
   (setq tabulated-list-entries
-        (mapcar #'forge-repository-list-format-entry
+        (mapcar #'forge--tablist-format-entry
                 (forge-sql [:select $i1 :from repository
                             :order-by [(asc owner) (asc name)]]
                            (forge--list-columns-vector
@@ -153,7 +153,7 @@ This is a list of package names.  Used by the commands
 
 (defun forge-repository-list-owned-refresh ()
   (setq tabulated-list-entries
-        (mapcar #'forge-repository-list-format-entry
+        (mapcar #'forge--tablist-format-entry
                 (forge-sql [:select $i1 :from repository
                             :where (and (in owner $v2)
                                         (not (in name $v3)))
@@ -162,16 +162,6 @@ This is a list of package names.  Used by the commands
                             forge-repository-list-columns)
                            (vconcat (mapcar #'car forge-owned-accounts))
                            (vconcat forge-owned-blacklist)))))
-
-(defun forge-repository-list-format-entry (row)
-  (list (car row)
-        (vconcat
-         (cl-mapcar (lambda (val col)
-                      (if-let ((pp (nth 5 col)))
-                          (funcall pp val)
-                        (if val (format "%s" val) "")))
-                    (cdr row)
-                    forge-repository-list-columns))))
 
 ;;; Commands
 ;;;; Issue
@@ -320,16 +310,7 @@ Only Github is supported for now."
                               ,@(-flatten (nth 3 it)))
                             columns)))
       (setq tabulated-list-entries
-            (mapcar (lambda (row)
-                      (list (car row)
-                            (vconcat
-                             (cl-mapcar (lambda (val col)
-                                          (if-let ((pp (nth 5 col)))
-                                              (funcall pp val)
-                                            (if val (format "%s" val) "")))
-                                        (cdr row)
-                                        columns))))
-                    rows))
+            (mapcar #'forge--tablist-format-entry rows))
       (tabulated-list-init-header)
       (tabulated-list-print)
       (switch-to-buffer (current-buffer)))))
@@ -355,6 +336,16 @@ it silently fails."
                               (intern (concat table ":" col))))
                           columns))
                columns))))
+
+(defun forge--tablist-format-entry (row)
+  (list (car row)
+        (vconcat
+         (cl-mapcar (lambda (val col)
+                      (if-let ((pp (nth 5 col)))
+                          (funcall pp val)
+                        (if val (format "%s" val) "")))
+                    (cdr row)
+                    forge--tabulated-list-columns))))
 
 ;;; _
 (provide 'forge-list)
