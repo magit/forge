@@ -50,6 +50,7 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("f t" "one topic"     forge-pull-topic)
     ("f n" "notifications" forge-pull-notifications)]
    ["List"
+    ("l t" "topics"        forge-list-topics)
     ("l i" "issues"        forge-list-issues)
     ("l p" "pull-requests" forge-list-pullreqs)
     ("l n" "notifications" forge-list-notifications)

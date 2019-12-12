@@ -201,6 +201,19 @@ This is a list of package names.  Used by the commands
                            (vconcat forge-owned-blacklist)))))
 
 ;;; Commands
+;;;; Topic
+
+;;;###autoload
+(defun forge-list-topics (id)
+  "List topics of the current repository in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)))
+  (forge-topic-list-setup #'forge-topic-list-mode id nil nil
+    (lambda ()
+      (forge-sql [:select $i1 :from issue   :where (= repository $s2) :union
+                  :select $i1 :from pullreq :where (= repository $s2)]
+                 (forge--tablist-columns-vector)
+                 id))))
+
 ;;;; Issue
 
 ;;;###autoload
