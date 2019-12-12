@@ -587,8 +587,12 @@ because the source branch has been deleted"))
                   (user-error
                    "Remote `%s' already exists but does not point to %s"
                    remote url))
-                (unless (member (format "+refs/heads/*:refs/remotes/%s/*" remote)
-                                fetch)
+                (unless (or (member (format "+refs/heads/*:refs/remotes/%s/*"
+                                            remote)
+                                    fetch)
+                            (member (format "+refs/heads/%s:refs/remotes/%s/%s"
+                                            pr-branch remote pr-branch)
+                                    fetch))
                   (magit-git "remote" "set-branches" "--add" remote pr-branch)
                   (magit-git "fetch" remote)))
             (magit-git
