@@ -44,6 +44,14 @@ classes.  See their definitions in \"forge-semi.el\".")
 Different hosts use different url schemata, so we need multiple
 classes.  See their definitions in \"forge-semi.el\".")
 
+(defclass forge-cgit**-repository (forge-cgit-repository)
+  ((commit-url-format :initform "https://%h/cgit/%n.git/commit/?id=%r")
+   (branch-url-format :initform "https://%h/cgit/%n.git/log/?h=%r")
+   (remote-url-format :initform "https://%h/cgit/%n.git/about"))
+  "Cgit from https://git.zx2c4.com/cgit/about.
+Different hosts use different url schemata, so we need multiple
+classes.  See their definitions in \"forge-semi.el\".")
+
 (defclass forge-repoorcz-repository (forge-cgit-repository)
   ((commit-url-format :initform "https://%h/%p.git/commit/%r")
    (branch-url-format :initform "https://%h/%p.git/log/%r")

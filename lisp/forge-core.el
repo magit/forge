@@ -67,7 +67,7 @@
      "bitbucket.org" forge-bitbucket-repository)
     ;; Semi-Forges
     ("git.savannah.gnu.org" nil
-     "git.savannah.gnu.org" forge-cgit*-repository)
+     "git.savannah.gnu.org" forge-cgit**-repository)
     ("git.kernel.org" nil
      "git.kernel.org" forge-cgit-repository)
     ("repo.or.cz" nil
