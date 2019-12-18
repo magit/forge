@@ -69,9 +69,6 @@
 (with-eval-after-load 'magit-mode
   (define-key magit-mode-map "'" 'forge-dispatch))
 
-(define-key magit-status-mode-map "jp" 'forge-jump-to-pullreqs)
-(define-key magit-status-mode-map "ji" 'forge-jump-to-issues)
-
 (define-key magit-commit-section-map [remap magit-browse-thing] 'forge-browse-dwim)
 (define-key magit-remote-section-map [remap magit-browse-thing] 'forge-browse-remote)
 (define-key magit-branch-section-map [remap magit-browse-thing] 'forge-browse-branch)
@@ -99,6 +96,11 @@
 
 (transient-append-suffix 'magit-worktree "c"
   '("y" "pull-request worktree" forge-checkout-worktree))
+
+(transient-append-suffix 'magit-status-jump "w"
+  '("'p" "pull-requests" forge-jump-to-pullreqs))
+(transient-append-suffix 'magit-status-jump "'p"
+  '("'i" "issues" forge-jump-to-issues))
 
 ;;; Startup Asserts
 
