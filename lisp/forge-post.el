@@ -92,7 +92,7 @@
              (refspec (oref repo pullreq-refspec))
              (name    (magit-rev-name rev (cadr (split-string refspec ":")))))
     (save-match-data
-      (when (string-match "[0-9]*\\'" name)
+      (when (string-match "\\([0-9]*\\)\\([~^][0-9]*\\)?\\'" name)
         (forge-get-pullreq (string-to-number (match-string 0 name)))))))
 
 ;;; Utilities
