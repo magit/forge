@@ -2,13 +2,13 @@
 :PREAMBLE:
 #+AUTHOR: Jonas Bernoulli
 #+EMAIL: jonas@bernoul.li
-#+DATE: 2018-2019
+#+DATE: 2018-2020
 #+LANGUAGE: en
 
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-267-ge9f18b98+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-282-g2155328d+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,10 +20,10 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-267-ge9f18b98+1).
+This manual is for Forge version 0.1.0 (v0.1.0-282-g2155328d+1).
 
 #+BEGIN_QUOTE
-Copyright (C) 2018-2019 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -119,15 +119,9 @@ also see [[*Getting Started]].
 
   This is the next forge whose API will to be supported.
 
-  Gitea Hosts
-
-  - https://teahub.io Note that this host is in pre-alpha and that it
-    is not clear whether the operators are trustworthy.  I have only
-    added this to ~forge-alist~ because I couldn't find any other more
-    trustworthy *and* persistent public instances but needed something
-    for testing purposes.  The Gitea maintainers plan to create their
-    own instance, see https://github.com/go-gitea/gitea/issues/1029.
-    Once that is available, I will probably remove teahub.io again.
+  Currently no public Gitea Hosts are known to me.
+  The Gitea maintainers plan to create their own instance,
+  see https://github.com/go-gitea/gitea/issues/1029.
 
 - Gogs https://gogs.io
 
@@ -244,11 +238,11 @@ caveats you should be aware of:
 - Fetching is implemented under the assumption that the API can be
   asked to list the things that have changed since we last checked.
   Unfortunately the APIs are not bug-free, so this is not always the
-  case.  Issues such as https://platform.github.community/t/7284 can
-  take years to get addresses (in closed-source software), so I am no
-  longer delaying the initial Forge release because of that.  If in
-  doubt, then re-fetch an individual pull-request to ensure it is
-  up-to-date using the command ~forge-pull-pullreq~.
+  case.  Especially in closed-source software it can take years for
+  issues to get fixed, so I am no longer delaying the initial Forge
+  release because of that.  If in doubt, then re-fetch an individual
+  pull-request to ensure it is up-to-date using the command
+  ~forge-pull-pullreq~.
 
 - Some other, forge-specific, caveats are mentioned in [[*Supported
   Forges and Hosts]].
@@ -422,11 +416,11 @@ that you know exists but haven't actually pulled yet.
   Fetching is implemented under the assumption that the API can be
   asked to list the things that have changed since we last checked.
   Unfortunately the APIs are not bug-free, so this is not always the
-  case.  Issues such as https://platform.github.community/t/7284 can
-  take years to get addresses (in closed-source software), so I am no
-  longer delaying the initial Forge release because of that.  If in
-  doubt, then re-fetch an individual pull-request to ensure it is
-  up-to-date using this command.
+  case.  Especially in closed-source software it can take years for
+  issues to get fixed, so I am no longer delaying the initial Forge
+  release because of that.  If in doubt, then re-fetch an individual
+  pull-request to ensure it is up-to-date using the command
+  ~forge-pull-pullreq~.
 
 ** Branching
 
@@ -852,7 +846,7 @@ database without also fetching all pull-requests and issues.
 :END:
 
 #+BEGIN_QUOTE
-Copyright (C) 2018-2019 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software

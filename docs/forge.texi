@@ -8,7 +8,7 @@
 
 @copying
 @quotation
-Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-267-ge9f18b98+1)
+@subtitle for version 0.1.0 (v0.1.0-282-g2155328d+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,10 +48,10 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-267-ge9f18b98+1).
+This manual is for Forge version 0.1.0 (v0.1.0-282-g2155328d+1).
 
 @quotation
-Copyright (C) 2018-2019 Jonas Bernoulli <jonas@@bernoul.li>
+Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -209,18 +209,9 @@ Gitea @uref{https://gitea.io/en-us}
 
 This is the next forge whose API will to be supported.
 
-Gitea Hosts
-
-@itemize
-@item
-@uref{https://teahub.io} Note that this host is in pre-alpha and that it
-is not clear whether the operators are trustworthy.  I have only
-added this to @code{forge-alist} because I couldn't find any other more
-trustworthy @strong{and} persistent public instances but needed something
-for testing purposes.  The Gitea maintainers plan to create their
-own instance, see @uref{https://github.com/go-gitea/gitea/issues/1029}.
-Once that is available, I will probably remove teahub.io again.
-@end itemize
+Currently no public Gitea Hosts are known to me.
+The Gitea maintainers plan to create their own instance,
+see @uref{https://github.com/go-gitea/gitea/issues/1029}.
 
 
 @item
@@ -391,11 +382,11 @@ that cannot simply be fetched again, see @ref{Initial Pull}.
 Fetching is implemented under the assumption that the API can be
 asked to list the things that have changed since we last checked.
 Unfortunately the APIs are not bug-free, so this is not always the
-case.  Issues such as @uref{https://platform.github.community/t/7284} can
-take years to get addresses (in closed-source software), so I am no
-longer delaying the initial Forge release because of that.  If in
-doubt, then re-fetch an individual pull-request to ensure it is
-up-to-date using the command @code{forge-pull-pullreq}.
+case.  Especially in closed-source software it can take years for
+issues to get fixed, so I am no longer delaying the initial Forge
+release because of that.  If in doubt, then re-fetch an individual
+pull-request to ensure it is up-to-date using the command
+@code{forge-pull-pullreq}.
 
 
 @item
@@ -603,11 +594,11 @@ so.
 Fetching is implemented under the assumption that the API can be
 asked to list the things that have changed since we last checked.
 Unfortunately the APIs are not bug-free, so this is not always the
-case.  Issues such as @uref{https://platform.github.community/t/7284} can
-take years to get addresses (in closed-source software), so I am no
-longer delaying the initial Forge release because of that.  If in
-doubt, then re-fetch an individual pull-request to ensure it is
-up-to-date using this command.
+case.  Especially in closed-source software it can take years for
+issues to get fixed, so I am no longer delaying the initial Forge
+release because of that.  If in doubt, then re-fetch an individual
+pull-request to ensure it is up-to-date using the command
+@code{forge-pull-pullreq}.
 @end table
 
 @node Branching
