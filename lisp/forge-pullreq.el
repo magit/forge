@@ -135,7 +135,7 @@
 (defun forge-read-pullreq (prompt &optional type)
   (when (eq type t)
     (setq type (if current-prefix-arg nil 'open)))
-  (let* ((default (forge-pullreq-at-point))
+  (let* ((default (forge-current-pullreq))
          (repo    (forge-get-repository (or default t)))
          (format  (lambda (topic)
                     (format "%s  %s"
