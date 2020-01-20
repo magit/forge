@@ -126,6 +126,16 @@
 
 ;;; Sections
 
+(defun forge-current-issue ()
+  (or (forge-issue-at-point)
+      (and (derived-mode-p 'forge-topic-mode)
+           (forge-issue-p forge-buffer-topic)
+           forge-buffer-topic)
+      (and (derived-mode-p 'forge-topic-list-mode)
+           (let ((topic (forge-get-topic (tabulated-list-get-id))))
+             (and (forge-issue-p topic)
+                  topic)))))
+
 (defun forge-issue-at-point ()
   (or (magit-section-value-if 'issue)
       (when-let ((post (magit-section-value-if 'post)))

@@ -202,6 +202,16 @@ yourself, in which case you probably should not reset either.
 
 ;;; Sections
 
+(defun forge-current-pullreq ()
+  (or (forge-pullreq-at-point)
+      (and (derived-mode-p 'forge-topic-mode)
+           (forge-pullreq-p forge-buffer-topic)
+           forge-buffer-topic)
+      (and (derived-mode-p 'forge-topic-list-mode)
+           (let ((topic (forge-get-topic (tabulated-list-get-id))))
+             (and (forge-pullreq-p topic)
+                  topic)))))
+
 (defun forge-pullreq-at-point ()
   (or (magit-section-value-if 'pullreq)
       (when-let ((post (magit-section-value-if 'post)))
