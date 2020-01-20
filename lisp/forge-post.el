@@ -186,7 +186,9 @@
          (prevbuf forge--pre-post-buffer)
          (topic   (ignore-errors (forge-get-topic forge--buffer-post-object)))
          (repo    (forge-get-repository topic)))
-    (lambda (&rest _)
+    (lambda (value headers status req)
+      (run-hook-with-args 'forge-post-submit-callback-hook
+                          value headers status req)
       (delete-file file t)
       (let ((dir (file-name-directory file)))
         (unless (cddr (directory-files dir nil nil t))
