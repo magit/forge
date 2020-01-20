@@ -129,9 +129,10 @@
 (defun forge-issue-at-point ()
   (or (magit-section-value-if 'issue)
       (when-let ((post (magit-section-value-if 'post)))
-        (if (forge-issue-p post)
-            post
-          (forge-get-issue post)))))
+        (cond ((forge-issue-p post)
+               post)
+              ((forge-issue-post-p post)
+               (forge-get-issue post))))))
 
 (defvar forge-issues-section-map
   (let ((map (make-sparse-keymap)))

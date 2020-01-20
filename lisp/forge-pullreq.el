@@ -205,9 +205,10 @@ yourself, in which case you probably should not reset either.
 (defun forge-pullreq-at-point ()
   (or (magit-section-value-if 'pullreq)
       (when-let ((post (magit-section-value-if 'post)))
-        (if (forge-pullreq-p post)
-            post
-          (forge-get-pullreq post)))))
+        (cond ((forge-pullreq-p post)
+               post)
+              ((forge-pullreq-post-p post)
+               (forge-get-pullreq post))))))
 
 (defvar forge-pullreqs-section-map
   (let ((map (make-sparse-keymap)))
