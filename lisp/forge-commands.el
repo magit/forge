@@ -505,7 +505,7 @@ topic N and modify that instead."
         (mapconcat #'car value ","))))))
 
 (defun forge-edit-topic-review-requests (n)
-  "Edit the review-requests the current pull-request.
+  "Edit the review-requests of the current pull-request.
 If there is no current topic or with a prefix argument read a
 topic N and modify that instead."
   (interactive (list (forge-read-pullreq "Request review for")))
