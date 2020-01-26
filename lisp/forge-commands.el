@@ -747,7 +747,8 @@ information."
 ;;;###autoload
 (defun forge-fork (fork remote)
   "Fork the current repository to FORK and add it as a REMOTE.
-Currently this only support Github.com."
+If the fork already exists, then that isn't an error; the remote
+is added anyway.  Currently this only support Github.com."
   (interactive
    (let ((fork (magit-completing-read "Fork to"
                                       (mapcar #'car forge-owned-accounts))))

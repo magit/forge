@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-282-g2155328d+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-295-gaf97f5a4+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-282-g2155328d+1).
+This manual is for Forge version 0.1.0 (v0.1.0-295-gaf97f5a4+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -781,7 +781,16 @@ The following commands are available in buffers used to edit posts:
 
 ** Miscellaneous
 
-- Command: forge-add-repository
+- Key ' c f, forge-fork
+
+  This command adds an additional remote to the current repository.
+  The remote can either point at an existing repository or one that
+  has to be created first by forking it to an account the user has
+  access to.
+
+  Currently this only support Github.com.
+
+- Key ' a, forge-add-repository
 
   This command reads a repository from the user and adds it to the
   database.  The repository can be provided as URL, as a name, or in
