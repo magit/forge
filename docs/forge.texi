@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-295-gaf97f5a4+1)
+@subtitle for version 0.1.0 (v0.1.0-297-gb8baf139+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-295-gaf97f5a4+1).
+This manual is for Forge version 0.1.0 (v0.1.0-297-gb8baf139+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -910,6 +910,13 @@ assigned to you in a separate buffer.
 
 This command lists the current repository's open pull-requests that
 are assigned to you in a separate buffer.
+@end deffn
+
+@cindex forge-list-requested-pullreqs
+@deffn Command forge-list-requested-pullreqs
+
+This command lists pull-requests of the current repository that are
+awaiting your review in a separate buffer.
 @end deffn
 
 @cindex forge-list-owned-pullreqs

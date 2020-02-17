@@ -295,6 +295,23 @@ List them in a separate buffer."
                  id (ghub--username (forge-get-repository (list :id id)))))))
 
 ;;;###autoload
+(defun forge-list-requested-pullreqs (id)
+  "List pull-requests of the current repository that are awaiting your review.
+List them in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)))
+  (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
+    (lambda ()
+      (forge-sql [:select $i1 :from [pullreq pullreq_review_request assignee]
+                  :where (and (= pullreq_review_request:pullreq pullreq:id)
+                              (= pullreq_review_request:id      assignee:id)
+                              (= pullreq:repository       $s2)
+                              (= assignee:login           $s3)
+                              (isnull pullreq:closed))
+                  :order-by [(desc updated)]]
+                 (forge--tablist-columns-vector 'pullreq)
+                 id (ghub--username (forge-get-repository (list :id id)))))))
+
+;;;###autoload
 (defun forge-list-owned-pullreqs ()
   "List open pull-requests from all your Github repositories.
 Options `forge-owned-accounts' and `forge-owned-blacklist'
