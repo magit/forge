@@ -225,8 +225,8 @@
         (when bump
           (forge--set-id-slot repo pullreq 'assignees .assignees)
           (forge--set-id-slot repo pullreq 'review-requests
-                              (--map (cdr (cadr it))
-                                     (car .reviewRequests)))
+                              (--map (cdr (cadr (car it)))
+                                     .reviewRequests))
           (forge--set-id-slot repo pullreq 'labels .labels))
         pullreq))))
 
