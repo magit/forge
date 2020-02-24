@@ -156,6 +156,8 @@
     (let ((branch head-ref)
           (branch-n (format "pr-%s" number)))
       (when (or (and cross-repo-p (not editable-p))
+                ;; Handle deleted GitHub pull-request branch.
+                (not branch)
                 ;; Such a branch name would be invalid.  If we encounter
                 ;; this, then it means that we are dealing with a Gitlab
                 ;; pull-request whose source branch has been deleted.
