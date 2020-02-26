@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-297-gb8baf139+1)
+@subtitle for version 0.1.0 (v0.1.0-299-gfb04716b+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-297-gb8baf139+1).
+This manual is for Forge version 0.1.0 (v0.1.0-299-gfb04716b+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -850,13 +850,19 @@ This command toggles whether the above two functions list recently
 closed issues in the current buffer.
 @end deffn
 
-The following two functions are also suitable for
+The following three functions are also suitable for
 @code{magit-status-sections-hook}:
 
 @defun forge-insert-assigned-pullreqs
 
 This function inserts a list of open pull-requests that are assigned
 to you.
+@end defun
+
+@defun forge-insert-requested-pullreqs
+
+This function inserts a list of open pull-requests that are awaiting
+your review.
 @end defun
 
 @defun forge-insert-assigned-issues

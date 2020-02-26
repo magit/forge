@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-297-gb8baf139+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-299-gfb04716b+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-297-gb8baf139+1).
+This manual is for Forge version 0.1.0 (v0.1.0-299-gfb04716b+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -612,13 +612,18 @@ Forge adds the following two functions to ~magit-status-sections-hook~:
   This command toggles whether the above two functions list recently
   closed issues in the current buffer.
 
-The following two functions are also suitable for
+The following three functions are also suitable for
 ~magit-status-sections-hook~:
 
 - Function: forge-insert-assigned-pullreqs
 
   This function inserts a list of open pull-requests that are assigned
   to you.
+
+- Function: forge-insert-requested-pullreqs
+
+  This function inserts a list of open pull-requests that are awaiting
+  your review.
 
 - Function: forge-insert-assigned-issues
 

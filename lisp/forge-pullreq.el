@@ -294,6 +294,30 @@ Also see option `forge-topic-list-limit'."
            (oref repo id)
            (ghub--username repo))))
 
+(defun forge-insert-requested-pullreqs ()
+  "Insert a list of pull-requests that are awaiting your review."
+  (when-let ((repo (forge-get-repository nil)))
+    (unless (oref repo sparse-p)
+      (forge-insert-topics "Pull requests awaiting review"
+                           (forge--ls-requested-pullreqs repo)
+                           (forge--topic-type-prefix repo 'pullreq)))))
+
+(defun forge--ls-requested-pullreqs (repo)
+  (mapcar
+   (lambda (row)
+     (closql--remake-instance 'forge-pullreq (forge-db) row))
+   (forge-sql
+    [:select $i1 :from pullreq
+     :join pullreq_review_request :on (= pullreq_review_request:pullreq pullreq:id)
+     :join assignee               :on (= pullreq_review_request:id      assignee:id)
+     :where (and (= pullreq:repository $s2)
+                 (= assignee:login     $s3)
+                 (isnull pullreq:closed))
+     :order-by [(desc updated)]]
+    (vconcat (closql--table-columns (forge-db) 'pullreq t))
+    (oref repo id)
+    (ghub--username repo))))
+
 ;;; _
 (provide 'forge-pullreq)
 ;;; forge-pullreq.el ends here
