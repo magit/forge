@@ -295,7 +295,7 @@ List them in a separate buffer."
                  id (ghub--username (forge-get-repository (list :id id)))))))
 
 ;;;###autoload
-(defun forge-list-requested-pullreqs (id)
+(defun forge-list-requested-reviews (id)
   "List pull-requests of the current repository that are awaiting your review.
 List them in a separate buffer."
   (interactive (list (oref (forge-get-repository t) id)))
