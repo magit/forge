@@ -542,6 +542,15 @@ it is all or nothing.")
   (--filter (string-match-p "\\`\\.gitlab/merge_request_templates/.+\\.md\\'" it)
             (magit-revision-files (oref repo default-branch))))
 
+(cl-defmethod forge--fork-repository ((repo forge-gitlab-repository) fork)
+  (with-slots (owner name) repo
+    (forge--glab-post repo (format "/projects/%s%%2F%s/fork" owner name)
+                      (and (not (equal fork (ghub--username (ghub--host nil))))
+                           `((namespace . ,fork)))
+                      :noerror t)
+    (ghub-wait (format "/projects/%s%%2F%s" fork name)
+               nil :auth 'forge :forge 'gitlab)))
+
 ;;; Utilities
 
 (cl-defmethod forge--topic-type-prefix ((_repo forge-gitlab-repository) type)

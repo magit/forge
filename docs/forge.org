@@ -798,7 +798,7 @@ The following commands are available in buffers used to edit posts:
   has to be created first by forking it to an account the user has
   access to.
 
-  Currently this only support Github.com.
+  Currently this only supports github.com and gitlab.com.
 
 - Key ' a, forge-add-repository
 
