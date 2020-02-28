@@ -343,7 +343,8 @@ read an issue N to visit instead."
                          (if (magit-remote-branch-p d)
                              d
                            (magit-get-push-branch d t))))))
-         (remote  (oref (forge-get-repository t) remote))
+         (repo    (forge-get-repository t))
+         (remote  (oref repo remote))
          (targets (delete source (magit-list-remote-branch-names remote)))
          (target  (magit-completing-read
                    "Target branch" targets nil t nil 'magit-revision-history
@@ -353,7 +354,9 @@ read an issue N to visit instead."
                           (d (and d (if (magit-remote-branch-p d)
                                         d
                                       (magit-get-upstream-branch d))))
-                          (d (or d (concat remote "/master"))))
+                          (d (or d (concat remote "/"
+                                           (or (oref repo default-branch)
+                                               "master")))))
                      (car (member d targets))))))
     (list source target)))
 
