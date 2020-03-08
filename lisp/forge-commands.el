@@ -896,6 +896,13 @@ heavy development."
     (delete-file forge-database-file t)
     (magit-refresh)))
 
+(defun forge-enable-sql-logging ()
+  "Enable logging Forge's SQL queries."
+  (interactive)
+  (let ((db (forge-db)))
+    (emacsql-enable-debugging db)
+    (switch-to-buffer-other-window (emacsql-log-buffer db))))
+
 (magit-define-section-jumper forge-jump-to-pullreqs "Pull requests" pullreqs)
 (magit-define-section-jumper forge-jump-to-issues "Issues" issues)
 
