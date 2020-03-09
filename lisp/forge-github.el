@@ -87,9 +87,11 @@
      :host (oref repo apihost)
      :auth 'forge)))
 
-(cl-defmethod forge--pull-topic ((repo forge-github-repository) n)
-  (let ((buffer (current-buffer))
-        (pullreqp (forge-get-pullreq repo n)))
+(cl-defmethod forge--pull-topic ((repo forge-github-repository) n
+                                 &optional pullreqp)
+  (unless pullreqp
+    (setq pullreqp (forge-get-pullreq repo n)))
+  (let ((buffer (current-buffer)))
     (funcall
      (if pullreqp #'ghub-fetch-pullreq #'ghub-fetch-issue)
      (oref repo owner)
@@ -102,6 +104,11 @@
            (if (buffer-live-p buffer) buffer (current-buffer))
          (magit-refresh)))
      nil
+     :errorback
+     (and (not pullreqp)
+          (lambda (err _headers _status _req)
+            (when (equal (cdr (assq 'type (cadr err))) "NOT_FOUND")
+              (forge--pull-topic repo n t))))
      :host (oref repo apihost)
      :auth 'forge)))
 
