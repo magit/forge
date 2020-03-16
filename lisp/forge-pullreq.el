@@ -66,6 +66,7 @@
    (timeline)
    (marks                :closql-table (pullreq-mark mark))
    (note                 :initarg :note :initform nil)
+   (versions             :closql-class forge-pullreq-version)
    ;; We don't use these fields:
    ;; includesCreatedEdit (huh?),
    ;; lastEditedAt (same as updatedAt?),
@@ -93,6 +94,16 @@
    (body                 :initarg :body)
    (edits)
    (reactions)
+   (thread-id            :initarg :thread-id)
+   (diff-p               :initarg :diff-p)
+   (resolved-by          :initarg :resolved-by)
+   (reply-to             :initarg :reply-to)
+   (head-ref             :initarg :head-ref)
+   (commit-ref           :initarg :commit-ref)
+   (base-ref             :initarg :base-ref)
+   (path                 :initarg :path)
+   (old-line             :initarg :old-line)
+   (new-line             :initarg :new-line)
    ;; We don't use these fields:
    ;; includesCreatedEdit (huh?),
    ;; lastEditedAt (same as updatedAt?),
@@ -102,6 +113,18 @@
    ;; authorAssociation, bodyHTML, bodyText, createdViaEmail,
    ;; editor, id, reactionGroups, resourcePath, url, viewer{*}
    ))
+
+(defclass forge-pullreq-version (forge-object)
+  ((closql-table         :initform pullreq-version)
+   (closql-primary-key   :initform id)
+   (closql-order-by      :initform [(desc id)])
+   (closql-foreign-key   :initform pullreq)
+   (closql-class-prefix  :initform "forge-pullreq-")
+   (id                   :initarg :id)
+   (pullreq              :initarg :pullreq)
+   (number               :initarg :number)
+   (head-ref             :initarg :head-ref)
+   (base-ref             :initarg :base-ref)))
 
 ;;; Query
 

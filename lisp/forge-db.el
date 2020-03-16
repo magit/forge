@@ -46,7 +46,7 @@
 (defclass forge-database (closql-database)
   ((object-class :initform forge-repository)))
 
-(defconst forge--db-version 7)
+(defconst forge--db-version 8)
 (defconst forge--sqlite-available-p
   (with-demoted-errors "Forge initialization: %S"
     (emacsql-sqlite-ensure-binary)
@@ -207,7 +207,9 @@
       updated
       body
       (edits :default eieio-unbound)
-      (reactions :default eieio-unbound)]
+      (reactions :default eieio-unbound)
+      thread-id
+      reply-to]
      (:foreign-key
       [issue] :references issue [id]
       :on-delete :cascade))
@@ -300,7 +302,8 @@
       (reviews         :default eieio-unbound)
       (timeline        :default eieio-unbound)
       (marks           :default eieio-unbound)
-      note]
+      note
+      (versions        :default eieio-unbound)]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
@@ -342,7 +345,28 @@
       updated
       body
       (edits :default eieio-unbound)
-      (reactions :default eieio-unbound)]
+      (reactions :default eieio-unbound)
+      thread-id
+      diff-p
+      resolved-by
+      reply-to
+      head-ref
+      commit-ref
+      base-ref
+      path
+      old-line
+      new-line]
+     (:foreign-key
+      [pullreq] :references pullreq [id]
+      :on-delete :cascade))
+
+    (pullreq-version
+     [(class :not-null)
+      (id :not-null :primary-key)
+      pullreq
+      number
+      head-ref
+      base-ref]
      (:foreign-key
       [pullreq] :references pullreq [id]
       :on-delete :cascade))
@@ -429,6 +453,19 @@
     ;; Going forward create a backup before upgrading:
     ;; (message "Upgrading Forge database from version 7 to 8...")
     ;; (copy-file forge-database-file (concat forge-database-file "-v7"))
+    (when (= version 7)
+      (message "Upgrading Forge database from version 7 to 8...")
+      (copy-file forge-database-file (concat forge-database-file "-v7"))
+      (pcase-let ((`(,table . ,schema) (assq 'pullreq-version forge--db-table-schemata)))
+        (emacsql db [:create-table $i1 $S2] table schema))
+      (emacsql db [:alter-table pullreq :add-column versions :default $i1] eieio-unbound)
+      (dolist (c (list 'thread-id 'reply-to))
+        (emacsql db `[:alter-table issue-post :add-column ,c :default nil]))
+      (dolist (c (list 'thread-id 'diff-p 'resolved-by 'reply-to 'head-ref 'commit-ref
+                       'base-ref 'path 'old-line 'new-line))
+        (emacsql db `[:alter-table pullreq-post :add-column ,c :default nil]))
+      (closql--db-set-version db (setq version 8))
+      (message "Upgrading Forge database from version 7 to 8...done"))
     version))
 
 ;;; _

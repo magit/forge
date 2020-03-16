@@ -72,6 +72,8 @@
    (body                 :initarg :body)
    (edits)
    (reactions)
+   (thread-id            :initarg :thread-id)
+   (reply-to             :initarg :reply-to)
    ))
 
 ;;; Query
