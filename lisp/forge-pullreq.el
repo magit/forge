@@ -275,6 +275,12 @@ yourself, in which case you probably should not reset either.
     (define-key map [remap magit-visit-thing]  'forge-visit-pullreq)
     map))
 
+(defvar forge-pullreq-diff-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-browse-thing] 'forge-browse-pullreq)
+    (define-key map [remap magit-visit-thing]  'forge-show-pullreq-diff)
+    map))
+
 (defun forge-insert-pullreqs ()
   "Insert a list of mostly recent and/or open pull-requests.
 Also see option `forge-topic-list-limit'."
@@ -291,6 +297,81 @@ Also see option `forge-topic-list-limit'."
       (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
         (magit-insert-log range magit-buffer-log-args)
         (magit-make-margin-overlay nil t)))))
+
+(defun forge--filter-diff-posts-by-commit (posts commit)
+  (cl-remove-if-not (lambda (post)
+                      (with-slots (diff-p commit-ref) post
+                        (and diff-p (string= commit-ref commit))))
+                    posts))
+
+(defun forge--filter-diff-posts-by-version (posts version)
+  (let ((head (oref version head-ref))
+        (base (oref version base-ref)))
+    (cl-remove-if-not (lambda (post)
+                        (with-slots (diff-p head-ref base-ref) post
+                          (and diff-p
+                               (string= head-ref head)
+                               (string= base-ref base))))
+                      posts)))
+
+(defun forge-show-pullreq-diff ()
+  (interactive)
+  (pcase-let ((`(,version ,commit) (magit-section-value-if 'pullreq-diff)))
+    (let ((topic forge-buffer-topic)
+          (pullreq-buffer (current-buffer))
+          (buf (if commit
+                   (magit-revision-setup-buffer
+                    commit (magit-show-commit--arguments) nil)
+                 (with-slots (base-ref head-ref) version
+                   (magit-diff-setup-buffer
+                    (format "%s..%s" base-ref head-ref)
+                    nil (magit-diff-arguments) nil)))))
+      (with-current-buffer buf
+        (setq forge--pullreq-version version)
+        (setq forge--pullreq-commit commit)
+        (setq forge--pullreq-buffer pullreq-buffer)
+        (setq forge-buffer-topic topic)
+        (add-hook 'magit-unwind-refresh-hook
+                  'forge--pullreq-diff-refresh nil t)
+        (magit-refresh)))))
+
+(defun forge--insert-pullreq-diff-commits (version diff-commits diff-posts)
+  (dolist (commit diff-commits)
+    (pcase-let ((`(,id ,abbrev-id ,subject) commit))
+      (magit-insert-section (pullreq-diff (list version id))
+        (let ((posts (forge--filter-diff-posts-by-commit diff-posts id)))
+          (insert (concat (propertize abbrev-id 'face 'magit-hash)
+                          (format " %-50s " subject)
+                          (and posts
+                               (propertize
+                                (format "(%d comments)" (length posts))
+                                'face 'magit-section-heading))
+                          "\n"))))))
+  (insert "\n"))
+
+(defun forge--insert-pullreq-versions (pullreq)
+  (let ((posts (oref pullreq posts))
+        (versions (reverse (oref pullreq versions)))
+        (count 0))
+    (dolist (version versions)
+      (with-slots (base-ref head-ref) version
+        (cl-incf count)
+        (let* ((diff-commits (magit-git-lines
+                              "log" "--format=(\"%H\" \"%h\" \"%s\")"
+                              (format "%s..%s" base-ref head-ref)))
+               (diff-posts (forge--filter-diff-posts-by-version posts version))
+               (comments-nbr (format "(%d comments) " (length diff-posts)))
+               (hide (not (eq count (length versions)))))
+          ;; All the version section are collapsed except for the
+          ;; latest version.
+          (magit-insert-section (pullreq-diff (list version) hide)
+            (magit-insert-heading (concat (if (= count (length versions))
+                                              "Latest Version:  "
+                                            (format "Version %d:  " count))
+                                          (and diff-posts comments-nbr)))
+            (forge--insert-pullreq-diff-commits version
+                                                (mapcar #'read diff-commits)
+                                                diff-posts)))))))
 
 (cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq)
                                                    _width _prefix)
