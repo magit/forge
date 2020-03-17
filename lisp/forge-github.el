@@ -702,7 +702,7 @@
     :payload labels
     :callback (forge--set-field-callback)))
 
-(cl-defmethod forge--delete-comment
+(cl-defmethod forge--delete-post
   ((_repo forge-github-repository) post)
   (forge--ghub-delete post "/repos/:owner/:repo/issues/comments/:number")
   (closql-delete post)
