@@ -345,6 +345,23 @@ Also see option `forge-topic-list-limit'."
 
 ;;; Diff
 
+(defun forge-diff-visit-file (file)
+  (interactive (list (magit-file-at-point t t)))
+  (if forge--pullreq-buffer
+      (when-let* ((line (forge--pullreq-diff-current-line))
+                  (column (- (current-column) 1))
+                  (prefix (buffer-substring (line-beginning-position)
+                                            (+ (line-beginning-position) 1)))
+                  (file-line (if (string-match-p "-" prefix)
+                                 (assoc-default 'old line)
+                               (assoc-default 'new line))))
+        (with-current-buffer (magit-diff-visit-file--internal
+                              file nil #'switch-to-buffer-other-window)
+          (goto-char (point-min))
+          (forward-line (1- file-line))
+          (move-to-column column)))
+    (magit-diff-visit-file file)))
+
 (defun forge--pullreq-diff-get-line (file line goto-from)
   (when-let* ((hunk (magit-diff--locate-hunk file line))
               (hunk-section (car hunk)))
@@ -366,6 +383,32 @@ Also see option `forge-topic-list-limit'."
               (forward-line))
             (and (not (= (point) (point-max)))
                  (line-number-at-pos (point)))))))))
+
+(defun forge--pullreq-diff-current-line ()
+  (when-let ((hunk-section (magit-diff-visit--hunk)))
+    (with-slots (content from-range to-range) hunk-section
+      (cl-flet ((get-line (range content skip-prefix)
+                 (let ((line (car range))
+                       (target (line-number-at-pos (point))))
+                   (save-excursion
+                     (goto-char content)
+                     (while (not (eq target (line-number-at-pos (point))))
+                       (forward-line)
+                       (unless (or (magit-section-value-if 'post)
+                                   (string-match-p skip-prefix
+                                                   (buffer-substring
+                                                    (point) (+ (point) 1))))
+                         (cl-incf line))))
+                   line)))
+        (save-excursion
+          (move-beginning-of-line nil)
+          (let ((prefix (buffer-substring (point) (+ (point) 1))))
+            (cond ((string-match-p "-" prefix)
+                   (list (cons 'old (get-line from-range content "\\+"))))
+                  ((string-match-p "\\+" prefix)
+                   (list (cons 'new (get-line to-range content "-"))))
+                  (t (list (cons 'old (get-line from-range content "\\+"))
+                           (cons 'new (get-line to-range content "-")))))))))))
 
 (defun forge--insert-pullreq-diff-posts (diff-posts)
   (let* ((inhibit-read-only t)
