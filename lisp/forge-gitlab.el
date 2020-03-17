@@ -84,6 +84,21 @@
                     (forge--git-fetch buf dir repo))))))))
     (funcall cb cb)))
 
+(cl-defmethod forge--pull-topic ((repo forge-gitlab-repository) n)
+  (let ((orig-buffer (current-buffer)))
+    (cl-macrolet ((cb (func orig-buffer)
+                   `(lambda (repo data)
+                      (funcall ,func repo data)
+                      (when (buffer-live-p ,orig-buffer)
+                        (with-current-buffer ,orig-buffer
+                          (magit-refresh))))))
+      (if (forge-issue-p forge-buffer-topic)
+          ;; FIXME forge--fetch-issue does not exist.
+          (forge--fetch-issue repo (forge-get-issue n)
+                              (cb #'forge--update-issue orig-buffer))
+        (forge--fetch-pullreq repo (forge-get-pullreq repo n)
+                              (cb #'forge--update-pullreq orig-buffer))))))
+
 (cl-defmethod forge--fetch-repository ((repo forge-gitlab-repository) callback)
   (forge--glab-get repo "/projects/:project" nil
     :callback (lambda (value _headers _status _req)
@@ -240,6 +255,31 @@
       `((per_page . 100)
         (order_by . "updated_at")
         (updated_after . ,(forge--topics-until repo until 'pullreq)))
+      :unpaginate t
+      :callback (lambda (value _headers _status _req)
+                  (funcall cb cb value)))))
+
+(cl-defmethod forge--fetch-pullreq ((repo forge-gitlab-repository) pullreq callback)
+  (let ((cb (let (cur done)
+              (lambda (cb &optional v)
+		(unless cur
+                  (setq cur (list v)))
+                (if done
+                    (funcall callback repo (car cur))
+                  (cond
+                   ((not (assq 'source_project (car cur)))
+                    (forge--fetch-pullreq-source-repo repo cur cb))
+                   ((not (assq 'target_project (car cur)))
+                    (forge--fetch-pullreq-target-repo repo cur cb))
+                   ((not (assq 'posts (car cur)))
+                    (forge--fetch-pullreq-posts repo cur cb))
+                   ((not (assq 'versions (car cur)))
+                    (forge--fetch-pullreq-versions repo cur cb))
+                   (t (setq done t)
+                      (funcall cb cb cur))))))))
+    (forge--glab-get repo (format "/projects/:project/merge_requests/%d"
+                                  (oref pullreq number))
+      `((per_page . 100))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
                   (funcall cb cb value)))))

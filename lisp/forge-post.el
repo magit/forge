@@ -208,11 +208,7 @@
           (magit-mode-bury-buffer 'kill)))
       (with-current-buffer
           (if (buffer-live-p prevbuf) prevbuf (current-buffer))
-        (if (and topic
-                 (forge--childp repo 'forge-github-repository)
-                 (or (and (fboundp 'forge-pullreq-p)
-                          (forge-pullreq-p topic))
-                     (oref repo selective-p)))
+        (if topic
             (forge--pull-topic repo (oref topic number))
           (forge-pull))))))
 

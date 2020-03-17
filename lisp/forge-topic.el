@@ -215,8 +215,7 @@ This variable has to be customized before `forge' is loaded."
 (defun forge--topic-string-to-number (s)
   (save-match-data
     (if (string-match "\\`\\([!#]\\)?\\([0-9]+\\)" s)
-        (* (if (equal (match-string 1 s) "!") -1 1)
-           (string-to-number (match-string 2 s)))
+        (string-to-number (match-string 2 s))
       (error "forge--topic-string-to-number: Invalid argument %S" s))))
 
 (cl-defmethod forge-ls-recent-topics ((repo forge-repository) table)
