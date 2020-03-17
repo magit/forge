@@ -441,6 +441,23 @@ point is currently on."
       (setq forge--submit-post-function 'forge--submit-create-diff-post))
     (forge--display-post-buffer buf)))
 
+;;; Reply
+
+(defun forge-reply-post ()
+  "Reply to the current post."
+  (interactive)
+  (let* ((post (or (forge-post-at-point)
+                   (user-error "There is no current post")))
+         (topic forge-buffer-topic)
+         (buf (forge--prepare-post-buffer
+               (forge--format post "%i:reply-comment")
+               (forge--format post "Reply comment on #%i of %p"))))
+    (with-current-buffer buf
+      (setq forge--buffer-post-object topic)
+      (setq forge--buffer-post-args (list post))
+      (setq forge--submit-post-function 'forge--submit-reply-post))
+    (forge--display-post-buffer buf)))
+
 ;;; Edit
 
 (defun forge-edit-post ()

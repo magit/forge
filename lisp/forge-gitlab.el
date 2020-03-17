@@ -516,6 +516,19 @@
         :callback  (forge--post-submit-callback)
         :errorback (forge--post-submit-errorback)))))
 
+(cl-defmethod forge--submit-reply-post ((_ forge-gitlab-repository) topic
+                                        &rest args)
+  (when-let ((thread-id (oref (car args) thread-id)))
+    (forge--glab-post topic
+      (cl-etypecase topic
+        (forge-pullreq (concat "/projects/:project/merge_requests/:number/discussions/"
+                               thread-id "/notes"))
+        (forge-issue (concat "/projects/:project/issues/:number/discussions/"
+                             thread-id "/notes")))
+      `((body     . ,(string-trim (buffer-string))))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback))))
+
 (cl-defmethod forge--submit-edit-post ((_ forge-gitlab-repository) post)
   (forge--glab-put post
     (cl-etypecase post

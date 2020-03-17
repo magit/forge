@@ -642,6 +642,17 @@
                         :callback  (forge--post-submit-callback)
                         :errorback (forge--post-submit-errorback)))))
 
+(cl-defmethod forge--submit-reply-post ((_ forge-github-repository) topic
+                                        &rest args)
+  (let* ((reply-to (oref (car args) reply-to))
+         (id (if reply-to reply-to (oref (car args) number))))
+    (forge--ghub-post
+     topic
+     (format "/repos/:owner/:repo/pulls/:number/comments/%d/replies" id)
+     `((body     . ,(string-trim (buffer-string))))
+     :callback  (forge--post-submit-callback)
+     :errorback (forge--post-submit-errorback))))
+
 (cl-defmethod forge--submit-edit-post ((_ forge-github-repository) post)
   (forge--ghub-patch post
     (cl-typecase post
