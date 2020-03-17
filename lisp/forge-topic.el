@@ -143,6 +143,11 @@ This variable has to be customized before `forge' is loaded."
   "Face used for current post heading in topic view."
   :group 'forge-faces)
 
+(defface forge-post-reply-heading
+  '((t :inherit magit-diff-hunk-heading :extend nil))
+  "Face used for reply post heading in topic view."
+  :group 'forge-faces)
+
 ;;; Class
 
 (defclass forge-topic (forge-post) () :abstract t)
@@ -426,6 +431,30 @@ identifier."
     (magit-insert-heading heading)
     (insert "\n" (forge--fontify-markdown body) "\n\n")))
 
+(defun forge--filter-reply-posts (posts id)
+  (cl-remove-if-not (lambda (post)
+                      (and (oref post reply-to)
+                           (= (oref post reply-to) id)))
+                    posts))
+
+(defun forge--insert-replies (posts id face)
+  (when-let ((replies (forge--filter-reply-posts posts id))
+             (indent-column 4))
+    (dolist (reply replies)
+      (with-slots (author created body) reply
+        (magit-insert-section (post reply)
+          (let ((heading (forge--section-heading
+                          (concat (make-string indent-column
+                                               (string-to-char " "))
+                                  author)
+                          created)))
+            (add-face-text-property indent-column (length heading)
+                                    face t heading)
+            (magit-insert-heading heading)
+            (let ((beg (point)))
+              (insert "\n" (forge--fontify-markdown body) "\n\n")
+              (indent-region beg (point) indent-column))))))))
+
 (defun forge-topic-refresh-buffer ()
   (let* ((topic (closql-reload forge-buffer-topic))
          (posts (oref topic posts)))
@@ -447,11 +476,14 @@ identifier."
           (forge--insert-section author created body 'forge-post-heading)))
       ;; insert posts related to the topic
       (dolist (post posts)
-        (unless (and (forge-pullreq-p topic) (oref post diff-p))
+        (unless (or (and (forge-pullreq-p topic) (oref post diff-p))
+                    (oref post reply-to))
           (with-slots (author created body number) post
             (magit-insert-section section (post post)
               (oset section heading-highlight-face 'forge-post-heading-highlight)
-              (forge--insert-section author created body 'forge-post-heading)))))
+              (forge--insert-section author created body 'forge-post-heading)
+              ;; insert replies to this post
+              (forge--insert-replies posts number 'forge-post-reply-heading)))))
       (when (and (display-images-p)
                  (fboundp 'markdown-display-inline-images))
         (let ((markdown-display-remote-images t))
