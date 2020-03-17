@@ -26,6 +26,12 @@
 (require 'forge-issue)
 (require 'forge-pullreq)
 
+;;; Variables
+
+(defvar forge-github-headers
+  '(("Accept" . "application/vnd.github.comfort-fade-preview+json"))
+  "Custom Github Headers.")
+
 ;;; Class
 
 (defclass forge-github-repository (forge-repository)
@@ -77,6 +83,7 @@
      `((issues-until       . ,(forge--topics-until repo until 'issue))
        (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
      :host (oref repo apihost)
+     :headers forge-github-headers
      :auth 'forge)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository) n
@@ -90,11 +97,17 @@
      (oref repo name)
      n
      (lambda (data)
-       (funcall (if pullreqp #'forge--update-pullreq #'forge--update-issue)
-                repo data nil)
-       (with-current-buffer
-           (if (buffer-live-p buffer) buffer (current-buffer))
-         (magit-refresh)))
+       (let ((refresh-buffer
+              (lambda ()
+                (with-current-buffer
+                    (if (buffer-live-p buffer) buffer (current-buffer))
+                  (magit-refresh)))))
+         (if pullreqp
+             (progn
+               (forge--update-pullreq repo data nil)
+               (forge--ghub-fetch-review-threads repo n refresh-buffer))
+           (forge--update-issue repo data nil)
+           (funcall refresh-buffer))))
      nil
      :errorback
      (and (not pullreqp)
@@ -102,6 +115,7 @@
             (when (equal (cdr (assq 'type (cadr err))) "NOT_FOUND")
               (forge--pull-topic repo n t))))
      :host (oref repo apihost)
+     :headers forge-github-headers
      :auth 'forge)))
 
 (cl-defmethod forge--update-repository ((repo forge-github-repository) data)
@@ -165,7 +179,8 @@
               :author  .author.login
               :created .createdAt
               :updated .updatedAt
-              :body    (forge--sanitize-string .body))
+              :body    (forge--sanitize-string .body)
+              :reply-to nil) ; cannot reply on these comments with github api
              t)))
         (when bump
           (forge--set-id-slot repo issue 'assignees .assignees)
@@ -175,7 +190,8 @@
 
 (cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data bump)
   (emacsql-with-transaction (forge-db)
-    (mapc (lambda (e) (forge--update-pullreq repo e bump)) data)))
+    (mapc (lambda (e) (forge--update-pullreq repo e bump)) data))
+  (forge--ghub-fetch-all-review-threads repo))
 
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data bump)
   (emacsql-with-transaction (forge-db)
@@ -186,7 +202,9 @@
                            (forge-db)
                            (forge-pullreq :id           pullreq-id
                                           :repository   (oref repo id)
-                                          :number       .number)))))
+                                          :number       .number))))
+             (head-ref .headRefOid)
+             (base-ref .baseRefOid))
         (oset pullreq state        (pcase-exhaustive .state
                                      ("MERGED" 'merged)
                                      ("CLOSED" 'closed)
@@ -213,19 +231,31 @@
                                                           .milestone.id)))
         (oset pullreq body         (forge--sanitize-string .body))
         .databaseId ; Silence Emacs 25 byte-compiler.
-        (dolist (p .comments)
-          (let-alist p
+        ;; Github API doesn't support pullreq versioning
+        ;; Thus only add the latest version of the pullreq
+        (let* ((version-id (forge--object-id pullreq-id 1))
+               (version (forge-pullreq-version :id       version-id
+                                               :pullreq  pullreq-id
+                                               :number   1
+                                               :head-ref head-ref
+                                               :base-ref base-ref)))
+          (closql-insert (forge-db) version t))
+        ;; add posts
+        (dolist (c .comments)
+          (let-alist c
             (closql-insert
              (forge-db)
              (forge-pullreq-post
-              :id      (forge--object-id pullreq-id .databaseId)
-              :pullreq pullreq-id
-              :number  .databaseId
-              :author  .author.login
-              :created .createdAt
-              :updated .updatedAt
-              :body    (forge--sanitize-string .body))
-             t)))
+              :id         (forge--object-id pullreq-id .databaseId)
+              :pullreq    pullreq-id
+              :number     .databaseId
+              :author     .author.login
+              :created    .createdAt
+              :updated    .updatedAt
+              :body       (forge--sanitize-string .body)
+              :diff-p     nil
+              :reply-to   nil) ;; cannot reply on these comments with github api
+              t)))
         (when bump
           (forge--set-id-slot repo pullreq 'assignees .assignees)
           (forge--set-id-slot repo pullreq 'review-requests
@@ -472,6 +502,65 @@
                  (message "Adding %s..." (oref repo name))
                  (forge--pull repo nil cb))))
     (funcall cb)))
+
+(cl-defmethod forge--ghub-update-review-threads ((repo forge-github-repository) data)
+  (emacsql-with-transaction (forge-db)
+    (let-alist data
+      (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .number))
+             (pullreq (forge-get-pullreq repo .number))
+             (head-ref .headRefOid)
+             (base-ref .baseRefOid))
+        ;; add diff posts
+        (dolist (thread .reviewThreads)
+          (let-alist thread
+            (let ((new-line .line)
+                  (old-line .originalLine)
+                  (new (string= .diffSide "RIGHT")))
+              (dolist (c .comments)
+                (let-alist c
+                  (closql-insert
+                   (forge-db)
+                   (forge-pullreq-post
+                    :id         (forge--object-id pullreq-id .databaseId)
+                    :pullreq    pullreq-id
+                    :number     .databaseId
+                    :author     .author.login
+                    :created    .createdAt
+                    :updated    .updatedAt
+                    :body       (forge--sanitize-string .body)
+                    :diff-p     t
+                    :reply-to   (when .replyTo .replyTo.databaseId)
+                    :head-ref   head-ref
+                    :commit-ref (when .originalCommit .originalCommit.oid)
+                    :base-ref   base-ref
+                    :path       .path
+                    :old-line   (unless new old-line)
+                    :new-line   (when new (if old-line old-line new-line)))
+                   t))))))
+        pullreq))))
+
+(cl-defmethod forge--ghub-fetch-review-threads ((repo forge-github-repository) number
+                                                &optional callback)
+  (ghub-fetch-review-threads (oref repo owner)
+                             (oref repo name)
+                             number
+                             (lambda (data)
+                               (forge--ghub-update-review-threads repo data)
+                               (when callback (funcall callback)))
+                             nil
+                             :host (oref repo apihost)
+                             :headers forge-github-headers
+                             :auth 'forge))
+
+(cl-defmethod forge--ghub-fetch-all-review-threads ((repo forge-github-repository))
+  (when-let* ((pullreqs (oref repo pullreqs))
+              (pullreq (pop pullreqs))
+              (cb (lambda (pullreqs cb)
+                    (when-let ((pullreq (pop pullreqs)))
+                      (forge--ghub-fetch-review-threads repo (oref pullreq number)
+                                                        (lambda () (funcall cb pullreqs cb)))))))
+    (forge--ghub-fetch-review-threads repo (oref pullreq number)
+                                      (lambda () (funcall cb pullreqs cb)))))
 
 ;;; Mutations
 
