@@ -499,6 +499,23 @@
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
+(cl-defmethod forge--submit-create-diff-post ((_ forge-gitlab-repository) topic
+                                              &rest args)
+  (pcase-let ((`(,version ,commit ,file ,line) args))
+    (with-slots (head-ref base-ref) version
+      (forge--glab-post topic "/projects/:project/merge_requests/:number/discussions"
+        `((body     . ,(string-trim (buffer-string)))
+          (position (base_sha      . ,(oref version base-ref))
+                    (start_sha     . ,(if commit commit base-ref))
+                    (head_sha      . ,(oref version head-ref))
+                    (position_type . "text")
+                    (old_line      . ,(assoc-default 'old line))
+                    (new_line      . ,(assoc-default 'new line))
+                    (old_path      . ,file)
+                    (new_path      . ,file)))
+        :callback  (forge--post-submit-callback)
+        :errorback (forge--post-submit-errorback)))))
+
 (cl-defmethod forge--submit-edit-post ((_ forge-gitlab-repository) post)
   (forge--glab-put post
     (cl-etypecase post

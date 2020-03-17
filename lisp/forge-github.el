@@ -625,6 +625,23 @@
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
+(cl-defmethod forge--submit-create-diff-post ((_ forge-github-repository) topic
+                                              &rest args)
+  (pcase-let ((`(,version ,commit ,file ,line) args))
+    (let* ((commit_id (if commit commit (oref version head-ref)))
+           (old-line (assoc-default 'old line))
+           (new-line (assoc-default 'new line))
+           (side (if new-line "RIGHT" "LEFT")))
+      (forge--ghub-post topic "/repos/:owner/:repo/pulls/:number/comments"
+                        `((body          . ,(string-trim (buffer-string)))
+                          (commit_id     . ,commit_id)
+                          (path          . ,file)
+                          (line          . ,(if new-line new-line old-line))
+                          (side          . ,side))
+                        :headers forge-github-headers
+                        :callback  (forge--post-submit-callback)
+                        :errorback (forge--post-submit-errorback)))))
+
 (cl-defmethod forge--submit-edit-post ((_ forge-github-repository) post)
   (forge--ghub-patch post
     (cl-typecase post

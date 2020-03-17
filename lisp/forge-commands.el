@@ -420,6 +420,27 @@ point is currently on."
         (insert (replace-regexp-in-string "^" "> " quote) "\n\n")))
     (forge--display-post-buffer buf)))
 
+(defun forge-create-diff-post ()
+  "Create a new diff post in the current `magit-diff' buffer."
+  (interactive)
+  (unless (derived-mode-p 'magit-diff-mode)
+    (user-error "This command is only available from magit-diff buffers"))
+  (let* ((file (magit-file-at-point))
+         (line (forge--pullreq-diff-current-line))
+         (topic forge-buffer-topic)
+         (version forge--pullreq-version)
+         (commit forge--pullreq-commit)
+         (header (format "New comment on %s, line %s  -  #%%i of %%p"
+                         file line))
+         (buf (forge--prepare-post-buffer
+               (forge--format topic "%i:new-comment")
+               (forge--format topic header))))
+    (with-current-buffer buf
+      (setq forge--buffer-post-object topic)
+      (setq forge--buffer-post-args (list version commit file line))
+      (setq forge--submit-post-function 'forge--submit-create-diff-post))
+    (forge--display-post-buffer buf)))
+
 ;;; Edit
 
 (defun forge-edit-post ()
