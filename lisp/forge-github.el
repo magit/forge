@@ -655,10 +655,12 @@
 
 (cl-defmethod forge--submit-edit-post ((_ forge-github-repository) post)
   (forge--ghub-patch post
-    (cl-typecase post
-      (forge-pullreq "/repos/:owner/:repo/pulls/:number")
-      (forge-issue   "/repos/:owner/:repo/issues/:number")
-      (forge-post    "/repos/:owner/:repo/issues/comments/:number"))
+    (if (and (forge-pullreq-post-p post) (oref post diff-p))
+        "/repos/:owner/:repo/pulls/comments/:number"
+      (cl-typecase post
+        (forge-pullreq      "/repos/:owner/:repo/pulls/:number")
+        (forge-issue        "/repos/:owner/:repo/issues/:number")
+        (forge-post         "/repos/:owner/:repo/issues/comments/:number")))
     (if (cl-typep post 'forge-topic)
         (let-alist (forge--topic-parse-buffer)
           `((title . , .title)
