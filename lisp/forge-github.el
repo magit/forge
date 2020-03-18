@@ -704,7 +704,10 @@
 
 (cl-defmethod forge--delete-post
   ((_repo forge-github-repository) post)
-  (forge--ghub-delete post "/repos/:owner/:repo/issues/comments/:number")
+  (forge--ghub-delete post
+    (if (and (forge-pullreq-post-p post) (oref post diff-p))
+        "/repos/:owner/:repo/pulls/comments/:number"
+      "/repos/:owner/:repo/issues/comments/:number"))
   (closql-delete post)
   (magit-refresh))
 
