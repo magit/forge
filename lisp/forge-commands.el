@@ -97,7 +97,7 @@ If pulling is too slow, then also consider setting the Git variable
            (format "Always pull all of %s/%s's topics going forward?"
                    (oref repo owner)
                    (oref repo name)))
-          (oset repo selective-p nil)
+          (setf (oref repo selective-p) nil)
         (user-error "Abort")))
     (setq forge--mode-line-buffer (current-buffer))
     (when-let ((remote  (oref repo remote))
@@ -129,7 +129,7 @@ If pulling is too slow, then also consider setting the Git variable
   (forge--msg repo t t "Pulling from REPO is not supported"))
 
 (cl-defmethod forge--pull ((repo forge-unusedapi-repository) _until)
-  (oset repo sparse-p nil)
+  (setf (oref repo sparse-p) nil)
   (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
 
 (defun forge--git-fetch (buf dir repo)
@@ -480,7 +480,7 @@ topic N and modify that instead."
   (interactive
    (let ((n (forge-read-topic "Edit marks of")))
      (list n (forge-read-marks "Marks: " (forge-get-topic n)))))
-  (oset (forge-get-topic n) marks marks)
+  (setf (oref (forge-get-topic n) marks) marks)
   (magit-refresh))
 
 (defun forge-edit-topic-assignees (n)
@@ -742,7 +742,7 @@ information."
                         (delete mark value)
                       (cons mark value)))
              (marks (forge-sql [:select [name id] :from mark])))
-        (oset topic marks (--map (cadr (assoc it marks)) value))
+        (setf (oref topic marks) (--map (cadr (assoc it marks)) value))
         (magit-refresh))
     (user-error "There is no topic at point")))
 
@@ -827,12 +827,12 @@ pull individual topics when the user invokes `forge-pull-topic'."
   (if (forge-get-repository url nil 'full)
       (user-error "%s is already tracked in Forge database" url)
     (let ((repo (forge-get-repository url nil 'create)))
-      (oset repo sparse-p nil)
+      (setf (oref repo sparse-p) nil)
       (magit-read-char-case "Pull " nil
         (?a "[a]ll topics"
             (forge-pull repo))
         (?i "[i]ndividual topics (useful for casual contributors)"
-            (oset repo selective-p t))))))
+            (setf (oref repo selective-p) t))))))
 
 ;;;###autoload
 (defun forge-add-user-repositories (host user)

@@ -58,7 +58,7 @@
                                'pullreq-post-url-format)))))
 
 (cl-defmethod forge-browse :after ((post forge-post))
-  (oset (forge-get-topic post) unread-p nil))
+  (setf (oref (forge-get-topic post) unread-p) nil))
 
 ;;; Sections
 

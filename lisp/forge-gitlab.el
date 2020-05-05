@@ -89,7 +89,7 @@ it is all or nothing.")
                       (forge--update-labels     repo .labels)
                       (dolist (v .issues)   (forge--update-issue repo v))
                       (dolist (v .pullreqs) (forge--update-pullreq repo v))
-                      (oset repo sparse-p nil))
+                      (setf (oref repo sparse-p) nil))
                     (forge--msg repo t t "Storing REPO")
                     (forge--git-fetch buf dir repo))))))))
     (funcall cb cb)))
@@ -101,22 +101,22 @@ it is all or nothing.")
 
 (cl-defmethod forge--update-repository ((repo forge-gitlab-repository) data)
   (let-alist data
-    (oset repo created        .created_at)
-    (oset repo updated        .last_activity_at)
-    (oset repo pushed         nil)
-    (oset repo parent         .forked_from_project.path_with_namespace)
-    (oset repo description    .description)
-    (oset repo homepage       nil)
-    (oset repo default-branch .default_branch)
-    (oset repo archived-p     .archived)
-    (oset repo fork-p         (and .forked_from_project.path_with_namespace t))
-    (oset repo locked-p       nil)
-    (oset repo mirror-p       .mirror)
-    (oset repo private-p      (equal .visibility "private"))
-    (oset repo issues-p       .issues_enabled)
-    (oset repo wiki-p         .wiki_enabled)
-    (oset repo stars          .star_count)
-    (oset repo watchers       .star_count)))
+    (setf (oref repo created)        .created_at)
+    (setf (oref repo updated)        .last_activity_at)
+    (setf (oref repo pushed)         nil)
+    (setf (oref repo parent)         .forked_from_project.path_with_namespace)
+    (setf (oref repo description)    .description)
+    (setf (oref repo homepage)       nil)
+    (setf (oref repo default-branch) .default_branch)
+    (setf (oref repo archived-p)     .archived)
+    (setf (oref repo fork-p)         (and .forked_from_project.path_with_namespace t))
+    (setf (oref repo locked-p)       nil)
+    (setf (oref repo mirror-p)       .mirror)
+    (setf (oref repo private-p)      (equal .visibility "private"))
+    (setf (oref repo issues-p)       .issues_enabled)
+    (setf (oref repo wiki-p)         .wiki_enabled)
+    (setf (oref repo stars)          .star_count)
+    (setf (oref repo watchers)       .star_count)))
 
 (cl-defmethod forge--split-url-path
   ((_class (subclass forge-gitlab-repository)) path)
@@ -351,7 +351,7 @@ it is all or nothing.")
                 (funcall callback callback (cons 'assignees value)))))
 
 (cl-defmethod forge--update-assignees ((repo forge-gitlab-repository) data)
-  (oset repo assignees
+  (setf (oref repo assignees)
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
@@ -373,7 +373,7 @@ it is all or nothing.")
                 (funcall callback callback (cons 'forks value)))))
 
 (cl-defmethod forge--update-forks ((repo forge-gitlab-repository) data)
-  (oset repo forks
+  (setf (oref repo forks)
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
@@ -394,7 +394,7 @@ it is all or nothing.")
                 (funcall callback callback (cons 'labels value)))))
 
 (cl-defmethod forge--update-labels ((repo forge-gitlab-repository) data)
-  (oset repo labels
+  (setf (oref repo labels)
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row

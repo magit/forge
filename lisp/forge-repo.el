@@ -150,7 +150,7 @@ repository, if any."
           (if-let ((url (and remote
                              (magit-git-string "remote" "get-url" remote))))
               (when-let ((repo (forge-get-repository url remote demand)))
-                (oset repo worktree (magit-toplevel))
+                (setf (oref repo worktree) (magit-toplevel))
                 repo)
             (when (memq demand forge--signal-no-entry)
               (error
@@ -182,9 +182,9 @@ Return the repository identified by HOST, OWNER and NAME."
                                     forge owner name)))
                (obj (and row (closql--remake-instance class (forge-db) row))))
           (when obj
-            (oset obj apihost apihost)
-            (oset obj githost githost)
-            (oset obj remote  remote))
+            (setf (oref obj apihost) apihost)
+            (setf (oref obj githost) githost)
+            (setf (oref obj remote) remote))
           (cond ((and (eq demand t)
                       (or (not obj)
                           (oref obj sparse-p)))

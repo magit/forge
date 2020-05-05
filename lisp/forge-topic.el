@@ -266,7 +266,7 @@ This variable has to be customized before `forge' is loaded."
   (forge-topic-mark-read (forge-get-repository topic) topic))
 
 (cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
-  (oset topic unread-p nil))
+  (setf (oref topic unread-p) nil))
 
 (defun forge--sanitize-string (string)
   ;; For Gitlab this may also be nil.
@@ -401,7 +401,7 @@ identifier."
       (dolist (post (cons topic (oref topic posts)))
         (with-slots (author created body) post
           (magit-insert-section section (post post)
-            (oset section heading-highlight-face
+            (setf (oref section heading-highlight-face)
                   'magit-diff-hunk-heading-highlight)
             (let ((heading
                    (format-spec

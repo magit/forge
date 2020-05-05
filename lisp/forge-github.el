@@ -73,7 +73,7 @@
            (forge--update-issues     repo .issues t)
            (forge--update-pullreqs   repo .pullRequests t)
            (forge--update-revnotes   repo .commitComments))
-         (oset repo sparse-p nil))
+         (setf (oref repo sparse-p) nil))
        (forge--msg repo t t   "Storing REPO")
        (cond
         (callback (funcall callback))
@@ -114,22 +114,22 @@
 
 (cl-defmethod forge--update-repository ((repo forge-github-repository) data)
   (let-alist data
-    (oset repo created        .createdAt)
-    (oset repo updated        .updatedAt)
-    (oset repo pushed         .pushedAt)
-    (oset repo parent         .parent.nameWithOwner)
-    (oset repo description    .description)
-    (oset repo homepage       (and (not (equal .homepageUrl "")) .homepageUrl))
-    (oset repo default-branch .defaultBranchRef.name)
-    (oset repo archived-p     .isArchived)
-    (oset repo fork-p         .isFork)
-    (oset repo locked-p       .isLocked)
-    (oset repo mirror-p       .isMirror)
-    (oset repo private-p      .isPrivate)
-    (oset repo issues-p       .hasIssuesEnabled)
-    (oset repo wiki-p         .hasWikiEnabled)
-    (oset repo stars          .stargazers.totalCount)
-    (oset repo watchers       .watchers.totalCount)))
+    (setf (oref repo created)        .createdAt)
+    (setf (oref repo updated)        .updatedAt)
+    (setf (oref repo pushed)         .pushedAt)
+    (setf (oref repo parent)         .parent.nameWithOwner)
+    (setf (oref repo description)    .description)
+    (setf (oref repo homepage)       (and (not (equal .homepageUrl "")) .homepageUrl))
+    (setf (oref repo default-branch) .defaultBranchRef.name)
+    (setf (oref repo archived-p)     .isArchived)
+    (setf (oref repo fork-p)         .isFork)
+    (setf (oref repo locked-p)       .isLocked)
+    (setf (oref repo mirror-p)       .isMirror)
+    (setf (oref repo private-p)      .isPrivate)
+    (setf (oref repo issues-p)       .hasIssuesEnabled)
+    (setf (oref repo wiki-p)         .hasWikiEnabled)
+    (setf (oref repo stars)          .stargazers.totalCount)
+    (setf (oref repo watchers)       .watchers.totalCount)))
 
 (cl-defmethod forge--update-issues ((repo forge-github-repository) data bump)
   (emacsql-with-transaction (forge-db)
@@ -145,20 +145,20 @@
                          (forge-issue :id         issue-id
                                       :repository (oref repo id)
                                       :number     .number)))))
-        (oset issue state      (pcase-exhaustive .state
-                                 ("CLOSED" 'closed)
-                                 ("OPEN"   'open)))
-        (oset issue author     .author.login)
-        (oset issue title      .title)
-        (oset issue created    .createdAt)
-        (oset issue updated    (cond (bump (or .updatedAt .createdAt))
-                                     ((slot-boundp issue 'updated)
-                                      (oref issue updated))
-                                     (t "0")))
-        (oset issue closed     .closedAt)
-        (oset issue locked-p   .locked)
-        (oset issue milestone  .milestone)
-        (oset issue body       (forge--sanitize-string .body))
+        (setf (oref issue state)      (pcase-exhaustive .state
+                                        ("CLOSED" 'closed)
+                                        ("OPEN"   'open)))
+        (setf (oref issue author)     .author.login)
+        (setf (oref issue title)      .title)
+        (setf (oref issue created)    .createdAt)
+        (setf (oref issue updated)    (cond (bump (or .updatedAt .createdAt))
+                                            ((slot-boundp issue 'updated)
+                                             (oref issue updated))
+                                            (t "0")))
+        (setf (oref issue closed)     .closedAt)
+        (setf (oref issue locked-p)   .locked)
+        (setf (oref issue milestone)  .milestone)
+        (setf (oref issue body)       (forge--sanitize-string .body))
         .databaseId ; Silence Emacs 25 byte-compiler.
         (dolist (c .comments)
           (let-alist c
@@ -192,29 +192,29 @@
                            (forge-pullreq :id           pullreq-id
                                           :repository   (oref repo id)
                                           :number       .number)))))
-        (oset pullreq state        (pcase-exhaustive .state
-                                     ("MERGED" 'merged)
-                                     ("CLOSED" 'closed)
-                                     ("OPEN"   'open)))
-        (oset pullreq author       .author.login)
-        (oset pullreq title        .title)
-        (oset pullreq created      .createdAt)
-        (oset pullreq updated      (cond (bump (or .updatedAt .createdAt))
-                                         ((slot-boundp pullreq 'updated)
-                                          (oref pullreq updated))
-                                         (t "0")))
-        (oset pullreq closed       .closedAt)
-        (oset pullreq merged       .mergedAt)
-        (oset pullreq locked-p     .locked)
-        (oset pullreq editable-p   .maintainerCanModify)
-        (oset pullreq cross-repo-p .isCrossRepository)
-        (oset pullreq base-ref     .baseRef.name)
-        (oset pullreq base-repo    .baseRef.repository.nameWithOwner)
-        (oset pullreq head-ref     .headRef.name)
-        (oset pullreq head-user    .headRef.repository.owner.login)
-        (oset pullreq head-repo    .headRef.repository.nameWithOwner)
-        (oset pullreq milestone    .milestone)
-        (oset pullreq body         (forge--sanitize-string .body))
+        (setf (oref pullreq state)        (pcase-exhaustive .state
+                                            ("MERGED" 'merged)
+                                            ("CLOSED" 'closed)
+                                            ("OPEN"   'open)))
+        (setf (oref pullreq author)       .author.login)
+        (setf (oref pullreq title)        .title)
+        (setf (oref pullreq created)      .createdAt)
+        (setf (oref pullreq updated)      (cond (bump (or .updatedAt .createdAt))
+                                                ((slot-boundp pullreq 'updated)
+                                                 (oref pullreq updated))
+                                                (t "0")))
+        (setf (oref pullreq closed)       .closedAt)
+        (setf (oref pullreq merged)       .mergedAt)
+        (setf (oref pullreq locked-p)     .locked)
+        (setf (oref pullreq editable-p)   .maintainerCanModify)
+        (setf (oref pullreq cross-repo-p) .isCrossRepository)
+        (setf (oref pullreq base-ref)     .baseRef.name)
+        (setf (oref pullreq base-repo)    .baseRef.repository.nameWithOwner)
+        (setf (oref pullreq head-ref)     .headRef.name)
+        (setf (oref pullreq head-user)    .headRef.repository.owner.login)
+        (setf (oref pullreq head-repo)    .headRef.repository.nameWithOwner)
+        (setf (oref pullreq milestone)    .milestone)
+        (setf (oref pullreq body)         (forge--sanitize-string .body))
         .databaseId ; Silence Emacs 25 byte-compiler.
         (dolist (p .comments)
           (let-alist p
@@ -257,7 +257,7 @@
        t))))
 
 (cl-defmethod forge--update-assignees ((repo forge-github-repository) data)
-  (oset repo assignees
+  (setf (oref repo assignees)
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
@@ -268,7 +268,7 @@
                   (delete-dups data)))))
 
 (cl-defmethod forge--update-forks ((repo forge-github-repository) data)
-  (oset repo forks
+  (setf (oref repo forks)
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
@@ -282,7 +282,7 @@
                   (delete-dups data)))))
 
 (cl-defmethod forge--update-labels ((repo forge-github-repository) data)
-  (oset repo labels
+  (setf (oref repo labels)
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
@@ -340,11 +340,11 @@
                    (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
                      (closql-insert (forge-db) obj)
                      (when query
-                       (oset (funcall (if (eq (oref obj type) 'issue)
-                                          #'forge--update-issue
-                                        #'forge--update-pullreq)
-                                      repo (cdr (cadr (assq key result))) nil)
-                             unread-p (oref obj unread-p)))))
+                       (setf (oref (funcall (if (eq (oref obj type) 'issue)
+                                                #'forge--update-issue
+                                              #'forge--update-pullreq)
+                                            repo (cdr (cadr (assq key result))) nil)
+                                   unread-p) (oref obj unread-p)))))
                  (forge--msg nil t t "Storing notifications")
                  (when callback
                    (funcall callback)))))
@@ -395,9 +395,9 @@
 
 (cl-defmethod forge-topic-mark-read ((_ forge-github-repository) topic)
   (when (oref topic unread-p)
-    (oset topic unread-p nil)
+    (setf (oref topic unread-p) nil)
     (when-let ((notif (forge-get-notification topic)))
-      (oset topic unread-p nil)
+      (setf (oref topic unread-p) nil)
       (forge--ghub-patch notif "/notifications/threads/:thread-id"))))
 
 ;;;; Miscellaneous
