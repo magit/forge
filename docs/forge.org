@@ -347,7 +347,7 @@ is useful if you want to create a single pull-request.
 
 - Key: ' a, forge-add-repository
 
-  This commnand add a repository to the database.
+  This command add a repository to the database.
 
   It offers to either pull topics (now and in the future) or to only
   pull individual topics when the user invokes ~forge-pull-topic~.

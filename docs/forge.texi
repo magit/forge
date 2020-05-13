@@ -503,7 +503,7 @@ is useful if you want to create a single pull-request.
 @cindex forge-add-repository
 @item @kbd{' a} @tie{}@tie{}@tie{}@tie{}(@code{forge-add-repository})
 
-This commnand add a repository to the database.
+This command add a repository to the database.
 
 It offers to either pull topics (now and in the future) or to only
 pull individual topics when the user invokes @code{forge-pull-topic}.
