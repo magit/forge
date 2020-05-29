@@ -345,7 +345,9 @@ identifier."
     map))
 
 (define-derived-mode forge-topic-mode magit-mode "View Topic"
-  "View a forge issue or pull-request.")
+  "View a forge issue or pull-request."
+  (setq-local markdown-translate-filename-function
+              #'forge--markdown-translate-filename-function))
 
 (defvar forge-topic-headers-hook
   '(forge-insert-topic-title
@@ -611,6 +613,15 @@ Return a value between 0 and 1."
 
 (cl-defmethod forge--topic-type-prefix ((_repo forge-repository) _type)
   "#")
+
+(defun forge--markdown-translate-filename-function (file)
+  (if (string-match-p "\\`https?://" file)
+      file
+    (let ((host (oref (forge-get-repository t) githost)))
+      (concat (if (member host ghub-insecure-hosts) "http://" "https://")
+              host
+              (and (not (string-prefix-p "/" file)) "/")
+              file))))
 
 ;;; Completion
 
