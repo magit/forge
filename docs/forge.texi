@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-304-g0ade907a+1)
+@subtitle for version 0.1.0 (v0.1.0-310-g09bf8adc+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-304-g0ade907a+1).
+This manual is for Forge version 0.1.0 (v0.1.0-310-g09bf8adc+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -960,18 +960,18 @@ by you based on @code{forge-owned-accounts}.
 @subsection Creating Topics
 
 @table @asis
-@kindex ' p
+@kindex ' c p
 @cindex forge-create-pullreq
-@item @kbd{' p} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
+@item @kbd{' c p} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
 @kindex C-c C-n [on "Pull requests" section]
 @cindex forge-create-pullreq
 @item @kbd{C-c C-n [on "Pull requests" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
 
 This command creates a new pull-request for the current repository.
 
-@kindex ' i
+@kindex ' c i
 @cindex forge-create-issue
-@item @kbd{' i} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-issue})
+@item @kbd{' c i} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-issue})
 @kindex C-c C-n [on "Issues" section]
 @cindex forge-create-pullreq
 @item @kbd{C-c C-n [on "Issues" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
