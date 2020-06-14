@@ -199,6 +199,12 @@ yourself, in which case you probably should not reset either.
   (let ((ref (format "refs/pullreqs/%s" (oref pullreq number))))
     (and (magit-rev-verify ref) ref)))
 
+(defun forge--pullreq-range (pullreq &optional endpoints)
+  (when-let ((head (forge--pullreq-ref pullreq)))
+    (concat (forge--get-remote) "/" (oref pullreq base-ref)
+            (if endpoints "..." "..")
+            head)))
+
 (cl-defmethod forge-get-url ((pullreq forge-pullreq))
   (forge--format pullreq 'pullreq-url-format))
 
@@ -245,11 +251,10 @@ Also see option `forge-topic-list-limit'."
                            (forge--topic-type-prefix repo 'pullreq)))))
 
 (defun forge--insert-pullreq-commits (pullreq)
-  (when-let ((ref (forge--pullreq-ref pullreq)))
+  (when-let ((range (forge--pullreq-range pullreq)))
     (magit-insert-section-body
       (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
-        (magit-insert-log (format "%s..%s" (oref pullreq base-ref) ref)
-                          magit-buffer-log-args)
+        (magit-insert-log range magit-buffer-log-args)
         (magit-make-margin-overlay nil t)))))
 
 (cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq)
