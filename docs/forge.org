@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-313-g8beace11+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-314-g048efbba+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-313-g8beace11+1).
+This manual is for Forge version 0.1.0 (v0.1.0-314-g048efbba+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -97,9 +97,6 @@ also see [[*Getting Started]].
 - Gitlab
 
   Gitlab Caveats
-
-  - Forge cannot use Ghub's setup wizard to create the API token
-    because the Gitlab API does not support doing that.
 
   - Forge cannot provide notifications because the Gitlab API does not
     expose those.
@@ -222,12 +219,8 @@ also see [[*Getting Started]].
 Getting started using Forge should be fairly easy, but there are a few
 caveats you should be aware of:
 
-- Forge uses the Ghub package to access forge APIs.  That package
-  comes with a setup wizard that should make it easy to create and
-  store a Github API token.  Unfortunately the same cannot be done for
-  other forges and in the past it has failed for some users for Github
-  too, in particular when using two-factor authentication.  See [[*Token
-  Creation]] for more information.
+- Forge uses the Ghub package to access forge APIs.  For this purpose
+  you have to create a token as described in [[*Token Creation]].
 
 - Fetched information is stored in a database.  The table schemata of
   that database have not been finalized yet.  Until that has happened
@@ -296,15 +289,31 @@ than making hundreds of REST requests.
 ** Token Creation
 
 Forge uses the Ghub package to access the APIs of supported Git
-forges.  Ghub comes with a setup wizard that guides the user through
-the process of creating an API token for Github.com.  When accessing a
-Github Enterprise instance, then some manual setup is required before
-the wizard can be used.  Other forges don't support creating tokens
-using the API at all.  Before accessing such a forge you have to
-create a token using the respective web interface.
+forges.  How this works an how to create and store a token is
+documented in [[info:ghub#Getting Started]].
 
-Please consult Ghub's manual to learn more about token creation.  See
-[[info:ghub#Getting Started]] in particular.
+Ghub used to provide a setup wizard, but that had to be removed for
+reasons given in the manual just mentioned.  Nowadays there is no way
+around reading the documentation and doing this manually I am afraid.
+
+  Forge requires the following token scopes.
+
+- For Github these scopes are required.
+
+  - ~repo~ grants full read/write access to private and public
+    repositories.
+  - ~user~ grants access to profile information.
+  - ~read:org~ grants read-only access to organization membership.
+
+  More infomation about these and other scopes can be found at
+  https://docs.github.com/en/developers/apps/scopes-for-oauth-apps.
+
+- For Gitlab instances ~api~ is the only required scope.  It gives read
+  and write access to everything.  The Gitlab API provides more
+  fine-grained scopes for read-only access, but when any write access
+  at all is required, then it is all or nothing.
+
+** Repository Detection
 
 Ghub does *not* associate a given local repository with a repository on
 a forge.  The Forge package itself takes care of this.  In doing so it

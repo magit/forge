@@ -26,16 +26,6 @@
 (require 'forge-issue)
 (require 'forge-pullreq)
 
-;;; Variables
-
-(defvar forge-gitlab-token-scopes '(api)
-  "The Gitlab API scopes needed by Forge.
-
-`api' is the only required scope.  It gives read and write access
-to everything.  The Gitlab API provides more fine-grained scopes
-for read-only access, but when any write access is required, then
-it is all or nothing.")
-
 ;;; Class
 
 (defclass forge-gitlab-repository (forge-repository)

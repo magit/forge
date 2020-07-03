@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-313-g8beace11+1)
+@subtitle for version 0.1.0 (v0.1.0-314-g048efbba+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-313-g8beace11+1).
+This manual is for Forge version 0.1.0 (v0.1.0-314-g048efbba+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -84,6 +84,7 @@ Getting Started
 
 * Initial Pull::
 * Token Creation::
+* Repository Detection::
 
 Usage
 
@@ -181,11 +182,6 @@ Gitlab
 Gitlab Caveats
 
 @itemize
-@item
-Forge cannot use Ghub's setup wizard to create the API token
-because the Gitlab API does not support doing that.
-
-
 @item
 Forge cannot provide notifications because the Gitlab API does not
 expose those.
@@ -367,11 +363,8 @@ caveats you should be aware of:
 
 @itemize
 @item
-Forge uses the Ghub package to access forge APIs.  That package
-comes with a setup wizard that should make it easy to create and
-store a Github API token.  Unfortunately the same cannot be done for
-other forges and in the past it has failed for some users for Github
-too, in particular when using two-factor authentication.  See @ref{Token Creation} for more information.
+Forge uses the Ghub package to access forge APIs.  For this purpose
+you have to create a token as described in @ref{Token Creation}.
 
 
 @item
@@ -415,6 +408,7 @@ Or if you use @code{use-package}:
 @menu
 * Initial Pull::
 * Token Creation::
+* Repository Detection::
 @end menu
 
 @node Initial Pull
@@ -453,15 +447,44 @@ than making hundreds of REST requests.
 @section Token Creation
 
 Forge uses the Ghub package to access the APIs of supported Git
-forges.  Ghub comes with a setup wizard that guides the user through
-the process of creating an API token for Github.com.  When accessing a
-Github Enterprise instance, then some manual setup is required before
-the wizard can be used.  Other forges don't support creating tokens
-using the API at all.  Before accessing such a forge you have to
-create a token using the respective web interface.
+forges.  How this works an how to create and store a token is
+documented in @ref{Getting Started,,,ghub,}.
 
-Please consult Ghub's manual to learn more about token creation.  See
-@ref{Getting Started,,,ghub,} in particular.
+Ghub used to provide a setup wizard, but that had to be removed for
+reasons given in the manual just mentioned.  Nowadays there is no way
+around reading the documentation and doing this manually I am afraid.
+
+Forge requires the following token scopes.
+
+@itemize
+@item
+For Github these scopes are required.
+
+@itemize
+@item
+@code{repo} grants full read/write access to private and public
+repositories.
+
+@item
+@code{user} grants access to profile information.
+
+@item
+@code{read:org} grants read-only access to organization membership.
+@end itemize
+
+More infomation about these and other scopes can be found at
+@uref{https://docs.github.com/en/developers/apps/scopes-for-oauth-apps}.
+
+
+@item
+For Gitlab instances @code{api} is the only required scope.  It gives read
+and write access to everything.  The Gitlab API provides more
+fine-grained scopes for read-only access, but when any write access
+at all is required, then it is all or nothing.
+@end itemize
+
+@node Repository Detection
+@section Repository Detection
 
 Ghub does @strong{not} associate a given local repository with a repository on
 a forge.  The Forge package itself takes care of this.  In doing so it

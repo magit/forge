@@ -26,15 +26,6 @@
 (require 'forge-issue)
 (require 'forge-pullreq)
 
-;;; Variables
-
-(defvar forge-github-token-scopes '(repo user read:org)
-  "The Github API scopes needed by Forge.
-
-+Visit https://github.com/settings/tokens to change the scopes
-+of existing tokens and for a list of all available scopes see
-+https://developer.github.com/apps/building-oauth-apps/understanding-scopes-for-oauth-apps.")
-
 ;;; Class
 
 (defclass forge-github-repository (forge-repository)
