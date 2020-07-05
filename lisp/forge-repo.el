@@ -74,7 +74,8 @@
    (pullreqs                  :closql-class forge-pullreq)
    (revnotes                  :closql-class forge-revnote)
    (selective-p               :initform nil)
-   (worktree                  :initform nil))
+   (worktree                  :initform nil)
+   (milestones                :closql-table milestone))
   :abstract t)
 
 (defclass forge-unusedapi-repository (forge-repository) () :abstract t)

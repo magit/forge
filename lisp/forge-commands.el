@@ -458,6 +458,17 @@ topic N and modify that instead."
   (let ((topic (forge-get-topic n)))
     (forge--set-topic-state (forge-get-repository topic) topic)))
 
+(defun forge-edit-topic-milestone (n)
+  (interactive (list (forge-read-topic "Edit milestone of")))
+  (let* ((topic (forge-get-topic n))
+         (repo  (forge-get-repository topic)))
+    (forge--set-topic-milestone
+     repo topic
+     (magit-completing-read
+                 "Milestone"
+                 (mapcar #'caddr (oref repo milestones))
+                 nil t (forge--get-topic-milestone topic)))))
+
 (defun forge-edit-topic-labels (n)
   "Edit the labels of the current topic.
 If there is no current topic or with a prefix argument read a

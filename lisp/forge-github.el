@@ -61,6 +61,7 @@
            (forge--update-assignees  repo .assignableUsers)
            (forge--update-forks      repo .forks)
            (forge--update-labels     repo .labels)
+           (forge--update-milestones repo .milestones)
            (forge--update-issues     repo .issues t)
            (forge--update-pullreqs   repo .pullRequests t)
            (forge--update-revnotes   repo .commitComments))
@@ -148,7 +149,9 @@
                                      (t "0")))
         (oset issue closed     .closedAt)
         (oset issue locked-p   .locked)
-        (oset issue milestone  .milestone)
+        (oset issue milestone  (and .milestone.id
+                                    (forge--object-id (oref repo id)
+                                                      .milestone.id)))
         (oset issue body       (forge--sanitize-string .body))
         .databaseId ; Silence Emacs 25 byte-compiler.
         (dolist (c .comments)
@@ -204,7 +207,9 @@
         (oset pullreq head-ref     .headRef.name)
         (oset pullreq head-user    .headRef.repository.owner.login)
         (oset pullreq head-repo    .headRef.repository.nameWithOwner)
-        (oset pullreq milestone    .milestone)
+        (oset pullreq milestone    (and .milestone.id
+                                        (forge--object-id (oref repo id)
+                                                          .milestone.id)))
         (oset pullreq body         (forge--sanitize-string .body))
         .databaseId ; Silence Emacs 25 byte-compiler.
         (dolist (p .comments)
@@ -280,6 +285,21 @@
                       (list (forge--object-id id .id)
                             .name
                             (concat "#" (downcase .color))
+                            .description)))
+                  (delete-dups data)))))
+
+(cl-defmethod forge--update-milestones ((repo forge-github-repository) data)
+  (oset repo milestones
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      (list (forge--object-id id .id)
+                            .number
+                            .title
+                            .createdAt
+                            .updatedAt
+                            .dueOn
+                            .closedAt
                             .description)))
                   (delete-dups data)))))
 
@@ -540,6 +560,19 @@
                      `((state . ,(cl-ecase (oref topic state)
                                    (closed "OPEN")
                                    (open   "CLOSED"))))
+                     :callback (forge--set-field-callback)))
+
+(cl-defmethod forge--set-topic-milestone
+  ((repo forge-github-repository) topic milestone)
+  (forge--ghub-patch topic
+                     "/repos/:owner/:repo/issues/:number"
+                     `((milestone
+                        . ,(caar (forge-sql [:select [number]
+                                             :from milestone
+                                             :where (and (= repository $s1)
+                                                         (= title $s2))]
+                                            (oref repo id)
+                                            milestone))))
                      :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--set-topic-labels

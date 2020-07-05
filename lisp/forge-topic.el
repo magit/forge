@@ -353,6 +353,7 @@ identifier."
   '(forge-insert-topic-title
     forge-insert-topic-state
     forge-insert-topic-refs
+    forge-insert-topic-milestone
     forge-insert-topic-labels
     forge-insert-topic-marks
     forge-insert-topic-assignees
@@ -449,6 +450,26 @@ identifier."
     (insert (format "%-11s" "State: ")
             (symbol-name (oref topic state))
             "\n")))
+
+(defvar forge-topic-milestone-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-edit-thing] 'forge-edit-topic-milestone)
+    map))
+
+(cl-defun forge-insert-topic-milestone
+    (&optional (topic forge-buffer-topic))
+  (magit-insert-section (topic-milestone)
+    (insert (format "%-11s" "Milestone: ")
+            (or (forge--get-topic-milestone topic)
+                ;; If the user hasn't pulled this repository yet after
+                ;; updating to db v7, then only the id is available.
+                (oref topic milestone)
+                (propertize "none" 'font-lock-face 'magit-dimmed))
+            "\n")))
+
+(defun forge--get-topic-milestone (topic)
+  (when-let ((id (oref topic milestone)))
+    (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))))
 
 (defvar forge-topic-labels-section-map
   (let ((map (make-sparse-keymap)))
