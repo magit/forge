@@ -54,6 +54,7 @@
    (reactions)
    (timeline)
    (marks                :closql-table (issue-mark mark))
+   (note                 :initarg :note :initform nil)
    ))
 
 (defclass forge-issue-post (forge-post)

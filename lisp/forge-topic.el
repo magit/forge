@@ -401,6 +401,10 @@ identifier."
         (magit-insert-section (pullreq topic)
           (magit-insert-heading "Commits")
           (forge--insert-pullreq-commits topic)))
+      (when-let ((note (oref topic note)))
+        (magit-insert-section (note)
+          (magit-insert-heading "Note")
+          (insert (forge--fontify-markdown note) "\n\n")))
       (dolist (post (cons topic (oref topic posts)))
         (with-slots (author created body) post
           (magit-insert-section section (post post)

@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-314-g048efbba+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-318-g274c3461+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-314-g048efbba+1).
+This manual is for Forge version 0.1.0 (v0.1.0-318-g274c3461+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -775,6 +775,11 @@ a post visits that post in a browser.
 
   This command reads a list of people who you would like to review an
   existing topic in the minibuffer.
+
+- Key: C-c C-e [on "Note" section], forge-edit-topic-note
+- Key: M-x forge-edit-topic-note, forge-edit-topic-note
+
+  This lets you edit your private note about a topic.
 
 - Key: C-c C-k [on a comment section], forge-delete-comment
 

@@ -210,6 +210,29 @@
   (lambda (error &rest _)
     (error "Failed to submit post: %S" error)))
 
+;;; Notes
+
+(defclass forge-note (forge-post) ())
+
+(defvar forge-note-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-edit-thing] 'forge-edit-topic-note)
+    map))
+
+(defun forge--save-note (_repo topic)
+  (let ((value (string-trim (buffer-substring-no-properties
+                             (point-min)
+                             (point-max)))))
+    (oset topic note (if (equal value "") nil value)))
+  (delete-file buffer-file-name t)
+  (let ((dir (file-name-directory buffer-file-name)))
+    (unless (cddr (directory-files dir nil nil t))
+      (delete-directory dir nil t)))
+  (let ((prevbuf forge--pre-post-buffer))
+    (magit-mode-bury-buffer 'kill)
+    (when (buffer-live-p prevbuf)
+      (magit-refresh))))
+
 ;;; _
 (provide 'forge-post)
 ;;; forge-post.el ends here

@@ -537,6 +537,23 @@ topic N and modify that instead."
       'confirm
       (mapconcat #'car value ",")))))
 
+(defun forge-edit-topic-note (n)
+  "Edit your private note about the current topic.
+If there is no current topic or with a prefix argument read a
+topic N and modify that instead."
+  (interactive (list (forge-read-topic "Edit note about")))
+  (let* ((topic (forge-get-topic n))
+         (buf (forge--prepare-post-buffer
+               (forge--format topic "%i:note")
+               (forge--format topic "New note on #%i of %p"))))
+    (with-current-buffer buf
+      (setq forge--buffer-post-object topic)
+      (setq forge--submit-post-function 'forge--save-note)
+      (erase-buffer)
+      (when-let ((note (oref topic note)))
+        (save-excursion (insert note ?\n))))
+    (forge--display-post-buffer buf)))
+
 ;;; Delete
 
 (defun forge-delete-comment (comment)

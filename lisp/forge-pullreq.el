@@ -65,6 +65,7 @@
    (reviews)
    (timeline)
    (marks                :closql-table (pullreq-mark mark))
+   (note                 :initarg :note :initform nil)
    ;; We don't use these fields:
    ;; includesCreatedEdit (huh?),
    ;; lastEditedAt (same as updatedAt?),

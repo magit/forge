@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-314-g048efbba+1)
+@subtitle for version 0.1.0 (v0.1.0-318-g274c3461+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-314-g048efbba+1).
+This manual is for Forge version 0.1.0 (v0.1.0-318-g274c3461+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -1088,6 +1088,15 @@ minibuffer.
 
 This command reads a list of people who you would like to review an
 existing topic in the minibuffer.
+
+@kindex C-c C-e [on "Note" section]
+@cindex forge-edit-topic-note
+@item @kbd{C-c C-e [on "Note" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-note})
+@kindex M-x forge-edit-topic-note
+@cindex forge-edit-topic-note
+@item @kbd{M-x forge-edit-topic-note} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-note})
+
+This lets you edit your private note about a topic.
 
 @kindex C-c C-k [on a comment section]
 @cindex forge-delete-comment

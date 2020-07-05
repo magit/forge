@@ -46,7 +46,7 @@
 (defclass forge-database (closql-database)
   ((object-class :initform forge-repository)))
 
-(defconst forge--db-version 6)
+(defconst forge--db-version 7)
 (defconst forge--sqlite-available-p
   (with-demoted-errors "Forge initialization: %S"
     (emacsql-sqlite-ensure-binary)
@@ -164,7 +164,8 @@
       (posts        :default eieio-unbound)
       (reactions    :default eieio-unbound)
       (timeline     :default eieio-unbound)
-      (marks        :default eieio-unbound)]
+      (marks        :default eieio-unbound)
+      note]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
@@ -298,7 +299,8 @@
       (review-requests :default eieio-unbound)
       (reviews         :default eieio-unbound)
       (timeline        :default eieio-unbound)
-      (marks           :default eieio-unbound)]
+      (marks           :default eieio-unbound)
+      note]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
@@ -400,8 +402,10 @@
       (emacsql db [:alter-table repository :add-column worktree :default nil])
       (closql--db-set-version db (setq version 6))
       (message "Upgrading Forge database from version 5 to 6...done"))
-    (when nil
+    (when (= version 6)
       (message "Upgrading Forge database from version 6 to 7...")
+      (emacsql db [:alter-table issue   :add-column note :default nil])
+      (emacsql db [:alter-table pullreq :add-column note :default nil])
       (emacsql db [:create-table milestone $S1]
                (cdr (assq 'milestone forge--db-table-schemata)))
       (emacsql db [:alter-table repository :add-column milestones :default $s1]
