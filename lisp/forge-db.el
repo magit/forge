@@ -58,7 +58,7 @@
     (closql-db 'forge-database 'forge--db-connection
                forge-database-file t)
     (let* ((db forge--db-connection)
-           (version (caar (emacsql db "PRAGMA user_version")))
+           (version (closql--db-get-version db))
            (version (forge--db-maybe-update forge--db-connection version)))
       (cond
        ((> version forge--db-version)
@@ -351,7 +351,7 @@
   (emacsql-with-transaction db
     (pcase-dolist (`(,table . ,schema) forge--db-table-schemata)
       (emacsql db [:create-table $i1 $S2] table schema))
-    (emacsql db (format "PRAGMA user_version = %s" forge--db-version))))
+    (closql--db-set-version db forge--db-version)))
 
 (defun forge--db-maybe-update (db version)
   (emacsql-with-transaction db
@@ -359,8 +359,7 @@
       (message "Upgrading Forge database from version 2 to 3...")
       (emacsql db [:create-table pullreq-review-request $S1]
                (cdr (assq 'pullreq-review-request forge--db-table-schemata)))
-      (emacsql db "PRAGMA user_version = 3")
-      (setq version 3)
+      (closql--db-set-version db (setq version 3))
       (message "Upgrading Forge database from version 2 to 3...done"))
     (when (= version 3)
       (message "Upgrading Forge database from version 3 to 4...")
@@ -371,20 +370,17 @@
           (emacsql db [:create-table $i1 $S2] table schema)))
       (emacsql db [:alter-table issue   :add-column mark :default $i1] eieio-unbound)
       (emacsql db [:alter-table pullreq :add-column mark :default $i1] eieio-unbound)
-      (emacsql db "PRAGMA user_version = 4")
-      (setq version 4)
+      (closql--db-set-version db (setq version 4))
       (message "Upgrading Forge database from version 3 to 4...done"))
     (when (= version 4)
       (message "Upgrading Forge database from version 4 to 5...")
       (emacsql db [:alter-table repository :add-column selective-p :default nil])
-      (emacsql db "PRAGMA user_version = 5")
-      (setq version 5)
+      (closql--db-set-version db (setq version 5))
       (message "Upgrading Forge database from version 4 to 5...done"))
     (when (= version 5)
       (message "Upgrading Forge database from version 5 to 6...")
       (emacsql db [:alter-table repository :add-column worktree :default nil])
-      (emacsql db "PRAGMA user_version = 6")
-      (setq version 6)
+      (closql--db-set-version db (setq version 6))
       (message "Upgrading Forge database from version 5 to 6...done"))
     version))
 
