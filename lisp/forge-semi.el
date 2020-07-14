@@ -70,11 +70,9 @@ list of refs instead of the log of the specified branch.")
 
 (defclass forge-srht-repository (forge-noapi-repository)
   ((commit-url-format :initform "https://%h/~%o/%n/commit/%r")
-   (branch-url-format :initform "https://%h/~%o/%n")
+   (branch-url-format :initform "https://%h/~%o/%n/log/%r")
    (remote-url-format :initform "https://%h/~%o/%n"))
-  "See https://meta.sr.ht.
-Only the history of \"master\" can be shown, so this links to the
-list of refs instead of the log of the specified branch.")
+  "See https://meta.sr.ht.")
 
 ;;; _
 (provide 'forge-semi)
