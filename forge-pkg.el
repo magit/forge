@@ -13,4 +13,5 @@
     ;; also remove the related kludge from Forge's Melpa recipe.
     (magit          "20190408")
     (markdown-mode  "2.3")
-    (transient      "0.1.0")))
+    (transient      "0.1.0"))
+  :url "https://github.com/magit/forge")
