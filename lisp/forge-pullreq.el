@@ -156,15 +156,15 @@
   (with-slots (head-ref number cross-repo-p editable-p) pullreq
     (let ((branch head-ref)
           (branch-n (format "pr-%s" number)))
-      (when (or (and cross-repo-p (not editable-p))
-                ;; Handle deleted GitHub pull-request branch.
-                (not branch)
-                ;; Such a branch name would be invalid.  If we encounter
-                ;; this, then it means that we are dealing with a Gitlab
-                ;; pull-request whose source branch has been deleted.
-                (string-match-p ":" branch)
-                ;; These are usually the target, not source, of a pr.
-                (member branch '("master" "next" "maint")))
+      (when (or
+             ;; Handle deleted GitHub pull-request branch.
+             (not branch)
+             ;; Such a branch name would be invalid.  If we encounter
+             ;; this, then it means that we are dealing with a Gitlab
+             ;; pull-request whose source branch has been deleted.
+             (string-match-p ":" branch)
+             ;; These are usually the target, not source, of a pr.
+             (member branch '("master" "next" "maint")))
         (setq branch branch-n))
       (when (and confirm-reset (magit-branch-p branch))
         (when (magit-branch-p branch)
