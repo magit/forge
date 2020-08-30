@@ -169,7 +169,8 @@
              t)))
         (when bump
           (forge--set-id-slot repo issue 'assignees .assignees)
-          (forge--set-id-slot repo issue 'labels .labels))
+          (unless (magit-get-boolean "forge.kludge-for-issue-294")
+            (forge--set-id-slot repo issue 'labels .labels)))
         issue))))
 
 (cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data bump)
@@ -230,7 +231,8 @@
           (forge--set-id-slot repo pullreq 'review-requests
                               (--map (cdr (cadr (car it)))
                                      .reviewRequests))
-          (forge--set-id-slot repo pullreq 'labels .labels))
+          (unless (magit-get-boolean "forge.kludge-for-issue-294")
+            (forge--set-id-slot repo pullreq 'labels .labels)))
         pullreq))))
 
 (cl-defmethod forge--update-revnotes ((repo forge-github-repository) data)
