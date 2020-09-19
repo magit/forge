@@ -55,10 +55,12 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("l p" "pull-requests" forge-list-pullreqs)
     ("l n" "notifications" forge-list-notifications)
     ("l r" "repositories"  forge-list-repositories)
-    (7 "l a" "awaiting review"     forge-list-requested-reviews)
-    (7 "o i" "owned issues"        forge-list-owned-issues)
-    (7 "o p" "owned pull-requests" forge-list-owned-pullreqs)
-    (7 "o r" "owned repositories"  forge-list-owned-repositories)]
+    (7 "l a" "awaiting review"        forge-list-requested-reviews)
+    (7 "m i" "authored issues"        forge-list-authored-issues)
+    (7 "m p" "authored pull-requests" forge-list-authored-pullreqs)
+    (7 "o i" "owned issues"           forge-list-owned-issues)
+    (7 "o p" "owned pull-requests"    forge-list-owned-pullreqs)
+    (7 "o r" "owned repositories"     forge-list-owned-repositories)]
    ["Create"
     ("c i" "issue"         forge-create-issue)
     ("c p" "pull-request"  forge-create-pullreq)

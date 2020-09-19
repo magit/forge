@@ -333,6 +333,36 @@ Only Github is supported for now."
                  (vconcat (mapcar #'car forge-owned-accounts))
                  (vconcat forge-owned-blacklist)))))
 
+;;;###autoload
+(defun forge-list-authored-pullreqs (id)
+  "List open pull-requests of the current repository that are authored by you.
+List them in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)))
+  (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
+    (lambda ()
+      (forge-sql [:select $i1 :from [pullreq]
+                          :where (and (= pullreq:repository       $s2)
+                                      (= pullreq:author           $s3)
+                                      (isnull pullreq:closed))
+                          :order-by [(desc updated)]]
+                 (forge--tablist-columns-vector 'pullreq)
+                 id (ghub--username (forge-get-repository (list :id id)))))))
+
+;;;###autoload
+(defun forge-list-authored-issues (id)
+  "List open issues from the current repository that are authored by you.
+List them in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)))
+  (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
+    (lambda ()
+      (forge-sql [:select $i1 :from [issue]
+                          :where (and (= issue:repository       $s2)
+                                      (= issue:author           $s3)
+                                      (isnull issue:closed))
+                          :order-by [(desc updated)]]
+                 (forge--tablist-columns-vector 'issue)
+                 id (ghub--username (forge-get-repository (list :id id)))))))
+
 ;;;; Repository
 
 ;;;###autoload
