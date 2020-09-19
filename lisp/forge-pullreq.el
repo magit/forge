@@ -324,6 +324,27 @@ Also see option `forge-topic-list-limit'."
     (oref repo id)
     (ghub--username repo))))
 
+(defun forge-insert-authored-pullreqs ()
+  "Insert a list of open pullreqs that are authored to you."
+  (when-let ((repo (forge-get-repository nil)))
+    (unless (oref repo sparse-p)
+      (forge-insert-topics "Authored pullreqs"
+                           (forge--ls-authored-pullreqs repo)
+                           (forge--topic-type-prefix repo 'pullreq)))))
+
+(defun forge--ls-authored-pullreqs (repo)
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-pullreq (forge-db) row))
+          (forge-sql
+           [:select $i1 :from [pullreq]
+            :where (and (= pullreq:repository $s2)
+                        (= pullreq:author     $s3)
+                        (isnull pullreq:closed))
+            :order-by [(desc updated)]]
+           (vconcat (closql--table-columns (forge-db) 'pullreq t))
+           (oref repo id)
+           (ghub--username repo))))
+
 ;;; _
 (provide 'forge-pullreq)
 ;;; forge-pullreq.el ends here

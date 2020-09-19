@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-327-gbbecff72+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-328-g3e707156+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-327-gbbecff72+1).
+This manual is for Forge version 0.1.0 (v0.1.0-328-g3e707156+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -634,9 +634,19 @@ The following three functions are also suitable for
   This function inserts a list of open pull-requests that are awaiting
   your review.
 
+- Function: forge-insert-authored-pullreqs
+
+  This function inserts a list of open pull-requests that are authored
+  by you.
+
 - Function: forge-insert-assigned-issues
 
   This function inserts a list of open issues that are assigned to
+  you.
+
+- Function: forge-insert-authored-issues
+
+  This function inserts a list of open issues that are authored by
   you.
 
 The following commands list repositories, notifications and topics in

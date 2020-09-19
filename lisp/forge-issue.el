@@ -192,6 +192,27 @@ Also see option `forge-topic-list-limit'."
            (oref repo id)
            (ghub--username repo))))
 
+(defun forge-insert-authored-issues ()
+  "Insert a list of open issues that are authored to you."
+  (when-let ((repo (forge-get-repository nil)))
+    (unless (oref repo sparse-p)
+      (forge-insert-topics "Authored issues"
+                           (forge--ls-authored-issues repo)
+                           (forge--topic-type-prefix repo 'issue)))))
+
+(defun forge--ls-authored-issues (repo)
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-issue (forge-db) row))
+          (forge-sql
+           [:select $i1 :from [issue]
+            :where (and (= issue:repository $s2)
+                        (= issue:author     $s3)
+                        (isnull issue:closed))
+            :order-by [(desc updated)]]
+           (vconcat (closql--table-columns (forge-db) 'issue t))
+           (oref repo id)
+           (ghub--username repo))))
+
 ;;; _
 (provide 'forge-issue)
 ;;; forge-issue.el ends here
