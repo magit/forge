@@ -67,7 +67,9 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("c f" "fork or remote" forge-fork)]]
   [["Configure"
     ("a" "add repository to database" forge-add-repository)
-    ("r" "forge.repository" forge-forge.remote)]])
+    ("r" "forge.repository" forge-forge.remote)
+    ("t" forge-forge.topics)]])
+
 
 ;;; Pull
 
@@ -803,6 +805,19 @@ is added anyway.  Currently this only supports Github and Gitlab."
   :variable "forge.remote"
   :choices 'magit-list-remotes
   :default "origin")
+
+(defvar-local forge-display-topics t
+  "Whether the Forge topics are inserted in the Magit status buffer upon refresh.")
+
+(transient-define-suffix forge-forge.topics ()
+  :transient nil
+  :description (lambda ()
+                 (if forge-display-topics
+                     "hide topics"
+                   "display topics"))
+  "Hides/displays Forge topics in the Magit status buffer upon refresh."
+  (interactive)
+  (setq forge-display-topics (not forge-display-topics)))
 
 ;;;###autoload
 (defun forge-list-notifications ()

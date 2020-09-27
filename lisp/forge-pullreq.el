@@ -246,7 +246,7 @@ yourself, in which case you probably should not reset either.
   "Insert a list of mostly recent and/or open pull-requests.
 Also see option `forge-topic-list-limit'."
   (when-let ((repo (forge-get-repository nil)))
-    (unless (oref repo sparse-p)
+    (when (and forge-display-topics (not (oref repo sparse-p)))
       (forge-insert-topics "Pull requests"
                            (forge-ls-recent-topics repo 'pullreq)
                            (forge--topic-type-prefix repo 'pullreq)))))
