@@ -86,6 +86,10 @@ This variable has to be customized before `forge' is loaded."
   :options '(find-file-hook git-commit-setup-hook magit-mode-hook)
   :type '(list :convert-widget custom-hook-convert-widget))
 
+(defvar-local forge-display-in-status-buffer t
+  "Whether to display topics in the current Magit status buffer.")
+(put 'forge-display-in-status-buffer 'permanent-local t)
+
 ;;; Faces
 
 (defface forge-topic-unread

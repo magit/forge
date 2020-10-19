@@ -245,11 +245,12 @@ yourself, in which case you probably should not reset either.
 (defun forge-insert-pullreqs ()
   "Insert a list of mostly recent and/or open pull-requests.
 Also see option `forge-topic-list-limit'."
-  (when-let ((repo (forge-get-repository nil)))
-    (unless (oref repo sparse-p)
-      (forge-insert-topics "Pull requests"
-                           (forge-ls-recent-topics repo 'pullreq)
-                           (forge--topic-type-prefix repo 'pullreq)))))
+  (when forge-display-in-status-buffer
+    (when-let ((repo (forge-get-repository nil)))
+      (unless (oref repo sparse-p)
+        (forge-insert-topics "Pull requests"
+                             (forge-ls-recent-topics repo 'pullreq)
+                             (forge--topic-type-prefix repo 'pullreq))))))
 
 (defun forge--insert-pullreq-commits (pullreq)
   (when-let ((range (forge--pullreq-range pullreq)))

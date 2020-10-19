@@ -69,7 +69,8 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("c f" "fork or remote" forge-fork)]]
   [["Configure"
     ("a" "add repository to database" forge-add-repository)
-    ("r" "forge.repository" forge-forge.remote)]])
+    ("r" "forge.repository" forge-forge.remote)
+    (7 "t" forge-toggle-display-in-status-buffer)]])
 
 ;;; Pull
 
@@ -811,6 +812,16 @@ is added anyway.  Currently this only supports Github and Gitlab."
   "List notifications."
   (interactive)
   (forge-notifications-setup-buffer))
+
+(transient-define-suffix forge-toggle-display-in-status-buffer ()
+  :description (lambda ()
+                 (if forge-display-in-status-buffer
+                     "hide topics"
+                   "display topics"))
+  "Toggle whether to display topics in the current Magit status buffer."
+  (interactive)
+  (setq forge-display-in-status-buffer (not forge-display-in-status-buffer))
+  (magit-refresh))
 
 (defun forge-toggle-closed-visibility ()
   "Toggle whether recently closed issues are shown."
