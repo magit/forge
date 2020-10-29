@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-328-g3e707156+1)
+@subtitle for version 0.1.0 (v0.1.0-330-gaa994f79+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-328-g3e707156+1).
+This manual is for Forge version 0.1.0 (v0.1.0-330-gaa994f79+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -207,7 +207,7 @@ Gitlab Hosts
 @item
 Gitea @uref{https://gitea.io/en-us}
 
-This is the next forge whose API will to be supported.
+This is the next forge whose API will be supported.
 
 Currently no public Gitea Hosts are known to me.
 The Gitea maintainers plan to create their own instance,
@@ -295,7 +295,7 @@ Cgit Caveats
 Different sites use different URL schemata and some of the bigger
 sites use a fork.  For this reason Forge has to provide several
 classes to support different variations of Cgit and you have to
-look at their definitions to figure out which on is the correct
+look at their definitions to figure out which one is the correct
 one for a particular installation.
 @end itemize
 
@@ -415,14 +415,14 @@ Or if you use @code{use-package}:
 @section Initial Pull
 
 To start using Forge in a certain repository visit the Magit status
-buffer for that repository and type @code{f y} (@code{forge-pull}).  Alternatively
+buffer for that repository and type @code{f y} (@code{forge-pull}).  Alternatively,
 you can use @code{M-x forge-add-repository}, which makes it possible to add a
 forge repository without pulling all topics and even without having to
 clone the respective Git repository.
 
 When adding the first repository from @uref{https://github.com} to your local
 database you will be guided through the process of creating the API
-token.  For other forges as well as for other Github instances some
+token.  For other forges, as well as for other Github instances, some
 additional setup is required @strong{before} you can add the first repository.
 See @ref{Token Creation}.
 
@@ -447,7 +447,7 @@ than making hundreds of REST requests.
 @section Token Creation
 
 Forge uses the Ghub package to access the APIs of supported Git
-forges.  How this works an how to create and store a token is
+forges.  How this works and how to create and store a token is
 documented in @ref{Getting Started,,,ghub,}.
 
 Ghub used to provide a setup wizard, but that had to be removed for
@@ -530,7 +530,7 @@ is useful if you want to create a single pull-request.
 @cindex forge-add-repository
 @item @kbd{' a} @tie{}@tie{}@tie{}@tie{}(@code{forge-add-repository})
 
-This command add a repository to the database.
+This command adds a repository to the database.
 
 It offers to either pull topics (now and in the future) or to only
 pull individual topics when the user invokes @code{forge-pull-topic}.
@@ -586,7 +586,7 @@ and issues.  See @ref{Initial Pull}.
 @item @kbd{f Y} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull-notifications})
 
 This command uses a forge's API to fetch all notifications from that
-forge, including but not limited to the notifications for the current
+forge including, but not limited to, the notifications for the current
 repository.
 
 Fetching all notifications fetches associated topics even if you
@@ -599,10 +599,10 @@ Note how pulling data from a forge's API works the same way as pulling
 Git data does; you do it explicitly when you want to see the work done
 by others.
 
-This is less disruptive, more reliable and easier to understand than
+This is less disruptive, more reliable, and easier to understand than
 if Forge did the pulling by itself at random intervals.  It might
 however mean that you occasionally invoke a command expecting the most
-recent data to be available and then having to abort to pull first.
+recent data to be available and then have to abort to pull first.
 The same can happen with Git, e.g. you might attempt to merge a branch
 that you know exists but haven't actually pulled yet.
 
@@ -679,17 +679,17 @@ merge commits among the commits in a pull-request.
 This command also configures the upstream and the push-remote of the
 local branch that it creates.
 
-The branch against which the pull-request was opened, is always used
+The branch against which the pull-request was opened is always used
 as the upstream.  This makes it easy to see what commits you are
 being asked to merge in the section titled something like "Unmerged
 into origin/master".
 
-Like for other commands that create a branch it depends on the
+Like for other commands that create a branch, it depends on the
 option @code{magit-branch-prefer-remote-upstream} whether the remote branch
 itself or the respective local branch is used as the upstream, so
 this section may also be titled e.g. "Unmerged into master".
 
-When necessary and possible, then the remote pull-request branch is
+When necessary and possible, the remote pull-request branch is
 configured to be used as the push-target.  This makes it easy to see
 what further changes the contributor has made since you last
 reviewed their changes in the section titled something like
@@ -807,7 +807,7 @@ on a commit or branch section.
 @item @kbd{C-c C-w} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-dwim})
 
 These commands visit the pull-request(s), issue(s), post, branch,
-commit or remote at point in a browser.
+commit, or remote at point in a browser.
 
 This is implemented using various commands named @code{forge-browse-TYPE},
 and the key binding is defined by remapping @code{magit-browse-thing} (as
@@ -846,13 +846,13 @@ Forge adds the following two functions to @code{magit-status-sections-hook}:
 
 @defun forge-insert-pullreqs
 
-This function inserts a list of mostly recent and/or open
+This function inserts a list of the most recent and/or open
 pull-requests.
 @end defun
 
 @defun forge-insert-issues
 
-This function inserts a list of mostly recent and/or open issues.
+This function inserts a list of the most recent and/or open issues.
 @end defun
 
 @itemize
@@ -999,7 +999,7 @@ Github is supported for now.
 @defopt forge-owned-accounts
 
 This is a list of accounts that are owned by you.  This should
-include your username as well as any organization that you own.
+include your username as well as any organizations that you own.
 @end defopt
 
 @defopt forge-owned-blacklist
@@ -1057,7 +1057,7 @@ It opens a buffer in which the user can write the post.  When the
 post is done, then the user has to submit using @code{C-c C-c}.
 
 If the region is active and marks part of an existing post, then
-that part of the post is quoted.  Otherwise and if a prefix argument
+that part of the post is quoted.  Otherwise, or if a prefix argument
 is used, then the complete post that point is currently on is quoted.
 
 @kindex C-c C-e [on a post section]
@@ -1133,9 +1133,8 @@ This command deletes the comment at point.
 
 Creating a new post and editing an existing post are similar to
 creating a new commit and editing the message of an existing commit.
-In both cases the message has to be written in a separate buffer.
-And then the process has to be finished or canceled using a separate
-command.
+In both cases the message has to be written in a separate buffer and then
+the process has to be finished or canceled using a separate command.
 
 The following commands are available in buffers used to edit posts:
 
@@ -1174,7 +1173,7 @@ Currently this only supports Github and Gitlab.
 Key ' a, forge-add-repository
 
 This command reads a repository from the user and adds it to the
-database.  The repository can be provided as URL, as a name, or in
+database.  The repository can be provided as a URL, a name, or in
 the form OWNER/NAME@.  This is subject to @code{magit-clone-name-alist}.
 
 This command offers to either pull topics (now and in the future) or
@@ -1187,7 +1186,7 @@ to only pull individual topics when the user invokes
 @deffn Command forge-add-user-repositories
 
 This command reads a host and a username from the user and adds all
-of the repositories of that user on that host to the local database.
+of that user's repositories on that host to the local database.
 
 This may take a while. Only Github is supported at the moment.
 @end deffn
@@ -1196,8 +1195,7 @@ This may take a while. Only Github is supported at the moment.
 @deffn Command forge-add-organization-repositories
 
 This command reads a host and an organization from the user and adds
-all of the repositories of that user on that host to the local
-database.
+all the organization's repositories on that host to the local database.
 
 This may take a while. Only Github is supported at the moment.
 @end deffn
@@ -1205,15 +1203,15 @@ This may take a while. Only Github is supported at the moment.
 @cindex forge-remove-repository
 @deffn Command forge-remove-repository
 
-This command reads a repository and remove it from the local
+This command reads a repository and removes it from the local
 database.
 @end deffn
 
 @cindex forge-remove-topic-locally
 @deffn Command forge-remove-topic-locally
 
-This command reads a topic and remove it from the local database.
-The topic is not removed from the forge and it is later modified,
+This command reads a topic and removes it from the local database.
+The topic is not removed from the forge and, if it is later modified,
 then it will be added to the database again.
 
 Due to how the supported APIs work, it would be too expensive to
