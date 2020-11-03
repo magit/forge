@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-331-ge2bae40e+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-332-g794582b6+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-331-ge2bae40e+1).
+This manual is for Forge version 0.1.0 (v0.1.0-332-g794582b6+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -263,10 +263,7 @@ you can use ~M-x forge-add-repository~, which makes it possible to add a
 forge repository without pulling all topics and even without having to
 clone the respective Git repository.
 
-When adding the first repository from https://github.com to your local
-database you will be guided through the process of creating the API
-token.  For other forges, as well as for other Github instances, some
-additional setup is required *before* you can add the first repository.
+You must set up a token *before* you can add the first repository.
 See [[*Token Creation]].
 
 The first time ~forge-pull~ is run in a repository, an entry for that

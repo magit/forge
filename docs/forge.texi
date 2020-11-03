@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-331-ge2bae40e+1)
+@subtitle for version 0.1.0 (v0.1.0-332-g794582b6+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-331-ge2bae40e+1).
+This manual is for Forge version 0.1.0 (v0.1.0-332-g794582b6+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -420,10 +420,7 @@ you can use @code{M-x forge-add-repository}, which makes it possible to add a
 forge repository without pulling all topics and even without having to
 clone the respective Git repository.
 
-When adding the first repository from @uref{https://github.com} to your local
-database you will be guided through the process of creating the API
-token.  For other forges, as well as for other Github instances, some
-additional setup is required @strong{before} you can add the first repository.
+You must set up a token @strong{before} you can add the first repository.
 See @ref{Token Creation}.
 
 The first time @code{forge-pull} is run in a repository, an entry for that
