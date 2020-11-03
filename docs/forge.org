@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-334-gd86f7b2a+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-335-g9d1fd563+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-334-gd86f7b2a+1).
+This manual is for Forge version 0.1.0 (v0.1.0-335-g9d1fd563+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -333,11 +333,11 @@ remotes are tried.
 If you do not follow the naming convention, then you have to inform
 Forge about that by setting the Git variable ~forge.remote~ to the name
 that you instead use for upstream remotes.  For example, to use the
-upstream remote named "main":
+upstream remote named "upstream":
 
 #+BEGIN_SRC shell
   cd /path/to/repo
-  git config --local forge.remote main
+  git config --local forge.remote upstream
 #+END_SRC
 
 If this variable is set, then Forge uses the remote by that name, if

@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-334-gd86f7b2a+1)
+@subtitle for version 0.1.0 (v0.1.0-335-g9d1fd563+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-334-gd86f7b2a+1).
+This manual is for Forge version 0.1.0 (v0.1.0-335-g9d1fd563+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -504,11 +504,11 @@ remotes are tried.
 If you do not follow the naming convention, then you have to inform
 Forge about that by setting the Git variable @code{forge.remote} to the name
 that you instead use for upstream remotes.  For example, to use the
-upstream remote named "main":
+upstream remote named "upstream":
 
 @example
 cd /path/to/repo
-git config --local forge.remote main
+git config --local forge.remote upstream
 @end example
 
 If this variable is set, then Forge uses the remote by that name, if
