@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-330-gaa994f79+1)
+@subtitle for version 0.1.0 (v0.1.0-331-ge2bae40e+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-330-gaa994f79+1).
+This manual is for Forge version 0.1.0 (v0.1.0-331-ge2bae40e+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -370,7 +370,7 @@ you have to create a token as described in @ref{Token Creation}.
 @item
 Fetched information is stored in a database.  The table schemata of
 that database have not been finalized yet.  Until that has happened
-it will occasionally have to be discard.  That isn't such a huge
+it will occasionally have to be discarded.  That isn't such a huge
 deal because for now the database does not contain any information
 that cannot simply be fetched again, see @ref{Initial Pull}.
 

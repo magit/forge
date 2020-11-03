@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-330-gaa994f79+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-331-ge2bae40e+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-330-gaa994f79+1).
+This manual is for Forge version 0.1.0 (v0.1.0-331-ge2bae40e+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -224,7 +224,7 @@ caveats you should be aware of:
 
 - Fetched information is stored in a database.  The table schemata of
   that database have not been finalized yet.  Until that has happened
-  it will occasionally have to be discard.  That isn't such a huge
+  it will occasionally have to be discarded.  That isn't such a huge
   deal because for now the database does not contain any information
   that cannot simply be fetched again, see [[*Initial Pull]].
 
