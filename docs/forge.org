@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-332-g794582b6+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-333-g93c7477e+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-332-g794582b6+1).
+This manual is for Forge version 0.1.0 (v0.1.0-333-g93c7477e+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@bernoul.li>
@@ -255,6 +255,33 @@ Or if you use ~use-package~:
     :after magit)
 #+END_SRC
 
+** Token Creation
+
+Forge uses the Ghub package to access the APIs of supported Git
+forges.  How this works and how to create and store a token is
+documented in [[info:ghub#Getting Started]].
+
+Ghub used to provide a setup wizard, but that had to be removed for
+reasons given in the manual just mentioned.  Nowadays there is no way
+around reading the documentation and doing this manually I am afraid.
+
+  Forge requires the following token scopes.
+
+- For Github these scopes are required.
+
+  - ~repo~ grants full read/write access to private and public
+    repositories.
+  - ~user~ grants access to profile information.
+  - ~read:org~ grants read-only access to organization membership.
+
+  More information about these and other scopes can be found at
+  https://docs.github.com/en/developers/apps/scopes-for-oauth-apps.
+
+- For Gitlab instances ~api~ is the only required scope.  It gives read
+  and write access to everything.  The Gitlab API provides more
+  fine-grained scopes for read-only access, but when any write access
+  at all is required, then it is all or nothing.
+
 ** Initial Pull
 
 To start using Forge in a certain repository visit the Magit status
@@ -282,33 +309,6 @@ Subsequent fetches are much faster.
 Fetching issues from Github is much faster than fetching from other
 forges because making a handful of GraphQL requests is much faster
 than making hundreds of REST requests.
-
-** Token Creation
-
-Forge uses the Ghub package to access the APIs of supported Git
-forges.  How this works and how to create and store a token is
-documented in [[info:ghub#Getting Started]].
-
-Ghub used to provide a setup wizard, but that had to be removed for
-reasons given in the manual just mentioned.  Nowadays there is no way
-around reading the documentation and doing this manually I am afraid.
-
-  Forge requires the following token scopes.
-
-- For Github these scopes are required.
-
-  - ~repo~ grants full read/write access to private and public
-    repositories.
-  - ~user~ grants access to profile information.
-  - ~read:org~ grants read-only access to organization membership.
-
-  More information about these and other scopes can be found at
-  https://docs.github.com/en/developers/apps/scopes-for-oauth-apps.
-
-- For Gitlab instances ~api~ is the only required scope.  It gives read
-  and write access to everything.  The Gitlab API provides more
-  fine-grained scopes for read-only access, but when any write access
-  at all is required, then it is all or nothing.
 
 ** Repository Detection
 

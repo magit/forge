@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-332-g794582b6+1)
+@subtitle for version 0.1.0 (v0.1.0-333-g93c7477e+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-332-g794582b6+1).
+This manual is for Forge version 0.1.0 (v0.1.0-333-g93c7477e+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -82,8 +82,8 @@ General Public License for more details.
 
 Getting Started
 
-* Initial Pull::
 * Token Creation::
+* Initial Pull::
 * Repository Detection::
 
 Usage
@@ -406,39 +406,10 @@ Or if you use @code{use-package}:
 @end lisp
 
 @menu
-* Initial Pull::
 * Token Creation::
+* Initial Pull::
 * Repository Detection::
 @end menu
-
-@node Initial Pull
-@section Initial Pull
-
-To start using Forge in a certain repository visit the Magit status
-buffer for that repository and type @code{f y} (@code{forge-pull}).  Alternatively,
-you can use @code{M-x forge-add-repository}, which makes it possible to add a
-forge repository without pulling all topics and even without having to
-clone the respective Git repository.
-
-You must set up a token @strong{before} you can add the first repository.
-See @ref{Token Creation}.
-
-The first time @code{forge-pull} is run in a repository, an entry for that
-repository is added to the database and a new value is added to the
-Git variable @code{remote.<remote>.fetch}, which fetches all pull-requests.
-(@code{+refs/pull/*/head:refs/pullreqs/*} for Github)
-
-@code{forge-pull} then fetches topics and other information using the forge's
-API and pull-request references using Git.
-
-The initial fetch can take a while but most of that is done
-asynchronously.  Storing the information in the database is done
-synchronously though, so there can be a noticeable hang at the end.
-Subsequent fetches are much faster.
-
-Fetching issues from Github is much faster than fetching from other
-forges because making a handful of GraphQL requests is much faster
-than making hundreds of REST requests.
 
 @node Token Creation
 @section Token Creation
@@ -479,6 +450,35 @@ and write access to everything.  The Gitlab API provides more
 fine-grained scopes for read-only access, but when any write access
 at all is required, then it is all or nothing.
 @end itemize
+
+@node Initial Pull
+@section Initial Pull
+
+To start using Forge in a certain repository visit the Magit status
+buffer for that repository and type @code{f y} (@code{forge-pull}).  Alternatively,
+you can use @code{M-x forge-add-repository}, which makes it possible to add a
+forge repository without pulling all topics and even without having to
+clone the respective Git repository.
+
+You must set up a token @strong{before} you can add the first repository.
+See @ref{Token Creation}.
+
+The first time @code{forge-pull} is run in a repository, an entry for that
+repository is added to the database and a new value is added to the
+Git variable @code{remote.<remote>.fetch}, which fetches all pull-requests.
+(@code{+refs/pull/*/head:refs/pullreqs/*} for Github)
+
+@code{forge-pull} then fetches topics and other information using the forge's
+API and pull-request references using Git.
+
+The initial fetch can take a while but most of that is done
+asynchronously.  Storing the information in the database is done
+synchronously though, so there can be a noticeable hang at the end.
+Subsequent fetches are much faster.
+
+Fetching issues from Github is much faster than fetching from other
+forges because making a handful of GraphQL requests is much faster
+than making hundreds of REST requests.
 
 @node Repository Detection
 @section Repository Detection
