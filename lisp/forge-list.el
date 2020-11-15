@@ -341,10 +341,10 @@ List them in a separate buffer."
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
     (lambda ()
       (forge-sql [:select $i1 :from [pullreq]
-                          :where (and (= pullreq:repository       $s2)
-                                      (= pullreq:author           $s3)
-                                      (isnull pullreq:closed))
-                          :order-by [(desc updated)]]
+                  :where (and (= pullreq:repository       $s2)
+                              (= pullreq:author           $s3)
+                              (isnull pullreq:closed))
+                  :order-by [(desc updated)]]
                  (forge--tablist-columns-vector 'pullreq)
                  id (ghub--username (forge-get-repository (list :id id)))))))
 
@@ -356,10 +356,10 @@ List them in a separate buffer."
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
     (lambda ()
       (forge-sql [:select $i1 :from [issue]
-                          :where (and (= issue:repository       $s2)
-                                      (= issue:author           $s3)
-                                      (isnull issue:closed))
-                          :order-by [(desc updated)]]
+                  :where (and (= issue:repository       $s2)
+                              (= issue:author           $s3)
+                              (isnull issue:closed))
+                  :order-by [(desc updated)]]
                  (forge--tablist-columns-vector 'issue)
                  id (ghub--username (forge-get-repository (list :id id)))))))
 
