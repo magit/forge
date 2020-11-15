@@ -713,17 +713,15 @@ Return a value between 0 and 1."
                                           'issue
                                         'pullreq)
                                       (oref repo id))
-                         (cl-sort
-                          (nconc
-                           (forge-sql [:select [number title updated]
-                                       :from pullreq
-                                       :where (= repository $s1)]
-                                      (oref repo id))
-                           (forge-sql [:select [number title updated]
-                                       :from issue
-                                       :where (= repository $s1)]
-                                      (oref repo id)))
-                          #'string> :key #'cl-caddr)))
+                         (forge-sql [:select [number title updated]
+                                     :from pullreq
+                                     :where (= repository $s1)
+                                     :union
+                                     :select [number title updated]
+                                     :from issue
+                                     :where (= repository $s1)
+                                     :order-by [(desc updated)]]
+                                    (oref repo id))))
                :annotation-function (lambda (c) (get-text-property 0 :title c))))))
 
 ;;; Parse
