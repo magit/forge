@@ -78,12 +78,18 @@ The following %-sequences are supported:
   :type 'boolean)
 
 (defcustom forge-bug-reference-hooks
-  '(find-file-hook git-commit-setup-hook magit-mode-hook)
+  '(find-file-hook
+    forge-post-mode-hook
+    git-commit-setup-hook
+    magit-mode-hook)
   "Hooks to which `forge-bug-reference-setup' is added.
 This variable has to be customized before `forge' is loaded."
   :package-version '(forge . "0.2.0")
   :group 'forge
-  :options '(find-file-hook git-commit-setup-hook magit-mode-hook)
+  :options '(find-file-hook
+             forge-post-mode-hook
+             git-commit-setup-hook
+             magit-mode-hook)
   :type '(list :convert-widget custom-hook-convert-widget))
 
 (defvar-local forge-display-in-status-buffer t
