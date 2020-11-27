@@ -37,6 +37,7 @@
    (pullreq-post-url-format   :initform "https://%h/%o/%n/merge_requests/%i#note_%I")
    (commit-url-format         :initform "https://%h/%o/%n/commit/%r")
    (branch-url-format         :initform "https://%h/%o/%n/commits/%r")
+   (file-url-format           :initform "https://%h/%o/%n/-/blob/%r/%f#L%l")
    (remote-url-format         :initform "https://%h/%o/%n")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/merge_requests/new")

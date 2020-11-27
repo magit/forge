@@ -208,6 +208,19 @@ Prefer a topic over a branch and that over a commit."
                     `((?r . ,(magit-commit-p rev)))))))
 
 ;;;###autoload
+(defun forge-browse-buffer-file ()
+  "Visit the url corresponding to the actual file and location."
+  (interactive
+   (browse-url
+    (let
+        ((rev (magit-get-current-branch))
+         (repo (forge-get-repository 'stub))
+         (file (magit-file-relative-name buffer-file-name))
+         (line-number (line-number-at-pos)))
+      (forge--format repo 'file-url-format
+                     `((?r . ,rev) (?f . ,file) (?l . ,line-number)))))))
+
+;;;###autoload
 (defun forge-copy-url-at-point-as-kill ()
   "Copy the url of the thing at point."
   (interactive)

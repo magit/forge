@@ -38,6 +38,7 @@
    (pullreq-post-url-format   :initform nil :allocation :class)
    (commit-url-format         :initform nil :allocation :class)
    (branch-url-format         :initform nil :allocation :class)
+   (file-url-format           :initform nil :allocation :class)
    (remote-url-format         :initform nil :allocation :class)
    (create-issue-url-format   :initform nil :allocation :class)
    (create-pullreq-url-format :initform nil :allocation :class)
