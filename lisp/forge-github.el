@@ -37,7 +37,7 @@
    (pullreq-post-url-format   :initform "https://%h/%o/%n/pull/%i#issuecomment-%I")
    (commit-url-format         :initform "https://%h/%o/%n/commit/%r")
    (branch-url-format         :initform "https://%h/%o/%n/commits/%r")
-   (file-url-format           :initform "https://%h/%o/%n/blob/%r/%f#L%l")
+   (file-url-format           :initform "https://%h/%o/%n/blob/%r/%f#%l")
    (remote-url-format         :initform "https://%h/%o/%n")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/compare")
@@ -649,6 +649,13 @@
                       (and (not (equal fork (ghub--username (ghub--host nil))))
                            `((organization . ,fork))))
     (ghub-wait (format "/repos/%s/%s" fork name) nil :auth 'forge)))
+
+
+(cl-defmethod forge--file-url ((repo forge-github-repository) rev file start end)
+  (let* ((start-fragment (concat "L" (number-to-string start)))
+         (location-fragment (if end (concat start-fragment "-L" (number-to-string end)) start-fragment)))
+    (forge--format repo 'file-url-format
+                   `((?r . ,rev) (?f . ,file) (?l . ,location-fragment)))))
 
 ;;; Utilities
 

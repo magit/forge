@@ -208,17 +208,31 @@ Prefer a topic over a branch and that over a commit."
                     `((?r . ,(magit-commit-p rev)))))))
 
 ;;;###autoload
-(defun forge-browse-buffer-file ()
-  "Visit the url corresponding to the actual file and location."
-  (interactive
-   (browse-url
-    (let
-        ((rev (magit-get-current-branch))
-         (repo (forge-get-repository 'stub))
-         (file (magit-file-relative-name buffer-file-name))
-         (line-number (line-number-at-pos)))
-      (forge--format repo 'file-url-format
-                     `((?r . ,rev) (?f . ,file) (?l . ,line-number)))))))
+(defun forge-buffer-location ()
+  "Generate the url corresponding to the actual file."
+  (let ((repo (forge-get-repository 'stub))
+        (rev (magit-get-current-branch))
+        (file (magit-file-relative-name buffer-file-name))
+        (start (if (use-region-p)
+                   (line-number-at-pos (region-beginning))
+                 (line-number-at-pos)))
+        (end (when (use-region-p) (line-number-at-pos (region-end)))))
+    (forge--file-url repo rev file start end)))
+
+;;;###autoload
+(defun forge-buffer-location-as-kill ()
+  "Copy the url corresponding to the actual file."
+  (if-let ((url (forge-buffer-location)))
+      (progn
+        (kill-new url)
+        (message "Copied %S" url))
+    (user-error "Nothing at point with a URL")))
+
+;;;###autoload
+(defun forge-browse-buffer ()
+  "Visit the url corresponding to the actual file."
+  (interactive)
+  (browse-url (forge-buffer-location)))
 
 ;;;###autoload
 (defun forge-copy-url-at-point-as-kill ()
