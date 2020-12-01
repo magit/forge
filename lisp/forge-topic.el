@@ -205,6 +205,7 @@ This variable has to be customized before `forge' is loaded."
       (error "forge--topic-string-to-number: Invalid argument %S" s))))
 
 (cl-defmethod forge-ls-recent-topics ((repo forge-repository) table)
+  (magit--with-repository-local-cache (list 'forge-ls-recent-topics table)
   (let* ((id (oref repo id))
          (limit forge-topic-list-limit)
          (open-limit   (if (consp limit) (car limit) limit))
@@ -242,7 +243,7 @@ This variable has to be customized before `forge' is loaded."
                          (closql--remake-instance class (forge-db) row)))
                      topics)
              (cdr forge-topic-list-order)
-             :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
+             :key (lambda (it) (eieio-oref it (car forge-topic-list-order)))))))
 
 (cl-defmethod forge-ls-topics ((repo forge-repository) class &optional type)
   (mapcar (lambda (row)
