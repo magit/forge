@@ -544,7 +544,7 @@
 
 (cl-defmethod forge--file-url ((repo forge-gitlab-repository) rev file start end)
   (let* ((start-fragment (concat "L" (number-to-string start)))
-         (location-fragment (if end (concat start-fragment "-L" (number-to-string end)) start-fragment)))
+         (location-fragment (if end (concat start-fragment "-" (number-to-string end)) start-fragment)))
     (forge--format repo 'file-url-format
                    `((?r . ,rev) (?f . ,file) (?l . ,location-fragment)))))
 
