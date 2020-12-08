@@ -216,8 +216,9 @@ Prefer a topic over a branch and that over a commit."
         (start (if (use-region-p)
                    (line-number-at-pos (region-beginning))
                  (line-number-at-pos)))
-        (end (when (use-region-p) (line-number-at-pos (region-end)))))
-    (forge--file-url repo rev file start end)))
+        (end (when (use-region-p)
+               (1- (line-number-at-pos (region-end))))))
+    (forge--file-url repo rev file start (when (/= start end) end))))
 
 ;;;###autoload
 (defun forge-buffer-location-as-kill ()
