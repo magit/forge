@@ -351,7 +351,7 @@ Return the repository identified by HOST, OWNER and NAME."
     ;; of https.
     ((forge-gitlab-repository forge-gitlab-http-repository) 'gitlab)
     (forge-github-repository    'github)
-    (forge-gitea-repository     'gittea)
+    (forge-gitea-repository     'gitea)
     (forge-gogs-repository      'gogs)
     (forge-bitbucket-repository 'bitbucket)))
 
