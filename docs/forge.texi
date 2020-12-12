@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-335-g9d1fd563+1)
+@subtitle for version 0.1.0 (v0.1.0-344-g953764d2+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-335-g9d1fd563+1).
+This manual is for Forge version 0.1.0 (v0.1.0-344-g953764d2+1).
 
 @quotation
 Copyright (C) 2018-2020 Jonas Bernoulli <jonas@@bernoul.li>
@@ -932,9 +932,8 @@ This command lists all notifications for all forges in a separate
 buffer.
 
 @kindex ' P
-@cindex forge-list-pull-requests
-@item @kbd{' P} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-pull-requests})
-
+@cindex forge-list-pullreqs
+@item @kbd{' P} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-pullreqs})
 This command lists the current repository's pull-requests in a
 separate buffer.
 
