@@ -36,6 +36,15 @@
   :options '(visual-line-mode
              turn-on-flyspell))
 
+(defcustom forge-create-pullreq-message-prefix ""
+  "Prefix for new pull request message."
+  :type 'string)
+
+(defcustom forge-create-pullreq-message-number-prefix nil
+  "Insert issue/ticket/task number to new pull request message if
+source branch starts with a number."
+  :type 'string)
+
 ;;; Class
 
 (defclass forge-post (forge-object) () :abstract t)
@@ -149,13 +158,18 @@
           (let-alist (forge--topic-template
                       (forge-get-repository t)
                       (if source 'forge-pullreq 'forge-issue))
-            (insert .text)
             (if source
-                (progn
+                (let* ((prefix forge-create-pullreq-message-prefix)
+                       (branch (nth 1 (split-string source "/")))
+                       (issue-number (string-to-number branch))
+                       (number-prefix (if (and (not (zerop issue-number))
+                                               forge-create-pullreq-message-number-prefix)
+                                          (format " #%d" issue-number)
+                                        "")))
                   (goto-char (point-min))
-                  (magit-rev-insert-format "# %B" source)
-                  (insert "\n----\n\n")
-                  (goto-char 3))
+                  (magit-rev-insert-format
+                   (format "# %s%s %%B" prefix number-prefix) source)
+                  (goto-char (+ 4 (length prefix) (length number-prefix))))
               (goto-char (or .position (point-min)))))))
       buf)))
 
