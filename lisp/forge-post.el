@@ -125,7 +125,7 @@
 (defvar-local forge--cancel-post-function nil)
 (defvar-local forge--pre-post-buffer nil)
 
-(defun forge--prepare-post-buffer (filename &optional header source)
+(defun forge--prepare-post-buffer (filename &optional header source target)
   (let ((file (magit-git-dir
                (convert-standard-filename
                 (concat "magit/posts/" filename)))))
@@ -149,14 +149,24 @@
           (let-alist (forge--topic-template
                       (forge-get-repository t)
                       (if source 'forge-pullreq 'forge-issue))
-            (insert .text)
-            (if source
+            (if .name
+                ;; A Github issue with yaml frontmatter.
                 (progn
-                  (goto-char (point-min))
-                  (magit-rev-insert-format "# %B" source)
-                  (insert "\n----\n\n")
-                  (goto-char 3))
-              (goto-char (or .position (point-min)))))))
+                  (save-excursion (insert .text))
+                  (re-search-forward "^title: "))
+              (insert "# ")
+              (let ((single
+                     (and source
+                          (= (car (magit-rev-diff-count source target)) 1))))
+                (save-excursion
+                  (when single
+                    ;; A pull-request.
+                    (magit-rev-insert-format "%B" source))
+                  (when .text
+                    (if single
+                        (insert "-------\n")
+                      (insert "\n"))
+                    (insert "\n" .text))))))))
       buf)))
 
 (defun forge--display-post-buffer (buf)

@@ -816,27 +816,16 @@ alist, containing just `text' and `position'.")
                               (magit-git-insert "cat-file" "-p"
                                                 (concat branch ":" f))
                               (forge--topic-parse-buffer f)))
-                          (forge--topic-templates repo class)))
-         (choice  (if (cdr choices)
-                      (let ((c (magit-completing-read
-                                (if (eq class 'forge-pullreq)
-                                    "Select pull-request template"
-                                  "Select issue template")
-                                (--map (alist-get 'prompt it) choices)
-                                nil t)))
-                        (--first (equal (alist-get 'prompt it) c) choices))
-                    (car choices))))
-    (cond ((assq 'name choice)
-           (when (string-match "^title: .?" (alist-get 'text choice))
-             (setf (alist-get 'position choice) (match-end 0))))
-          (choice
-           (let ((text (alist-get 'text choice)))
-             (if (string-match "\\`#+[\s\t]+.?" text)
-                 (setf (alist-get 'position choice) (match-end 0))
-               (setf (alist-get 'text choice) (concat "# \n\n" text))
-               (setf (alist-get 'position choice) 3))))
-          (t (setq choice '((text . "# \n\n\n") (position . 3)))))
-    choice))
+                          (forge--topic-templates repo class))))
+    (if (cdr choices)
+        (let ((c (magit-completing-read
+                  (if (eq class 'forge-pullreq)
+                      "Select pull-request template"
+                    "Select issue template")
+                  (--map (alist-get 'prompt it) choices)
+                  nil t)))
+          (--first (equal (alist-get 'prompt it) c) choices))
+      (car choices))))
 
 ;;; Bug-Reference
 
