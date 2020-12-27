@@ -624,7 +624,8 @@
 \\`\\(\\|docs/\\|\\.github/\\)issue_template\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
                               files)))
           (list file)
-        (--filter (string-match-p "\\`\\.github/ISSUE_TEMPLATE/[^/]*" it)
+        (--filter (and (string-match-p "\\`\\.github/ISSUE_TEMPLATE/[^/]*" it)
+                       (not (equal (file-name-nondirectory it) "config.yml")))
                   files)))))
 
 (cl-defmethod forge--topic-templates ((repo forge-github-repository)
