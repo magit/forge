@@ -366,46 +366,47 @@
 
 (defun forge--ghub-massage-notification (data forge githost)
   (let-alist data
-    (let* ((type   (intern (downcase .subject.type)))
-           (type   (if (eq type 'pullrequest) 'pullreq type))
-           (number (and (string-match "[0-9]*\\'" .subject.url)
-                        (string-to-number (match-string 0 .subject.url))))
-           (repo   (forge-get-repository
-                    (list githost
-                          .repository.owner.login
-                          .repository.name)
-                    nil 'create))
-           (repoid (oref repo id))
-           (owner  (oref repo owner))
-           (name   (oref repo name))
-           (id     (forge--object-id repoid (string-to-number .id)))
-           (alias  (intern (concat "_" (replace-regexp-in-string "=" "_" id)))))
+    (let* ((type (intern (downcase .subject.type)))
+           (type (if (eq type 'pullrequest) 'pullreq type)))
       (and (memq type '(pullreq issue))
-           (list alias repo
-                 `((,alias repository)
-                   [(name ,name)
-                    (owner ,owner)]
-                   ,@(cddr
-                      (caddr
-                       (ghub--graphql-prepare-query
-                        ghub-fetch-repository
-                        (if (eq type 'issue)
-                            `(repository issues (issue . ,number))
-                          `(repository pullRequest (pullRequest . ,number)))
-                        ))))
-                 (forge-notification
-                  :id           id
-                  :thread-id    .id
-                  :repository   repoid
-                  :forge        forge
-                  :reason       (intern (downcase .reason))
-                  :unread-p     .unread
-                  :last-read    .last_read_at
-                  :updated      .updated_at
-                  :title        .subject.title
-                  :type         type
-                  :topic        number
-                  :url          .subject.url))))))
+           (let* ((number (and (string-match "[0-9]*\\'" .subject.url)
+                               (string-to-number (match-string 0 .subject.url))))
+                  (repo   (forge-get-repository
+                           (list githost
+                                 .repository.owner.login
+                                 .repository.name)
+                           nil 'create))
+                  (repoid (oref repo id))
+                  (owner  (oref repo owner))
+                  (name   (oref repo name))
+                  (id     (forge--object-id repoid (string-to-number .id)))
+                  (alias  (intern (concat "_" (replace-regexp-in-string
+                                               "=" "_" id)))))
+             (list alias repo
+                   `((,alias repository)
+                     [(name ,name)
+                      (owner ,owner)]
+                     ,@(cddr
+                        (caddr
+                         (ghub--graphql-prepare-query
+                          ghub-fetch-repository
+                          (if (eq type 'issue)
+                              `(repository issues (issue . ,number))
+                            `(repository pullRequest (pullRequest . ,number)))
+                          ))))
+                   (forge-notification
+                    :id           id
+                    :thread-id    .id
+                    :repository   repoid
+                    :forge        forge
+                    :reason       (intern (downcase .reason))
+                    :unread-p     .unread
+                    :last-read    .last_read_at
+                    :updated      .updated_at
+                    :title        .subject.title
+                    :type         type
+                    :topic        number
+                    :url          .subject.url)))))))
 
 (cl-defmethod forge-topic-mark-read ((_ forge-github-repository) topic)
   (when (oref topic unread-p)
