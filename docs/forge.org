@@ -156,6 +156,12 @@ also see [[*Getting Started]].
   Bitbucket Hosts
 
   - https://bitbucket.org
+    
+- Gitee
+
+  Gitee Hosts
+
+  - https://gitee.com
 
 ** Supported Semi-Forges
 :PROPERTIES:

@@ -65,6 +65,8 @@
      "code.orgmode.org" forge-gogs-repository)
     ("bitbucket.org" "api.bitbucket.org/2.0"
      "bitbucket.org" forge-bitbucket-repository)
+    ("gitee.com" nil
+     "gitee.com" forge-gitee-repository)
     ;; Semi-Forges
     ("git.savannah.gnu.org" nil
      "git.savannah.gnu.org" forge-cgit**-repository)

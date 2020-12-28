@@ -50,6 +50,7 @@
 (require 'forge-github)
 (require 'forge-gitlab)
 (require 'forge-gitea)
+(require 'forge-gitee)
 (require 'forge-gogs)
 (require 'forge-bitbucket)
 (require 'forge-semi)
