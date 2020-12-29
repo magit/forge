@@ -167,7 +167,7 @@
            (member branch '("master" "next" "maint")))
       (setq branch branch-n))
     (when (and confirm-reset (magit-branch-p branch))
-      (if (string-prefix-p "pr-" branch)
+      (if (equal branch branch-n)
           (unless (y-or-n-p (format "Reset existing branch %S? " branch))
             (user-error "Abort"))
         (pcase (read-char-choice
