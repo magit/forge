@@ -686,7 +686,7 @@ Please see the manual for more information."
 ;;;###autoload
 (defun forge-checkout-worktree (path n)
   "Create, configure and checkout a new worktree from a pull-request.
-This is like `magit-checkout-pullreq', except that it also
+This is like `forge-checkout-pullreq', except that it also
 creates a new worktree. Please see the manual for more
 information."
   (interactive
