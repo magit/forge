@@ -169,8 +169,7 @@
       (when (and confirm-reset (magit-branch-p branch))
         (when (magit-branch-p branch)
           (if (string-prefix-p "pr-" branch)
-              (unless (y-or-n-p
-                       (format "Branch %S already exists.  Reset it? " branch))
+              (unless (y-or-n-p (format "Reset existing branch %S? " branch))
                 (user-error "Abort"))
             (pcase (read-char-choice
                     (format "A branch named %S already exists.
