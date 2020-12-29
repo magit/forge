@@ -604,7 +604,7 @@ Please see the manual for more information."
            (upstream (oref repo remote))
            (upstream-url (magit-git-string "remote" "get-url" upstream))
            (remote head-user)
-           (branch (forge--pullreq-branch (forge-get-pullreq repo n) t))
+           (branch (forge--pullreq-branch-select (forge-get-pullreq repo n)))
            (pr-branch head-ref))
       (when (string-match-p ":" pr-branch)
         ;; Such a branch name would be invalid.  If we encounter
@@ -679,7 +679,7 @@ Please see the manual for more information."
      (or (if (not (eq (oref pullreq state) 'open))
              (magit-ref-p (format "refs/pullreqs/%s"
                                   (oref pullreq number)))
-           (magit-branch-p (forge--pullreq-branch pullreq)))
+           (forge--pullreq-branch-active pullreq))
          (let ((inhibit-magit-refresh t))
            (forge-branch-pullreq n))))))
 
