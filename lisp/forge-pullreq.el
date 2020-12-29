@@ -152,19 +152,20 @@
     (and (string-match "\\`\\([0-9]+\\)" choice)
          (string-to-number (match-string 1 choice)))))
 
+(defun forge--pullreq-branch-internal (pullreq)
+  (let ((branch (oref pullreq head-ref)))
+    ;; It is invalid for a branch name to begin with a colon, yet
+    ;; that is what Gitlab uses when a pull-request's source branch
+    ;; has been deleted.  On Github this is simply nil in the same
+    ;; situation.
+    (and branch (not (string-prefix-p ":" branch)) branch)))
+
 (defun forge--pullreq-branch (pullreq &optional confirm-reset)
   (let* ((number (oref pullreq number))
          (branch-n (format "pr-%s" number))
-         (branch (oref pullreq head-ref)))
-    (when (or
-           ;; Handle deleted GitHub pull-request branch.
-           (not branch)
-           ;; Such a branch name would be invalid.  If we encounter
-           ;; this, then it means that we are dealing with a Gitlab
-           ;; pull-request whose source branch has been deleted.
-           (string-match-p ":" branch)
-           ;; These are usually the target, not source, of a pr.
-           (member branch '("master" "next" "maint")))
+         (branch (or (forge--pullreq-branch-internal pullreq)
+                     branch-n)))
+    (when (member branch '("master" "next" "maint"))
       (setq branch branch-n))
     (when (and confirm-reset (magit-branch-p branch))
       (if (equal branch branch-n)
