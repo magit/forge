@@ -581,7 +581,10 @@ topic N and modify that instead."
   "Create and configure a new branch from a pull-request.
 Please see the manual for more information."
   (interactive (list (forge-read-pullreq "Branch pull request" t)))
-  (forge--branch-pullreq (forge-get-repository t) n))
+  (if-let ((branch (forge--pullreq-branch-active (forge-get-pullreq n))))
+      (progn (message "Branch %S already exists and is configured" branch)
+             branch)
+    (forge--branch-pullreq (forge-get-repository t) n)))
 
 (cl-defmethod forge--branch-pullreq ((_repo forge-unusedapi-repository) n)
   ;; We don't know enough to do a good job.
