@@ -698,7 +698,7 @@ information."
                     (file-name-directory
                      (directory-file-name default-directory))
                     nil nil
-                    (let ((branch (forge--pullreq-branch pullreq t)))
+                    (let ((branch (forge--pullreq-branch-internal pullreq)))
                       (if (string-match-p "\\`pr-[0-9]+\\'" branch)
                           (number-to-string number)
                         (format "%s-%s" number head-ref))))))
