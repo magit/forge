@@ -693,13 +693,12 @@ information."
    (let* ((n (forge-read-pullreq "Checkout pull request" t))
           (pullreq (forge-get-pullreq n)))
      (with-slots (number head-ref) pullreq
-       (let ((path (let ((branch (forge--pullreq-branch pullreq t)))
-                     (read-directory-name
-                      (format "Checkout #%s as `%s' in new worktree: "
-                              number branch)
-                      (file-name-directory
-                       (directory-file-name default-directory))
-                      nil nil
+       (let ((path (read-directory-name
+                    (format "Checkout #%s in new worktree: " number)
+                    (file-name-directory
+                     (directory-file-name default-directory))
+                    nil nil
+                    (let ((branch (forge--pullreq-branch pullreq t)))
                       (if (string-match-p "\\`pr-[0-9]+\\'" branch)
                           (number-to-string number)
                         (format "%s-%s" number head-ref))))))
