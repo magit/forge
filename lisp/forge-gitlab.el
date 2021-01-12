@@ -543,6 +543,13 @@
     (ghub-wait (format "/projects/%s%%2F%s" fork name)
                nil :auth 'forge :forge 'gitlab)))
 
+(cl-defmethod forge--merge-pullreq ((_repo forge-gitlab-repository)
+                                    topic hash method)
+  (forge--glab-put topic
+    "/projects/:project/merge_requests/:number/merge"
+    `((squash . ,(if (eq method 'squash) "true" "false"))
+      ,@(and hash `((sha . ,hash))))))
+
 ;;; Utilities
 
 (cl-defmethod forge--topic-type-prefix ((_repo forge-gitlab-repository) type)

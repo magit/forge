@@ -105,6 +105,9 @@
 (transient-append-suffix 'magit-status-jump "'p"
   '("'i" "issues" forge-jump-to-issues))
 
+(transient-append-suffix 'magit-merge "a"
+  '(7 "f" "Merge using API" forge-merge))
+
 ;;; Startup Asserts
 
 (defconst forge--minimal-git "2.7.0")

@@ -652,6 +652,13 @@
            `((organization . ,fork))))
     (ghub-wait (format "/repos/%s/%s" fork name) nil :auth 'forge)))
 
+(cl-defmethod forge--merge-pullreq ((_repo forge-github-repository)
+                                    topic hash method)
+  (forge--ghub-put topic
+    "/repos/:owner/:repo/pulls/:number/merge"
+    `((merge_method . ,(symbol-name method))
+      ,@(and hash `((sha . ,hash))))))
+
 ;;; Utilities
 
 (cl-defun forge--ghub-get (obj resource

@@ -916,6 +916,36 @@ This may take a while.  Only Github is supported at the moment."
   (forge--add-organization-repos 'forge-github-repository host organization))
 
 ;;;###autoload
+(defun forge-merge (n method)
+  "Merge the current pull-request using METHOD using the forge's API.
+
+If there is no current pull-request or with a prefix argument,
+then read pull-request N to visit instead.
+
+Use of this command is discouraged.  Unless the remote repository
+is configured to disallow that, you should instead merge locally
+and then push the target branch.  Forges detect that you have
+done that and respond by automatically marking the pull-request
+as merged."
+  (interactive
+   (list (forge-read-pullreq "Merge pull-request" t)
+         (if (forge--childp (forge-get-repository t) 'forge-gitlab-repository)
+             (magit-read-char-case "Merge method " t
+               (?m "[m]erge"  'merge)
+               (?s "[s]quash" 'squash))
+           (magit-read-char-case "Merge method " t
+             (?m "[m]erge"  'merge)
+             (?s "[s]quash" 'squash)
+             (?r "[r]ebase" 'rebase)))))
+  (forge--merge-pullreq (forge-get-repository t)
+                        (forge-get-pullreq n)
+                        (magit-rev-hash
+                         (forge--pullreq-branch-internal
+                          (forge-get-pullreq n)))
+                        method)
+  (forge-pull))
+
+;;;###autoload
 (defun forge-remove-repository (host owner name)
   "Remove a repository from the database."
   (interactive
