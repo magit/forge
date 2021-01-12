@@ -512,13 +512,12 @@
 
 (cl-defmethod forge--delete-comment
   ((_repo forge-gitlab-repository) post)
-  (forge--glab-delete
-   post
-   (cl-etypecase post
-     (forge-pullreq-post
-      "/projects/:project/merge_requests/:topic/notes/:number")
-     (forge-issue-post
-      "/projects/:project/issues/:topic/notes/:number")))
+  (forge--glab-delete post
+    (cl-etypecase post
+      (forge-pullreq-post
+       "/projects/:project/merge_requests/:topic/notes/:number")
+      (forge-issue-post
+       "/projects/:project/issues/:topic/notes/:number")))
   (closql-delete post)
   (magit-refresh))
 
@@ -535,9 +534,9 @@
 (cl-defmethod forge--fork-repository ((repo forge-gitlab-repository) fork)
   (with-slots (owner name) repo
     (forge--glab-post repo (format "/projects/%s%%2F%s/fork" owner name)
-                      (and (not (equal fork (ghub--username (ghub--host nil))))
-                           `((namespace . ,fork)))
-                      :noerror t)
+      (and (not (equal fork (ghub--username (ghub--host nil))))
+           `((namespace . ,fork)))
+      :noerror t)
     (ghub-wait (format "/projects/%s%%2F%s" fork name)
                nil :auth 'forge :forge 'gitlab)))
 
