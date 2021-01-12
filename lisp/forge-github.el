@@ -327,8 +327,8 @@
                             (forge--ghub-massage-notification
                              data forge githost)))
                         (forge--ghub-get nil "/notifications"
-                                         '((all . "true"))
-                                         :host apihost :unpaginate t)))
+                          '((all . "true"))
+                          :host apihost :unpaginate t)))
          (groups (-partition-all 50 notifs))
          (pages  (length groups))
          (page   0)
@@ -484,17 +484,17 @@
                (head-repo (forge-get-repository 'stub head-remote))
                (issue-obj (forge-get-issue repo issue)))
     (forge--ghub-post repo "/repos/:owner/:repo/pulls"
-                      `((issue . ,issue)
-                        (base  . ,base-branch)
-                        (head  . ,(if (equal head-remote base-remote)
-                                      head-branch
-                                    (concat (oref head-repo owner) ":"
-                                            head-branch)))
-                        (maintainer_can_modify . t))
-                      :callback  (lambda (&rest _)
-                                   (closql-delete issue-obj)
-                                   (forge-pull))
-                      :errorback (lambda (&rest _) (forge-pull)))))
+      `((issue . ,issue)
+        (base  . ,base-branch)
+        (head  . ,(if (equal head-remote base-remote)
+                      head-branch
+                    (concat (oref head-repo owner) ":"
+                            head-branch)))
+        (maintainer_can_modify . t))
+      :callback  (lambda (&rest _)
+                   (closql-delete issue-obj)
+                   (forge-pull))
+      :errorback (lambda (&rest _) (forge-pull)))))
 
 (cl-defmethod forge--submit-create-pullreq ((_ forge-github-repository) repo)
   (let-alist (forge--topic-parse-buffer)
@@ -507,34 +507,34 @@
                   ;; Support draft pull-requests.
                   "application/vnd.github.shadow-cat-preview+json"))
       (forge--ghub-post repo "/repos/:owner/:repo/pulls"
-                        `((title . , .title)
-                          (body  . , .body)
-                          (base  . ,base-branch)
-                          (head  . ,(if (equal head-remote base-remote)
-                                        head-branch
-                                      (concat (oref head-repo owner) ":"
-                                              head-branch)))
-                          (draft . ,(and (member .draft '("t" "true" "yes"))
-                                         t))
-                          (maintainer_can_modify . t))
-                        :callback  (forge--post-submit-callback)
-                        :errorback (forge--post-submit-errorback)))))
+        `((title . , .title)
+          (body  . , .body)
+          (base  . ,base-branch)
+          (head  . ,(if (equal head-remote base-remote)
+                        head-branch
+                      (concat (oref head-repo owner) ":"
+                              head-branch)))
+          (draft . ,(and (member .draft '("t" "true" "yes"))
+                         t))
+          (maintainer_can_modify . t))
+        :callback  (forge--post-submit-callback)
+        :errorback (forge--post-submit-errorback)))))
 
 (cl-defmethod forge--submit-create-issue ((_ forge-github-repository) repo)
   (let-alist (forge--topic-parse-buffer)
     (forge--ghub-post repo "/repos/:owner/:repo/issues"
-                      `((title . , .title)
-                        (body  . , .body)
-                        ,@(and .labels    (list (cons 'labels    .labels)))
-                        ,@(and .assignees (list (cons 'assignees .assignees))))
-                      :callback  (forge--post-submit-callback)
-                      :errorback (forge--post-submit-errorback))))
+      `((title . , .title)
+        (body  . , .body)
+        ,@(and .labels    (list (cons 'labels    .labels)))
+        ,@(and .assignees (list (cons 'assignees .assignees))))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-post ((_ forge-github-repository) topic)
   (forge--ghub-post topic "/repos/:owner/:repo/issues/:number/comments"
-                    `((body . ,(string-trim (buffer-string))))
-                    :callback  (forge--post-submit-callback)
-                    :errorback (forge--post-submit-errorback)))
+    `((body . ,(string-trim (buffer-string))))
+    :callback  (forge--post-submit-callback)
+    :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--submit-edit-post ((_ forge-github-repository) post)
   (forge--ghub-patch post
@@ -569,21 +569,21 @@
 (cl-defmethod forge--set-topic-milestone
   ((repo forge-github-repository) topic milestone)
   (forge--ghub-patch topic
-                     "/repos/:owner/:repo/issues/:number"
-                     `((milestone
-                        . ,(caar (forge-sql [:select [number]
-                                             :from milestone
-                                             :where (and (= repository $s1)
-                                                         (= title $s2))]
-                                            (oref repo id)
-                                            milestone))))
-                     :callback (forge--set-field-callback)))
+    "/repos/:owner/:repo/issues/:number"
+    `((milestone
+       . ,(caar (forge-sql [:select [number]
+                            :from milestone
+                            :where (and (= repository $s1)
+                                        (= title $s2))]
+                           (oref repo id)
+                           milestone))))
+    :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--set-topic-labels
   ((_repo forge-github-repository) topic labels)
   (forge--ghub-put topic "/repos/:owner/:repo/issues/:number/labels" nil
-                   :payload labels
-                   :callback (forge--set-field-callback)))
+    :payload labels
+    :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--delete-comment
   ((_repo forge-github-repository) post)
@@ -595,26 +595,24 @@
   ((_repo forge-github-repository) topic assignees)
   (let ((value (mapcar #'car (closql--iref topic 'assignees))))
     (when-let ((add (cl-set-difference assignees value :test #'equal)))
-      (forge--ghub-post
-       topic "/repos/:owner/:repo/issues/:number/assignees"
-       `((assignees . ,add))))
+      (forge--ghub-post topic "/repos/:owner/:repo/issues/:number/assignees"
+        `((assignees . ,add))))
     (when-let ((remove (cl-set-difference value assignees :test #'equal)))
-      (forge--ghub-delete
-       topic "/repos/:owner/:repo/issues/:number/assignees"
-       `((assignees . ,remove)))))
+      (forge--ghub-delete topic "/repos/:owner/:repo/issues/:number/assignees"
+        `((assignees . ,remove)))))
   (forge-pull))
 
 (cl-defmethod forge--set-topic-review-requests
   ((_repo forge-github-repository) topic reviewers)
   (let ((value (mapcar #'car (closql--iref topic 'review-requests))))
     (when-let ((add (cl-set-difference reviewers value :test #'equal)))
-      (forge--ghub-post
-       topic "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-       `((reviewers . ,add))))
+      (forge--ghub-post topic
+        "/repos/:owner/:repo/pulls/:number/requested_reviewers"
+        `((reviewers . ,add))))
     (when-let ((remove (cl-set-difference value reviewers :test #'equal)))
-      (forge--ghub-delete
-       topic "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-       `((reviewers . ,remove)))))
+      (forge--ghub-delete topic
+        "/repos/:owner/:repo/pulls/:number/requested_reviewers"
+        `((reviewers . ,remove)))))
   (forge-pull))
 
 (cl-defmethod forge--topic-templates ((repo forge-github-repository)
@@ -646,9 +644,9 @@
 (cl-defmethod forge--fork-repository ((repo forge-github-repository) fork)
   (with-slots (owner name) repo
     (forge--ghub-post repo
-                      (format "/repos/%s/%s/forks" owner name)
-                      (and (not (equal fork (ghub--username (ghub--host nil))))
-                           `((organization . ,fork))))
+      (format "/repos/%s/%s/forks" owner name)
+      (and (not (equal fork (ghub--username (ghub--host nil))))
+           `((organization . ,fork))))
     (ghub-wait (format "/repos/%s/%s" fork name) nil :auth 'forge)))
 
 ;;; Utilities
