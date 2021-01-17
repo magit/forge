@@ -94,7 +94,14 @@ falling apart.
 There can be multiple elements that only differ in GITHOST.
 Among those, the canonical element should come first.  Any
 elements that have the same APIHOST must also have the same
-ID, and vice-versa."
+ID, and vice-versa.
+
+Complications:
+
+* When connecting to a Github Enterprise edition whose REST
+  API's end point is \"<host>/v3\" and whose GraphQL API's
+  end point is \"<host>/graphql\", then use \"<host>/v3\" as
+  APIHOST.  This is a historic accident.  See issue #174."
   :package-version '(forge . "0.1.0")
   :group 'forge
   :type '(repeat (list (string :tag "Git host")
