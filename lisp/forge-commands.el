@@ -393,7 +393,7 @@ point is currently on."
     (user-error "This command is only available from topic buffers"))
   (let* ((topic forge-buffer-topic)
          (buf (forge--prepare-post-buffer
-               (forge--format topic "%i:new-comment")
+               (forge--format topic "%i;new-comment")
                (forge--format topic "New comment on #%i of %p")))
          (quote (cond
                  ((not (magit-section-match 'post)) nil)
