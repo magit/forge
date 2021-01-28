@@ -429,7 +429,7 @@ point is currently on."
                   (forge--format post "Edit #%i of %p")))
                 (forge-post
                  (forge--prepare-post-buffer
-                  (forge--format post "%i:%I")
+                  (forge--format post "%i;%I")
                   (forge--format post "Edit comment on #%i of %p"))))))
     (with-current-buffer buf
       (setq forge--buffer-post-object post)
@@ -555,7 +555,7 @@ topic N and modify that instead."
   (interactive (list (forge-read-topic "Edit note about")))
   (let* ((topic (forge-get-topic n))
          (buf (forge--prepare-post-buffer
-               (forge--format topic "%i:note")
+               (forge--format topic "%i;note")
                (forge--format topic "New note on #%i of %p"))))
     (with-current-buffer buf
       (setq forge--buffer-post-object topic)
