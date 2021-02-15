@@ -683,7 +683,7 @@ Please see the manual for more information."
              (magit-ref-p (format "refs/pullreqs/%s"
                                   (oref pullreq number)))
            (forge--pullreq-branch-active pullreq))
-         (let ((inhibit-magit-refresh t))
+         (let ((magit-inhibit-refresh t))
            (forge-branch-pullreq n))))))
 
 ;;;###autoload
@@ -713,7 +713,7 @@ information."
                        (= (length (directory-files "/tmp/testing/")) 2))))
     (user-error "%s already exists and isn't empty" path))
   (magit-worktree-checkout path
-                           (let ((inhibit-magit-refresh t))
+                           (let ((magit-inhibit-refresh t))
                              (forge-branch-pullreq n))))
 
 ;;; Marks
