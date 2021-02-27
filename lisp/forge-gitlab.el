@@ -117,24 +117,24 @@
 ;;;; Issues
 
 (cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback until)
-  (let ((cb (let (val cur cnt pos)
+  (let ((cb (let (val cur cnt pos elt)
               (lambda (cb &optional v)
                 (cond
                  ((not pos)
-                  (if (setq cur (setq val v))
+                  (if (setq elt (car (setq cur (setq val v))))
                       (progn
                         (setq pos 1)
                         (setq cnt (length val))
                         (forge--msg nil nil nil "Pulling issue %s/%s" pos cnt)
-                        (forge--fetch-issue-posts repo cur cb))
+                        (forge--fetch-issue-posts repo elt cb))
                     (forge--msg repo t t "Pulling REPO issues")
                     (funcall callback callback (cons 'issues val))))
                  (t
-                  (if (setq cur (cdr cur))
+                  (if (setq elt (car (setq cur (cdr cur))))
                       (progn
                         (cl-incf pos)
                         (forge--msg nil nil nil "Pulling issue %s/%s" pos cnt)
-                        (forge--fetch-issue-posts repo cur cb))
+                        (forge--fetch-issue-posts repo elt cb))
                     (forge--msg repo t t "Pulling REPO issues")
                     (funcall callback callback (cons 'issues val)))))))))
     (forge--msg repo t nil "Pulling REPO issues")
@@ -146,14 +146,14 @@
       :callback (lambda (value _headers _status _req)
                   (funcall cb cb value)))))
 
-(cl-defmethod forge--fetch-issue-posts ((repo forge-gitlab-repository) cur cb)
-  (let-alist (car cur)
+(cl-defmethod forge--fetch-issue-posts ((repo forge-gitlab-repository) elt cb)
+  (let-alist elt
     (forge--glab-get repo
       (format "/projects/%s/issues/%s/notes" .project_id .iid)
       '((per_page . 100))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
-                  (setf (alist-get 'notes (car cur)) value)
+                  (setf (alist-get 'notes elt) value)
                   (funcall cb cb)))))
 
 (cl-defmethod forge--update-issue ((repo forge-gitlab-repository) data)
@@ -200,28 +200,28 @@
 ;;;; Pullreqs
 
 (cl-defmethod forge--fetch-pullreqs ((repo forge-gitlab-repository) callback until)
-  (let ((cb (let (val cur cnt pos)
+  (let ((cb (let (val cur cnt pos elt)
               (lambda (cb &optional v)
                 (cond
                  ((not pos)
-                  (if (setq cur (setq val v))
+                  (if (setq elt (setq cur (setq val v)))
                       (progn
                         (setq pos 1)
                         (setq cnt (length val))
                         (forge--msg nil nil nil "Pulling pullreq %s/%s" pos cnt)
-                        (forge--fetch-pullreq-posts repo cur cb))
+                        (forge--fetch-pullreq-posts repo elt cb))
                     (forge--msg repo t t "Pulling REPO pullreqs")
                     (funcall callback callback (cons 'pullreqs val))))
-                 ((not (assq 'source_project (car cur)))
-                  (forge--fetch-pullreq-source-repo repo cur cb))
-                 ((not (assq 'target_project (car cur)))
-                  (forge--fetch-pullreq-target-repo repo cur cb))
+                 ((not (assq 'source_project elt))
+                  (forge--fetch-pullreq-source-repo repo elt cb))
+                 ((not (assq 'target_project elt))
+                  (forge--fetch-pullreq-target-repo repo elt cb))
                  (t
-                  (if (setq cur (cdr cur))
+                  (if (setq elt (car (setq cur (cdr cur))))
                       (progn
                         (cl-incf pos)
                         (forge--msg nil nil nil "Pulling pullreq %s/%s" pos cnt)
-                        (forge--fetch-pullreq-posts repo cur cb))
+                        (forge--fetch-pullreq-posts repo elt cb))
                     (forge--msg repo t t "Pulling REPO pullreqs")
                     (funcall callback callback (cons 'pullreqs val)))))))))
     (forge--msg repo t nil "Pulling REPO pullreqs")
@@ -234,42 +234,42 @@
                   (funcall cb cb value)))))
 
 (cl-defmethod forge--fetch-pullreq-posts
-  ((repo forge-gitlab-repository) cur cb)
-  (let-alist (car cur)
+  ((repo forge-gitlab-repository) pr cb)
+  (let-alist pr
     (forge--glab-get repo
       (format "/projects/%s/merge_requests/%s/notes" .target_project_id .iid)
       '((per_page . 100))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
-                  (setf (alist-get 'notes (car cur)) value)
+                  (setf (alist-get 'notes pr) value)
                   (funcall cb cb)))))
 
 (cl-defmethod forge--fetch-pullreq-source-repo
-  ((repo forge-gitlab-repository) cur cb)
+  ((repo forge-gitlab-repository) pr cb)
   ;; If the fork no longer exists, then `.source_project_id' is nil.
   ;; This will lead to difficulties later on but there is nothing we
   ;; can do about it.
-  (let-alist (car cur)
+  (let-alist pr
     (if .source_project_id
         (forge--glab-get repo (format "/projects/%s" .source_project_id) nil
           :errorback (lambda (_err _headers _status _req)
-                       (setf (alist-get 'source_project (car cur)) nil)
+                       (setf (alist-get 'source_project pr) nil)
                        (funcall cb cb))
           :callback (lambda (value _headers _status _req)
-                      (setf (alist-get 'source_project (car cur)) value)
+                      (setf (alist-get 'source_project pr) value)
                       (funcall cb cb)))
-      (setf (alist-get 'source_project (car cur)) nil)
+      (setf (alist-get 'source_project pr) nil)
       (funcall cb cb))))
 
 (cl-defmethod forge--fetch-pullreq-target-repo
-  ((repo forge-gitlab-repository) cur cb)
-  (let-alist (car cur)
+  ((repo forge-gitlab-repository) pr cb)
+  (let-alist pr
     (forge--glab-get repo (format "/projects/%s" .target_project_id) nil
       :errorback (lambda (_err _headers _status _req)
-                   (setf (alist-get 'source_project (car cur)) nil)
+                   (setf (alist-get 'source_project pr) nil)
                    (funcall cb cb))
       :callback (lambda (value _headers _status _req)
-                  (setf (alist-get 'target_project (car cur)) value)
+                  (setf (alist-get 'target_project pr) value)
                   (funcall cb cb)))))
 
 (cl-defmethod forge--update-pullreq ((repo forge-gitlab-repository) data)
