@@ -426,6 +426,9 @@
                 (forge--object-id repo-id (cdar milestone)))))
       (closql--db-set-version db (setq version 7))
       (message "Upgrading Forge database from version 6 to 7...done"))
+    ;; Going forward create a backup before upgrading:
+    ;; (message "Upgrading Forge database from version 7 to 8...")
+    ;; (copy-file forge-database-file (concat forge-database-file "-v7"))
     version))
 
 ;;; _
