@@ -252,6 +252,7 @@ Or if you use ~use-package~:
 
 #+BEGIN_SRC emacs-lisp
   (use-package forge
+    :ensure t
     :after magit)
 #+END_SRC
 
