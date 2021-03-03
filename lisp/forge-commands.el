@@ -286,12 +286,12 @@ read an issue N to visit."
 ;;; Visit
 
 ;;;###autoload
-(defun forge-visit-topic ()
-  "View the current topic in a separate buffer."
-  (interactive)
-  (if-let ((topic (forge-current-topic)))
-      (forge-visit topic)
-    (user-error "There is no current topic")))
+(defun forge-visit-topic (n)
+  "View the current topic in a separate buffer.
+If there is no current topic or with a prefix argument
+read topic N to visit instead."
+  (interactive (list (forge-read-pullreq "View topic" t)))
+  (forge-visit (forge-get-topic n)))
 
 ;;;###autoload
 (defun forge-visit-pullreq (n)
