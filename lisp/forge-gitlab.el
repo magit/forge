@@ -149,7 +149,7 @@
 (cl-defmethod forge--fetch-issue-posts ((repo forge-gitlab-repository) cur cb)
   (let-alist (car cur)
     (forge--glab-get repo
-      (format "/projects/%s/issues/%s/notes" .project_id .iid)
+      (format "/projects/%s/issues/%s/discussions" .project_id .iid)
       '((per_page . 100))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
@@ -184,18 +184,25 @@
           (forge--set-id-slot repo issue 'assignees .assignees)
           (forge--set-id-slot repo issue 'labels .labels))
         .body .id ; Silence Emacs 25 byte-compiler.
-        (dolist (c .notes)
-          (let-alist c
-            (let ((post
-                   (forge-issue-post
-                    :id      (forge--object-id issue-id .id)
-                    :issue   issue-id
-                    :number  .id
-                    :author  .author.username
-                    :created .created_at
-                    :updated .updated_at
-                    :body    (forge--sanitize-string .body))))
-              (closql-insert (forge-db) post t))))))))
+        (dolist (d .posts)
+          (let* ((notes     (cdr (assq 'notes d)))
+                 (reply-to  (cdr (assq 'id (car notes))))
+                 (thread-id (cdr (assq 'id d))))
+            (dolist (c notes)
+              (let-alist c
+                (let ((post
+                       (forge-issue-post
+                        :id        (forge--object-id issue-id .id)
+                        :issue     issue-id
+                        :number    .id
+                        :author    .author.username
+                        :created   .created_at
+                        :updated   .updated_at
+                        :body      (forge--sanitize-string .body)
+                        :thread-id thread-id
+                        :reply-to  (and (not (zerop (cl-position c notes)))
+                                        reply-to))))
+                  (closql-insert (forge-db) post t))))))))))
 
 ;;;; Pullreqs
 
@@ -216,6 +223,8 @@
                   (forge--fetch-pullreq-source-repo repo cur cb))
                  ((not (assq 'target_project (car cur)))
                   (forge--fetch-pullreq-target-repo repo cur cb))
+                 ((not (assq 'posts (car cur)))
+                  (forge--fetch-pullreq-posts repo cur cb))
                  (t
                   (if (setq cur (cdr cur))
                       (progn
@@ -237,11 +246,11 @@
   ((repo forge-gitlab-repository) cur cb)
   (let-alist (car cur)
     (forge--glab-get repo
-      (format "/projects/%s/merge_requests/%s/notes" .target_project_id .iid)
+      (format "/projects/%s/merge_requests/%s/discussions" .target_project_id .iid)
       '((per_page . 100))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
-                  (setf (alist-get 'notes (car cur)) value)
+                  (setf (alist-get 'posts (car cur)) value)
                   (funcall cb cb)))))
 
 (cl-defmethod forge--fetch-pullreq-source-repo
@@ -313,18 +322,32 @@
           (forge--set-id-slot repo pullreq 'assignees (list .assignee))
           (forge--set-id-slot repo pullreq 'labels .labels))
         .body .id ; Silence Emacs 25 byte-compiler.
-        (dolist (c .notes)
-          (let-alist c
-            (let ((post
-                   (forge-pullreq-post
-                    :id      (forge--object-id pullreq-id .id)
-                    :pullreq pullreq-id
-                    :number  .id
-                    :author  .author.username
-                    :created .created_at
-                    :updated .updated_at
-                    :body    (forge--sanitize-string .body))))
-              (closql-insert (forge-db) post t))))))))
+        (dolist (d .posts)
+          (let* ((notes     (cdr (assq 'notes d)))
+                 (reply-to  (cdr (assq 'id (car notes))))
+                 (thread-id (cdr (assq 'id d))))
+            (dolist (c notes)
+              (let-alist c
+                (let ((post
+                       (forge-pullreq-post
+                        :id         (forge--object-id pullreq-id .id)
+                        :pullreq    pullreq-id
+                        :number     .id
+                        :author     .author.username
+                        :created    .created_at
+                        :updated    .updated_at
+                        :body       (forge--sanitize-string .body)
+                        :thread-id  thread-id
+                        :diff-p     (string= "DiffNote" .type)
+                        :reply-to   (and (not (zerop (cl-position c notes)))
+                                         reply-to)
+                        :head-ref   (and .position .position.head_sha)
+                        :commit-ref (and .position .position.start_sha)
+                        :base-ref   (and .position .position.base_sha)
+                        :path       (and .position .position.new_path)
+                        :old-line   (and .position .position.old_line)
+                        :new-line   (and .position .position.new_line))))
+                  (closql-insert (forge-db) post t))))))))))
 
 ;;;; Other
 
