@@ -225,6 +225,8 @@
                   (forge--fetch-pullreq-target-repo repo cur cb))
                  ((not (assq 'posts (car cur)))
                   (forge--fetch-pullreq-posts repo cur cb))
+                 ((not (assq 'versions (car cur)))
+                  (forge--fetch-pullreq-versions repo cur cb))
                  (t
                   (if (setq cur (cdr cur))
                       (progn
@@ -251,6 +253,17 @@
       :unpaginate t
       :callback (lambda (value _headers _status _req)
                   (setf (alist-get 'posts (car cur)) value)
+                  (funcall cb cb)))))
+
+(cl-defmethod forge--fetch-pullreq-versions
+  ((repo forge-gitlab-repository) cur cb)
+  (let-alist (car cur)
+    (forge--glab-get repo
+      (format "/projects/%s/merge_requests/%s/versions" .target_project_id .iid)
+      '((per_page . 100))
+      :unpaginate t
+      :callback (lambda (value _headers _status _req)
+                  (setf (alist-get 'versions (car cur)) value)
                   (funcall cb cb)))))
 
 (cl-defmethod forge--fetch-pullreq-source-repo
@@ -322,6 +335,16 @@
           (forge--set-id-slot repo pullreq 'assignees (list .assignee))
           (forge--set-id-slot repo pullreq 'labels .labels))
         .body .id ; Silence Emacs 25 byte-compiler.
+        (dolist (v .versions)
+          (let-alist v
+            (let* ((version-id (forge--object-id pullreq-id .id))
+                   (version (forge-pullreq-version
+                             :id       version-id
+                             :pullreq  pullreq-id
+                             :number   .id
+                             :head-ref .head_commit_sha
+                             :base-ref .base_commit_sha)))
+              (closql-insert (forge-db) version t))))
         (dolist (d .posts)
           (let* ((notes     (cdr (assq 'notes d)))
                  (reply-to  (cdr (assq 'id (car notes))))
