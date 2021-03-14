@@ -294,7 +294,7 @@ read an issue N to visit."
   "View the current topic in a separate buffer.
 If there is no current topic or with a prefix argument
 read topic N to visit instead."
-  (interactive (list (forge-read-pullreq "View topic" t)))
+  (interactive (list (forge-read-topic "View topic")))
   (forge-visit (forge-get-topic n)))
 
 ;;;###autoload
