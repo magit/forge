@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.1.0 (v0.1.0-359-gc4ae0f2b+1)
+@subtitle for version 0.1.0 (v0.1.0-371-gf4c95dd0+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-359-gc4ae0f2b+1).
+This manual is for Forge version 0.1.0 (v0.1.0-371-gf4c95dd0+1).
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -85,6 +85,7 @@ Getting Started
 * Token Creation::
 * Initial Pull::
 * Repository Detection::
+* Caveats::
 
 Usage
 
@@ -358,37 +359,15 @@ Srht Hosts
 @node Getting Started
 @chapter Getting Started
 
-Getting started using Forge should be fairly easy, but there are a few
-caveats you should be aware of:
+Getting started using Forge should be fairly easy provide you take the
+time to read the documentation.  First see @ref{Getting Started,,,ghub,}
+from Ghub's manual.  Ghub is the library that Forge uses to
+communicate with forge APIs.  While Ghub can be used independently of
+Forge, its "Getting Started" part was written with Forge users in
+mind.
 
-@itemize
-@item
-Forge uses the Ghub package to access forge APIs.  For this purpose
-you have to create a token as described in @ref{Token Creation}.
-
-
-@item
-Fetched information is stored in a database.  The table schemata of
-that database have not been finalized yet.  Until that has happened
-it will occasionally have to be discarded.  That isn't such a huge
-deal because for now the database does not contain any information
-that cannot simply be fetched again, see @ref{Initial Pull}.
-
-
-@item
-Fetching is implemented under the assumption that the API can be
-asked to list the things that have changed since we last checked.
-Unfortunately the APIs are not bug-free, so this is not always the
-case.  Especially in closed-source software it can take years for
-issues to get fixed, so I am no longer delaying the initial Forge
-release because of that.  If in doubt, then re-fetch an individual
-pull-request to ensure it is up-to-date using the command
-@code{forge-pull-pullreq}.
-
-
-@item
-Some other, forge-specific, caveats are mentioned in @ref{Supported Forges and Hosts}.
-@end itemize
+Please begin reading in @ref{Getting Started,,,ghub,} and then come back
+here and make sure to read the subsections.
 
 Loading Magit doesn't cause Forge to be loaded automatically.  Adding
 something like this to your init file takes care of this:
@@ -409,6 +388,7 @@ Or if you use @code{use-package}:
 * Token Creation::
 * Initial Pull::
 * Repository Detection::
+* Caveats::
 @end menu
 
 @node Token Creation
@@ -519,6 +499,33 @@ remote by your chosen name exists.
 Once the upstream remote has been determined, Forge looks it up in
 @code{forge-alist}, using the host part of the URL as the key.  For example
 the key for @code{git@@github.com:magit/forge.git} is @code{github.com}.
+
+@node Caveats
+@section Caveats
+
+@itemize
+@item
+Fetched information is stored in a database.  The table schemata of
+that database have not been finalized yet.  Until that has happened
+it will occasionally have to be discarded.  That isn't such a huge
+deal because for now the database does not contain any information
+that cannot simply be fetched again, see @ref{Initial Pull}.
+
+
+@item
+Fetching is implemented under the assumption that the API can be
+asked to list the things that have changed since we last checked.
+Unfortunately the APIs are not bug-free, so this is not always the
+case.  Especially in closed-source software it can take years for
+issues to get fixed, so I am no longer delaying the initial Forge
+release because of that.  If in doubt, then re-fetch an individual
+pull-request to ensure it is up-to-date using the command
+@code{forge-pull-pullreq}.
+
+
+@item
+Some other, forge-specific, caveats are mentioned in @ref{Supported Forges and Hosts}.
+@end itemize
 
 @node Usage
 @chapter Usage
