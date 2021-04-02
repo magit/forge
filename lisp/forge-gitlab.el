@@ -51,7 +51,10 @@
                   (dir default-directory)
                   (val nil))
               (lambda (cb &optional v)
-                (when v (if val (push v val) (setq val v)))
+                (when v
+                  (if (consp (car v))
+                      (setq val (append v val))
+                    (push v val)))
                 (let-alist val
                   (cond
                    ((not val)
