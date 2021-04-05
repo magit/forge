@@ -314,12 +314,13 @@ read an issue N to visit instead."
   (forge-visit (forge-get-issue n)))
 
 ;;;###autoload
-(defun forge-visit-repository ()
+(defun forge-visit-repository (repo)
   "View the current repository in a separate buffer."
-  (interactive)
-  (if-let ((repo (forge-current-repository)))
-      (forge-visit repo)
-    (user-error "There is no current forge repository")))
+  (interactive
+   (list (or (forge-current-repository)
+             (forge-get-repository
+              (forge-read-repository "Visit repository")))))
+  (forge-visit repo))
 
 ;;; Create
 
