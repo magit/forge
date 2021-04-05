@@ -55,9 +55,7 @@
                 (let-alist val
                   (cond
                    ((not val)
-                    (forge--fetch-repository repo cb)
-                    (when (magit-get-boolean "forge.omitExpensive")
-                      (setq val (append '((assignees) (forks) (labels)) val))))
+                    (forge--fetch-repository repo cb))
                    ((not (assq 'assignees val))
                     (forge--fetch-assignees repo cb))
                    ((not (assq 'forks val))
@@ -87,6 +85,8 @@
 (cl-defmethod forge--fetch-repository ((repo forge-gitlab-repository) callback)
   (forge--glab-get repo "/projects/:project" nil
     :callback (lambda (value _headers _status _req)
+                (when (magit-get-boolean "forge.omitExpensive")
+                  (setq value (append '((assignees) (forks) (labels)) value)))
                 (funcall callback callback value))))
 
 (cl-defmethod forge--update-repository ((repo forge-gitlab-repository) data)
