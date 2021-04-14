@@ -77,7 +77,7 @@
 (define-key magit-branch-section-map (kbd "C-c C-v") 'forge-visit-topic)
 
 (transient-append-suffix 'magit-dispatch "%"
-  '("'" "Forge" forge-dispatch ?%))
+  '("'" "Forge" forge-dispatch))
 
 (transient-append-suffix 'magit-fetch "m"
   '("y" "forge topics" forge-pull))
