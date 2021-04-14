@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.1.0 (v0.1.0-372-g315aeb40+1)
+#+SUBTITLE: for version 0.1.0 (v0.1.0-376-gab3be5a7+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.1.0 (v0.1.0-372-g315aeb40+1).
+This manual is for Forge version 0.1.0 (v0.1.0-376-gab3be5a7+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -708,23 +708,34 @@ dedicated buffers:
 - Command: forge-list-owned-pullreqs
 
   This command lists open pull-requests from all the repositories that
-  you own.  Options ~forge-owned-accounts~ and ~forge-owned-blacklist~
+  you own.  Options ~forge-owned-accounts~ and ~forge-owned-ignored~
   controls which repositories are considered to be owned by you.  Only
   Github is supported for now.
 
 - Command: forge-list-owned-issues
 
   This command lists open issues from all the repositories that
-  you own.  Options ~forge-owned-accounts~ and ~forge-owned-blacklist~
+  you own.  Options ~forge-owned-accounts~ and ~forge-owned-ignored~
   controls which repositories are considered to be owned by you.  Only
   Github is supported for now.
 
 - User Option: forge-owned-accounts
 
-  This is a list of accounts that are owned by you.  This should
-  include your username as well as any organizations that you own.
+  This is an alist of accounts that are owned by you.  This should
+  include your username as well as any organization that you own.
+  Used by the commands ~forge-list-owned-issues~,
+  ~forge-list-owned-pullreqs~ and ~forge-fork~.
 
-- User Option: forge-owned-blacklist
+  Each element has the form ~(ACCOUNT . PLIST)~.  The following
+  properties are currently being used:
+
+  - ~remote-name~ The default name suggested by ~forge-fork~ for a fork
+    created within this account.  If unspecified, then the name of the
+    account is used.
+
+  Example: ~(("tarsius") ("emacsmirror" :remote-name "mirror"))~.
+
+- User Option: forge-owned-ignored
 
   This is a list of repository names that are considered to not be
   owned by you even though they would have been considered to be owned
