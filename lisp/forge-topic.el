@@ -806,6 +806,33 @@ Return a value between 0 and 1."
     `((title . ,(string-trim title))
       (body  . ,(string-trim body)))))
 
+(defun forge--topic-parse-link-buffer ()
+  (save-match-data
+    (save-excursion
+      (goto-char (point-min))
+      (mapcar (lambda (alist)
+                (cons (cons 'prompt (concat (alist-get 'name alist) " -- "
+                                            (alist-get 'about alist)))
+                      alist))
+              (forge--topic-parse-yaml-links)))))
+
+(defun forge--topic-parse-yaml-links ()
+  (when (re-search-forward "^contact_links:" nil t)
+    (let (link links)
+      (forward-line)
+      (while (looking-at "^  \\(.\\) \\([^:]*\\):[\s\t]*\\(.*\\)")
+        (let ((next (equal (match-string-no-properties 1) "-"))
+              (key (intern (match-string-no-properties 2)))
+              (val (match-string-no-properties 3)))
+          (when (string-match-p "\\`\".+\"\\'" val)
+            (setq val (substring val 1 -1)))
+          (when (and next link)
+            (push link links)
+            (setq link nil))
+          (setf (alist-get key link) val))
+        (forward-line))
+      (nreverse (mapcar #'nreverse links)))))
+
 ;;; Templates
 
 (cl-defgeneric forge--topic-templates (repo class)
@@ -817,15 +844,19 @@ If there are multiple templates, then the user is asked to select
 one of them.  It there are no templates, then return a very basic
 alist, containing just `text' and `position'.")
 
+(defun forge--topic-templates-data (repo class)
+  (let ((branch (oref repo default-branch)))
+    (mapcan (lambda (f)
+              (with-temp-buffer
+                (magit-git-insert "cat-file" "-p" (concat branch ":" f))
+                (if (equal (file-name-nondirectory f) "config.yml")
+                    (forge--topic-parse-link-buffer)
+                  (list (forge--topic-parse-buffer f)))))
+            (forge--topic-templates repo class))))
+
 (cl-defmethod forge--topic-template ((repo forge-repository)
                                      (class (subclass forge-topic)))
-  (let* ((branch  (oref repo default-branch))
-         (choices (mapcar (lambda (f)
-                            (with-temp-buffer
-                              (magit-git-insert "cat-file" "-p"
-                                                (concat branch ":" f))
-                              (forge--topic-parse-buffer f)))
-                          (forge--topic-templates repo class))))
+  (let ((choices (forge--topic-templates-data repo class)))
     (if (cdr choices)
         (let ((c (magit-completing-read
                   (if (eq class 'forge-pullreq)

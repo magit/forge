@@ -388,10 +388,11 @@ read an issue N to visit instead."
          (buf (forge--prepare-post-buffer
                "new-issue"
                (forge--format repo "Create new issue on %p"))))
-    (with-current-buffer buf
-      (setq forge--buffer-post-object repo)
-      (setq forge--submit-post-function 'forge--submit-create-issue))
-    (forge--display-post-buffer buf)))
+    (when buf
+      (with-current-buffer buf
+        (setq forge--buffer-post-object repo)
+        (setq forge--submit-post-function 'forge--submit-create-issue))
+      (forge--display-post-buffer buf))))
 
 (defun forge-create-post (&optional quote)
   "Create a new post on an existing topic.
