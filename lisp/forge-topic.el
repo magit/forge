@@ -127,7 +127,7 @@ This variable has to be customized before `forge' is loaded."
   :group 'forge-faces)
 
 (defface forge-topic-label
-  '((t :box (:color "black")))
+  '((t :box (:line-width (-1 . -1) :style released-button)))
   "Face used for topic labels."
   :group 'forge-faces)
 
