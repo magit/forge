@@ -126,6 +126,11 @@ This variable has to be customized before `forge' is loaded."
   "Face used for number of unmerged pull-requests."
   :group 'forge-faces)
 
+(defface forge-topic-label
+  '((t :box (:color "black")))
+  "Face used for topic labels."
+  :group 'forge-faces)
+
 (defface forge-post-author
   '((t :inherit bold))
   "Face used for post author in topic view."
@@ -522,9 +527,9 @@ identifier."
         (overlay-put o 'priority 2)
         (overlay-put o 'evaporate t)
         (overlay-put o 'font-lock-face
-                     (list :background background
-                           :foreground foreground
-                           :box "black"))
+                     `(( :background ,background
+                         :foreground ,foreground)
+                       forge-topic-label))
         (when description
           (overlay-put o 'help-echo description))))))
 
@@ -552,7 +557,7 @@ identifier."
     (let ((o (make-overlay (- (point) (length name)) (point))))
       (overlay-put o 'priority 2)
       (overlay-put o 'evaporate t)
-      (overlay-put o 'font-lock-face face)
+      (overlay-put o 'font-lock-face (list face 'forge-topic-label))
       (when description
         (overlay-put o 'help-echo description)))))
 
