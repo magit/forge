@@ -127,7 +127,8 @@ This variable has to be customized before `forge' is loaded."
   :group 'forge-faces)
 
 (defface forge-topic-label
-  '((t :box (:line-width (-1 . -1) :style released-button)))
+  `((t :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
+              :style released-button)))
   "Face used for topic labels."
   :group 'forge-faces)
 
