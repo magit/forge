@@ -217,7 +217,8 @@
                           (forge-pullreq-p topic))
                      (oref repo selective-p)))
             (forge--pull-topic repo (oref topic number))
-          (forge-pull))))))
+          (unless (magit-get-boolean "forge.dontAutoSyncOnSubmit")
+            (forge-pull)))))))
 
 (defun forge--post-submit-errorback ()
   (lambda (error &rest _)

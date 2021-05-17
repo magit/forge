@@ -496,6 +496,9 @@
         (maintainer_can_modify . t))
       :callback  (lambda (&rest _)
                    (closql-delete issue-obj)
+                   ;; should this be wrapped in unless forge.dontAutoSyncOnSubmit?
+                   ;; it would seem so, but that might invite the DB getting out
+                   ;; of sync even more easily
                    (forge-pull))
       :errorback (lambda (&rest _) (forge-pull)))))
 
@@ -603,7 +606,9 @@
     (when-let ((remove (cl-set-difference value assignees :test #'equal)))
       (forge--ghub-delete topic "/repos/:owner/:repo/issues/:number/assignees"
         `((assignees . ,remove)))))
-  (forge-pull))
+
+  (unless (magit-get-boolean "forge.dontAutoSyncOnSubmit")
+    (forge-pull)))
 
 (cl-defmethod forge--set-topic-review-requests
   ((_repo forge-github-repository) topic reviewers)
@@ -616,7 +621,8 @@
       (forge--ghub-delete topic
         "/repos/:owner/:repo/pulls/:number/requested_reviewers"
         `((reviewers . ,remove)))))
-  (forge-pull))
+  (unless (magit-get-boolean "forge.dontAutoSyncOnSubmit")
+    (forge-pull)))
 
 (cl-defmethod forge--topic-templates ((repo forge-github-repository)
                                       (_ (subclass forge-issue)))

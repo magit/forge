@@ -317,7 +317,8 @@ Return the repository identified by HOST, OWNER and NAME."
     (lambda (&rest _)
       (with-current-buffer
           (or buf (current-buffer))
-        (forge-pull)))))
+        (unless (magit-get-boolean "forge.dontAutoSyncOnSubmit")
+          (forge-pull)))))
 
 (defvar forge--mode-line-buffer nil)
 
