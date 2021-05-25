@@ -1,42 +1,12 @@
 # -*- mode: org -*-
+* v0.2.0    2021-05-25
 
-* v0.2.0    UNRELEASED
+- Second release.
 
-- For the time being ~forge-pull~ does not pull notifications anymore.
-  Many reported bugs are related to notifications and while many of
-  those have already been fixed, pulling notifications is still more
-  likely to contain bugs than other more essential functionality
-  because we have to work around limitations in the Github API to do
-  so.
+- Features and bugfixes.
 
-  To fetch notifications use the command ~forge-pull-notifications~ or
-  customize the option ~forge-pull-notifications~.  47671ca
-
-- Added support for Gitlab subgroups.  #11
-
-- Added support for issue and pull-request templates.  #25
-
-- Added the command ~forge-copy-url-at-point-as-kill~.  #85
-
-- When visiting an unmerged pull-request in a separate buffer, then
-  the commits are now listed alongside the posts.  caeb8fb
-
-- Added ~turn-on-flyspell~ to ~forge-post-mode-hook~.  bd07eec
-
-- Fixed several bugs.  Some of these were silly mistakes in Forge
-  itself, while others were due to API bugs that we weren't aware
-  of and therefore did not work around yet.
-
-  #10 github: Remove duplicates from response data
-  #20 forge--pull-notifications: Paginate GraphQL request
-  #33 Use correct remote when submitting a cross-repo pull-request
-  #23 forge--sanitize-string: Deal with Gitlab inconsistency
-  #32 forge--branch-pullreq: Respect forge.remote variable
-  1be5097 forge-insert-pullreq: If it cannot be expanded, don't claim it can
-  86c01a9 forge-list-recent-topics: Intern using correct class
-  9ec2964 Make sure the `updated' slot is always bound
-  #19 Ignore 404 errors from repositories associated with a pull request
-  #18 fix the type declaration for forge-alist, so that it can be customized
+- I haven't been keeping this list updated and don't feel like going
+  through hundreds of commits now.  Sorry, maybe next time.
 
 * v0.1.0    2018-12-19
 
