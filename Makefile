@@ -44,7 +44,7 @@ publish:
 	@$(MAKE) -C docs publish
 
 release:
-	@$(MAKE) -C docs release
+	@$(MAKE) VERSION=$(VERSION) -C docs release
 
 clean:
 	@printf "Cleaning...\n"
