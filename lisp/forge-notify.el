@@ -114,38 +114,42 @@
       (magit-insert-heading "Notifications:")
       (pcase-dolist (`(,_ . ,ns) (--group-by (oref it repository) ns))
         (let ((repo (forge-get-repository (car ns))))
-          (magit-insert-section (forge-repo repo)
+          (magit-insert-section (forge-repo repo t)
             (magit-insert-heading
-              (propertize (format "%s/%s:" (oref repo owner) (oref repo name))
-                          'font-lock-face 'bold))
-            (dolist (notify ns)
-              (with-slots (type topic title url unread-p) notify
-                (pcase type
-                  ('issue
-                   (forge-insert-topic (forge-get-issue repo topic)))
-                  ('pullreq
-                   (forge-insert-topic (forge-get-pullreq repo topic)))
-                  ('commit
-                   (magit-insert-section (ncommit nil) ; !commit
-                     (string-match "[^/]*\\'" url)
-                     (insert
-                      (format "%s %s\n"
-                              (propertize (substring (match-string 0 url)
-                                                     0 (magit-abbrev-length))
-                                          'font-lock-face 'magit-hash)
-                              (magit-log-propertize-keywords
-                               nil (propertize title 'font-lock-face
-                                               (if unread-p
-                                                   'forge-topic-unread
-                                                 'forge-topic-open)))))))
-                  (_
-                   ;; The documentation does not mention what "types"
-                   ;; exist.  Make it obvious that this is something
-                   ;; we do not know how to handle properly yet.
-                   (magit-insert-section (notification notify)
-                     (insert (propertize (format "(%s) %s\n" type title)
-                                         'font-lock-face 'error)))))))
-            (insert ?\n)))))))
+              (concat (propertize (format "%s/%s"
+                                          (oref repo owner)
+                                          (oref repo name))
+                                  'font-lock-face 'bold)
+                      (format " (%s)" (length ns))))
+            (magit-insert-section-body
+              (dolist (notify ns)
+                (with-slots (type topic title url unread-p) notify
+                  (pcase type
+                    ('issue
+                     (forge-insert-topic (forge-get-issue repo topic)))
+                    ('pullreq
+                     (forge-insert-topic (forge-get-pullreq repo topic)))
+                    ('commit
+                     (magit-insert-section (ncommit nil) ; !commit
+                       (string-match "[^/]*\\'" url)
+                       (insert
+                        (format "%s %s\n"
+                                (propertize (substring (match-string 0 url)
+                                                       0 (magit-abbrev-length))
+                                            'font-lock-face 'magit-hash)
+                                (magit-log-propertize-keywords
+                                 nil (propertize title 'font-lock-face
+                                                 (if unread-p
+                                                     'forge-topic-unread
+                                                   'forge-topic-open)))))))
+                    (_
+                     ;; The documentation does not mention what "types"
+                     ;; exist.  Make it obvious that this is something
+                     ;; we do not know how to handle properly yet.
+                     (magit-insert-section (notification notify)
+                       (insert (propertize (format "(%s) %s\n" type title)
+                                           'font-lock-face 'error)))))))
+              (insert ?\n))))))))
 
 ;;; _
 (provide 'forge-notify)
