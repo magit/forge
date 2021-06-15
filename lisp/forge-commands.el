@@ -486,9 +486,9 @@ topic N and modify that instead."
     (forge--set-topic-milestone
      repo topic
      (magit-completing-read
-                 "Milestone"
-                 (mapcar #'caddr (oref repo milestones))
-                 nil t (forge--get-topic-milestone topic)))))
+      "Milestone"
+      (mapcar #'caddr (oref repo milestones))
+      nil t (forge--get-topic-milestone topic)))))
 
 (defun forge-edit-topic-labels (n)
   "Edit the labels of the current topic.

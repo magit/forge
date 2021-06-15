@@ -54,10 +54,10 @@
 
 (cl-defmethod forge-get-notification ((topic forge-topic))
   (when-let ((row (car (forge-sql [:select * :from notification
-				   :where (and (= repository $s1)
-					       (= topic $s2))]
-				  (oref topic repository)
-				  (oref topic number)))))
+                                   :where (and (= repository $s1)
+                                               (= topic $s2))]
+                                  (oref topic repository)
+                                  (oref topic number)))))
     (closql--remake-instance 'forge-notification (forge-db) row t)))
 
 ;;; Utilities

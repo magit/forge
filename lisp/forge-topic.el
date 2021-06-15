@@ -215,44 +215,44 @@ This variable has to be customized before `forge' is loaded."
 
 (cl-defmethod forge-ls-recent-topics ((repo forge-repository) table)
   (magit--with-repository-local-cache (list 'forge-ls-recent-topics table)
-  (let* ((id (oref repo id))
-         (limit forge-topic-list-limit)
-         (open-limit   (if (consp limit) (car limit) limit))
-         (closed-limit (if (consp limit) (cdr limit) limit))
-         (topics (forge-sql [:select * :from $s1
-                             :where (and (= repository $s2)
-                                         (notnull unread-p))]
-                            table id)))
-    (mapc (lambda (row)
-            (cl-pushnew row topics :test #'equal))
-          (if (consp limit)
-              (forge-sql [:select * :from $s1
-                          :where (and (= repository $s2)
-                                      (isnull closed))
-                          :order-by [(desc updated)]
-                          :limit $s3]
-                         table id open-limit)
-            (forge-sql [:select * :from $s1
-                        :where (and (= repository $s2)
-                                    (isnull closed))]
-                       table id)))
-    (when (> closed-limit 0)
+    (let* ((id (oref repo id))
+           (limit forge-topic-list-limit)
+           (open-limit   (if (consp limit) (car limit) limit))
+           (closed-limit (if (consp limit) (cdr limit) limit))
+           (topics (forge-sql [:select * :from $s1
+                               :where (and (= repository $s2)
+                                           (notnull unread-p))]
+                              table id)))
       (mapc (lambda (row)
               (cl-pushnew row topics :test #'equal))
-            (forge-sql [:select * :from $s1
-                        :where (and (= repository $s2)
-                                    (notnull closed))
-                        :order-by [(desc updated)]
-                        :limit $s3]
-                       table id closed-limit)))
-    (cl-sort (mapcar (let ((class (if (eq table 'pullreq)
-                                      'forge-pullreq
-                                    'forge-issue)))
-                       (lambda (row)
-                         (closql--remake-instance class (forge-db) row)))
-                     topics)
-             (cdr forge-topic-list-order)
-             :key (lambda (it) (eieio-oref it (car forge-topic-list-order)))))))
+            (if (consp limit)
+                (forge-sql [:select * :from $s1
+                            :where (and (= repository $s2)
+                                        (isnull closed))
+                            :order-by [(desc updated)]
+                            :limit $s3]
+                           table id open-limit)
+              (forge-sql [:select * :from $s1
+                          :where (and (= repository $s2)
+                                      (isnull closed))]
+                         table id)))
+      (when (> closed-limit 0)
+        (mapc (lambda (row)
+                (cl-pushnew row topics :test #'equal))
+              (forge-sql [:select * :from $s1
+                          :where (and (= repository $s2)
+                                      (notnull closed))
+                          :order-by [(desc updated)]
+                          :limit $s3]
+                         table id closed-limit)))
+      (cl-sort (mapcar (let ((class (if (eq table 'pullreq)
+                                        'forge-pullreq
+                                      'forge-issue)))
+                         (lambda (row)
+                           (closql--remake-instance class (forge-db) row)))
+                       topics)
+               (cdr forge-topic-list-order)
+               :key (lambda (it) (eieio-oref it (car forge-topic-list-order)))))))
 
 (cl-defmethod forge-ls-topics ((repo forge-repository) class &optional type)
   (mapcar (lambda (row)
@@ -550,7 +550,7 @@ identifier."
 
 (defun forge--insert-topic-marks (topic &optional skip-separator marks)
   (pcase-dolist (`(,name ,face ,description)
-                  (or marks (closql--iref topic 'marks)))
+                 (or marks (closql--iref topic 'marks)))
     (if skip-separator
         (setq skip-separator nil)
       (insert " "))
@@ -703,7 +703,7 @@ Return a value between 0 and 1."
         repo)
     (and (looking-back "[!#][0-9]*" bol)
          (or (not bug-reference-prog-mode)
-	     (nth 8 (syntax-ppss))) ; inside comment or string
+             (nth 8 (syntax-ppss))) ; inside comment or string
          (setq repo (forge-get-repository t))
          (looking-back (if (forge--childp repo 'forge-gitlab-repository)
                            "\\(?3:[!#]\\)\\(?2:[0-9]*\\)"

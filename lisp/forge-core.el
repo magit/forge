@@ -311,7 +311,7 @@ at that time."
                                (topic   (and (forge--childp object 'forge-topic)
                                              (oref object number)))
                                (t       (eieio-oref object slot))))))
-                       (format "%s" v))
+                     (format "%s" v))
                    str)))
            resource t t))
     (if (string-match ":[^/]*" resource)
@@ -326,26 +326,26 @@ at that time."
 (defun forge--uuid ()
   "Return string with random (version 4) UUID."
   (let ((rnd (md5 (format "%s%s%s%s%s%s%s"
-			  (random)
-			  (current-time)
-			  (user-uid)
-			  (emacs-pid)
-			  (user-full-name)
-			  user-mail-address
-			  (recent-keys)))))
+                          (random)
+                          (current-time)
+                          (user-uid)
+                          (emacs-pid)
+                          (user-full-name)
+                          user-mail-address
+                          (recent-keys)))))
     (format "%s-%s-4%s-%s%s-%s"
-	    (substring rnd 0 8)
-	    (substring rnd 8 12)
-	    (substring rnd 13 16)
-	    (format "%x"
-		    (logior
-		     #b10000000
-		     (logand
-		      #b10111111
-		      (string-to-number
-		       (substring rnd 16 18) 16))))
-	    (substring rnd 18 20)
-	    (substring rnd 20 32))))
+            (substring rnd 0 8)
+            (substring rnd 8 12)
+            (substring rnd 13 16)
+            (format "%x"
+                    (logior
+                     #b10000000
+                     (logand
+                      #b10111111
+                      (string-to-number
+                       (substring rnd 16 18) 16))))
+            (substring rnd 18 20)
+            (substring rnd 20 32))))
 
 ;;; _
 (provide 'forge-core)

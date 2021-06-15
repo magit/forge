@@ -439,7 +439,7 @@
             [(login $login String!)]
             (repositories
              [(:edges t)
-	      (ownerAffiliations . (OWNER))]
+              (ownerAffiliations . (OWNER))]
              name)))
    `((login . ,user))
    (lambda (d)
@@ -452,8 +452,8 @@
   ((_ (subclass forge-github-repository)) host org callback)
   (ghub--graphql-vacuum
    '(query (organization
-	    [(login $login String!)]
-	    (repositories [(:edges t)] name)))
+            [(login $login String!)]
+            (repositories [(:edges t)] name)))
    `((login . ,org))
    (lambda (d)
      (funcall callback

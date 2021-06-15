@@ -173,7 +173,7 @@ repository, if any."
       (error "Cannot determine forge repository.  %s isn't a forge url" url))))
 
 (cl-defmethod forge-get-repository (((host owner name) list)
-				    &optional remote demand)
+                                    &optional remote demand)
   "((host owner name) &optional remote demand)
 
 Return the repository identified by HOST, OWNER and NAME."
