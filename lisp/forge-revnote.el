@@ -30,10 +30,10 @@
 ;;; Class
 
 (defclass forge-revnote (forge-topic)
-  ((closql-table         :initform revnote)
-   (closql-primary-key   :initform id)
+  ((closql-table         :initform 'revnote)
+   (closql-primary-key   :initform 'id)
    ;; (closql-order-by      :initform [(desc number)])
-   (closql-foreign-key   :initform repository)
+   (closql-foreign-key   :initform 'repository)
    (closql-class-prefix  :initform "forge-")
    (id                   :initarg :id)
    (repository           :initarg :repository)

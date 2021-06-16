@@ -47,7 +47,7 @@
 ;;; Core
 
 (defclass forge-database (closql-database)
-  ((object-class :initform forge-repository)))
+  ((object-class :initform 'forge-repository)))
 
 (defconst forge--db-version 7)
 (defconst forge--sqlite-available-p

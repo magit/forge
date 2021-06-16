@@ -30,10 +30,10 @@
 ;;; Classes
 
 (defclass forge-pullreq (forge-topic)
-  ((closql-table         :initform pullreq)
-   (closql-primary-key   :initform id)
+  ((closql-table         :initform 'pullreq)
+   (closql-primary-key   :initform 'id)
    (closql-order-by      :initform [(desc number)])
-   (closql-foreign-key   :initform repository)
+   (closql-foreign-key   :initform 'repository)
    (closql-class-prefix  :initform "forge-")
    (id                   :initarg :id)
    (repository           :initarg :repository)
@@ -82,10 +82,10 @@
    ))
 
 (defclass forge-pullreq-post (forge-post)
-  ((closql-table         :initform pullreq-post)
-   (closql-primary-key   :initform id)
+  ((closql-table         :initform 'pullreq-post)
+   (closql-primary-key   :initform 'id)
    (closql-order-by      :initform [(asc number)])
-   (closql-foreign-key   :initform pullreq)
+   (closql-foreign-key   :initform 'pullreq)
    (closql-class-prefix  :initform "forge-pullreq-")
    (id                   :initarg :id)
    (pullreq              :initarg :pullreq)

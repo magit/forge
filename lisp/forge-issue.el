@@ -30,10 +30,10 @@
 ;;; Classes
 
 (defclass forge-issue (forge-topic)
-  ((closql-table         :initform issue)
-   (closql-primary-key   :initform id)
+  ((closql-table         :initform 'issue)
+   (closql-primary-key   :initform 'id)
    (closql-order-by      :initform [(desc number)])
-   (closql-foreign-key   :initform repository)
+   (closql-foreign-key   :initform 'repository)
    (closql-class-prefix  :initform "forge-")
    (id                   :initarg :id)
    (repository           :initarg :repository)
@@ -61,10 +61,10 @@
    ))
 
 (defclass forge-issue-post (forge-post)
-  ((closql-table         :initform issue-post)
-   (closql-primary-key   :initform id)
+  ((closql-table         :initform 'issue-post)
+   (closql-primary-key   :initform 'id)
    (closql-order-by      :initform [(asc number)])
-   (closql-foreign-key   :initform issue)
+   (closql-foreign-key   :initform 'issue)
    (closql-class-prefix  :initform "forge-issue-")
    (id                   :initarg :id)
    (issue                :initarg :issue)

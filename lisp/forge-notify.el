@@ -29,8 +29,8 @@
 
 (defclass forge-notification (forge-object)
   ((closql-class-prefix       :initform "forge-")
-   (closql-table              :initform notification)
-   (closql-primary-key        :initform id)
+   (closql-table              :initform 'notification)
+   (closql-primary-key        :initform 'id)
    (closql-order-by           :initform [(desc id)])
    (id                        :initarg :id)
    (thread-id                 :initarg :thread-id)
