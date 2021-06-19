@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.2.1 (v0.2.1+1)
+#+SUBTITLE: for version 0.2.1 (v0.2.1-1-g6062b41c+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.2.1 (v0.2.1+1).
+This manual is for Forge version 0.2.1 (v0.2.1-1-g6062b41c+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -71,147 +71,157 @@ For more details about the caveats mentioned below (and some others)
 also see [[*Getting Started]].
 
 ** Supported Forges
+*** Github
 :PROPERTIES:
 :UNNUMBERED: notoc
 :END:
 
-- Github
-
-  Forge's support for Github can be considered the "reference
+Forge's support for Github can be considered the "reference
   implementation".  Support for other forges can lag behind a bit.
 
-  Github Caveats
+**** Github Caveats
 
-  - Forge uses the Github GraphQL API when possible but has to fall
-    back to use the REST API in many cases because the former is still
-    rather incomplete.
+- Forge uses the Github GraphQL API when possible but has to fall
+  back to use the REST API in many cases because the former is still
+  rather incomplete.
 
-  - Forge depends on the ~updated_at~ field being updated when
-    appropriate.  For Github pull-requests at least, that is not always
-    done.
+- Forge depends on the ~updated_at~ field being updated when
+  appropriate.  For Github pull-requests at least, that is not always
+  done.
 
-  Github Hosts
+**** Github Hosts
 
-  - https://github.com
+- https://github.com
 
-- Gitlab
+*** Gitlab
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+**** Gitlab Caveats
 
-  Gitlab Caveats
+- Forge cannot provide notifications because the Gitlab API does not
+  expose those.
 
-  - Forge cannot provide notifications because the Gitlab API does not
-    expose those.
+**** Gitlab Hosts
 
-  Gitlab Hosts
-
-  - https://gitlab.com
-  - https://salsa.debian.org
-  - https://framagit.org
+- https://gitlab.com
+- https://salsa.debian.org
+- https://framagit.org
 
 ** Partially Supported Forges
+*** Gitea https://gitea.io
 :PROPERTIES:
 :UNNUMBERED: notoc
 :END:
 
-- Gitea https://gitea.io/en-us
+This is the next forge whose API will be supported.
 
-  This is the next forge whose API will be supported.
+Currently no public Gitea Hosts are known to me.
+The Gitea maintainers plan to create their own instance,
+see https://github.com/go-gitea/gitea/issues/1029.
 
-  Currently no public Gitea Hosts are known to me.
-  The Gitea maintainers plan to create their own instance,
-  see https://github.com/go-gitea/gitea/issues/1029.
+*** Gogs https://gogs.io
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
 
-- Gogs https://gogs.io
+Once Gitea is supported it should be fairly simple to support Gogs
+too, because the former is a fork of the latter and the APIs seem to
+still be very similar.
 
-  Once Gitea is supported it should be fairly simple to support Gogs
-  too, because the former is a fork of the latter and the APIs seem to
-  still be very similar.
+**** Gogs Hosts
 
-  Gogs Hosts
+- https://code.orgmode.org
 
-  - https://code.orgmode.org
+*** Bitbucket https://bitbucket.org
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
 
-- Bitbucket
+I don't plan to support Bitbucket's API any time soon, and it gets
+less likely that I will every do it every time I look at it.
 
-  I don't plan to support Bitbucket's API any time soon, and it gets
-  less likely that I will every do it every time I look at it.
+**** Bitbucket Caveats
 
-  Bitbucket Caveats
+- The API documentation is poor and initial tests indicated that the
+  implementation is buggy.
 
-  - The API documentation is poor and initial tests indicated that the
-    implementation is buggy.
+- Atlassian's offering contains two very distinct implementations
+  that are both called "Bitbucket".  Forge only supports the
+  implementation whose only instance is available at
+  https://bitbucket.org, because I only have access to that.
 
-  - Atlassian's offering contains two very distinct implementations
-    that are both called "Bitbucket".  Forge only supports the
-    implementation whose only instance is available at
-    https://bitbucket.org, because I only have access to that.
+- Unlike all other forges, Bitbucket does not expose pull-requests
+  as references in the upstream repository.  For that reason Forge
+  actually treats it as a semi-forge, not as forge whose API is not
+  supported yet.  This means that you cannot checkout pull-requests
+  locally.  There is little hope that this will ever get fixed; the
+  respective issue was opened six years ago and there has been no
+  progress since: https://bitbucket.org/site/master/issues/5814.
 
-  - Unlike all other forges, Bitbucket does not expose pull-requests
-    as references in the upstream repository.  For that reason Forge
-    actually treats it as a semi-forge, not as forge whose API is not
-    supported yet.  This means that you cannot checkout pull-requests
-    locally.  There is little hope that this will ever get fixed; the
-    respective issue was opened six years ago and there has been no
-    progress since: https://bitbucket.org/site/master/issues/5814.
+**** Bitbucket Hosts
 
-  Bitbucket Hosts
-
-  - https://bitbucket.org
+- https://bitbucket.org
 
 ** Supported Semi-Forges
+*** Gitweb https://git-scm.com/docs/gitweb
 :PROPERTIES:
 :UNNUMBERED: notoc
 :END:
+**** Gitweb Caveats
 
-- Gitweb https://git-scm.com/docs/gitweb
+- I could find only one public installation
+  (https://git.savannah.gnu.org), which gives users the choice
+  between Gitweb and Cgit.  The latter seems more popular (not
+  just on this site).
 
-  Gitweb Caveats
+*** Cgit https://git.zx2c4.com/cgit/about
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+**** Cgit Caveats
 
-  - I could find only one public installation
-    (https://git.savannah.gnu.org), which gives users the choice
-    between Gitweb and Cgit.  The latter seems more popular (not
-    just on this site).
+- Different sites use different URL schemata and some of the bigger
+  sites use a fork.  For this reason Forge has to provide several
+  classes to support different variations of Cgit and you have to
+  look at their definitions to figure out which one is the correct
+  one for a particular installation.
 
-- Cgit https://git.zx2c4.com/cgit/about
+**** Cgit Hosts
 
-  Cgit Caveats
+- https://git.savannah.gnu.org/cgit
+- https://git.kernel.org
+- https://repo.or.cz
 
-  - Different sites use different URL schemata and some of the bigger
-    sites use a fork.  For this reason Forge has to provide several
-    classes to support different variations of Cgit and you have to
-    look at their definitions to figure out which one is the correct
-    one for a particular installation.
+*** Stgit https://codemadness.org/git/stagit/file/README.html
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+**** Stgit Caveats
 
-  Cgit Hosts
+- Stgit cannot show logs for branches beside "master".  For that
+  reason Forge takes users to a page listing the branches when they
+  request the log for a particular branch (even for "master" whose
+  log is just one click away from there).
 
-  - https://git.savannah.gnu.org/cgit
-  - https://git.kernel.org
-  - https://repo.or.cz
+**** Stgit Hosts
 
-- Stgit https://codemadness.org/git/stagit/file/README.html
+- https://git.suckless.org
 
-  Stgit Caveats
+*** Srht https://meta.sr.ht
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+**** Srht Caveats
 
-  - Stgit cannot show logs for branches beside "master".  For that
-    reason Forge takes users to a page listing the branches when they
-    request the log for a particular branch (even for "master" whose
-    log is just one click away from there).
+- Srht cannot show logs for branches beside "master".  For that
+  reason Forge takes users to a page listing the branches when they
+  request the log for a particular branch (even for "master" whose
+  log is just one click away from there).
 
-  Stgit Hosts
+**** Srht Hosts
 
-  - https://git.suckless.org
-
-- Srht https://meta.sr.ht
-
-  Srht Caveats
-
-  - Srht cannot show logs for branches beside "master".  For that
-    reason Forge takes users to a page listing the branches when they
-    request the log for a particular branch (even for "master" whose
-    log is just one click away from there).
-
-  Srht Hosts
-
-  - https://git.sr.ht
+- https://git.sr.ht
 
 * Getting Started
 ** _ :ignore:

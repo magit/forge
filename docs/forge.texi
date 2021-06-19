@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.2.1 (v0.2.1+1)
+@subtitle for version 0.2.1 (v0.2.1-1-g6062b41c+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.2.1 (v0.2.1+1).
+This manual is for Forge version 0.2.1 (v0.2.1-1-g6062b41c+1).
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -79,6 +79,12 @@ General Public License for more details.
 
 @detailmenu
 --- The Detailed Node Listing ---
+
+Supported Forges and Hosts
+
+* Supported Forges::
+* Partially Supported Forges::
+* Supported Semi-Forges::
 
 Getting Started
 
@@ -145,17 +151,23 @@ option @code{forge-alist}.
 For more details about the caveats mentioned below (and some others)
 also see @ref{Getting Started}.
 
-@anchor{Supported Forges}
-@heading Supported Forges
+@menu
+* Supported Forges::
+* Partially Supported Forges::
+* Supported Semi-Forges::
+@end menu
 
-@itemize
-@item
-Github
+@node Supported Forges
+@section Supported Forges
+
+@anchor{Github}
+@subheading Github
 
 Forge's support for Github can be considered the "reference
-implementation".  Support for other forges can lag behind a bit.
+  implementation".  Support for other forges can lag behind a bit.
 
-Github Caveats
+@anchor{Github Caveats}
+@subsubheading Github Caveats
 
 @itemize
 @item
@@ -170,18 +182,19 @@ appropriate.  For Github pull-requests at least, that is not always
 done.
 @end itemize
 
-Github Hosts
+@anchor{Github Hosts}
+@subsubheading Github Hosts
 
 @itemize
 @item
 @uref{https://github.com}
 @end itemize
 
+@anchor{Gitlab}
+@subheading Gitlab
 
-@item
-Gitlab
-
-Gitlab Caveats
+@anchor{Gitlab Caveats}
+@subsubheading Gitlab Caveats
 
 @itemize
 @item
@@ -189,7 +202,8 @@ Forge cannot provide notifications because the Gitlab API does not
 expose those.
 @end itemize
 
-Gitlab Hosts
+@anchor{Gitlab Hosts}
+@subsubheading Gitlab Hosts
 
 @itemize
 @item
@@ -201,14 +215,12 @@ Gitlab Hosts
 @item
 @uref{https://framagit.org}
 @end itemize
-@end itemize
 
-@anchor{Partially Supported Forges}
-@heading Partially Supported Forges
+@node Partially Supported Forges
+@section Partially Supported Forges
 
-@itemize
-@item
-Gitea @uref{https://gitea.io/en-us}
+@anchor{Gitea https//giteaio}
+@subheading Gitea https://gitea.io
 
 This is the next forge whose API will be supported.
 
@@ -216,29 +228,29 @@ Currently no public Gitea Hosts are known to me.
 The Gitea maintainers plan to create their own instance,
 see @uref{https://github.com/go-gitea/gitea/issues/1029}.
 
-
-@item
-Gogs @uref{https://gogs.io}
+@anchor{Gogs https//gogsio}
+@subheading Gogs https://gogs.io
 
 Once Gitea is supported it should be fairly simple to support Gogs
 too, because the former is a fork of the latter and the APIs seem to
 still be very similar.
 
-Gogs Hosts
+@anchor{Gogs Hosts}
+@subsubheading Gogs Hosts
 
 @itemize
 @item
 @uref{https://code.orgmode.org}
 @end itemize
 
-
-@item
-Bitbucket
+@anchor{Bitbucket https//bitbucketorg}
+@subheading Bitbucket https://bitbucket.org
 
 I don't plan to support Bitbucket's API any time soon, and it gets
 less likely that I will every do it every time I look at it.
 
-Bitbucket Caveats
+@anchor{Bitbucket Caveats}
+@subsubheading Bitbucket Caveats
 
 @itemize
 @item
@@ -263,22 +275,22 @@ respective issue was opened six years ago and there has been no
 progress since: @uref{https://bitbucket.org/site/master/issues/5814}.
 @end itemize
 
-Bitbucket Hosts
+@anchor{Bitbucket Hosts}
+@subsubheading Bitbucket Hosts
 
 @itemize
 @item
 @uref{https://bitbucket.org}
 @end itemize
-@end itemize
 
-@anchor{Supported Semi-Forges}
-@heading Supported Semi-Forges
+@node Supported Semi-Forges
+@section Supported Semi-Forges
 
-@itemize
-@item
-Gitweb @uref{https://git-scm.com/docs/gitweb}
+@anchor{Gitweb https//git-scmcom/docs/gitweb}
+@subheading Gitweb https://git-scm.com/docs/gitweb
 
-Gitweb Caveats
+@anchor{Gitweb Caveats}
+@subsubheading Gitweb Caveats
 
 @itemize
 @item
@@ -288,11 +300,11 @@ between Gitweb and Cgit.  The latter seems more popular (not
 just on this site).
 @end itemize
 
+@anchor{Cgit https//gitzx2c4com/cgit/about}
+@subheading Cgit https://git.zx2c4.com/cgit/about
 
-@item
-Cgit @uref{https://git.zx2c4.com/cgit/about}
-
-Cgit Caveats
+@anchor{Cgit Caveats}
+@subsubheading Cgit Caveats
 
 @itemize
 @item
@@ -303,7 +315,8 @@ look at their definitions to figure out which one is the correct
 one for a particular installation.
 @end itemize
 
-Cgit Hosts
+@anchor{Cgit Hosts}
+@subsubheading Cgit Hosts
 
 @itemize
 @item
@@ -316,11 +329,11 @@ Cgit Hosts
 @uref{https://repo.or.cz}
 @end itemize
 
+@anchor{Stgit https//codemadnessorg/git/stagit/file/READMEhtml}
+@subheading Stgit https://codemadness.org/git/stagit/file/README.html
 
-@item
-Stgit @uref{https://codemadness.org/git/stagit/file/README.html}
-
-Stgit Caveats
+@anchor{Stgit Caveats}
+@subsubheading Stgit Caveats
 
 @itemize
 @item
@@ -330,18 +343,19 @@ request the log for a particular branch (even for "master" whose
 log is just one click away from there).
 @end itemize
 
-Stgit Hosts
+@anchor{Stgit Hosts}
+@subsubheading Stgit Hosts
 
 @itemize
 @item
 @uref{https://git.suckless.org}
 @end itemize
 
+@anchor{Srht https//metasrht}
+@subheading Srht https://meta.sr.ht
 
-@item
-Srht @uref{https://meta.sr.ht}
-
-Srht Caveats
+@anchor{Srht Caveats}
+@subsubheading Srht Caveats
 
 @itemize
 @item
@@ -351,12 +365,12 @@ request the log for a particular branch (even for "master" whose
 log is just one click away from there).
 @end itemize
 
-Srht Hosts
+@anchor{Srht Hosts}
+@subsubheading Srht Hosts
 
 @itemize
 @item
 @uref{https://git.sr.ht}
-@end itemize
 @end itemize
 
 @node Getting Started
