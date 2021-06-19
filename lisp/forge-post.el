@@ -134,7 +134,8 @@
                 (concat "magit/posts/" filename)))))
     (make-directory (file-name-directory file) t)
     (let ((prevbuf (current-buffer))
-          (resume (file-exists-p file))
+          (resume (and (file-exists-p file)
+                       (> (file-attribute-size (file-attributes file)) 0)))
           (buf (find-file-noselect file)))
       (with-current-buffer buf
         (forge-post-mode)
