@@ -26,6 +26,7 @@
 (require 'bug-reference)
 (require 'markdown-mode)
 (require 'parse-time)
+(require 'yaml)
 
 (require 'forge)
 (require 'forge-post)
@@ -767,34 +768,18 @@ Return a value between 0 and 1."
       (forward-line)
       (setq beg (point))
       (when (re-search-forward "^---[\s\t]*$" nil t)
-        (setq end (match-end 0))
-        (push (cons 'head (magit--buffer-string nil end ?\n)) alist)
-        ;; Appending a newline would be correct, but Github does it
-        ;; too, regardless of whether one is there already or not.
-        (push (cons 'body (magit--buffer-string end nil t)) alist)
-        (goto-char beg)
-        (while (re-search-forward "^\\([a-zA-Z]*\\):[\s\t]\\(.+\\)" end t)
-          (push (cons (intern (match-string-no-properties 1))
-                      (let ((v (match-string-no-properties 2)))
-                        ;; This works if the template generator was
-                        ;; used, but yaml allows for other formats.
-                        ;; Do you want to implement a yaml parser?
-                        (cond
-                         ((string-match "^\\([\"']\\)\\1[\s\t]*$" v) nil)
-                         ((string-match "^\\([\"']\\)\\(.+\\)\\1[\s\t]*$" v)
-                          (string-trim (match-string 2 v)))
-                         ((string-match "," v)
-                          (split-string v ",[\s\t]+"))
-                         (t (string-trim v)))))
-                alist))
+        (setq end (match-beginning 0))
+        (setq alist (yaml-parse-string
+                     (buffer-substring-no-properties beg end)
+                     :object-type 'alist))
         (let-alist alist
           (setf (alist-get 'prompt alist)
                 (format "[%s] %s" .name .about))
           (when (and .labels (atom .labels))
             (setf (alist-get 'labels alist) (list .labels)))
           (when (and .assignees (atom .assignees))
-            (setf (alist-get 'assignees alist) (list .assignees))))
-        alist))))
+            (setf (alist-get 'assignees alist) (list .assignees))))))
+    alist))
 
 (defun forge--topic-parse-plain ()
   (let (title body)
@@ -817,21 +802,12 @@ Return a value between 0 and 1."
               (forge--topic-parse-yaml-links)))))
 
 (defun forge--topic-parse-yaml-links ()
-  (when (re-search-forward "^contact_links:" nil t)
-    (let (link links)
-      (forward-line)
-      (while (looking-at "^  \\(.\\) \\([^:]*\\):[\s\t]*\\(.*\\)")
-        (let ((next (equal (match-string-no-properties 1) "-"))
-              (key (intern (match-string-no-properties 2)))
-              (val (match-string-no-properties 3)))
-          (when (string-match-p "\\`\".+\"\\'" val)
-            (setq val (substring val 1 -1)))
-          (when (and next link)
-            (push link links)
-            (setq link nil))
-          (setf (alist-get key link) val))
-        (forward-line))
-      (nreverse (mapcar #'nreverse links)))))
+  (alist-get 'contact_links
+             (yaml-parse-string (buffer-substring-no-properties
+                                 (point-min)
+                                 (point-max))
+                                :object-type 'alist
+                                :sequence-type 'list)))
 
 ;;; Templates
 

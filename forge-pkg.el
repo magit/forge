@@ -8,6 +8,7 @@
     (let-alist      "1.0.6")
     (magit          "3.0.0")
     (markdown-mode  "2.4")
-    (transient      "0.3.3"))
+    (transient      "0.3.3")
+    (yaml           "0.3.3"))
   :homepage "https://github.com/magit/forge"
   :keywords '("git" "tools" "vc"))
