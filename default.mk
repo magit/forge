@@ -29,6 +29,7 @@ DEPS += markdown-mode
 DEPS += transient/lisp
 DEPS += treepy
 DEPS += with-editor
+DEPS += yaml
 
 VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0 | cut -c2-)
 
