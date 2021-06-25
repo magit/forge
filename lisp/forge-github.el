@@ -347,7 +347,7 @@
                                       page pages)
                           (ghub--graphql-vacuum
                            (cons 'query (-keep #'caddr (pop groups)))
-                           nil #'cb nil :auth 'forge))
+                           nil #'cb nil :auth 'forge :host apihost))
                  (forge--msg nil t t   "Pulling notifications")
                  (forge--msg nil t nil "Storing notifications")
                  (emacsql-with-transaction (forge-db)
@@ -446,7 +446,7 @@
      (funcall callback
               (--map (alist-get 'name it)
                      (let-alist d .user.repositories))))
-   nil :host host))
+   nil :auth 'forge :host host))
 
 (cl-defmethod forge--fetch-organization-repos
   ((_ (subclass forge-github-repository)) host org callback)
@@ -459,7 +459,7 @@
      (funcall callback
               (--map (alist-get 'name it)
                      (let-alist d .organization.repositories))))
-   nil :host host))
+   nil :auth 'forge :host host))
 
 (defun forge--batch-add-callback (host owner names)
   (let ((repos (cl-mapcan (lambda (name)
