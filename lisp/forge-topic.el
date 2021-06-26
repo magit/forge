@@ -769,16 +769,17 @@ Return a value between 0 and 1."
       (setq beg (point))
       (when (re-search-forward "^---[\s\t]*$" nil t)
         (setq end (match-beginning 0))
-        (let* ((front-matter (buffer-substring-no-properties beg end))
-               (alist (yaml-parse-string front-matter :object-type 'alist)))
-          (let-alist alist
-            (setf (alist-get 'prompt alist)
-                  (format "[%s] %s" .name .about))
-            (when (and .labels (atom .labels))
-              (setf (alist-get 'labels alist) (list .labels)))
-            (when (and .assignees (atom .assignees))
-              (setf (alist-get 'assignees alist) (list .assignees))))
-          alist)))))
+        (setq alist (yaml-parse-string
+                     (buffer-substring-no-properties beg end)
+                     :object-type 'alist))
+        (let-alist alist
+          (setf (alist-get 'prompt alist)
+                (format "[%s] %s" .name .about))
+          (when (and .labels (atom .labels))
+            (setf (alist-get 'labels alist) (list .labels)))
+          (when (and .assignees (atom .assignees))
+            (setf (alist-get 'assignees alist) (list .assignees))))))
+    alist))
 
 (defun forge--topic-parse-plain ()
   (let (title body)
@@ -801,8 +802,12 @@ Return a value between 0 and 1."
               (forge--topic-parse-yaml-links)))))
 
 (defun forge--topic-parse-yaml-links ()
-  (let ((alist (yaml-parse-string (buffer-substring-no-properties (point-min) (point-max)) :object-type 'alist :sequence-type 'list)))
-    (alist-get 'contact_links alist)))
+  (alist-get 'contact_links
+             (yaml-parse-string (buffer-substring-no-properties
+                                 (point-min)
+                                 (point-max))
+                                :object-type 'alist
+                                :sequence-type 'list)))
 
 ;;; Templates
 
