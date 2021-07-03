@@ -847,6 +847,8 @@ is added anyway.  Currently this only supports Github and Gitlab."
 (defun forge-toggle-closed-visibility ()
   "Toggle whether recently closed issues are shown."
   (interactive)
+  (magit-repository-local-delete (list 'forge-ls-recent-topics 'issue))
+  (magit-repository-local-delete (list 'forge-ls-recent-topics 'pullreq))
   (make-local-variable 'forge-topic-list-limit)
   (if (atom forge-topic-list-limit)
       (setq forge-topic-list-limit (cons forge-topic-list-limit 5))
