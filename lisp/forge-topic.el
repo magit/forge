@@ -461,7 +461,7 @@ identifier."
 
 (cl-defun forge-insert-topic-title
     (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-title)
+  (magit-insert-section (topic-title (oref topic title))
     (insert (format "%-11s" "Title: ") (oref topic title) "\n")))
 
 (defvar forge-topic-state-section-map
@@ -471,7 +471,7 @@ identifier."
 
 (cl-defun forge-insert-topic-state
     (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-state)
+  (magit-insert-section (topic-state (oref topic state))
     (insert (format "%-11s" "State: ")
             (symbol-name (oref topic state))
             "\n")))
