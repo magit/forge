@@ -60,6 +60,11 @@ html-dir: $(PKG).texi
 	@printf "Generating $@\n"
 	@texi2pdf --clean $< > /dev/null
 
+.PHONY: stats
+stats:
+	@printf "Generating statistics\n"
+	@gitstats -c style=https://magit.vc/assets/stats.css -c max_authors=999 $(TOP) $(STATS_DIR)
+
 DOMAIN         ?= magit.vc
 PUBLISH_PATH   ?= /manual/
 RELEASE_PATH   ?= /manual/$(VERSION)/

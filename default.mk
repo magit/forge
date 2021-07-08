@@ -1,3 +1,5 @@
+TOP := $(dir $(lastword $(MAKEFILE_LIST)))
+
 PKG = forge
 
 ELS  += $(PKG)-db.el
@@ -49,3 +51,5 @@ endif
 INSTALL_INFO     ?= $(shell command -v ginstall-info || printf install-info)
 MAKEINFO         ?= makeinfo
 MANUAL_HTML_ARGS ?= --css-ref /assets/page.css
+
+STATS_DIR ?= $(TOP)docs/stats
