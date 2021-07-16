@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.2.1 (v0.2.1-1-g6062b41c+1)
+@subtitle for version 0.2.1 (v0.2.1-9-gb4fd0666+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-1-g6062b41c+1).
+This manual is for Forge version 0.2.1 (v0.2.1-9-gb4fd0666+1).
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -1170,6 +1170,21 @@ This lets you edit your private note about a topic.
 @item @kbd{C-c C-k [on a comment section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-delete-comment})
 
 This command deletes the comment at point.
+
+@kindex m a [if enabled]
+@cindex forge-merge
+@item @kbd{m a [if enabled]} @tie{}@tie{}@tie{}@tie{}(@code{forge-merge})
+
+This command merge the current pull-request using the forge's API@.
+If there is no current pull-request or with a prefix argument, then
+it reads a pull-request to visit instead.
+
+The "merge method" to be used is read from the user.
+
+Use of this command is discouraged.  Unless the remote repository is
+configured to disallow that, you should instead merge locally and
+then push the target branch.  Forges detect that you have done that
+and respond by automatically marking the pull-request as merged.
 @end table
 
 Creating a new post and editing an existing post are similar to
