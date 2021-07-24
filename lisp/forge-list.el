@@ -25,6 +25,8 @@
 
 (require 'forge)
 
+(defvar x-stretch-cursor)
+
 ;;; Options
 
 (defcustom forge-topic-list-mode-hook '(hl-line-mode)
