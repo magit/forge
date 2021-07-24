@@ -745,6 +745,42 @@
                :noerror noerror :reader reader
                :callback callback :errorback errorback))
 
+(unless (fboundp 'forge-github--check-url-privacy)
+  (let (warned-once)
+    (defun forge-github--check-url-privacy ()
+      "Check whether `url-privacy-level' settings prevent using forge-github.
+Return non-nil value describing the issue if that's the case.
+
+Display warning unless already displayed."
+      (when (featurep 'url-privacy)
+        (cl-macrolet ((or--return-form
+                       (&rest forms)
+                       `(cond
+                         ,@(mapcar (lambda (form)
+                                     `(,form
+                                       ',(if (and (eq 'and (car form))
+                                                  (cdr form))
+                                             (car (last form))
+                                           form)))
+                                   forms))))
+          (when-let ((form (or--return-form
+                            (eq 'paranoid url-privacy-level)
+                            (and
+                             (listp url-privacy-level)
+                             (memq 'agent url-privacy-level)))))
+            (unless warned-once
+              (display-warning
+               'forge-github
+               (with-output-to-string
+                 (princ "ghub will not work with GitHub because")
+                 (terpri)
+                 (pp form)
+                 (princ "Please alter your `url-privacy-level' settings.")))
+              (setq warned-once t))
+            form))))))
+
+(forge-github--check-url-privacy)
+
 ;;; _
 (provide 'forge-github)
 ;;; forge-github.el ends here
