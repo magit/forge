@@ -96,33 +96,36 @@ If pulling is too slow, then also consider setting the Git variable
          (and current-prefix-arg
               (not (forge-get-repository 'full))
               (forge-read-date "Limit pulling to topics updates since: "))))
-  (forge--zap-repository-cache repo)
   (let (create)
     (unless repo
       (setq repo (forge-get-repository 'full))
       (unless repo
         (setq repo (forge-get-repository 'create))
         (setq create t)))
-    (when (oref repo selective-p)
-      (if (yes-or-no-p
-           (format "Always pull all of %s/%s's topics going forward?"
-                   (oref repo owner)
-                   (oref repo name)))
-          (oset repo selective-p nil)
-        (user-error "Abort")))
-    (setq forge--mode-line-buffer (current-buffer))
-    (when-let ((remote  (oref repo remote))
-               (refspec (oref repo pullreq-refspec)))
-      (when (and create
-                 (not (member refspec (magit-get-all "remote" remote "fetch")))
-                 (or (eq forge-add-pullreq-refspec t)
-                     (and (eq forge-add-pullreq-refspec 'ask)
-                          (y-or-n-p (format "Also add %S refspec? " refspec)))))
-        (magit-call-git "config" "--add"
-                        (format "remote.%s.fetch" remote)
-                        refspec)))
-    (forge--msg repo t nil "Pulling REPO")
-    (forge--pull repo until)))
+    (when (or create
+              (called-interactively-p 'any)
+              (magit-git-config-p "forge.autoPull" t))
+      (forge--zap-repository-cache repo)
+      (when (oref repo selective-p)
+        (if (yes-or-no-p
+             (format "Always pull all of %s/%s's topics going forward?"
+                     (oref repo owner)
+                     (oref repo name)))
+            (oset repo selective-p nil)
+          (user-error "Abort")))
+      (setq forge--mode-line-buffer (current-buffer))
+      (when-let ((remote  (oref repo remote))
+                 (refspec (oref repo pullreq-refspec)))
+        (when (and create
+                   (not (member refspec (magit-get-all "remote" remote "fetch")))
+                   (or (eq forge-add-pullreq-refspec t)
+                       (and (eq forge-add-pullreq-refspec 'ask)
+                            (y-or-n-p (format "Also add %S refspec? " refspec)))))
+          (magit-call-git "config" "--add"
+                          (format "remote.%s.fetch" remote)
+                          refspec)))
+      (forge--msg repo t nil "Pulling REPO")
+      (forge--pull repo until))))
 
 (defun forge-read-date (prompt)
   (cl-block nil
