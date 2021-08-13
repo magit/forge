@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.2.1 (v0.2.1-10-gcd1ea6f3+1)
+#+SUBTITLE: for version 0.2.1 (v0.2.1-14-g82f18f0c+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-10-gcd1ea6f3+1).
+This manual is for Forge version 0.2.1 (v0.2.1-14-g82f18f0c+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -374,7 +374,7 @@ and "Issues" to Magit's status buffer.  It is also possible to add a
 repository to the local database without pulling all the data, which
 is useful if you want to create a single pull-request.
 
-- Key: ' a, forge-add-repository
+- Key: N a, forge-add-repository
 
   This command adds a repository to the database.
 
@@ -385,12 +385,17 @@ Some of Forge's commands are only bound when point is within one of
 these sections but other commands are also available elsewhere in
 Magit's status buffer and/or from Magit's transient commands.
 
+- Key: N, forge-dispatch
 - Key: ', forge-dispatch
 
   This prefix command is available in any Magit buffer and provides
   access to several of the available Forge commands.  Most of these
   commands are also bound elsewhere, but some are not.  See the
   following sections for information about the available commands.
+
+  Throughout this manual you will find many bindings that begin with
+  ~N~, but if you prefer to continue to use ~forge-dispatch~'s older
+  binding you can substitute ~'~ for that.
 
 ** Pulling
 
@@ -672,20 +677,20 @@ The following three functions are also suitable for
 The following commands list repositories, notifications and topics in
 dedicated buffers:
 
-- Key: ' r, forge-list-repositories
+- Key: N r, forge-list-repositories
 
   This command lists all known repositories in a separate buffer.
 
-- Key: ' l, forge-list-notifications
+- Key: N l, forge-list-notifications
 
   This command lists all notifications for all forges in a separate
   buffer.
 
-- Key: ' P, forge-list-pullreqs
+- Key: N P, forge-list-pullreqs
   This command lists the current repository's pull-requests in a
   separate buffer.
 
-- Key: ' I, forge-list-issues
+- Key: N I, forge-list-issues
 
   This command lists the current repository's issues in a separate
   buffer.
@@ -753,12 +758,12 @@ dedicated buffers:
 
 *** Creating Topics
 
-- Key: ' c p, forge-create-pullreq
+- Key: N c p, forge-create-pullreq
 - Key: C-c C-n [on "Pull requests" section], forge-create-pullreq
 
   This command creates a new pull-request for the current repository.
 
-- Key: ' c i, forge-create-issue
+- Key: N c i, forge-create-issue
 - Key: C-c C-n [on "Issues" section], forge-create-issue
 
   This command creates a new issue for the current repository.
@@ -867,7 +872,7 @@ The following commands are available in buffers used to edit posts:
 
 ** Miscellaneous
 
-- Key ' c f, forge-fork
+- Key: N c f, forge-fork
 
   This command adds an additional remote to the current repository.
   The remote can either point at an existing repository or one that
@@ -876,7 +881,7 @@ The following commands are available in buffers used to edit posts:
 
   Currently this only supports Github and Gitlab.
 
-- Key ' a, forge-add-repository
+- Key: N a, forge-add-repository
 
   This command reads a repository from the user and adds it to the
   database.  The repository can be provided as a URL, a name, or in

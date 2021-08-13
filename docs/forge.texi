@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.2.1 (v0.2.1-10-gcd1ea6f3+1)
+@subtitle for version 0.2.1 (v0.2.1-14-g82f18f0c+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-10-gcd1ea6f3+1).
+This manual is for Forge version 0.2.1 (v0.2.1-14-g82f18f0c+1).
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -554,9 +554,9 @@ repository to the local database without pulling all the data, which
 is useful if you want to create a single pull-request.
 
 @table @asis
-@kindex ' a
+@kindex N a
 @cindex forge-add-repository
-@item @kbd{' a} @tie{}@tie{}@tie{}@tie{}(@code{forge-add-repository})
+@item @kbd{N a} @tie{}@tie{}@tie{}@tie{}(@code{forge-add-repository})
 
 This command adds a repository to the database.
 
@@ -569,6 +569,9 @@ these sections but other commands are also available elsewhere in
 Magit's status buffer and/or from Magit's transient commands.
 
 @table @asis
+@kindex N
+@cindex forge-dispatch
+@item @kbd{N} @tie{}@tie{}@tie{}@tie{}(@code{forge-dispatch})
 @kindex '
 @cindex forge-dispatch
 @item @kbd{'} @tie{}@tie{}@tie{}@tie{}(@code{forge-dispatch})
@@ -577,6 +580,10 @@ This prefix command is available in any Magit buffer and provides
 access to several of the available Forge commands.  Most of these
 commands are also bound elsewhere, but some are not.  See the
 following sections for information about the available commands.
+
+Throughout this manual you will find many bindings that begin with
+@code{N}, but if you prefer to continue to use @code{forge-dispatch}'s older
+binding you can substitute @code{'} for that.
 @end table
 
 @menu
@@ -942,28 +949,28 @@ The following commands list repositories, notifications and topics in
 dedicated buffers:
 
 @table @asis
-@kindex ' r
+@kindex N r
 @cindex forge-list-repositories
-@item @kbd{' r} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-repositories})
+@item @kbd{N r} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-repositories})
 
 This command lists all known repositories in a separate buffer.
 
-@kindex ' l
+@kindex N l
 @cindex forge-list-notifications
-@item @kbd{' l} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-notifications})
+@item @kbd{N l} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-notifications})
 
 This command lists all notifications for all forges in a separate
 buffer.
 
-@kindex ' P
+@kindex N P
 @cindex forge-list-pullreqs
-@item @kbd{' P} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-pullreqs})
+@item @kbd{N P} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-pullreqs})
 This command lists the current repository's pull-requests in a
 separate buffer.
 
-@kindex ' I
+@kindex N I
 @cindex forge-list-issues
-@item @kbd{' I} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-issues})
+@item @kbd{N I} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-issues})
 
 This command lists the current repository's issues in a separate
 buffer.
@@ -1054,18 +1061,18 @@ by you based on @code{forge-owned-accounts}.
 @subsection Creating Topics
 
 @table @asis
-@kindex ' c p
+@kindex N c p
 @cindex forge-create-pullreq
-@item @kbd{' c p} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
+@item @kbd{N c p} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
 @kindex C-c C-n [on "Pull requests" section]
 @cindex forge-create-pullreq
 @item @kbd{C-c C-n [on "Pull requests" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
 
 This command creates a new pull-request for the current repository.
 
-@kindex ' c i
+@kindex N c i
 @cindex forge-create-issue
-@item @kbd{' c i} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-issue})
+@item @kbd{N c i} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-issue})
 @kindex C-c C-n [on "Issues" section]
 @cindex forge-create-issue
 @item @kbd{C-c C-n [on "Issues" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-issue})
@@ -1213,9 +1220,10 @@ buffer.
 @node Miscellaneous
 @section Miscellaneous
 
-@itemize
-@item
-Key ' c f, forge-fork
+@table @asis
+@kindex N c f
+@cindex forge-fork
+@item @kbd{N c f} @tie{}@tie{}@tie{}@tie{}(@code{forge-fork})
 
 This command adds an additional remote to the current repository.
 The remote can either point at an existing repository or one that
@@ -1224,9 +1232,9 @@ access to.
 
 Currently this only supports Github and Gitlab.
 
-
-@item
-Key ' a, forge-add-repository
+@kindex N a
+@cindex forge-add-repository
+@item @kbd{N a} @tie{}@tie{}@tie{}@tie{}(@code{forge-add-repository})
 
 This command reads a repository from the user and adds it to the
 database.  The repository can be provided as a URL, a name, or in
@@ -1236,7 +1244,7 @@ This command offers to either pull topics (now and in the future) or
 to only pull individual topics when the user invokes
 @code{forge-pull-topic}.
 
-@end itemize
+@end table
 
 @cindex forge-add-user-repositories
 @deffn Command forge-add-user-repositories

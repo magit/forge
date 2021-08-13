@@ -70,7 +70,8 @@
 
 ;;;###autoload
 (with-eval-after-load 'magit-mode
-  (define-key magit-mode-map "'" 'forge-dispatch))
+  (define-key magit-mode-map "'" 'forge-dispatch)
+  (define-key magit-mode-map "N" 'forge-dispatch))
 
 (define-key magit-commit-section-map [remap magit-browse-thing] 'forge-browse-dwim)
 (define-key magit-remote-section-map [remap magit-browse-thing] 'forge-browse-remote)
@@ -80,7 +81,7 @@
 (define-key magit-branch-section-map (kbd "C-c C-v") 'forge-visit-topic)
 
 (transient-append-suffix 'magit-dispatch "%"
-  '("'" "Forge" forge-dispatch))
+  '("N" "Forge" forge-dispatch))
 
 (transient-append-suffix 'magit-fetch "m"
   '("y" "forge topics" forge-pull))
