@@ -80,7 +80,7 @@
 (define-key magit-commit-section-map (kbd "C-c C-v") 'forge-visit-topic)
 (define-key magit-branch-section-map (kbd "C-c C-v") 'forge-visit-topic)
 
-(transient-append-suffix 'magit-dispatch "%"
+(transient-insert-suffix 'magit-dispatch "o"
   '("N" "Forge" forge-dispatch))
 
 (transient-append-suffix 'magit-fetch "m"
