@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.2.1 (v0.2.1-14-g82f18f0c+1)
+#+SUBTITLE: for version 0.2.1 (v0.2.1-16-g68108584+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-14-g82f18f0c+1).
+This manual is for Forge version 0.2.1 (v0.2.1-16-g68108584+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -356,11 +356,8 @@ the key for ~git@github.com:magit/forge.git~ is ~github.com~.
 - Fetching is implemented under the assumption that the API can be
   asked to list the things that have changed since we last checked.
   Unfortunately the APIs are not bug-free, so this is not always the
-  case.  Especially in closed-source software it can take years for
-  issues to get fixed, so I am no longer delaying the initial Forge
-  release because of that.  If in doubt, then re-fetch an individual
-  pull-request to ensure it is up-to-date using the command
-  ~forge-pull-pullreq~.
+  case.  If in doubt, then re-fetch an individual topic to ensure it
+  is up-to-date using the command ~forge-pull-topic~.
 
 - Some other, forge-specific, caveats are mentioned in [[*Supported
   Forges and Hosts]].
@@ -438,7 +435,7 @@ recent data to be available and then have to abort to pull first.
 The same can happen with Git, e.g. you might attempt to merge a branch
 that you know exists but haven't actually pulled yet.
 
-- Key: M-x forge-pull-pullreq, forge-pull-pullreq
+- Key: M-x forge-pull-topic, forge-pull-topic
 
   This command uses a forge's API to fetch a single pull-request and
   stores it in the database.
@@ -450,11 +447,8 @@ that you know exists but haven't actually pulled yet.
   Fetching is implemented under the assumption that the API can be
   asked to list the things that have changed since we last checked.
   Unfortunately the APIs are not bug-free, so this is not always the
-  case.  Especially in closed-source software it can take years for
-  issues to get fixed, so I am no longer delaying the initial Forge
-  release because of that.  If in doubt, then re-fetch an individual
-  pull-request to ensure it is up-to-date using the command
-  ~forge-pull-pullreq~.
+  case.  If in doubt, then re-fetch an individual topic to ensure it
+  is up-to-date using the command ~forge-pull-topic~.
 
 ** Branching
 
