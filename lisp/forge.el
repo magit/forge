@@ -102,9 +102,9 @@
   '("y" "pull-request worktree" forge-checkout-worktree))
 
 (transient-append-suffix 'magit-status-jump "w"
-  '("'p" "pull-requests" forge-jump-to-pullreqs))
-(transient-append-suffix 'magit-status-jump "'p"
-  '("'i" "issues" forge-jump-to-issues))
+  '("Np" "pull-requests" forge-jump-to-pullreqs))
+(transient-append-suffix 'magit-status-jump "Np"
+  '("Ni" "issues" forge-jump-to-issues))
 
 (transient-append-suffix 'magit-merge "a"
   '(7 "f" "Merge using API" forge-merge))
