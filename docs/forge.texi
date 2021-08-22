@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.2.1 (v0.2.1-16-g68108584+1)
+@subtitle for version 0.2.1 (v0.2.1-17-gcf455507+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-16-g68108584+1).
+This manual is for Forge version 0.2.1 (v0.2.1-17-gcf455507+1).
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -974,15 +974,15 @@ buffer.
 @cindex forge-list-assigned-pullreqs
 @deffn Command forge-list-assigned-pullreqs
 
-This command lists the current repository's open issues that are
-assigned to you in a separate buffer.
+This command lists the current repository's open pull-requests that
+are assigned to you in a separate buffer.
 @end deffn
 
 @cindex forge-list-assigned-issues
 @deffn Command forge-list-assigned-issues
 
-This command lists the current repository's open pull-requests that
-are assigned to you in a separate buffer.
+This command lists the current repository's open issues that are
+assigned to you in a separate buffer.
 @end deffn
 
 @cindex forge-list-requested-reviews
@@ -995,15 +995,15 @@ awaiting your review in a separate buffer.
 @cindex forge-list-authored-pullreqs
 @deffn Command forge-list-authored-pullreqs
 
-This command lists the current repository's open issues that are
-authored by you in a separate buffer.
+This command lists the current repository's open pull-requests that
+are authored by you in a separate buffer.
 @end deffn
 
 @cindex forge-list-authored-issues
 @deffn Command forge-list-authored-issues
 
-This command lists the current repository's open pull-requests that
-are authored by you in a separate buffer.
+This command lists the current repository's open issues that are
+authored by you in a separate buffer.
 @end deffn
 
 @cindex forge-list-owned-pullreqs

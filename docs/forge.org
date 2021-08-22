@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.2.1 (v0.2.1-16-g68108584+1)
+#+SUBTITLE: for version 0.2.1 (v0.2.1-17-gcf455507+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-16-g68108584+1).
+This manual is for Forge version 0.2.1 (v0.2.1-17-gcf455507+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -691,13 +691,13 @@ dedicated buffers:
 
 - Command: forge-list-assigned-pullreqs
 
-  This command lists the current repository's open issues that are
-  assigned to you in a separate buffer.
+  This command lists the current repository's open pull-requests that
+  are assigned to you in a separate buffer.
 
 - Command: forge-list-assigned-issues
 
-  This command lists the current repository's open pull-requests that
-  are assigned to you in a separate buffer.
+  This command lists the current repository's open issues that are
+  assigned to you in a separate buffer.
 
 - Command: forge-list-requested-reviews
 
@@ -706,13 +706,13 @@ dedicated buffers:
 
 - Command: forge-list-authored-pullreqs
 
-  This command lists the current repository's open issues that are
-  authored by you in a separate buffer.
+  This command lists the current repository's open pull-requests that
+  are authored by you in a separate buffer.
 
 - Command: forge-list-authored-issues
 
-  This command lists the current repository's open pull-requests that
-  are authored by you in a separate buffer.
+  This command lists the current repository's open issues that are
+  authored by you in a separate buffer.
 
 - Command: forge-list-owned-pullreqs
 
