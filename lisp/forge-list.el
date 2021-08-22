@@ -235,6 +235,27 @@ This is a list of package names.  Used by the commands
                  id))))
 
 ;;;###autoload
+(defun forge-list-labeled-issues (id label)
+  "List issues of the current repository that have LABEL.
+List them in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)
+                     (magit-completing-read-multiple*
+                      "Label: "
+                      (mapcar #'cadr (oref (forge-get-repository t) labels))
+                      nil t)))
+  (forge-topic-list-setup #'forge-issue-list-mode id nil nil
+    (lambda ()
+      (forge-sql [:select $i1 :from [issue issue_label label]
+                  :where (and (= issue_label:issue issue:id)
+                              (= issue_label:id    label:id)
+                              (= issue:repository  $s2)
+                              (= label:name        $s3)
+                              (isnull issue:closed))
+                  :order-by [(desc updated)]]
+                 (forge--tablist-columns-vector 'issue)
+                 id label))))
+
+;;;###autoload
 (defun forge-list-assigned-issues (id)
   "List issues of the current repository that are assigned to you.
 List them in a separate buffer."
@@ -284,6 +305,27 @@ Only Github is supported for now."
       (forge-sql [:select $i1 :from pullreq :where (= repository $s2)]
                  (forge--tablist-columns-vector)
                  id))))
+
+;;;###autoload
+(defun forge-list-labeled-pullreqs (id label)
+  "List pull-requests of the current repository that have LABEL.
+List them in a separate buffer."
+  (interactive (list (oref (forge-get-repository t) id)
+                     (magit-completing-read-multiple*
+                      "Label: "
+                      (mapcar #'cadr (oref (forge-get-repository t) labels))
+                      nil t)))
+  (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
+    (lambda ()
+      (forge-sql [:select $i1 :from [pullreq pullreq_label label]
+                  :where (and (= pullreq_label:pullreq pullreq:id)
+                              (= pullreq_label:id    label:id)
+                              (= pullreq:repository  $s2)
+                              (= label:name        $s3)
+                              (isnull pullreq:closed))
+                  :order-by [(desc updated)]]
+                 (forge--tablist-columns-vector 'pullreq)
+                 id label))))
 
 ;;;###autoload
 (defun forge-list-assigned-pullreqs (id)
