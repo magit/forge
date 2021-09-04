@@ -248,7 +248,7 @@
   (delete-file buffer-file-name t)
   (let ((dir (file-name-directory buffer-file-name)))
     (unless (cddr (directory-files dir nil nil t))
-      (delete-directory dir nil t)))
+      (delete-directory dir)))
   (let ((prevbuf forge--pre-post-buffer))
     (magit-mode-bury-buffer 'kill)
     (when (buffer-live-p prevbuf)
