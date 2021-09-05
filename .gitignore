@@ -1,8 +1,0 @@
-*.elc
-/config.mk
-/docs/*.html
-/docs/*.pdf
-/docs/dir
-/docs/forge/
-/docs/stats/
-/lisp/forge-autoloads.el
