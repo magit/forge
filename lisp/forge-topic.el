@@ -883,9 +883,9 @@ If forge data has been fetched for the current repository, then
 enable `bug-reference-mode' or `bug-reference-prog-mode' and set
 some `bug-reference' variables to the appropriate values."
   (magit--with-safe-default-directory nil
-    (when-let ((repo (forge-get-repository 'full))
-               (format (oref repo issue-url-format)))
-      (unless bug-reference-url-format
+    (when-let ((repo (forge-get-repository 'full)))
+      (when (and (< emacs-major-version 28)
+                 (not bug-reference-url-format))
         (setq-local bug-reference-url-format
                     (if (forge--childp repo 'forge-gitlab-repository)
                         (lambda ()
