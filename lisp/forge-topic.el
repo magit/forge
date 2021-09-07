@@ -845,60 +845,76 @@ alist, containing just `text' and `position'.")
 
 ;;; Bug-Reference
 
-(defun bug-reference-fontify (start end)
-  "Apply bug reference overlays to region."
-  (save-excursion
-    (let ((beg-line (progn (goto-char start) (line-beginning-position)))
-          (end-line (progn (goto-char end) (line-end-position))))
-      ;; Remove old overlays.
-      (bug-reference-unfontify beg-line end-line)
-      (goto-char beg-line)
-      (while (and (< (point) end-line)
-                  (re-search-forward bug-reference-bug-regexp end-line 'move))
-        (when (and (or (not bug-reference-prog-mode)
-                       ;; This tests for both comment and string syntax.
-                       (nth 8 (syntax-ppss)))
-                   ;; This is the part where this redefinition differs
-                   ;; from the original defined in "bug-reference.el".
-                   (not (and (derived-mode-p 'magit-status-mode
-                                             'forge-notifications-mode)
-                             (= (match-beginning 0)
-                                (line-beginning-position))))
-                   ;; End of additions.
-                   )
-          (let ((overlay (make-overlay (match-beginning 0) (match-end 0)
-                                       nil t nil)))
-            (overlay-put overlay 'category 'bug-reference)
-            ;; Don't put a link if format is undefined
-            (when bug-reference-url-format
-              (overlay-put overlay 'bug-reference-url
-                           (if (stringp bug-reference-url-format)
-                               (format bug-reference-url-format
-                                       (match-string-no-properties 2))
-                             (funcall bug-reference-url-format))))))))))
+(when (< emacs-major-version 28)
+  (defun bug-reference-fontify (start end)
+    "Apply bug reference overlays to region."
+    (save-excursion
+      (let ((beg-line (progn (goto-char start) (line-beginning-position)))
+            (end-line (progn (goto-char end) (line-end-position))))
+        ;; Remove old overlays.
+        (bug-reference-unfontify beg-line end-line)
+        (goto-char beg-line)
+        (while (and (< (point) end-line)
+                    (re-search-forward bug-reference-bug-regexp end-line 'move))
+          (when (and (or (not bug-reference-prog-mode)
+                         ;; This tests for both comment and string syntax.
+                         (nth 8 (syntax-ppss)))
+                     ;; This is the part where this redefinition differs
+                     ;; from the original defined in "bug-reference.el".
+                     (not (and (derived-mode-p 'magit-status-mode
+                                               'forge-notifications-mode)
+                               (= (match-beginning 0)
+                                  (line-beginning-position))))
+                     ;; End of additions.
+                     )
+            (let ((overlay (make-overlay (match-beginning 0) (match-end 0)
+                                         nil t nil)))
+              (overlay-put overlay 'category 'bug-reference)
+              ;; Don't put a link if format is undefined
+              (when bug-reference-url-format
+                (overlay-put overlay 'bug-reference-url
+                             (if (stringp bug-reference-url-format)
+                                 (format bug-reference-url-format
+                                         (match-string-no-properties 2))
+                               (funcall bug-reference-url-format)))))))))))
 
 (defun forge-bug-reference-setup ()
   "Setup `bug-reference' in the current buffer.
 If forge data has been fetched for the current repository, then
-enable `bug-reference-mode' or `bug-reference-prog-mode' and set
-some `bug-reference' variables to the appropriate values."
-  (magit--with-safe-default-directory nil
-    (when-let ((repo (forge-get-repository 'full)))
-      (when (and (< emacs-major-version 28)
-                 (not bug-reference-url-format))
-        (setq-local bug-reference-url-format
-                    (if (forge--childp repo 'forge-gitlab-repository)
-                        (lambda ()
-                          (forge--format repo
-                                         (if (equal (match-string 3) "#")
-                                             'issue-url-format
-                                           'pullreq-url-format)
-                                         `((?i . ,(match-string 2)))))
-                      (forge--format repo 'issue-url-format '((?i . "%s")))))
-        (setq-local bug-reference-bug-regexp
-                    (if (forge--childp repo 'forge-gitlab-repository)
-                        "\\(?3:[!#]\\)\\(?2:[0-9]+\\)"
-                      "#\\(?2:[0-9]+\\)")))
+enable `bug-reference-mode' or `bug-reference-prog-mode' and
+modify `bug-reference-bug-regexp' if appropriate."
+  (unless bug-reference-url-format
+    (magit--with-safe-default-directory nil
+      (when-let ((repo (forge-get-repository 'full)))
+        (if (>= emacs-major-version 28)
+            (when (derived-mode-p 'magit-status-mode
+                                  'forge-notifications-mode)
+              (setq-local
+               bug-reference-auto-setup-functions
+               (let ((hook bug-reference-auto-setup-functions))
+                 (list (lambda ()
+                         ;; HOOK is not allowed to be a lexical var:
+                         ;; (run-hook-with-args-until-success 'hook)
+                         (catch 'success
+                           (dolist (f hook)
+                             (when (funcall f)
+                               (setq bug-reference-bug-regexp
+                                     (format "[^\n]\\(?99:%s\\)"
+                                             bug-reference-bug-regexp))
+                               (throw 'sucess t)))))))))
+          (setq-local bug-reference-url-format
+                      (if (forge--childp repo 'forge-gitlab-repository)
+                          (lambda ()
+                            (forge--format repo
+                                           (if (equal (match-string 3) "#")
+                                               'issue-url-format
+                                             'pullreq-url-format)
+                                           `((?i . ,(match-string 2)))))
+                        (forge--format repo 'issue-url-format '((?i . "%s")))))
+          (setq-local bug-reference-bug-regexp
+                      (if (forge--childp repo 'forge-gitlab-repository)
+                          "\\(?3:[!#]\\)\\(?2:[0-9]+\\)"
+                        "#\\(?2:[0-9]+\\)"))))
       (if (derived-mode-p 'prog-mode)
           (bug-reference-prog-mode 1)
         (bug-reference-mode 1))
