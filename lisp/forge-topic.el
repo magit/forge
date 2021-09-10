@@ -901,7 +901,7 @@ modify `bug-reference-bug-regexp' if appropriate."
                                (setq bug-reference-bug-regexp
                                      (format "[^\n]\\(?99:%s\\)"
                                              bug-reference-bug-regexp))
-                               (throw 'sucess t)))))))))
+                               (throw 'success t)))))))))
           (setq-local bug-reference-url-format
                       (if (forge--childp repo 'forge-gitlab-repository)
                           (lambda ()
