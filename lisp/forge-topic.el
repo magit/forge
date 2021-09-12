@@ -899,8 +899,7 @@ modify `bug-reference-bug-regexp' if appropriate."
                            (dolist (f hook)
                              (when (funcall f)
                                (setq bug-reference-bug-regexp
-                                     (format "[^\n]\\(?99:%s\\)"
-                                             bug-reference-bug-regexp))
+                                     (concat "." bug-reference-bug-regexp))
                                (throw 'success t)))))))))
           (setq-local bug-reference-url-format
                       (if (forge--childp repo 'forge-gitlab-repository)
