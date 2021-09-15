@@ -678,7 +678,8 @@ because the source branch has been deleted"))
         (magit-set "true" "branch" branch "rebase")
         (magit-git "branch" branch
                    (concat "--set-upstream-to="
-                           (if magit-branch-prefer-remote-upstream
+                           (if (or magit-branch-prefer-remote-upstream
+                                   (not (magit-branch-p base-ref)))
                                (concat upstream "/" base-ref)
                              base-ref))))
       (magit-set (number-to-string number) "branch" branch "pullRequest")
