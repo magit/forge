@@ -106,13 +106,12 @@ If pulling is too slow, then also consider setting the Git variable
               (called-interactively-p 'any)
               (magit-git-config-p "forge.autoPull" t))
       (forge--zap-repository-cache repo)
-      (when (oref repo selective-p)
-        (if (yes-or-no-p
-             (format "Always pull all of %s/%s's topics going forward?"
-                     (oref repo owner)
-                     (oref repo name)))
-            (oset repo selective-p nil)
-          (user-error "Abort")))
+      (when (and (oref repo selective-p)
+                 (yes-or-no-p
+                  (format "Always pull all of %s/%s's topics going forward?"
+                          (oref repo owner)
+                          (oref repo name))))
+        (oset repo selective-p nil))
       (setq forge--mode-line-buffer (current-buffer))
       (when-let ((remote  (oref repo remote))
                  (refspec (oref repo pullreq-refspec)))
@@ -900,7 +899,8 @@ pull individual topics when the user invokes `forge-pull-topic'."
         (?a "[a]ll topics"
             (forge-pull repo))
         (?i "[i]ndividual topics (useful for casual contributors)"
-            (oset repo selective-p t))))))
+            (oset repo selective-p t)
+            (forge--pull repo nil))))))
 
 ;;;###autoload
 (defun forge-add-user-repositories (host user)

@@ -82,14 +82,20 @@
                       (dolist (v .pullreqs) (forge--update-pullreq repo v))
                       (oset repo sparse-p nil))
                     (forge--msg repo t t "Storing REPO")
-                    (forge--git-fetch buf dir repo))))))))
+                    (unless (oref repo selective-p)
+                      (forge--git-fetch buf dir repo)))))))))
     (funcall cb cb)))
 
 (cl-defmethod forge--fetch-repository ((repo forge-gitlab-repository) callback)
   (forge--glab-get repo "/projects/:project" nil
     :callback (lambda (value _headers _status _req)
-                (when (magit-get-boolean "forge.omitExpensive")
-                  (setq value (append '((assignees) (forks) (labels)) value)))
+                (cond ((oref repo selective-p)
+                       (setq value (append '((assignees) (forks) (labels)
+                                             (issues) (pullreqs))
+                                           value)))
+                      ((magit-get-boolean "forge.omitExpensive")
+                       (setq value (append '((assignees) (forks) (labels))
+                                           value))))
                 (funcall callback callback value))))
 
 (cl-defmethod forge--update-repository ((repo forge-gitlab-repository) data)

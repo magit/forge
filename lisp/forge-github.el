@@ -51,7 +51,8 @@
 (cl-defmethod forge--pull ((repo forge-github-repository) until
                            &optional callback)
   (let ((buf (current-buffer))
-        (dir default-directory))
+        (dir default-directory)
+        (selective-p (oref repo selective-p)))
     (ghub-fetch-repository
      (oref repo owner)
      (oref repo name)
@@ -71,6 +72,7 @@
          (oset repo sparse-p nil))
        (forge--msg repo t t   "Storing REPO")
        (cond
+        (selective-p)
         (callback (funcall callback))
         (forge-pull-notifications
          (forge--pull-notifications (eieio-object-class repo)
@@ -80,7 +82,8 @@
      `((issues-until       . ,(forge--topics-until repo until 'issue))
        (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
      :host (oref repo apihost)
-     :auth 'forge)))
+     :auth 'forge
+     :sparse selective-p)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository) n
                                  &optional pullreqp)
