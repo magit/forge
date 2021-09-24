@@ -289,7 +289,7 @@ Return the repository identified by HOST, OWNER and NAME."
 (cl-defmethod forge--topics-until ((repo forge-repository) until table)
   (if (oref repo sparse-p)
       until
-    (caar (forge-sql [:select [updated] :from $s1
+    (caar (forge-sql [:select [updated] :from $i1
                       :where (= repository $s2)
                       :order-by [(desc updated)]
                       :limit 1]

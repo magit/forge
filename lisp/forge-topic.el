@@ -220,27 +220,27 @@ This variable has to be customized before `forge' is loaded."
            (limit forge-topic-list-limit)
            (open-limit   (if (consp limit) (car limit) limit))
            (closed-limit (if (consp limit) (cdr limit) limit))
-           (topics (forge-sql [:select * :from $s1
+           (topics (forge-sql [:select * :from $i1
                                :where (and (= repository $s2)
                                            (notnull unread-p))]
                               table id)))
       (mapc (lambda (row)
               (cl-pushnew row topics :test #'equal))
             (if (consp limit)
-                (forge-sql [:select * :from $s1
+                (forge-sql [:select * :from $i1
                             :where (and (= repository $s2)
                                         (isnull closed))
                             :order-by [(desc updated)]
                             :limit $s3]
                            table id open-limit)
-              (forge-sql [:select * :from $s1
+              (forge-sql [:select * :from $i1
                           :where (and (= repository $s2)
                                       (isnull closed))]
                          table id)))
       (when (> closed-limit 0)
         (mapc (lambda (row)
                 (cl-pushnew row topics :test #'equal))
-              (forge-sql [:select * :from $s1
+              (forge-sql [:select * :from $i1
                           :where (and (= repository $s2)
                                       (notnull closed))
                           :order-by [(desc updated)]
@@ -261,17 +261,17 @@ This variable has to be customized before `forge' is loaded."
           (let ((table (oref-default class closql-table))
                 (id (oref repo id)))
             (pcase-exhaustive type
-              (`open   (forge-sql [:select * :from $s1
+              (`open   (forge-sql [:select * :from $i1
                                    :where (and (= repository $s2)
                                                (isnull closed))
                                    :order-by [(desc number)]]
                                   table id))
-              (`closed (forge-sql [:select * :from $s1
+              (`closed (forge-sql [:select * :from $i1
                                    :where (and (= repository $s2)
                                                (notnull closed))
                                    :order-by [(desc number)]]
                                   table id))
-              (`nil    (forge-sql [:select * :from $s1
+              (`nil    (forge-sql [:select * :from $i1
                                    :where (= repository $s2)
                                    :order-by [(desc number)]]
                                   table id))))))
