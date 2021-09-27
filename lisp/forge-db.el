@@ -37,6 +37,16 @@
 
 ;;; Options
 
+(defcustom forge-database-connector 'sqlite
+  "The database connector used by Forge.
+This must be set before `forge' is loaded.  To use an alternative
+connectors you must install the respective package explicitly."
+  :package-version '(forge . "0.3.0")
+  :group 'forge
+  :type '(choice (const sqlite)
+                 (const libsqlite3)
+                 (symbol :tag "other")))
+
 (defcustom forge-database-file
   (expand-file-name "forge-database.sqlite"  user-emacs-directory)
   "The file used to store the forge database."
@@ -46,8 +56,15 @@
 
 ;;; Core
 
-(defclass forge-database (closql-database)
-  ((object-class :initform 'forge-repository)))
+(cl-case forge-database-connector
+  (sqlite
+   (defclass forge-database (emacsql-sqlite-connection closql-database)
+     ((object-class :initform 'forge-repository))))
+  (libsqlite3
+   (require (quote emacsql-libsqlite3))
+   (with-no-warnings
+     (defclass forge-database (emacsql-libsqlite3-connection closql-database)
+       ((object-class :initform 'forge-repository))))))
 
 (defconst forge--db-version 7)
 (defconst forge--sqlite-available-p
