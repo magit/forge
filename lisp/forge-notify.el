@@ -58,7 +58,7 @@
                                                (= topic $s2))]
                                   (oref topic repository)
                                   (oref topic number)))))
-    (closql--remake-instance 'forge-notification (forge-db) row t)))
+    (closql--remake-instance 'forge-notification (forge-db) row)))
 
 ;;; Utilities
 
