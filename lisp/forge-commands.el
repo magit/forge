@@ -169,7 +169,9 @@ If pulling is too slow, then also consider setting the Git variable
 If there is no current topic or with a prefix argument read a
 topic N to pull instead."
   (interactive (list (forge-read-topic "Pull topic")))
-  (forge--pull-topic (forge-get-repository t) n))
+  (let ((repo (forge-get-repository t)))
+    (forge--zap-repository-cache repo)
+    (forge--pull-topic repo n)))
 
 (cl-defmethod forge--pull-topic ((repo forge-repository) _n)
   (error "Fetching an individual topic not implemented for %s"
