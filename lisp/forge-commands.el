@@ -107,6 +107,7 @@ If pulling is too slow, then also consider setting the Git variable
               (magit-git-config-p "forge.autoPull" t))
       (forge--zap-repository-cache repo)
       (when (and (oref repo selective-p)
+                 (called-interactively-p 'any)
                  (yes-or-no-p
                   (format "Always pull all of %s/%s's topics going forward?"
                           (oref repo owner)
