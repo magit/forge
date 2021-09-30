@@ -56,6 +56,7 @@ connectors you must install the respective package explicitly."
 
 ;;; Core
 
+(declare-function forge-database--eieio-childp "forge-db.el" (obj) t)
 (cl-case forge-database-connector
   (sqlite
    (defclass forge-database (emacsql-sqlite-connection closql-database)
