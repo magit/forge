@@ -32,6 +32,9 @@ DEPS += transient/lisp
 DEPS += treepy
 DEPS += with-editor
 DEPS += yaml
+# Optional
+DEPS += emacsql-libsqlite3
+DEPS += sqlite3
 
 VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0 | cut -c2-)
 
