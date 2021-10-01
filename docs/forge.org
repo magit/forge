@@ -224,7 +224,7 @@ less likely that I will every do it every time I look at it.
 - https://git.sr.ht
 
 * Getting Started
-** _ :ignore:
+** _
 
 Getting started using Forge should be fairly easy provided you take the
 time to read the documentation.  First see [[info:ghub#Getting Started]]
@@ -363,7 +363,7 @@ the key for ~git@github.com:magit/forge.git~ is ~github.com~.
   Forges and Hosts]].
 
 * Usage
-** _ :ignore:
+** _
 
 Once information has been pulled from a repository's forge for the
 first time, Forge adds two additional sections, named "Pull requests"
@@ -565,7 +565,7 @@ this to work.  If you delete the tracking branch (e.g "fork/feature"),
 then the remote is never removed.
 
 ** Working with Topics
-*** _ :ignore:
+*** _
 
 We call both issues and pull-requests "topics".  The contributions to
 the conversation are called "posts".
@@ -983,13 +983,10 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
 #+END_QUOTE
 
-* _ :ignore:
-
 # IMPORTANT: Also update ORG_ARGS and ORG_EVAL in the Makefile.
 # Local Variables:
-# eval: (require 'ox-extra    nil t)
 # eval: (require 'ox-texinfo+ nil t)
-# eval: (and (featurep 'ox-extra) (ox-extras-activate '(ignore-headlines)))
+# org-texinfo+-dissolve-noexport-headlines: t
 # indent-tabs-mode: nil
 # org-src-preserve-indentation: nil
 # End:
