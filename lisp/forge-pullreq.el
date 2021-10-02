@@ -131,8 +131,8 @@
               (oref post pullreq)
               'forge-pullreq))
 
-(cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type)
-  (forge-ls-topics repo 'forge-pullreq type))
+(cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type select)
+  (forge-ls-topics repo 'forge-pullreq type select))
 
 ;;; Utilities
 
@@ -141,11 +141,9 @@
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-pullreq))
          (repo    (forge-get-repository (or default t)))
-         (format  (lambda (topic)
-                    (format "%s  %s"
-                            (oref topic number)
-                            (oref topic title))))
-         (choices (forge-ls-pullreqs repo type))
+         (format  (pcase-lambda (`(,number ,title))
+                    (format "%s  %s" number title)))
+         (choices (forge-ls-pullreqs repo type [number title]))
          (choice  (magit-completing-read
                    prompt
                    (mapcar format choices)

@@ -102,8 +102,8 @@
               (oref post issue)
               'forge-issue))
 
-(cl-defmethod forge-ls-issues ((repo forge-repository) &optional type)
-  (forge-ls-topics repo 'forge-issue type))
+(cl-defmethod forge-ls-issues ((repo forge-repository) &optional type select)
+  (forge-ls-topics repo 'forge-issue type select))
 
 ;;; Utilities
 
@@ -112,10 +112,8 @@
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-issue))
          (repo    (forge-get-repository (or default t)))
-         (format  (lambda (topic)
-                    (format "%s  %s"
-                            (oref topic number)
-                            (oref topic title))))
+         (format  (pcase-lambda (`(,number ,title))
+                    (format "%s  %s" number title [number title])))
          (choices (forge-ls-issues repo type))
          (choice  (magit-completing-read
                    prompt
