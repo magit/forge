@@ -952,12 +952,12 @@ as merged."
              (?m "[m]erge"  'merge)
              (?s "[s]quash" 'squash)
              (?r "[r]ebase" 'rebase)))))
-  (forge--merge-pullreq (forge-get-repository t)
-                        (forge-get-pullreq n)
-                        (magit-rev-hash
-                         (forge--pullreq-branch-internal
-                          (forge-get-pullreq n)))
-                        method)
+  (let ((pullreq (forge-get-pullreq n)))
+    (forge--merge-pullreq (forge-get-repository pullreq)
+                          pullreq
+                          (magit-rev-hash
+                           (forge--pullreq-branch-internal pullreq))
+                          method))
   (forge-pull))
 
 ;;;###autoload
