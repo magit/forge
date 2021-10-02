@@ -671,7 +671,9 @@ Return a value between 0 and 1."
 
 ;;; Completion
 
-(defun forge-read-topic (prompt)
+(defun forge-read-topic (prompt &optional type)
+  (when (eq type t)
+    (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-topic))
          (repo    (forge-get-repository (or default t)))
          (gitlabp (forge--childp repo 'forge-gitlab-repository))
@@ -680,11 +682,11 @@ Return a value between 0 and 1."
                     (let ((prefix (if gitlabp "!" "")))
                       (mapcar (lambda (topic)
                                 (forge--topic-format-choice topic prefix))
-                              (oref repo pullreqs)))
+                              (forge-ls-pullreqs repo type)))
                     (let ((prefix (if gitlabp "#" "")))
                       (mapcar (lambda (topic)
                                 (forge--topic-format-choice topic prefix))
-                              (oref repo issues))))
+                              (forge-ls-issues repo type))))
                    #'string>))
          (choice  (magit-completing-read
                    prompt choices nil nil nil nil
