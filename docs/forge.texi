@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.2.1 (v0.2.1-18-g70e8246b+1)
+@subtitle for version 0.2.1 (v0.2.1-36-g01663d3+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-18-g70e8246b+1).
+This manual is for Forge version 0.2.1 (v0.2.1-36-g01663d3+1).
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -111,6 +111,7 @@ Working with Topics
 FAQ
 
 * Is it possible to create a single pull-request without pulling everything?::
+* error in process filter HTTP Error 502 Bad gateway::
 
 @end detailmenu
 @end menu
@@ -1308,6 +1309,7 @@ under heavy development.
 
 @menu
 * Is it possible to create a single pull-request without pulling everything?::
+* error in process filter HTTP Error 502 Bad gateway::
 @end menu
 
 @node Is it possible to create a single pull-request without pulling everything?
@@ -1315,6 +1317,12 @@ under heavy development.
 
 Yes.  @code{M-x forge-add-repository} offers to add a repository to the
 database without also fetching all pull-requests and issues.
+
+@node error in process filter HTTP Error 502 Bad gateway
+@appendixsec error in process filter HTTP Error 502 Bad gateway
+
+We don't know why it happens, yet.  See
+@uref{https://github.com/magit/ghub/issues/83}
 
 @node Keystroke Index
 @appendix Keystroke Index

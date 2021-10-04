@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.2.1 (v0.2.1-18-g70e8246b+1)
+#+SUBTITLE: for version 0.2.1 (v0.2.1-36-g01663d3+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-18-g70e8246b+1).
+This manual is for Forge version 0.2.1 (v0.2.1-36-g01663d3+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -942,6 +942,11 @@ The following commands are available in buffers used to edit posts:
 
 Yes.  ~M-x forge-add-repository~ offers to add a repository to the
 database without also fetching all pull-requests and issues.
+
+** error in process filter HTTP Error 502 Bad gateway
+
+We don't know why it happens, yet.  See
+https://github.com/magit/ghub/issues/83
 
 * Keystroke Index
 :PROPERTIES:
