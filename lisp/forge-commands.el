@@ -51,7 +51,13 @@ for a repository using the command `forge-add-pullreq-refspec'."
   [["Fetch"
     ("f f" "all topics"    forge-pull)
     ("f t" "one topic"     forge-pull-topic)
-    ("f n" "notifications" forge-pull-notifications)]
+    ("f n" "notifications" forge-pull-notifications)
+    """Create"
+    ("c i" "issue"         forge-create-issue)
+    ("c p" "pull-request"  forge-create-pullreq)
+    ("c u" "pull-request from issue" forge-create-pullreq-from-issue
+     :if (lambda () (forge-github-repository-p (forge-get-repository nil))))
+    ("c f" "fork or remote" forge-fork)]
    ["List"
     ("l t" "topics"        forge-list-topics)
     ("l i" "issues"        forge-list-issues)
@@ -68,12 +74,11 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("v t" "topic"         forge-visit-topic)
     ("v i" "issue"         forge-visit-issue)
     ("v p" "pull-request"  forge-visit-pullreq)
-    """Create"
-    ("c i" "issue"         forge-create-issue)
-    ("c p" "pull-request"  forge-create-pullreq)
-    ("c u" "pull-request from issue" forge-create-pullreq-from-issue
-     :if (lambda () (forge-github-repository-p (forge-get-repository nil))))
-    ("c f" "fork or remote" forge-fork)]]
+    """Browse"
+    ("b b" "issues"        forge-browse-issues)
+    ("b t" "topic"         forge-browse-topic)
+    ("b i" "issue"         forge-browse-issue)
+    ("b p" "pull-request"  forge-browse-pullreq)]]
   [["Configure"
     ("a" "add repository to database" forge-add-repository)
     ("r" "forge.repository" forge-forge.remote)
