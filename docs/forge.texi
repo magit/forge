@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.2.1 (v0.2.1-18-g70e8246b+1)
+@subtitle for version 0.2.1 (v0.2.1-35-g67382569+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-18-g70e8246b+1).
+This manual is for Forge version 0.2.1 (v0.2.1-35-g67382569+1).
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -111,6 +111,7 @@ Working with Topics
 FAQ
 
 * Is it possible to create a single pull-request without pulling everything?::
+* @code{error in process filter HTTP Error 502, "Bad gateway"}: @code{error in process filter HTTP Error 502 "Bad gateway"}. 
 
 @end detailmenu
 @end menu
@@ -1308,6 +1309,7 @@ under heavy development.
 
 @menu
 * Is it possible to create a single pull-request without pulling everything?::
+* @code{error in process filter HTTP Error 502, "Bad gateway"}: @code{error in process filter HTTP Error 502 "Bad gateway"}. 
 @end menu
 
 @node Is it possible to create a single pull-request without pulling everything?
@@ -1315,6 +1317,54 @@ under heavy development.
 
 Yes.  @code{M-x forge-add-repository} offers to add a repository to the
 database without also fetching all pull-requests and issues.
+
+@node @code{error in process filter HTTP Error 502 "Bad gateway"}
+@appendixsec @code{error in process filter: HTTP Error: 502, "Bad gateway"}
+
+This is a frequently occuring error.  Adding some formatting the full
+error is:
+
+@lisp
+error in process filter: ghub--signal-error: HTTP Error: 502,
+  "Bad gateway", "/graphql",
+  ((data . "null")
+   (errors ((message . "Something went wrong while executing your query.
+      This may be the result of a timeout, or it could be a GitHub bug.
+      Please include `CC2C:4FEA:A1771C1:CBF40CE:5C33F7E5`
+      when reporting this issue."))))
+@end lisp
+
+This indicates that something went wrong within Github's network.  See
+@uref{https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#5xx_server_errors}.
+The appended error message also says as much: "This may be the result
+of a timeout, or it could be a GitHub bug."
+
+It appears that this happens more often in big repositories,
+especially during the initial pull, but this may be an illusion; it is
+known to also happens for smaller, incremental requests.
+
+I believe that more data just means more requests and thus more
+opportunities for things to go wrong.  It seems unlikely that this is
+due to us requesting too much data at once (in that case we would get
+a different error from GraphQL, not HTTP).  When fetching lots of
+data, then we do not request one large response but make many requests
+and we then collect the many responses (pagination forces us to do
+that).
+
+The timeout may be due to many requests from other people arriving at
+some Github-internal bottleneck at the same time, or it may be due to
+cold caches and overly aggressive timeouts.  We just don't know; it's
+their infrastructure.
+
+The second problem is that we currently simply error out if we get
+this error.  This could be changed and eventually it will be, but for
+the time being your only option is to just try again, possibly
+repeatedly and possibly after a delay to give whatever congestion may
+exist on the other end a chance to clear or to give their caches a
+chance to warm up.
+
+This was also discussed in @uref{https://github.com/magit/ghub/issues/20} and
+@uref{https://github.com/magit/ghub/issues/83}.
 
 @node Keystroke Index
 @appendix Keystroke Index
