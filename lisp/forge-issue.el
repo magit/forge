@@ -85,6 +85,9 @@
 (cl-defmethod forge-get-topic ((post forge-issue-post))
   (forge-get-issue post))
 
+(cl-defmethod forge-get-issue ((issue forge-issue))
+  issue)
+
 (cl-defmethod forge-get-issue ((repo forge-repository) number)
   (closql-get (forge-db)
               (forge--object-id 'forge-issue repo number)
@@ -112,16 +115,16 @@
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-issue))
          (repo    (forge-get-repository (or default t)))
-         (format  (pcase-lambda (`(,number ,title))
-                    (format "%s  %s" number title [number title])))
-         (choices (forge-ls-issues repo type))
-         (choice  (magit-completing-read
-                   prompt
-                   (mapcar format choices)
-                   nil nil nil nil
-                   (and default (funcall format default)))))
-    (and (string-match "\\`\\([0-9]+\\)" choice)
-         (string-to-number (match-string 1 choice)))))
+         (choices (mapcar
+                   (apply-partially #'forge--topic-format-choice repo)
+                   (forge-ls-issues repo type [number title id class]))))
+    (cdr (assoc (magit-completing-read
+                 prompt choices nil nil nil nil
+                 (and default
+                      (setq default (forge--topic-format-choice default))
+                      (member default choices)
+                      (car default)))
+                choices))))
 
 (cl-defmethod forge-get-url ((issue forge-issue))
   (forge--format issue 'issue-url-format))

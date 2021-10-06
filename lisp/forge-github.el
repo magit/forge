@@ -85,28 +85,29 @@
      :auth 'forge
      :sparse selective-p)))
 
-(cl-defmethod forge--pull-topic ((repo forge-github-repository) n
-                                 &optional pullreqp)
-  (unless pullreqp
-    (setq pullreqp (forge-get-pullreq repo n)))
-  (let ((buffer (current-buffer)))
+(cl-defmethod forge--pull-topic ((repo forge-github-repository) topic)
+  (let ((buffer (current-buffer))
+        (fetch #'ghub-fetch-issue)
+        (update #'forge--update-issue)
+        (errorback (lambda (err _headers _status _req)
+                     (when (equal (cdr (assq 'type (cadr err))) "NOT_FOUND")
+                       (forge--pull-topic repo topic t)))))
+    (when (cl-typep topic 'forge-pullreq)
+      (setq fetch #'ghub-fetch-pullreq)
+      (setq update #'forge--update-pullreq)
+      (setq errorback nil))
     (funcall
-     (if pullreqp #'ghub-fetch-pullreq #'ghub-fetch-issue)
+     fetch
      (oref repo owner)
      (oref repo name)
-     n
+     (oref topic number)
      (lambda (data)
-       (funcall (if pullreqp #'forge--update-pullreq #'forge--update-issue)
-                repo data nil)
+       (funcall update repo data nil)
        (with-current-buffer
            (if (buffer-live-p buffer) buffer (current-buffer))
          (magit-refresh)))
      nil
-     :errorback
-     (and (not pullreqp)
-          (lambda (err _headers _status _req)
-            (when (equal (cdr (assq 'type (cadr err))) "NOT_FOUND")
-              (forge--pull-topic repo n t))))
+     :errorback errorback
      :host (oref repo apihost)
      :auth 'forge)))
 
@@ -482,15 +483,16 @@
 ;;; Mutations
 
 (cl-defmethod forge--create-pullreq-from-issue ((repo forge-github-repository)
-                                                issue source target)
+                                                (issue forge-issue)
+                                                source target)
   (pcase-let* ((`(,base-remote . ,base-branch)
                 (magit-split-branch-name target))
                (`(,head-remote . ,head-branch)
                 (magit-split-branch-name source))
                (head-repo (forge-get-repository 'stub head-remote))
-               (issue-obj (forge-get-issue repo issue)))
+               (issue (forge-get-issue repo issue)))
     (forge--ghub-post repo "/repos/:owner/:repo/pulls"
-      `((issue . ,issue)
+      `((issue . ,(oref issue number))
         (base  . ,base-branch)
         (head  . ,(if (equal head-remote base-remote)
                       head-branch
@@ -498,7 +500,7 @@
                             head-branch)))
         (maintainer_can_modify . t))
       :callback  (lambda (&rest _)
-                   (closql-delete issue-obj)
+                   (closql-delete issue)
                    (forge-pull))
       :errorback (lambda (&rest _) (forge-pull)))))
 

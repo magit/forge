@@ -207,13 +207,6 @@ This variable has to be customized before `forge' is loaded."
   (or (forge-get-issue id)
       (forge-get-pullreq id)))
 
-(defun forge--topic-string-to-number (s)
-  (save-match-data
-    (if (string-match "\\`\\([!#]\\)?\\([0-9]+\\)" s)
-        (* (if (equal (match-string 1 s) "!") -1 1)
-           (string-to-number (match-string 2 s)))
-      (error "forge--topic-string-to-number: Invalid argument %S" s))))
-
 (cl-defmethod forge-ls-recent-topics ((repo forge-repository) table)
   (magit--with-repository-local-cache (list 'forge-ls-recent-topics table)
     (let* ((id (oref repo id))
@@ -680,30 +673,35 @@ Return a value between 0 and 1."
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-topic))
          (repo    (forge-get-repository (or default t)))
-         (gitlabp (forge--childp repo 'forge-gitlab-repository))
-         (choices (sort
-                   (nconc
-                    (let ((prefix (if gitlabp "!" "")))
-                      (mapcar (lambda (topic)
-                                (forge--topic-format-choice topic prefix))
-                              (forge-ls-pullreqs repo type)))
-                    (let ((prefix (if gitlabp "#" "")))
-                      (mapcar (lambda (topic)
-                                (forge--topic-format-choice topic prefix))
-                              (forge-ls-issues repo type))))
-                   #'string>))
-         (choice  (magit-completing-read
-                   prompt choices nil nil nil nil
-                   (and default
-                        (forge--topic-format-choice
-                         default (and (not gitlabp) ""))))))
-    (forge--topic-string-to-number choice)))
+         (choices (mapcar
+                   (apply-partially #'forge--topic-format-choice repo)
+                   (cl-sort
+                    (nconc
+                     (forge-ls-pullreqs repo type [number title id class])
+                     (forge-ls-issues   repo type [number title id class]))
+                    #'> :key #'car))))
+    (cdr (assoc (magit-completing-read
+                 prompt choices nil nil nil nil
+                 (and default
+                      (setq default (forge--topic-format-choice default))
+                      (member default choices)
+                      (car default)))
+                choices))))
 
-(defun forge--topic-format-choice (topic &optional prefix)
-  (format "%s%s  %s"
-          (or prefix (forge--topic-type-prefix topic) "")
-          (oref topic number)
-          (oref topic title)))
+(cl-defmethod forge--topic-format-choice ((topic forge-topic))
+  (cons (format "%s%s  %s"
+                (forge--topic-type-prefix topic)
+                (oref topic number)
+                (oref topic title))
+        (oref topic id)))
+
+(cl-defmethod forge--topic-format-choice ((repo forge-repository) args)
+  (pcase-let ((`(,number ,title ,id ,class) args))
+    (cons (format "%s%s  %s"
+                  (forge--topic-type-prefix repo class)
+                  number
+                  title)
+          id)))
 
 (defun forge-topic-completion-at-point ()
   (let ((bol (line-beginning-position))

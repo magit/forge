@@ -224,7 +224,7 @@
                  (or (and (fboundp 'forge-pullreq-p)
                           (forge-pullreq-p topic))
                      (oref repo selective-p)))
-            (forge--pull-topic repo (oref topic number))
+            (forge--pull-topic repo topic)
           (forge-pull))))))
 
 (defun forge--post-submit-errorback ()
