@@ -486,7 +486,7 @@ TOPIC and modify that instead."
                     (merged (error "Merged pull-requests cannot be reopened"))
                     (closed "Reopen")
                     (open   "Close"))
-                  (forge--topic-format-choice topic)))
+                  (car (forge--topic-format-choice topic))))
          (list id)
        (user-error "Abort"))))
   (let ((topic (forge-get-topic topic)))
