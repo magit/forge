@@ -40,7 +40,7 @@
 (defcustom forge-database-connector 'sqlite
   "The database connector used by Forge.
 This must be set before `forge' is loaded.  To use an alternative
-connectors you must install the respective package explicitly."
+connector you must install the respective package explicitly."
   :package-version '(forge . "0.3.0")
   :group 'forge
   :type '(choice (const sqlite)
