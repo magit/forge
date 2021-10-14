@@ -1,4 +1,62 @@
 # -*- mode: org -*-
+* v0.3.0    2021-10-14
+
+- Many actions that were surprisingly slow are much faster now,
+  because an embarrassing bottleneck was removed in Closql v1.2.0.
+
+- Added new option ~forge-database-connector~ allowing the use of other
+  database connector libraries beside ~emacsql-sqlite~ (currently only
+  ~emacsql-libsqlite3~ (experimental) and ~emacsql-sqlite3~ (discouraged)).
+  bae6a527, 21720580
+
+- Commands that take a topic or repository as argument now expect an
+  object/row ID instead of an object or a number.  Objects are not
+  suitable as interactive arguments because their printed
+  representation would be presented to the user when using
+  ~repeat-complex-command~, and because they might not reflect the
+  current state when used like that.  Numbers would be more readable
+  and actually meaningful to humans, but additionally they would be
+  ambiguous.  Non-interactive functions continue to expect objects
+  as arguments.  #368
+
+- Some essential key bindings that were somewhat randomly selected
+  during initial development have now been changed for consistency,
+  which I always intended to do, but did not get around to do until
+  now.  ~forge-dispatch~ is now bound to ~N~ instead of ~'~ and Forge's
+  bindings in ~magit-fetch~ and ~magit-pull~ now use ~N~ and ~n~ instead of
+  ~Y~ and ~y~.  ~N~ was chosen because it was one of the last alphabetic
+  keys available at the top-level in Magit.  8c9614e3 et al.
+
+- Added new command ~forge-merge~ for merging pull-requests using the
+  forge's API, which I recommend you only use if someone forces you
+  to do use the API.  3112aded
+
+- Added support for following the links that some projects on Github
+  display alongside issue templates.  46d5f253
+
+- Setting the new Git variable ~forge.autoPull~ to false disables
+  pulling Git data whenever API data is fetched.  This may be useful
+  in active mono-repos where there is always something new (but likely
+  irrelevant) to pull.  #362
+
+- Added new commands ~forge-list-labeled-pullreqs~ and
+  ~forge-list-labeled-issues~.  a3e6f8aa
+
+- Starting with Emacs 28 ~bug-references~ is automatically configure for
+  repositories cloned from many Git forges, so Forge no longer has to
+  do it.  #283, #412
+
+- It is possible to fetch only select topics of a repository, which is
+  useful if that happens to be large and/or if you are only interested
+  in a select few topics (such as the one you are about to open).
+  ~forge-pull~ learned to fetch information about the repository itself
+  even when configured to only fetch certain topics.  #382
+
+- Added the ~forge-browse-*~ commands to ~forge-dispatch~.  #422
+
+- Also included are several other improvements, updated documentation
+  and bugfixes.
+
 * v0.2.1    2021-06-17
 
 - Adjusted to breaking changes in EIEIO in Emacs 28.
