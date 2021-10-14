@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.2.1 (v0.2.1-35-g67382569+1)
+@subtitle for version 0.2.1 (v0.2.1-46-ge1ff302d+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-35-g67382569+1).
+This manual is for Forge version 0.2.1 (v0.2.1-46-ge1ff302d+1).
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -71,6 +71,7 @@ General Public License for more details.
 * Supported Forges and Hosts::
 * Getting Started::
 * Usage::
+* Other Options::
 * FAQ::
 * Keystroke Index::
 * Command Index::
@@ -1303,6 +1304,37 @@ This is useful after the database's table schemata have changed,
 which will happen a few times while the Forge functionality is still
 under heavy development.
 @end deffn
+
+@node Other Options
+@chapter Other Options
+
+@defopt forge-database-connector
+
+This option controls which database connector is used by Forge.
+
+This must be set before @code{forge} is loaded.  To use an alternative
+connector you must install the respective package explicitly.
+
+@itemize
+@item
+When @code{sqlite}, then use the @code{emacsql-sqlite} library that is
+being maintained in the same repository as @code{emacsql} itself.
+
+
+@item
+When @code{libsqlite3}, then use the @code{emacsql-libsqlite} library,
+which itself uses a module provided by the @code{sqlite3} package.
+This is still experimental.
+
+
+@item
+When @code{sqlite3}, then use the @code{emacsql-sqlite3} library, which
+uses the official @code{sqlite3} command-line tool, which I do not
+recommended because it is not suitable to be used like this,
+but has the advantage that you likely don't need a compiler.
+See @uref{https://nullprogram.com/blog/2014/02/06/}.
+@end itemize
+@end defopt
 
 @node FAQ
 @appendix FAQ

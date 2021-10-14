@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.2.1 (v0.2.1-35-g67382569+1)
+#+SUBTITLE: for version 0.2.1 (v0.2.1-46-ge1ff302d+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.2.1 (v0.2.1-35-g67382569+1).
+This manual is for Forge version 0.2.1 (v0.2.1-46-ge1ff302d+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -933,6 +933,28 @@ The following commands are available in buffers used to edit posts:
   This is useful after the database's table schemata have changed,
   which will happen a few times while the Forge functionality is still
   under heavy development.
+
+* Other Options
+
+- User Option: forge-database-connector
+
+  This option controls which database connector is used by Forge.
+
+  This must be set before ~forge~ is loaded.  To use an alternative
+  connector you must install the respective package explicitly.
+
+  - When ~sqlite~, then use the ~emacsql-sqlite~ library that is
+    being maintained in the same repository as ~emacsql~ itself.
+
+  - When ~libsqlite3~, then use the ~emacsql-libsqlite~ library,
+    which itself uses a module provided by the ~sqlite3~ package.
+    This is still experimental.
+
+  - When ~sqlite3~, then use the ~emacsql-sqlite3~ library, which
+    uses the official ~sqlite3~ command-line tool, which I do not
+    recommended because it is not suitable to be used like this,
+    but has the advantage that you likely don't need a compiler.
+    See https://nullprogram.com/blog/2014/02/06/.
 
 * FAQ
 :PROPERTIES:

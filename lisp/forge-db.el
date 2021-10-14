@@ -39,8 +39,22 @@
 
 (defcustom forge-database-connector 'sqlite
   "The database connector used by Forge.
+
 This must be set before `forge' is loaded.  To use an alternative
-connector you must install the respective package explicitly."
+connector you must install the respective package explicitly.
+
+When `sqlite', then use the `emacsql-sqlite' library that is
+being maintained in the same repository as `emacsql' itself.
+
+When `libsqlite3', then use the `emacsql-libsqlite' library,
+which itself uses a module provided by the `sqlite3' package.
+This is still experimental.
+
+When `sqlite3', then use the `emacsql-sqlite3' library, which
+uses the official `sqlite3' command-line tool, which I do not
+recommended because it is not suitable to be used like this,
+but has the advantage that you likely don't need a compiler.
+See https://nullprogram.com/blog/2014/02/06/."
   :package-version '(forge . "0.3.0")
   :group 'forge
   :type '(choice (const sqlite)
@@ -65,6 +79,11 @@ connector you must install the respective package explicitly."
    (require (quote emacsql-libsqlite3))
    (with-no-warnings
      (defclass forge-database (emacsql-libsqlite3-connection closql-database)
+       ((object-class :initform 'forge-repository)))))
+  (sqlite3
+   (require (quote emacsql-sqlite3))
+   (with-no-warnings
+     (defclass forge-database (emacsql-sqlite3-connection closql-database)
        ((object-class :initform 'forge-repository))))))
 
 (defconst forge--db-version 7)
