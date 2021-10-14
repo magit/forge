@@ -1,7 +1,7 @@
 # -*- mode: org -*-
 * v0.2.1    2021-06-17
 
-+- Adjusted to breaking changes in EIEIO in Emacs 28.
+- Adjusted to breaking changes in EIEIO in Emacs 28.
 
 * v0.2.0    2021-05-25
 
