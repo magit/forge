@@ -1009,7 +1009,7 @@ repeatedly and possibly after a delay to give whatever congestion may
 exist on the other end a chance to clear or to give their caches a
 chance to warm up.
 
-This was also discussed in https://github.com/magit/ghub/issues/20 and
+This was also discussed in https://github.com/magit/forge/issues/20 and
 https://github.com/magit/ghub/issues/83.
 
 * Keystroke Index
