@@ -469,9 +469,16 @@ identifier."
 (cl-defun forge-insert-topic-state
     (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-state)
-    (insert (format "%-11s" "State: ")
-            (symbol-name (oref topic state))
-            "\n")))
+    (insert (format
+             "%-11s%s\n" "State: "
+             (let ((state (oref topic state)))
+               (magit--propertize-face
+                (symbol-name state)
+                (pcase (list state (forge-pullreq-p (forge-topic-at-point)))
+                  (`(merged) 'forge-topic-merged)
+                  (`(closed) 'forge-topic-closed)
+                  (`(open t) 'forge-topic-unmerged)
+                  (`(open)   'forge-topic-open))))))))
 
 (defvar forge-topic-milestone-section-map
   (let ((map (make-sparse-keymap)))
