@@ -8,7 +8,7 @@
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.3.0
+#+SUBTITLE: for version 0.3.0 (v0.3.0-7-gcf3bd129+1)
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
@@ -20,7 +20,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.3.0.
+This manual is for Forge version 0.3.0 (v0.3.0-7-gcf3bd129+1).
 
 #+BEGIN_QUOTE
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
@@ -281,7 +281,7 @@ around reading the documentation and doing this manually I am afraid.
 ** Initial Pull
 
 To start using Forge in a certain repository visit the Magit status
-buffer for that repository and type ~f y~ (~forge-pull~).  Alternatively,
+buffer for that repository and type ~f n~ (~forge-pull~).  Alternatively,
 you can use ~M-x forge-add-repository~, which makes it possible to add a
 forge repository without pulling all topics and even without having to
 clone the respective Git repository.
@@ -328,13 +328,12 @@ remotes are tried.
 
 If you do not follow the naming convention, then you have to inform
 Forge about that by setting the Git variable ~forge.remote~ to the name
-that you instead use for upstream remotes.  For example, to use the
-upstream remote named "upstream":
+that you instead use for upstream remotes.
 
-#+BEGIN_SRC shell
-  cd /path/to/repo
-  git config --local forge.remote upstream
-#+END_SRC
+- Key: N r, forge-forge.remote
+
+  This command changes the value of the ~forge.remote~ Git variable in
+  the current repository.
 
 If this variable is set, then Forge uses the remote by that name, if
 it exists, the same way it may have used ~origin~ if the the variable
@@ -383,7 +382,6 @@ these sections but other commands are also available elsewhere in
 Magit's status buffer and/or from Magit's transient commands.
 
 - Key: N, forge-dispatch
-- Key: ', forge-dispatch
 
   This prefix command is available in any Magit buffer and provides
   access to several of the available Forge commands.  Most of these
@@ -401,7 +399,8 @@ transient prefix command (~magit-fetch~ on ~f~) that is used to fetch Git
 data.  If option ~magit-pull-or-fetch~ is non-nil, then they are also
 available from the ~magit-pull~ transient (on ~F~).
 
-- Key: f y, forge-pull
+- Key: f n, forge-pull
+- Key: N f f, forge-pull
 
   This command uses a forge's API to fetch topics and other
   information about the current repository and stores the fetched
@@ -413,7 +412,8 @@ available from the ~magit-pull~ transient (on ~F~).
   the status buffer for that repository always lists the pull-requests
   and issues.  See [[*Initial Pull]].
 
-- Key: f Y, forge-pull-notifications
+- Key: f N, forge-pull-notifications
+- Key: N f n, forge-pull-notifications
 
   This command uses a forge's API to fetch all notifications from that
   forge including, but not limited to, the notifications for the current
@@ -435,7 +435,7 @@ recent data to be available and then have to abort to pull first.
 The same can happen with Git, e.g. you might attempt to merge a branch
 that you know exists but haven't actually pulled yet.
 
-- Key: M-x forge-pull-topic, forge-pull-topic
+- Key: N f t, forge-pull-topic
 
   This command uses a forge's API to fetch a single pull-request and
   stores it in the database.
@@ -458,7 +458,7 @@ same transient prefix commands as the suffix commands used to create
 and check out branches and work trees in a more generic fashion
 (~magit-branch~ on ~b~ and ~magit-worktree~ on ~%~).
 
-- Key: b Y, forge-branch-pullreq
+- Key: b N, forge-branch-pullreq
 
   This command creates and configures a new branch from a pull-request,
   creating and configuring a new remote if necessary.
@@ -542,13 +542,13 @@ and check out branches and work trees in a more generic fashion
     the variable ~branch.<name>.pullRequestRemote~ is set to the remote
     on which the pull-request branch is located.
 
-- Key: b y, forge-checkout-pullreq
+- Key: b n, forge-checkout-pullreq
 
   This command creates and configures a new branch from a pull-request
   the same way ~forge-branch-pullreq~ does.  Additionally it checks out
   the new branch.
 
-- Key: % y, forge-checkout-worktree
+- Key: Z n, forge-checkout-worktree
 
   This command creates and configures a new branch from a pull-request
   the same way ~forge-branch-pullreq~ does.  Additionally it checks out
@@ -582,9 +582,14 @@ on a commit or branch section.
 
 - Key: C-c C-w, forge-browse-TYPE
 - Key: C-c C-w, forge-browse-dwim
+- Key: N b I, forge-browse-issues
+- Key: N b P, forge-browse-pullreqs
+- Key: N b t, forge-browse-topic
+- Key: N b i, forge-browse-issue
+- Key: N b p, forge-browse-pullreq
 
-  These commands visit the pull-request(s), issue(s), post, branch,
-  commit, or remote at point in a browser.
+  These commands visit the topic, issue(s), pull-request(s), post,
+  branch, commit, or remote at point in a browser.
 
   This is implemented using various commands named ~forge-browse-TYPE~,
   and the key binding is defined by remapping ~magit-browse-thing~ (as
@@ -594,6 +599,9 @@ on a commit or branch section.
 
 - Key: RET, forge-visit-TYPE
 - Key: C-c C-v, forge-visit-topic
+- Key: N v t, forge-visit-topic
+- Key: N v i, forge-visit-issue
+- Key: N v p, forge-visit-pullreq
 
   These commands visit the pull-request(s), issue(s), or repository in
   a separate buffer.
@@ -671,20 +679,20 @@ The following three functions are also suitable for
 The following commands list repositories, notifications and topics in
 dedicated buffers:
 
-- Key: N r, forge-list-repositories
+- Key: N l r, forge-list-repositories
 
   This command lists all known repositories in a separate buffer.
 
-- Key: N l, forge-list-notifications
+- Key: N l n, forge-list-notifications
 
   This command lists all notifications for all forges in a separate
   buffer.
 
-- Key: N P, forge-list-pullreqs
+- Key: N l p, forge-list-pullreqs
   This command lists the current repository's pull-requests in a
   separate buffer.
 
-- Key: N I, forge-list-issues
+- Key: N l i, forge-list-issues
 
   This command lists the current repository's issues in a separate
   buffer.
@@ -844,9 +852,10 @@ a post visits that post in a browser.
 
   This command deletes the comment at point.
 
-- Key: m a [if enabled], forge-merge
+- Key: m M [if enabled], forge-merge
+- Key: N M [if enabled], forge-merge
 
-  This command merge the current pull-request using the forge's API.
+  This command merges the current pull-request using the forge's API.
   If there is no current pull-request or with a prefix argument, then
   it reads a pull-request to visit instead.
 
@@ -894,6 +903,16 @@ The following commands are available in buffers used to edit posts:
   This command offers to either pull topics (now and in the future) or
   to only pull individual topics when the user invokes
   ~forge-pull-topic~.
+
+- Key: N t t, forge-toggle-display-in-status-buffer
+
+  This command toggles whether any topics are displayed in the current
+  Magit status buffer.
+
+- Key: N t c, forge-toggle-closed-visibility
+
+  This command toggles whether closed topics are shown in the Magit
+  status buffer.
 
 - Command: forge-add-user-repositories
 
