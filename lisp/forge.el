@@ -107,7 +107,7 @@
   '("Ni" "issues" forge-jump-to-issues))
 
 (transient-append-suffix 'magit-merge "a"
-  '(7 "f" "Merge using API" forge-merge))
+  '(7 "M" "Merge using API" forge-merge))
 
 ;;; Startup Asserts
 

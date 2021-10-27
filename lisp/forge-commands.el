@@ -57,7 +57,9 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("c p" "pull-request"  forge-create-pullreq)
     ("c u" "pull-request from issue" forge-create-pullreq-from-issue
      :if (lambda () (forge-github-repository-p (forge-get-repository nil))))
-    ("c f" "fork or remote" forge-fork)]
+    ("c f" "fork or remote" forge-fork)
+    """Merge"
+    (7 "M  " "merge using API" forge-merge)]
    ["List"
     ("l t" "topics"        forge-list-topics)
     ("l i" "issues"        forge-list-issues)
