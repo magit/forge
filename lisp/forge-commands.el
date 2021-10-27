@@ -854,11 +854,11 @@ is added anyway.  Currently this only supports Github and Gitlab."
   (forge-notifications-setup-buffer))
 
 (transient-define-suffix forge-toggle-display-in-status-buffer ()
+  "Toggle whether to display topics in the current status buffer."
   :description (lambda ()
                  (if forge-display-in-status-buffer
                      "hide topics"
                    "display topics"))
-  "Toggle whether to display topics in the current Magit status buffer."
   (interactive)
   (setq forge-display-in-status-buffer (not forge-display-in-status-buffer))
   (magit-refresh))
