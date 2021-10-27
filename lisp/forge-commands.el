@@ -77,7 +77,8 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("v i" "issue"         forge-visit-issue)
     ("v p" "pull-request"  forge-visit-pullreq)
     """Browse"
-    ("b b" "issues"        forge-browse-issues)
+    ("b I" "issues"        forge-browse-issues)
+    ("b P" "pull-requests" forge-browse-pullreqs)
     ("b t" "topic"         forge-browse-topic)
     ("b i" "issue"         forge-browse-issue)
     ("b p" "pull-request"  forge-browse-pullreq)]]
