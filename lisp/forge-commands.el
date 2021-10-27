@@ -841,6 +841,7 @@ is added anyway.  Currently this only supports Github and Gitlab."
 ;;; Misc
 
 (transient-define-infix forge-forge.remote ()
+  "Change the local value of the `forge.remote' Git variable."
   :class 'magit--git-variable:choices
   :variable "forge.remote"
   :choices 'magit-list-remotes
