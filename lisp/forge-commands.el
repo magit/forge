@@ -80,9 +80,10 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("b i" "issue"         forge-browse-issue)
     ("b p" "pull-request"  forge-browse-pullreq)]]
   [["Configure"
-    ("a" "add repository to database" forge-add-repository)
-    ("r" "forge.repository" forge-forge.remote)
-    (7 "t" forge-toggle-display-in-status-buffer)]])
+    ("a  " "add repository to database" forge-add-repository)
+    ("r  " "forge.repository" forge-forge.remote)
+    ("t t" forge-toggle-display-in-status-buffer)
+    ("t c" forge-toggle-closed-visibility)]])
 
 ;;; Pull
 
@@ -857,14 +858,21 @@ is added anyway.  Currently this only supports Github and Gitlab."
   "Toggle whether to display topics in the current status buffer."
   :description (lambda ()
                  (if forge-display-in-status-buffer
-                     "hide topics"
+                     "hide all topics"
                    "display topics"))
   (interactive)
   (setq forge-display-in-status-buffer (not forge-display-in-status-buffer))
   (magit-refresh))
 
-(defun forge-toggle-closed-visibility ()
-  "Toggle whether recently closed issues are shown."
+(transient-define-suffix forge-toggle-closed-visibility ()
+  "Toggle whether to display recently closed topics.
+This only affect the current status buffer."
+  :description (lambda ()
+                 (if (or (atom forge-topic-list-limit)
+                         (> (cdr forge-topic-list-limit) 0))
+                     "hide closed topics"
+                   "display recently closed topics"))
+  :inapt-if-not (lambda () forge-display-in-status-buffer)
   (interactive)
   (magit-repository-local-delete (list 'forge-ls-recent-topics 'issue))
   (magit-repository-local-delete (list 'forge-ls-recent-topics 'pullreq))
