@@ -94,9 +94,9 @@
   '("N" "forge notifications" forge-pull-notifications))
 
 (transient-append-suffix 'magit-branch "w"
-  '("n" "pull-request" forge-checkout-pullreq))
+  '("f" "pull-request" forge-checkout-pullreq))
 (transient-append-suffix 'magit-branch "W"
-  '("N" "from pull-request" forge-branch-pullreq))
+  '("F" "from pull-request" forge-branch-pullreq))
 
 (transient-append-suffix 'magit-worktree "c"
   '("n" "pull-request worktree" forge-checkout-worktree))
