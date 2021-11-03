@@ -169,7 +169,8 @@ repository, if any."
                      (remotes "Cannot decide on remote to use.")
                      (t       "No remote configured."))
                "You might have to set `forge.remote'."
-               "See https://magit.vc/manual/forge/Token-Creation.html.")))))))
+               "See https://magit.vc/manual/forge/Repository-Detection.html."
+               )))))))
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
