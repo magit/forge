@@ -86,7 +86,7 @@ for a repository using the command `forge-add-pullreq-refspec'."
     ("b p" "pull-request"  forge-browse-pullreq)]]
   [["Configure"
     ("a  " "add repository to database" forge-add-repository)
-    ("r  " "forge.repository" forge-forge.remote)
+    ("r  " "forge.remote"  forge-forge.remote)
     ("t t" forge-toggle-display-in-status-buffer)
     ("t c" forge-toggle-closed-visibility)]])
 
