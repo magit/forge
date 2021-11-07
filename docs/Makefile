@@ -7,7 +7,7 @@ info: $(PKG).info dir
 html: $(PKG).html
 pdf:  $(PKG).pdf
 
-ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l ox-texinfo+.el
+ORG_ARGS  = --batch -Q $(ORG_LOAD_PATH) -l ox-texinfo+
 ORG_EVAL  = --eval "(setq org-texinfo+-dissolve-noexport-headlines t)"
 ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"

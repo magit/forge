@@ -2,28 +2,28 @@
 :PREAMBLE:
 #+AUTHOR: Jonas Bernoulli
 #+EMAIL: jonas@bernoul.li
-#+DATE: 2018-2021
+#+DATE: 2018-{{{year}}}
 #+LANGUAGE: en
 
 #+TEXINFO_DIR_CATEGORY: Emacs
 #+TEXINFO_DIR_TITLE: Forge: (forge).
 #+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version 0.3.0 (v0.3.0-7-gcf3bd129+1)
+#+SUBTITLE: for version {{{version}}}
 
 #+TEXINFO_DEFFN: t
 #+OPTIONS: H:4 num:4 toc:2
 #+PROPERTY: header-args :eval never
-#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-copyright-years
-#+BIND: ox-texinfo+-before-export-hook ox-texinfo+-update-version-strings
+#+MACRO: version (eval (ox-texinfo+-get-version 'mixed))
+#+MACRO: year (eval (format-time-string "%Y"))
 
 Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 #+TEXINFO: @noindent
-This manual is for Forge version 0.3.0 (v0.3.0-7-gcf3bd129+1).
+This manual is for Forge version {{{version}}}.
 
 #+BEGIN_QUOTE
-Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2018-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
@@ -1058,7 +1058,7 @@ https://github.com/magit/ghub/issues/83.
 :END:
 
 #+BEGIN_QUOTE
-Copyright (C) 2018-2021 Jonas Bernoulli <jonas@bernoul.li>
+Copyright (C) 2018-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
 of the GNU General Public License as published by the Free Software
