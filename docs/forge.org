@@ -116,9 +116,9 @@ Forge's support for Github can be considered the "reference
 
 This is the next forge whose API will be supported.
 
-Currently no public Gitea Hosts are known to me.
-The Gitea maintainers plan to create their own instance,
-see https://github.com/go-gitea/gitea/issues/1029.
+**** Gitea Hosts
+
+- https://codeberg.org
 
 *** Gogs https://gogs.io
 :PROPERTIES:

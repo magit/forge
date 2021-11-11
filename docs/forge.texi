@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.3.0 (v0.3.0-7-gcf3bd129+1)
+@subtitle for version 0.3.0 (v0.3.0-16-g8f448b02+1)
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.3.0 (v0.3.0-7-gcf3bd129+1).
+This manual is for Forge version 0.3.0 (v0.3.0-16-g8f448b02+1).
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -226,9 +226,13 @@ expose those.
 
 This is the next forge whose API will be supported.
 
-Currently no public Gitea Hosts are known to me.
-The Gitea maintainers plan to create their own instance,
-see @uref{https://github.com/go-gitea/gitea/issues/1029}.
+@anchor{Gitea Hosts}
+@subsubheading Gitea Hosts
+
+@itemize
+@item
+@uref{https://codeberg.org}
+@end itemize
 
 @anchor{Gogs https//gogsio}
 @subheading Gogs https://gogs.io
