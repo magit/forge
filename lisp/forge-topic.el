@@ -675,7 +675,7 @@ Return a value between 0 and 1."
 
 ;;; Completion
 
-(defun forge-read-topic (prompt &optional type)
+(defun forge-read-topic (prompt &optional type allow-number)
   (when (eq type t)
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-topic))
@@ -686,14 +686,19 @@ Return a value between 0 and 1."
                     (nconc
                      (forge-ls-pullreqs repo type [number title id class])
                      (forge-ls-issues   repo type [number title id class]))
-                    #'> :key #'car))))
-    (cdr (assoc (magit-completing-read
-                 prompt choices nil nil nil nil
-                 (and default
-                      (setq default (forge--topic-format-choice default))
-                      (member default choices)
-                      (car default)))
-                choices))))
+                    #'> :key #'car)))
+         (choice  (magit-completing-read
+                   prompt choices nil nil nil nil
+                   (and default
+                        (setq default (forge--topic-format-choice default))
+                        (member default choices)
+                        (car default)))))
+    (or (cdr (assoc choice choices))
+        (and allow-number
+             (let ((number (string-to-number choice)))
+               (if (= number 0)
+                   (user-error "Not an existing topic or number: %s")
+                 number))))))
 
 (cl-defmethod forge--topic-format-choice ((topic forge-topic))
   (cons (format "%s%s  %s"

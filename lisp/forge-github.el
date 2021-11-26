@@ -91,7 +91,9 @@
         (update #'forge--update-issue)
         (errorback (lambda (err _headers _status _req)
                      (when (equal (cdr (assq 'type (cadr err))) "NOT_FOUND")
-                       (forge--pull-topic repo topic t)))))
+                       (forge--pull-topic
+                        repo (forge-pullreq :repository (oref repo id)
+                                            :number (oref topic number)))))))
     (when (cl-typep topic 'forge-pullreq)
       (setq fetch #'ghub-fetch-pullreq)
       (setq update #'forge--update-pullreq)
@@ -144,6 +146,7 @@
                          (forge-issue :id         issue-id
                                       :repository (oref repo id)
                                       :number     .number)))))
+        (oset issue id         issue-id)
         (oset issue state      (pcase-exhaustive .state
                                  ("CLOSED" 'closed)
                                  ("OPEN"   'open)))

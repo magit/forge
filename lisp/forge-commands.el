@@ -180,9 +180,11 @@ If pulling is too slow, then also consider setting the Git variable
   "Pull the API data for the current topic.
 If there is no current topic or with a prefix argument read a
 TOPIC to pull instead."
-  (interactive (list (forge-read-topic "Pull topic")))
-  (let* ((topic (forge-get-topic topic))
-         (repo (forge-get-repository topic)))
+  (interactive (list (forge-read-topic "Pull topic" nil t)))
+  (let ((repo (forge-get-repository t)))
+    (when (numberp topic)
+      (setq topic (forge-issue :repository (oref repo id)
+                               :number topic)))
     (forge--zap-repository-cache repo)
     (forge--pull-topic repo topic)))
 
