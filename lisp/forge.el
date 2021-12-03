@@ -78,7 +78,7 @@ If you want to disable this, then you must set this to nil before
   "Whether to add Forge's bindings to various Magit keymaps.
 If you want to disable this, then you must set this to nil before
 `magit' is loaded.  If you do it before `forge' but after `magit'
-is loaded, then `magit-mode-map' ends up being modified anyway."
+is loaded, then `magit-mode-map' ends up being modified anyway.")
 
 ;;;###autoload
 (with-eval-after-load 'magit-mode
