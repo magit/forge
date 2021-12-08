@@ -266,6 +266,15 @@ Prefer a topic over a branch and that over a commit."
   (browse-url (forge--format remote 'remote-url-format)))
 
 ;;;###autoload
+(defun forge-browse-repository (repo)
+  "View the current repository in a separate buffer."
+  (interactive
+   (list (or (forge-current-repository)
+             (forge-get-repository
+              (forge-read-repository "Browse repository")))))
+  (browse-url (forge--format repo 'remote-url-format)))
+
+;;;###autoload
 (defun forge-browse-topic ()
   "Visit the current topic using a browser."
   (interactive)
