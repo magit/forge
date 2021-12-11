@@ -182,11 +182,12 @@ If there is no current topic or with a prefix argument read a
 TOPIC to pull instead."
   (interactive (list (forge-read-topic "Pull topic" nil t)))
   (let ((repo (forge-get-repository t)))
-    (when (numberp topic)
-      (setq topic (forge-issue :repository (oref repo id)
-                               :number topic)))
     (forge--zap-repository-cache repo)
-    (forge--pull-topic repo topic)))
+    (forge--pull-topic repo
+                       (if (numberp topic)
+                           (forge-issue :repository (oref repo id)
+                                        :number topic)
+                         (forge-get-topic topic)))))
 
 (cl-defmethod forge--pull-topic ((repo forge-repository) _topic)
   (error "Fetching an individual topic not implemented for %s"

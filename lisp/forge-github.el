@@ -85,7 +85,8 @@
      :auth 'forge
      :sparse selective-p)))
 
-(cl-defmethod forge--pull-topic ((repo forge-github-repository) topic)
+(cl-defmethod forge--pull-topic ((repo forge-github-repository)
+                                 (topic forge-topic))
   (let ((buffer (current-buffer))
         (fetch #'ghub-fetch-issue)
         (update #'forge--update-issue)
