@@ -96,6 +96,12 @@ This variable has to be customized before `forge' is loaded."
              magit-mode-hook)
   :type '(list :convert-widget custom-hook-convert-widget))
 
+(defcustom forge-avatar-dir
+  (expand-file-name (concat user-emacs-directory ".cache/forge/avatar/"))
+  "forge avatar directory."
+  :group 'forge
+  :type 'directory)
+
 (defvar-local forge-display-in-status-buffer t
   "Whether to display topics in the current Magit status buffer.")
 (put 'forge-display-in-status-buffer 'permanent-local t)
@@ -174,6 +180,31 @@ This variable has to be customized before `forge' is loaded."
                   number-or-id)))
     'utf-8)
    t))
+
+;;; Avatar
+(defun forge-get-user-avatar (name &optional force-reload)
+  "Retrieve avatar based on github user NAME.
+Cached version is returned if it exists unless FORCE-RELOAD is t."
+  ;; create the forge-avatar-dir if not exists
+  (unless (file-exists-p forge-avatar-dir)
+    (make-directory forge-avatar-dir t))
+  (let* ((filename (expand-file-name (format "%s.png" name) forge-avatar-dir))
+         (buffer (if (or force-reload (not (file-exists-p filename)))
+                     (let* ((user_url (format "https://api.github.com/users/%s" name))
+                            (id (alist-get 'id (with-current-buffer (url-retrieve-synchronously user_url)
+                                                 (goto-char (point-min))
+                                                 (search-forward "\n\n")
+                                                 (json-read))))
+                            (url (format "https://avatars.githubusercontent.com/u/%s" id)))
+                       (with-current-buffer (url-retrieve-synchronously url)
+                         (goto-char (point-min))
+                         (search-forward "\n\n")
+                         (write-region (point) (point-max) filename)
+                         (current-buffer)) )
+                   (with-current-buffer (generate-new-buffer " *temp*")
+                     (insert-file-contents filename)
+                     (current-buffer)))))
+    (create-image filename nil nil :width 25 :height nil :margin '(0 . 0) :ascent 'center)))
 
 ;;; Query
 
@@ -431,8 +462,10 @@ identifier."
             (let ((heading
                    (format-spec
                     forge-post-heading-format
-                    `((?a . ,(propertize (or author "(ghost)")
-                                         'font-lock-face 'forge-post-author))
+                    `((?a . ,(format "%s %s"
+                                     (propertize "avatar" 'display (forge-get-user-avatar author))
+                                     (propertize (or author "(ghost)")
+                                                 'font-lock-face 'forge-post-author) ))
                       (?c . ,(propertize created 'font-lock-face 'forge-post-date))
                       (?C . ,(propertize (apply #'format "%s %s ago"
                                                 (magit--age
@@ -624,7 +657,7 @@ Return a value between 0 and 1."
     (insert (format "%-11s" "Assignees: "))
     (if-let ((assignees (closql--iref topic 'assignees)))
         (insert (mapconcat (pcase-lambda (`(,login ,name))
-                             (format "%s (@%s)" name login))
+                             (format "%s %s (@%s)" (propertize "avatar" 'display (forge-get-user-avatar login)) name login))
                            assignees ", "))
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
@@ -642,7 +675,7 @@ Return a value between 0 and 1."
       (insert (format "%-11s" "Review-Requests: "))
       (if-let ((review-requests (closql--iref topic 'review-requests)))
           (insert (mapconcat (pcase-lambda (`(,login ,name))
-                               (format "%s (@%s)" name login))
+                               (format "%s %s (@%s)" (propertize "avatar" 'display (forge-get-user-avatar login)) name login))
                              review-requests ", "))
         (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
       (insert ?\n))))
