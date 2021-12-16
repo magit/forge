@@ -25,12 +25,12 @@ ELCS  = $(ELS:.el=.elc)
 DEPS  = closql
 DEPS += dash
 DEPS += emacsql
-DEPS += ghub
+DEPS += ghub/lisp
 DEPS += magit/lisp
 DEPS += markdown-mode
 DEPS += transient/lisp
 DEPS += treepy
-DEPS += with-editor
+DEPS += with-editor/lisp
 DEPS += yaml
 # Optional
 DEPS += emacsql-libsqlite3
