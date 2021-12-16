@@ -5,6 +5,25 @@ lisp: $(ELCS) loaddefs
 
 loaddefs: $(PKG)-autoloads.el
 
+$(PKG)-db.elc:
+$(PKG)-core.elc:      $(PKG)-db.elc
+$(PKG).elc:           $(PKG)-core.elc
+$(PKG)-repo.elc:      $(PKG).elc
+$(PKG)-post.elc:      $(PKG).elc
+$(PKG)-topic.elc:     $(PKG)-post.elc
+$(PKG)-issue.elc:     $(PKG)-topic.elc
+$(PKG)-pullreq.elc:   $(PKG)-topic.elc
+$(PKG)-revnote.elc:   $(PKG)-topic.elc
+$(PKG)-notify.elc:    $(PKG).elc
+$(PKG)-github.elc:    $(PKG)-topic.elc $(PKG)-pullreq.elc
+$(PKG)-gitlab.elc:    $(PKG)-topic.elc $(PKG)-pullreq.elc
+$(PKG)-gitea.elc:     $(PKG).elc
+$(PKG)-gogs.elc:      $(PKG).elc
+$(PKG)-bitbucket.elc: $(PKG).elc
+$(PKG)-semi.elc:      $(PKG).elc
+$(PKG)-commands.elc:  $(PKG).elc
+$(PKG)-list.elc:      $(PKG).elc
+
 %.elc: %.el
 	@printf "Compiling $<\n"
 	@$(EMACS) -Q --batch $(EMACS_ARGS) $(LOAD_PATH) -f batch-byte-compile $<
