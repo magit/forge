@@ -100,6 +100,11 @@ This variable has to be customized before `forge' is loaded."
   "Whether to display topics in the current Magit status buffer.")
 (put 'forge-display-in-status-buffer 'permanent-local t)
 
+(defvar forge-format-avatar-function nil
+  "Function used to insert avatars in certain locations.
+This is experimental and intended for users who wish to
+implement such a function themselves.  See #447.")
+
 ;;; Faces
 
 (defface forge-topic-unread
@@ -431,7 +436,8 @@ identifier."
             (let ((heading
                    (format-spec
                     forge-post-heading-format
-                    `((?a . ,(propertize (or author "(ghost)")
+                    `((?a . ,(propertize (concat (forge--format-avatar author)
+                                                 (or author "(ghost)"))
                                          'font-lock-face 'forge-post-author))
                       (?c . ,(propertize created 'font-lock-face 'forge-post-date))
                       (?C . ,(propertize (apply #'format "%s %s ago"
@@ -624,7 +630,9 @@ Return a value between 0 and 1."
     (insert (format "%-11s" "Assignees: "))
     (if-let ((assignees (closql--iref topic 'assignees)))
         (insert (mapconcat (pcase-lambda (`(,login ,name))
-                             (format "%s (@%s)" name login))
+                             (format "%s%s (@%s)"
+                                     (forge--format-avatar login)
+                                     name login))
                            assignees ", "))
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
@@ -642,7 +650,9 @@ Return a value between 0 and 1."
       (insert (format "%-11s" "Review-Requests: "))
       (if-let ((review-requests (closql--iref topic 'review-requests)))
           (insert (mapconcat (pcase-lambda (`(,login ,name))
-                               (format "%s (@%s)" name login))
+                               (format "%s%s (@%s)"
+                                       (forge--format-avatar login)
+                                       name login))
                              review-requests ", "))
         (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
       (insert ?\n))))
@@ -672,6 +682,11 @@ Return a value between 0 and 1."
               host
               (and (not (string-prefix-p "/" file)) "/")
               file))))
+
+(defun forge--format-avatar (author)
+  (if forge-format-avatar-function
+      (funcall forge-format-avatar-function author)
+    ""))
 
 ;;; Completion
 
