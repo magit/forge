@@ -7,13 +7,12 @@ loaddefs: $(PKG)-autoloads.el
 
 %.elc: %.el
 	@printf "Compiling $<\n"
-	@$(EMACS) -Q --batch $(EMACS_ARGS) \
-	$(LOAD_PATH) --funcall batch-byte-compile $<
+	@$(EMACS) -Q --batch $(EMACS_ARGS) $(LOAD_PATH) -f batch-byte-compile $<
 
-CLEAN  = $(ELCS) $(PKG)-autoloads.el
+CLEAN = $(ELCS) $(PKG)-autoloads.el
 
 clean:
-	@printf "Cleaning...\n"
+	@printf "Cleaning lisp/*...\n"
 	@rm -rf $(CLEAN)
 
 define LOADDEFS_TMPL

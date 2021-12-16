@@ -101,4 +101,5 @@ release: html html-dir pdf
 CLEAN = $(PKG).info dir $(PKG) $(PKG).html $(PKG).pdf
 
 clean:
+	@printf "Cleaning docs/*...\n"
 	@rm -rf $(CLEAN)
