@@ -36,6 +36,9 @@ DEPS += yaml
 DEPS += emacsql-libsqlite3
 DEPS += sqlite3
 
+DOMAIN      ?= magit.vc
+CFRONT_DIST ?= E2LUHBKU1FBV02
+
 VERSION ?= $(shell test -e $(TOP).git && git describe --tags --abbrev=0 | cut -c2-)
 
 EMACS      ?= emacs
