@@ -944,12 +944,12 @@ modify `bug-reference-bug-regexp' if appropriate."
           (setq-local bug-reference-bug-regexp
                       (if (forge--childp repo 'forge-gitlab-repository)
                           "\\(?3:[!#]\\)\\(?2:[0-9]+\\)"
-                        "#\\(?2:[0-9]+\\)"))))
-      (if (derived-mode-p 'prog-mode)
-          (bug-reference-prog-mode 1)
-        (bug-reference-mode 1))
-      (add-hook 'completion-at-point-functions
-                'forge-topic-completion-at-point nil t))))
+                        "#\\(?2:[0-9]+\\)")))
+        (if (derived-mode-p 'prog-mode)
+            (bug-reference-prog-mode 1)
+          (bug-reference-mode 1))
+        (add-hook 'completion-at-point-functions
+                  'forge-topic-completion-at-point nil t)))))
 
 (when (and (not noninteractive) forge--sqlite-available-p)
   (dolist (hook forge-bug-reference-hooks)
