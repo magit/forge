@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version 0.3.0 (v0.3.0-29-gdd7e77be+1)
+@subtitle for version v0.3.0-33-g1675bdbf+1
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version 0.3.0 (v0.3.0-29-gdd7e77be+1).
+This manual is for Forge version v0.3.0-33-g1675bdbf+1.
 
 @quotation
 Copyright (C) 2018-2021 Jonas Bernoulli <jonas@@bernoul.li>
@@ -74,8 +74,7 @@ General Public License for more details.
 * Other Options::
 * FAQ::
 * Keystroke Index::
-* Command Index::
-* Function Index::
+* Function and Command Index::
 * Variable Index::
 
 @detailmenu
@@ -177,7 +176,6 @@ Forge uses the Github GraphQL API when possible but has to fall
 back to use the REST API in many cases because the former is still
 rather incomplete.
 
-
 @item
 Forge depends on the @code{updated_at} field being updated when
 appropriate.  For Github pull-requests at least, that is not always
@@ -210,10 +208,8 @@ expose those.
 @itemize
 @item
 @uref{https://gitlab.com}
-
 @item
 @uref{https://salsa.debian.org}
-
 @item
 @uref{https://framagit.org}
 @end itemize
@@ -263,13 +259,11 @@ less likely that I will every do it every time I look at it.
 The API documentation is poor and initial tests indicated that the
 implementation is buggy.
 
-
 @item
 Atlassian's offering contains two very distinct implementations
 that are both called "Bitbucket".  Forge only supports the
 implementation whose only instance is available at
 @uref{https://bitbucket.org}, because I only have access to that.
-
 
 @item
 Unlike all other forges, Bitbucket does not expose pull-requests
@@ -327,10 +321,8 @@ one for a particular installation.
 @itemize
 @item
 @uref{https://git.savannah.gnu.org/cgit}
-
 @item
 @uref{https://git.kernel.org}
-
 @item
 @uref{https://repo.or.cz}
 @end itemize
@@ -435,17 +427,14 @@ For Github these scopes are required.
 @item
 @code{repo} grants full read/write access to private and public
 repositories.
-
 @item
 @code{user} grants access to profile information.
-
 @item
 @code{read:org} grants read-only access to organization membership.
 @end itemize
 
 More information about these and other scopes can be found at
 @uref{https://docs.github.com/en/developers/apps/scopes-for-oauth-apps}.
-
 
 @item
 For Gitlab instances @code{api} is the only required scope.  It gives read
@@ -509,10 +498,9 @@ Forge about that by setting the Git variable @code{forge.remote} to the name
 that you instead use for upstream remotes.
 
 @table @asis
+@item @kbd{N r} (@code{forge-forge.remote})
 @kindex N r
-@cindex forge-forge.remote
-@item @kbd{N r} @tie{}@tie{}@tie{}@tie{}(@code{forge-forge.remote})
-
+@findex forge-forge.remote
 This command changes the value of the @code{forge.remote} Git variable in
 the current repository.
 @end table
@@ -537,14 +525,12 @@ it will occasionally have to be discarded.  That isn't such a huge
 deal because for now the database does not contain any information
 that cannot simply be fetched again, see @ref{Initial Pull}.
 
-
 @item
 Fetching is implemented under the assumption that the API can be
 asked to list the things that have changed since we last checked.
 Unfortunately the APIs are not bug-free, so this is not always the
 case.  If in doubt, then re-fetch an individual topic to ensure it
 is up-to-date using the command @code{forge-pull-topic}.
-
 
 @item
 Some other, forge-specific, caveats are mentioned in @ref{Supported Forges and Hosts}.
@@ -560,10 +546,9 @@ repository to the local database without pulling all the data, which
 is useful if you want to create a single pull-request.
 
 @table @asis
+@item @kbd{N a} (@code{forge-add-repository})
 @kindex N a
-@cindex forge-add-repository
-@item @kbd{N a} @tie{}@tie{}@tie{}@tie{}(@code{forge-add-repository})
-
+@findex forge-add-repository
 This command adds a repository to the database.
 
 It offers to either pull topics (now and in the future) or to only
@@ -575,10 +560,9 @@ these sections but other commands are also available elsewhere in
 Magit's status buffer and/or from Magit's transient commands.
 
 @table @asis
+@item @kbd{N} (@code{forge-dispatch})
 @kindex N
-@cindex forge-dispatch
-@item @kbd{N} @tie{}@tie{}@tie{}@tie{}(@code{forge-dispatch})
-
+@findex forge-dispatch
 This prefix command is available in any Magit buffer and provides
 access to several of the available Forge commands.  Most of these
 commands are also bound elsewhere, but some are not.  See the
@@ -605,13 +589,12 @@ data.  If option @code{magit-pull-or-fetch} is non-nil, then they are also
 available from the @code{magit-pull} transient (on @code{F}).
 
 @table @asis
+@item @kbd{f n} (@code{forge-pull})
 @kindex f n
-@cindex forge-pull
-@item @kbd{f n} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull})
-@kindex N f f
-@cindex forge-pull
-@item @kbd{N f f} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull})
+@findex forge-pull
 
+@item @kbd{N f f}
+@kindex N f f
 This command uses a forge's API to fetch topics and other
 information about the current repository and stores the fetched
 information in the database.  It also fetches notifications for all
@@ -622,13 +605,12 @@ After using this command for the first time in a given repository
 the status buffer for that repository always lists the pull-requests
 and issues.  See @ref{Initial Pull}.
 
+@item @kbd{f N} (@code{forge-pull-notifications})
 @kindex f N
-@cindex forge-pull-notifications
-@item @kbd{f N} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull-notifications})
-@kindex N f n
-@cindex forge-pull-notifications
-@item @kbd{N f n} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull-notifications})
+@findex forge-pull-notifications
 
+@item @kbd{N f n}
+@kindex N f n
 This command uses a forge's API to fetch all notifications from that
 forge including, but not limited to, the notifications for the current
 repository.
@@ -651,10 +633,9 @@ The same can happen with Git, e.g. you might attempt to merge a branch
 that you know exists but haven't actually pulled yet.
 
 @table @asis
+@item @kbd{N f t} (@code{forge-pull-topic})
 @kindex N f t
-@cindex forge-pull-topic
-@item @kbd{N f t} @tie{}@tie{}@tie{}@tie{}(@code{forge-pull-topic})
-
+@findex forge-pull-topic
 This command uses a forge's API to fetch a single pull-request and
 stores it in the database.
 
@@ -679,10 +660,9 @@ and check out branches and work trees in a more generic fashion
 (@code{magit-branch} on @code{b} and @code{magit-worktree} on @code{%}).
 
 @table @asis
+@item @kbd{b N} (@code{forge-branch-pullreq})
 @kindex b N
-@cindex forge-branch-pullreq
-@item @kbd{b N} @tie{}@tie{}@tie{}@tie{}(@code{forge-branch-pullreq})
-
+@findex forge-branch-pullreq
 This command creates and configures a new branch from a pull-request,
 creating and configuring a new remote if necessary.
 
@@ -699,19 +679,15 @@ These variables are always set by this command:
 @itemize
 @item
 @code{branch.<name>.pullRequest} is set to the pull-request number.
-
 @item
 @code{branch.<name>.pullRequestRemote} is set to the remote on which the
 pull-request branch is located.
-
 @item
 @code{branch.<name>.pushRemote} is set to the same remote as
 @code{branch.<name>.pullRequestRemote} if that is possible, otherwise
 it is set to the upstream remote.
-
 @item
 @code{branch.<name>.description} is set to the pull-request title.
-
 @item
 @code{branch.<name>.rebase} is set to @code{true} because there should be no
 merge commits among the commits in a pull-request.
@@ -745,7 +721,6 @@ However some users like to set that variable to their personal
 fork, even if they have push access to the upstream, so
 @code{branch.<name>.pushRemote} is set anyway.
 
-
 @item
 If the pull-request branch is located inside a fork, then you are
 usually able to push to that branch, because Github by default
@@ -758,7 +733,6 @@ contributor has to explicitly disable this.
 If you are not allowed to push to the pull-request branch on
 the fork, then a branch by the same name located in the
 upstream repository is configured as the push-target.
-
 
 @item
 A—sadly rather common—special case is when the contributor
@@ -774,7 +748,6 @@ To enable you to easily push somewhere anyway, the local branch
 is named "pr-N" (where @code{N} is the pull-request number) and the
 upstream repository is used as the push-remote.
 
-
 @item
 Finally, if you are allowed to push to the pull-request branch
 and the contributor had the foresight to use a dedicated branch,
@@ -788,18 +761,16 @@ the variable @code{branch.<name>.pullRequestRemote} is set to the remote
 on which the pull-request branch is located.
 @end itemize
 
+@item @kbd{b n} (@code{forge-checkout-pullreq})
 @kindex b n
-@cindex forge-checkout-pullreq
-@item @kbd{b n} @tie{}@tie{}@tie{}@tie{}(@code{forge-checkout-pullreq})
-
+@findex forge-checkout-pullreq
 This command creates and configures a new branch from a pull-request
 the same way @code{forge-branch-pullreq} does.  Additionally it checks out
 the new branch.
 
+@item @kbd{Z n} (@code{forge-checkout-worktree})
 @kindex Z n
-@cindex forge-checkout-worktree
-@item @kbd{Z n} @tie{}@tie{}@tie{}@tie{}(@code{forge-checkout-worktree})
-
+@findex forge-checkout-worktree
 This command creates and configures a new branch from a pull-request
 the same way @code{forge-branch-pullreq} does.  Additionally it checks out
 the new branch using a new working tree.
@@ -840,28 +811,27 @@ commands can also be used in other contexts, such as when point is
 on a commit or branch section.
 
 @table @asis
+@item @kbd{C-c C-w} (@code{forge-browse-TYPE})
+@itemx @kbd{C-c C-w} (@code{forge-browse-dwim})
+@itemx @kbd{N b I} (@code{forge-browse-issues})
+@itemx @kbd{N b P} (@code{forge-browse-pullreqs})
+@itemx @kbd{N b t} (@code{forge-browse-topic})
+@itemx @kbd{N b i} (@code{forge-browse-issue})
+@itemx @kbd{N b p} (@code{forge-browse-pullreq})
 @kindex C-c C-w
-@cindex forge-browse-TYPE
-@item @kbd{C-c C-w} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-TYPE})
 @kindex C-c C-w
-@cindex forge-browse-dwim
-@item @kbd{C-c C-w} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-dwim})
 @kindex N b I
-@cindex forge-browse-issues
-@item @kbd{N b I} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-issues})
 @kindex N b P
-@cindex forge-browse-pullreqs
-@item @kbd{N b P} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-pullreqs})
 @kindex N b t
-@cindex forge-browse-topic
-@item @kbd{N b t} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-topic})
 @kindex N b i
-@cindex forge-browse-issue
-@item @kbd{N b i} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-issue})
 @kindex N b p
-@cindex forge-browse-pullreq
-@item @kbd{N b p} @tie{}@tie{}@tie{}@tie{}(@code{forge-browse-pullreq})
-
+@findex forge-browse-TYPE
+@findex forge-browse-dwim
+@findex forge-browse-issues
+@findex forge-browse-pullreqs
+@findex forge-browse-topic
+@findex forge-browse-issue
+@findex forge-browse-pullreq
 These commands visit the topic, issue(s), pull-request(s), post,
 branch, commit, or remote at point in a browser.
 
@@ -871,22 +841,20 @@ defined in @code{magit-mode-map)}.  For commit sections this key is bound
 to @code{forge-browse-dwim}, which prefers a topic over a branch and a
 branch over a commit.
 
+@item @kbd{@key{RET}} (@code{forge-visit-TYPE})
+@itemx @kbd{C-c C-v} (@code{forge-visit-topic})
+@itemx @kbd{N v t} (@code{forge-visit-topic})
+@itemx @kbd{N v i} (@code{forge-visit-issue})
+@itemx @kbd{N v p} (@code{forge-visit-pullreq})
 @kindex RET
-@cindex forge-visit-TYPE
-@item @kbd{RET} @tie{}@tie{}@tie{}@tie{}(@code{forge-visit-TYPE})
 @kindex C-c C-v
-@cindex forge-visit-topic
-@item @kbd{C-c C-v} @tie{}@tie{}@tie{}@tie{}(@code{forge-visit-topic})
 @kindex N v t
-@cindex forge-visit-topic
-@item @kbd{N v t} @tie{}@tie{}@tie{}@tie{}(@code{forge-visit-topic})
 @kindex N v i
-@cindex forge-visit-issue
-@item @kbd{N v i} @tie{}@tie{}@tie{}@tie{}(@code{forge-visit-issue})
 @kindex N v p
-@cindex forge-visit-pullreq
-@item @kbd{N v p} @tie{}@tie{}@tie{}@tie{}(@code{forge-visit-pullreq})
-
+@findex forge-visit-TYPE
+@findex forge-visit-topic
+@findex forge-visit-issue
+@findex forge-visit-pullreq
 These commands visit the pull-request(s), issue(s), or repository in
 a separate buffer.
 
@@ -910,20 +878,15 @@ separate buffers.
 Forge adds the following two functions to @code{magit-status-sections-hook}:
 
 @defun forge-insert-pullreqs
-
 This function inserts a list of the most recent and/or open
 pull-requests.
 @end defun
 
 @defun forge-insert-issues
-
 This function inserts a list of the most recent and/or open issues.
 @end defun
 
-@itemize
-@item
-User Options: forge-topic-list-limit
-
+@defopt forge-topic-list-limit
 This option limits the number of topics listed by the above
 functions.
 
@@ -932,12 +895,9 @@ the form @code{(OPEN . CLOSED)}, then the integer @code{OPEN} specifies the
 maximal number of topics and @code{CLOSED} specifies the maximal number of
 closed topics.  IF @code{CLOSED} is negative then show no closed topics
 until the command @code{forge-toggle-closed-visibility} changes the sign.
+@end defopt
 
-@end itemize
-
-@cindex forge-toggle-closed-visibility
 @deffn Command forge-toggle-closed-visibility
-
 This command toggles whether the above two functions list recently
 closed issues in the current buffer.
 @end deffn
@@ -946,31 +906,26 @@ The following three functions are also suitable for
 @code{magit-status-sections-hook}:
 
 @defun forge-insert-assigned-pullreqs
-
 This function inserts a list of open pull-requests that are assigned
 to you.
 @end defun
 
 @defun forge-insert-requested-reviews
-
 This function inserts a list of open pull-requests that are awaiting
 your review.
 @end defun
 
 @defun forge-insert-authored-pullreqs
-
 This function inserts a list of open pull-requests that are authored
 by you.
 @end defun
 
 @defun forge-insert-assigned-issues
-
 This function inserts a list of open issues that are assigned to
 you.
 @end defun
 
 @defun forge-insert-authored-issues
-
 This function inserts a list of open issues that are authored by
 you.
 @end defun
@@ -979,95 +934,73 @@ The following commands list repositories, notifications and topics in
 dedicated buffers:
 
 @table @asis
+@item @kbd{N l r} (@code{forge-list-repositories})
 @kindex N l r
-@cindex forge-list-repositories
-@item @kbd{N l r} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-repositories})
-
+@findex forge-list-repositories
 This command lists all known repositories in a separate buffer.
 
+@item @kbd{N l n} (@code{forge-list-notifications})
 @kindex N l n
-@cindex forge-list-notifications
-@item @kbd{N l n} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-notifications})
-
+@findex forge-list-notifications
 This command lists all notifications for all forges in a separate
 buffer.
 
+@item @kbd{N l p} (@code{forge-list-pullreqs})
 @kindex N l p
-@cindex forge-list-pullreqs
-@item @kbd{N l p} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-pullreqs})
+@findex forge-list-pullreqs
 This command lists the current repository's pull-requests in a
 separate buffer.
 
+@item @kbd{N l i} (@code{forge-list-issues})
 @kindex N l i
-@cindex forge-list-issues
-@item @kbd{N l i} @tie{}@tie{}@tie{}@tie{}(@code{forge-list-issues})
-
+@findex forge-list-issues
 This command lists the current repository's issues in a separate
 buffer.
-
 @end table
 
-@cindex forge-list-labeled-pullreqs
 @deffn Command forge-list-labeled-pullreqs
-
 This command lists the current repository's open pull-requests that
 are labeled with a label read from the user.
 @end deffn
 
-@cindex forge-list-labeled-issues
 @deffn Command forge-list-labeled-issues
-
 This command lists the current repository's open issues that are
 labeled with a label read from the user.
 @end deffn
 
-@cindex forge-list-assigned-pullreqs
 @deffn Command forge-list-assigned-pullreqs
-
 This command lists the current repository's open pull-requests that
 are assigned to you in a separate buffer.
 @end deffn
 
-@cindex forge-list-assigned-issues
 @deffn Command forge-list-assigned-issues
-
 This command lists the current repository's open issues that are
 assigned to you in a separate buffer.
 @end deffn
 
-@cindex forge-list-requested-reviews
 @deffn Command forge-list-requested-reviews
-
 This command lists pull-requests of the current repository that are
 awaiting your review in a separate buffer.
 @end deffn
 
-@cindex forge-list-authored-pullreqs
 @deffn Command forge-list-authored-pullreqs
-
 This command lists the current repository's open pull-requests that
 are authored by you in a separate buffer.
 @end deffn
 
-@cindex forge-list-authored-issues
 @deffn Command forge-list-authored-issues
-
 This command lists the current repository's open issues that are
 authored by you in a separate buffer.
 @end deffn
 
-@cindex forge-list-owned-pullreqs
 @deffn Command forge-list-owned-pullreqs
-
 This command lists open pull-requests from all the repositories that
 you own.  Options @code{forge-owned-accounts} and @code{forge-owned-ignored}
 controls which repositories are considered to be owned by you.  Only
 Github is supported for now.
 @end deffn
 
-@cindex forge-list-owned-issues
 @deffn Command forge-list-owned-issues
-
 This command lists open issues from all the repositories that
 you own.  Options @code{forge-owned-accounts} and @code{forge-owned-ignored}
 controls which repositories are considered to be owned by you.  Only
@@ -1075,7 +1008,6 @@ Github is supported for now.
 @end deffn
 
 @defopt forge-owned-accounts
-
 This is an alist of accounts that are owned by you.  This should
 include your username as well as any organization that you own.
 Used by the commands @code{forge-list-owned-issues},
@@ -1095,7 +1027,6 @@ Example: @code{(("tarsius") ("emacsmirror" :remote-name "mirror"))}.
 @end defopt
 
 @defopt forge-owned-ignored
-
 This is a list of repository names that are considered to not be
 owned by you even though they would have been considered to be owned
 by you based on @code{forge-owned-accounts}.
@@ -1105,22 +1036,20 @@ by you based on @code{forge-owned-accounts}.
 @subsection Creating Topics
 
 @table @asis
+@item @kbd{N c p} (@code{forge-create-pullreq})
 @kindex N c p
-@cindex forge-create-pullreq
-@item @kbd{N c p} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
-@kindex C-c C-n [on "Pull requests" section]
-@cindex forge-create-pullreq
-@item @kbd{C-c C-n [on "Pull requests" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-pullreq})
+@findex forge-create-pullreq
 
+@item @kbd{C-c C-n [on "Pull requests" section]}
+@kindex C-c C-n [on "Pull requests" section]
 This command creates a new pull-request for the current repository.
 
+@item @kbd{N c i} (@code{forge-create-issue})
 @kindex N c i
-@cindex forge-create-issue
-@item @kbd{N c i} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-issue})
-@kindex C-c C-n [on "Issues" section]
-@cindex forge-create-issue
-@item @kbd{C-c C-n [on "Issues" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-issue})
+@findex forge-create-issue
 
+@item @kbd{C-c C-n [on "Issues" section]}
+@kindex C-c C-n [on "Issues" section]
 This command creates a new issue for the current repository.
 @end table
 
@@ -1137,13 +1066,12 @@ work in other buffers are available here also.  For example @code{C-c C-w} on
 a post visits that post in a browser.
 
 @table @asis
+@item @kbd{C-c C-n} (@code{forge-create-post})
 @kindex C-c C-n
-@cindex forge-create-post
-@item @kbd{C-c C-n} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-post})
-@kindex C-c C-r
-@cindex forge-create-post
-@item @kbd{C-c C-r} @tie{}@tie{}@tie{}@tie{}(@code{forge-create-post})
+@findex forge-create-post
 
+@item @kbd{C-c C-r}
+@kindex C-c C-r
 This command allows users to create a new post on an existing topic.
 It opens a buffer in which the user can write the post.  When the
 post is done, then the user has to submit using @code{C-c C-c}.
@@ -1152,39 +1080,34 @@ If the region is active and marks part of an existing post, then
 that part of the post is quoted.  Otherwise, or if a prefix argument
 is used, then the complete post that point is currently on is quoted.
 
+@item @kbd{C-c C-e [on a post section]} (@code{forge-edit-post})
 @kindex C-c C-e [on a post section]
-@cindex forge-edit-post
-@item @kbd{C-c C-e [on a post section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-post})
-
+@findex forge-edit-post
 This command visits an existing post in a separate buffer.  When the
 changes to the post are done, then the user has to submit using @code{C-c
   C-c}.
 
+@item @kbd{C-c C-e [on "Title" section]} (@code{forge-edit-topic-title})
 @kindex C-c C-e [on "Title" section]
-@cindex forge-edit-topic-title
-@item @kbd{C-c C-e [on "Title" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-title})
-
+@findex forge-edit-topic-title
 This command reads a new title for an existing topic in the
 minibuffer.
 
+@item @kbd{C-c C-e [on "State" section]} (@code{forge-edit-topic-state})
 @kindex C-c C-e [on "State" section]
-@cindex forge-edit-topic-state
-@item @kbd{C-c C-e [on "State" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-state})
-
+@findex forge-edit-topic-state
 This command toggles the state of an existing topic between "open"
 and "closed".
 
+@item @kbd{C-c C-e [on "Labels" section]} (@code{forge-edit-topic-labels})
 @kindex C-c C-e [on "Labels" section]
-@cindex forge-edit-topic-labels
-@item @kbd{C-c C-e [on "Labels" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-labels})
-
+@findex forge-edit-topic-labels
 This command reads a list of labels for an existing topic in the
 minibuffer.
 
+@item @kbd{C-c C-e [on "Marks" section]} (@code{forge-edit-topic-marks})
 @kindex C-c C-e [on "Marks" section]
-@cindex forge-edit-topic-marks
-@item @kbd{C-c C-e [on "Marks" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-marks})
-
+@findex forge-edit-topic-marks
 This command reads a list of marks for an existing topic in the
 minibuffer.
 
@@ -1193,42 +1116,36 @@ else.  To create a mark that topics can subsequently be marked with
 use the command @code{forge-create-mark}.  Existing marks can be edited
 using the command @code{forge-edit-mark}.
 
+@item @kbd{C-c C-e [on "Assignees" section]} (@code{forge-edit-topic-assignees})
 @kindex C-c C-e [on "Assignees" section]
-@cindex forge-edit-topic-assignees
-@item @kbd{C-c C-e [on "Assignees" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-assignees})
-
+@findex forge-edit-topic-assignees
 This command reads a list of assignees for an existing topic in the
 minibuffer.
 
+@item @kbd{C-c C-e [on "Review-Requests" section]} (@code{forge-edit-topic-review-requests})
 @kindex C-c C-e [on "Review-Requests" section]
-@cindex forge-edit-topic-review-requests
-@item @kbd{C-c C-e [on "Review-Requests" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-review-requests})
-
+@findex forge-edit-topic-review-requests
 This command reads a list of people who you would like to review an
 existing topic in the minibuffer.
 
+@item @kbd{C-c C-e [on "Note" section]}
 @kindex C-c C-e [on "Note" section]
-@cindex forge-edit-topic-note
-@item @kbd{C-c C-e [on "Note" section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-note})
-@kindex M-x forge-edit-topic-note
-@cindex forge-edit-topic-note
-@item @kbd{M-x forge-edit-topic-note} @tie{}@tie{}@tie{}@tie{}(@code{forge-edit-topic-note})
 
+@item @kbd{M-x forge-edit-topic-note}
+@findex forge-edit-topic-note
 This lets you edit your private note about a topic.
 
+@item @kbd{C-c C-k [on a comment section]} (@code{forge-delete-comment})
 @kindex C-c C-k [on a comment section]
-@cindex forge-delete-comment
-@item @kbd{C-c C-k [on a comment section]} @tie{}@tie{}@tie{}@tie{}(@code{forge-delete-comment})
-
+@findex forge-delete-comment
 This command deletes the comment at point.
 
+@item @kbd{m M [if enabled]} (@code{forge-merge})
 @kindex m M [if enabled]
-@cindex forge-merge
-@item @kbd{m M [if enabled]} @tie{}@tie{}@tie{}@tie{}(@code{forge-merge})
-@kindex N M [if enabled]
-@cindex forge-merge
-@item @kbd{N M [if enabled]} @tie{}@tie{}@tie{}@tie{}(@code{forge-merge})
+@findex forge-merge
 
+@item @kbd{N M [if enabled]}
+@kindex N M [if enabled]
 This command merges the current pull-request using the forge's API@.
 If there is no current pull-request or with a prefix argument, then
 it reads a pull-request to visit instead.
@@ -1249,17 +1166,15 @@ the process has to be finished or canceled using a separate command.
 The following commands are available in buffers used to edit posts:
 
 @table @asis
+@item @kbd{C-c C-c} (@code{forge-post-submit})
 @kindex C-c C-c
-@cindex forge-post-submit
-@item @kbd{C-c C-c} @tie{}@tie{}@tie{}@tie{}(@code{forge-post-submit})
-
+@findex forge-post-submit
 This command submits the post that is being edited in the current
 buffer.
 
+@item @kbd{C-c C-k} (@code{forge-post-cancel})
 @kindex C-c C-k
-@cindex forge-post-cancel
-@item @kbd{C-c C-k} @tie{}@tie{}@tie{}@tie{}(@code{forge-post-cancel})
-
+@findex forge-post-cancel
 This command cancels the post that is being edited in the current
 buffer.
 @end table
@@ -1268,10 +1183,9 @@ buffer.
 @section Miscellaneous
 
 @table @asis
+@item @kbd{N c f} (@code{forge-fork})
 @kindex N c f
-@cindex forge-fork
-@item @kbd{N c f} @tie{}@tie{}@tie{}@tie{}(@code{forge-fork})
-
+@findex forge-fork
 This command adds an additional remote to the current repository.
 The remote can either point at an existing repository or one that
 has to be created first by forking it to an account the user has
@@ -1279,10 +1193,9 @@ access to.
 
 Currently this only supports Github and Gitlab.
 
+@item @kbd{N a} (@code{forge-add-repository})
 @kindex N a
-@cindex forge-add-repository
-@item @kbd{N a} @tie{}@tie{}@tie{}@tie{}(@code{forge-add-repository})
-
+@findex forge-add-repository
 This command reads a repository from the user and adds it to the
 database.  The repository can be provided as a URL, a name, or in
 the form OWNER/NAME@.  This is subject to @code{magit-clone-name-alist}.
@@ -1291,50 +1204,39 @@ This command offers to either pull topics (now and in the future) or
 to only pull individual topics when the user invokes
 @code{forge-pull-topic}.
 
+@item @kbd{N t t} (@code{forge-toggle-display-in-status-buffer})
 @kindex N t t
-@cindex forge-toggle-display-in-status-buffer
-@item @kbd{N t t} @tie{}@tie{}@tie{}@tie{}(@code{forge-toggle-display-in-status-buffer})
-
+@findex forge-toggle-display-in-status-buffer
 This command toggles whether any topics are displayed in the current
 Magit status buffer.
 
+@item @kbd{N t c} (@code{forge-toggle-closed-visibility})
 @kindex N t c
-@cindex forge-toggle-closed-visibility
-@item @kbd{N t c} @tie{}@tie{}@tie{}@tie{}(@code{forge-toggle-closed-visibility})
-
+@findex forge-toggle-closed-visibility
 This command toggles whether closed topics are shown in the Magit
 status buffer.
-
 @end table
 
-@cindex forge-add-user-repositories
 @deffn Command forge-add-user-repositories
-
 This command reads a host and a username from the user and adds all
 of that user's repositories on that host to the local database.
 
 This may take a while. Only Github is supported at the moment.
 @end deffn
 
-@cindex forge-add-organization-repositories
 @deffn Command forge-add-organization-repositories
-
 This command reads a host and an organization from the user and adds
 all the organization's repositories on that host to the local database.
 
 This may take a while. Only Github is supported at the moment.
 @end deffn
 
-@cindex forge-remove-repository
 @deffn Command forge-remove-repository
-
 This command reads a repository and removes it from the local
 database.
 @end deffn
 
-@cindex forge-remove-topic-locally
 @deffn Command forge-remove-topic-locally
-
 This command reads a topic and removes it from the local database.
 The topic is not removed from the forge and, if it is later modified,
 then it will be added to the database again.
@@ -1345,9 +1247,7 @@ from the forge.  The only purpose of this command is to allow you to
 manually clean up the local database.
 @end deffn
 
-@cindex forge-reset-database
 @deffn Command forge-reset-database
-
 This command moves the current database file to the trash and
 creates a new empty database.
 
@@ -1360,7 +1260,6 @@ under heavy development.
 @chapter Other Options
 
 @defopt forge-database-connector
-
 This option controls which database connector is used by Forge.
 
 This must be set before @code{forge} is loaded.  To use an alternative
@@ -1371,12 +1270,10 @@ connector you must install the respective package explicitly.
 When @code{sqlite}, then use the @code{emacsql-sqlite} library that is
 being maintained in the same repository as @code{emacsql} itself.
 
-
 @item
 When @code{libsqlite3}, then use the @code{emacsql-libsqlite} library,
 which itself uses a module provided by the @code{sqlite3} package.
 This is still experimental.
-
 
 @item
 When @code{sqlite3}, then use the @code{emacsql-sqlite3} library, which
@@ -1454,13 +1351,8 @@ This was also discussed in @uref{https://github.com/magit/forge/issues/20} and
 
 @printindex ky
 
-@node Command Index
-@appendix Command Index
-
-@printindex cp
-
-@node Function Index
-@appendix Function Index
+@node Function and Command Index
+@appendix Function and Command Index
 
 @printindex fn
 
