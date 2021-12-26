@@ -3,18 +3,13 @@
 #+author: Jonas Bernoulli
 #+email: jonas@bernoul.li
 #+date: 2018-{{{year}}}
-#+language: en
 
 #+texinfo_dir_category: Emacs
 #+texinfo_dir_title: Forge: (forge).
 #+texinfo_dir_desc: Access Git Forges from Magit
 #+subtitle: for version {{{version}}}
 
-#+texinfo_deffn: t
-#+options: H:4 num:4 toc:2
-#+property: header-args :eval never
-#+macro: version (eval (ox-texinfo+-get-version 'mixed))
-#+macro: year (eval (format-time-string "%Y"))
+#+setupfile: .orgconfig
 
 Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
