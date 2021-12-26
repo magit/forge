@@ -1,28 +1,28 @@
-#+TITLE: Forge User and Developer Manual
+#+title: Forge User and Developer Manual
 :PREAMBLE:
-#+AUTHOR: Jonas Bernoulli
-#+EMAIL: jonas@bernoul.li
-#+DATE: 2018-{{{year}}}
-#+LANGUAGE: en
+#+author: Jonas Bernoulli
+#+email: jonas@bernoul.li
+#+date: 2018-{{{year}}}
+#+language: en
 
-#+TEXINFO_DIR_CATEGORY: Emacs
-#+TEXINFO_DIR_TITLE: Forge: (forge).
-#+TEXINFO_DIR_DESC: Access Git Forges from Magit
-#+SUBTITLE: for version {{{version}}}
+#+texinfo_dir_category: Emacs
+#+texinfo_dir_title: Forge: (forge).
+#+texinfo_dir_desc: Access Git Forges from Magit
+#+subtitle: for version {{{version}}}
 
-#+TEXINFO_DEFFN: t
-#+OPTIONS: H:4 num:4 toc:2
-#+PROPERTY: header-args :eval never
-#+MACRO: version (eval (ox-texinfo+-get-version 'mixed))
-#+MACRO: year (eval (format-time-string "%Y"))
+#+texinfo_deffn: t
+#+options: H:4 num:4 toc:2
+#+property: header-args :eval never
+#+macro: version (eval (ox-texinfo+-get-version 'mixed))
+#+macro: year (eval (format-time-string "%Y"))
 
 Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
-#+TEXINFO: @noindent
+#+texinfo: @noindent
 This manual is for Forge version {{{version}}}.
 
-#+BEGIN_QUOTE
+#+begin_quote
 Copyright (C) 2018-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
@@ -34,7 +34,7 @@ This document is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
-#+END_QUOTE
+#+end_quote
 :END:
 * Introduction
 
@@ -238,17 +238,17 @@ here and make sure to read the subsections.
 Loading Magit doesn't cause Forge to be loaded automatically.  Adding
 something like this to your init file takes care of this:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (with-eval-after-load 'magit
     (require 'forge))
-#+END_SRC
+#+end_src
 
 Or if you use ~use-package~:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   (use-package forge
     :after magit)
-#+END_SRC
+#+end_src
 
 ** Token Creation
 
@@ -986,7 +986,7 @@ database without also fetching all pull-requests and issues.
 This is a frequently occuring error.  Adding some formatting the full
 error is:
 
-#+BEGIN_SRC emacs-lisp
+#+begin_src emacs-lisp
   error in process filter: ghub--signal-error: HTTP Error: 502,
     "Bad gateway", "/graphql",
     ((data . "null")
@@ -994,7 +994,7 @@ error is:
         This may be the result of a timeout, or it could be a GitHub bug.
         Please include `CC2C:4FEA:A1771C1:CBF40CE:5C33F7E5`
         when reporting this issue."))))
-#+END_SRC
+#+end_src
 
 This indicates that something went wrong within Github's network.  See
 https://en.wikipedia.org/wiki/List_of_HTTP_status_codes#5xx_server_errors.
@@ -1054,7 +1054,7 @@ https://github.com/magit/ghub/issues/83.
 :COPYING:    t
 :END:
 
-#+BEGIN_QUOTE
+#+begin_quote
 Copyright (C) 2018-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
 
 You can redistribute this document and/or modify it under the terms
@@ -1066,7 +1066,7 @@ This document is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 General Public License for more details.
-#+END_QUOTE
+#+end_quote
 
 # IMPORTANT: Also update ORG_ARGS and ORG_EVAL in the Makefile.
 # Local Variables:
