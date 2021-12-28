@@ -116,9 +116,9 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
     '("n" "pull-request worktree" forge-checkout-worktree))
 
   (transient-append-suffix 'magit-status-jump "w"
-    '("Np" "pull-requests" forge-jump-to-pullreqs))
+    '("Np" "Pull requests" forge-jump-to-pullreqs))
   (transient-append-suffix 'magit-status-jump "Np"
-    '("Ni" "issues" forge-jump-to-issues))
+    '("Ni" "Issues" forge-jump-to-issues))
 
   (transient-append-suffix 'magit-merge "a"
     '(7 "M" "Merge using API" forge-merge)))
