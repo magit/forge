@@ -365,6 +365,8 @@ identifier."
     (define-key map (kbd "C-c C-n") 'forge-create-post)
     (define-key map (kbd "C-c C-r") 'forge-create-post)
     (define-key map [remap magit-browse-thing] 'forge-browse-topic)
+    (define-key map [remap magit-visit-thing] 'markdown-follow-link-at-point)
+    (define-key map [mouse-2] 'markdown-follow-link-at-point)
     map))
 
 (define-derived-mode forge-topic-mode magit-mode "View Topic"
