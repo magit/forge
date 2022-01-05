@@ -393,7 +393,7 @@ data.  If option ~magit-pull-or-fetch~ is non-nil, then they are also
 available from the ~magit-pull~ transient (on ~F~).
 
 - Key: f n (forge-pull) ::
-- Key: N f f ::
++ Key: N f f ::
 
   This command uses a forge's API to fetch topics and other
   information about the current repository and stores the fetched
@@ -406,7 +406,7 @@ available from the ~magit-pull~ transient (on ~F~).
   and issues.  See [[*Initial Pull]].
 
 - Key: f N (forge-pull-notifications) ::
-- Key: N f n ::
++ Key: N f n ::
 
   This command uses a forge's API to fetch all notifications from that
   forge including, but not limited to, the notifications for the current
@@ -763,12 +763,12 @@ dedicated buffers:
 *** Creating Topics
 
 - Key: N c p (forge-create-pullreq) ::
-- Key: C-c C-n [on "Pull requests" section] ::
++ Key: C-c C-n [on "Pull requests" section] ::
 
   This command creates a new pull-request for the current repository.
 
 - Key: N c i (forge-create-issue) ::
-- Key: C-c C-n [on "Issues" section] ::
++ Key: C-c C-n [on "Issues" section] ::
 
   This command creates a new issue for the current repository.
 
@@ -784,7 +784,7 @@ work in other buffers are available here also.  For example ~C-c C-w~ on
 a post visits that post in a browser.
 
 - Key: C-c C-n (forge-create-post) ::
-- Key: C-c C-r ::
++ Key: C-c C-r ::
 
   This command allows users to create a new post on an existing topic.
   It opens a buffer in which the user can write the post.  When the
@@ -836,7 +836,7 @@ a post visits that post in a browser.
   existing topic in the minibuffer.
 
 - Key: C-c C-e [on "Note" section] ::
-- Key: M-x forge-edit-topic-note ::
++ Key: M-x forge-edit-topic-note ::
 
   This lets you edit your private note about a topic.
 
@@ -845,7 +845,7 @@ a post visits that post in a browser.
   This command deletes the comment at point.
 
 - Key: m M [if enabled] (forge-merge) ::
-- Key: N M [if enabled] ::
++ Key: N M [if enabled] ::
 
   This command merges the current pull-request using the forge's API.
   If there is no current pull-request or with a prefix argument, then

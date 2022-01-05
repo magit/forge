@@ -31,7 +31,7 @@ General Public License for more details.
 @finalout
 @titlepage
 @title Forge User and Developer Manual
-@subtitle for version v0.3.0-35-gf0914204+1
+@subtitle for version v0.3.0-37-ga44afa81+1
 @author Jonas Bernoulli
 @page
 @vskip 0pt plus 1filll
@@ -48,7 +48,7 @@ Forge allows you to work with Git forges, such as Github and Gitlab,
 from the comfort of Magit and the rest of Emacs.
 
 @noindent
-This manual is for Forge version v0.3.0-35-gf0914204+1.
+This manual is for Forge version v0.3.0-37-ga44afa81+1.
 
 @quotation
 Copyright (C) 2018-2022 Jonas Bernoulli <jonas@@bernoul.li>
@@ -590,11 +590,10 @@ available from the @code{magit-pull} transient (on @code{F}).
 
 @table @asis
 @item @kbd{f n} (@code{forge-pull})
+@itemx @kbd{N f f}
 @kindex f n
-@findex forge-pull
-
-@item @kbd{N f f}
 @kindex N f f
+@findex forge-pull
 This command uses a forge's API to fetch topics and other
 information about the current repository and stores the fetched
 information in the database.  It also fetches notifications for all
@@ -606,11 +605,10 @@ the status buffer for that repository always lists the pull-requests
 and issues.  See @ref{Initial Pull}.
 
 @item @kbd{f N} (@code{forge-pull-notifications})
+@itemx @kbd{N f n}
 @kindex f N
-@findex forge-pull-notifications
-
-@item @kbd{N f n}
 @kindex N f n
+@findex forge-pull-notifications
 This command uses a forge's API to fetch all notifications from that
 forge including, but not limited to, the notifications for the current
 repository.
@@ -1037,19 +1035,17 @@ by you based on @code{forge-owned-accounts}.
 
 @table @asis
 @item @kbd{N c p} (@code{forge-create-pullreq})
+@itemx @kbd{C-c C-n [on "Pull requests" section]}
 @kindex N c p
-@findex forge-create-pullreq
-
-@item @kbd{C-c C-n [on "Pull requests" section]}
 @kindex C-c C-n [on "Pull requests" section]
+@findex forge-create-pullreq
 This command creates a new pull-request for the current repository.
 
 @item @kbd{N c i} (@code{forge-create-issue})
+@itemx @kbd{C-c C-n [on "Issues" section]}
 @kindex N c i
-@findex forge-create-issue
-
-@item @kbd{C-c C-n [on "Issues" section]}
 @kindex C-c C-n [on "Issues" section]
+@findex forge-create-issue
 This command creates a new issue for the current repository.
 @end table
 
@@ -1067,11 +1063,10 @@ a post visits that post in a browser.
 
 @table @asis
 @item @kbd{C-c C-n} (@code{forge-create-post})
+@itemx @kbd{C-c C-r}
 @kindex C-c C-n
-@findex forge-create-post
-
-@item @kbd{C-c C-r}
 @kindex C-c C-r
+@findex forge-create-post
 This command allows users to create a new post on an existing topic.
 It opens a buffer in which the user can write the post.  When the
 post is done, then the user has to submit using @code{C-c C-c}.
@@ -1129,9 +1124,8 @@ This command reads a list of people who you would like to review an
 existing topic in the minibuffer.
 
 @item @kbd{C-c C-e [on "Note" section]}
+@itemx @kbd{M-x forge-edit-topic-note}
 @kindex C-c C-e [on "Note" section]
-
-@item @kbd{M-x forge-edit-topic-note}
 @findex forge-edit-topic-note
 This lets you edit your private note about a topic.
 
@@ -1141,11 +1135,10 @@ This lets you edit your private note about a topic.
 This command deletes the comment at point.
 
 @item @kbd{m M [if enabled]} (@code{forge-merge})
+@itemx @kbd{N M [if enabled]}
 @kindex m M [if enabled]
-@findex forge-merge
-
-@item @kbd{N M [if enabled]}
 @kindex N M [if enabled]
+@findex forge-merge
 This command merges the current pull-request using the forge's API@.
 If there is no current pull-request or with a prefix argument, then
 it reads a pull-request to visit instead.
