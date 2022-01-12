@@ -71,7 +71,7 @@ See https://nullprogram.com/blog/2014/02/06/."
 ;;; Core
 
 (declare-function forge-database--eieio-childp "forge-db.el" (obj) t)
-(cl-case forge-database-connector
+(cl-ecase forge-database-connector
   (sqlite
    (defclass forge-database (emacsql-sqlite-connection closql-database)
      ((object-class :initform 'forge-repository))))
