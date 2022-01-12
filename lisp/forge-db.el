@@ -46,9 +46,15 @@ connector you must install the respective package explicitly.
 When `sqlite', then use the `emacsql-sqlite' library that is
 being maintained in the same repository as `emacsql' itself.
 
+When `sqlite-builtin', then use the builtin support in Emacs 29.
+When `sqlite-module', then use a module provided by the `sqlite3'
+package.  These two backends are experimental.
+See https://github.com/skeeto/emacsql/pull/86.
+
 When `libsqlite3', then use the `emacsql-libsqlite' library,
 which itself uses a module provided by the `sqlite3' package.
-This is still experimental.
+This is still experimental and likely to be deprecated in
+favor of `sqlite-module'.
 
 When `sqlite3', then use the `emacsql-sqlite3' library, which
 uses the official `sqlite3' command-line tool, which I do not
@@ -58,7 +64,10 @@ See https://nullprogram.com/blog/2014/02/06/."
   :package-version '(forge . "0.3.0")
   :group 'forge
   :type '(choice (const sqlite)
+                 (const sqlite-builtin)
+                 (const sqlite-module)
                  (const libsqlite3)
+                 (const sqlite3)
                  (symbol :tag "other")))
 
 (defcustom forge-database-file
@@ -75,6 +84,16 @@ See https://nullprogram.com/blog/2014/02/06/."
   (sqlite
    (defclass forge-database (emacsql-sqlite-connection closql-database)
      ((object-class :initform 'forge-repository))))
+  (sqlite-builtin
+   (require (quote emacsql-sqlite-builtin))
+   (with-no-warnings
+     (defclass forge-database (emacsql-sqlite-builtin-connection closql-database)
+       ((object-class :initform 'epkg-package)))))
+  (sqlite-module
+   (require (quote emacsql-sqlite-module))
+   (with-no-warnings
+     (defclass forge-database (emacsql-sqlite-module-connection closql-database)
+       ((object-class :initform 'epkg-package)))))
   (libsqlite3
    (require (quote emacsql-libsqlite3))
    (with-no-warnings
