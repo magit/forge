@@ -392,7 +392,6 @@ transient prefix command (~magit-fetch~ on ~f~) that is used to fetch Git
 data.  If option ~magit-pull-or-fetch~ is non-nil, then they are also
 available from the ~magit-pull~ transient (on ~F~).
 
-#+attr_texinfo: :compact t
 - Key: f n (forge-pull) ::
 - Key: N f f ::
 
@@ -580,7 +579,6 @@ Forge provides some commands that act on the listed topics.  These
 commands can also be used in other contexts, such as when point is
 on a commit or branch section.
 
-#+attr_texinfo: :compact t
 - Key: C-c C-w (forge-browse-TYPE) ::
 - Key: C-c C-w (forge-browse-dwim) ::
 - Key: N b I (forge-browse-issues) ::
@@ -771,7 +769,6 @@ dedicated buffers:
 
 *** Creating Topics
 
-#+attr_texinfo: :compact t
 - Key: N c p (forge-create-pullreq) ::
 - Key: C-c C-n [on "Pull requests" section] ::
 
@@ -793,7 +790,6 @@ buffer that shows the posts on a topic).  Other commands that also
 work in other buffers are available here also.  For example ~C-c C-w~ on
 a post visits that post in a browser.
 
-#+attr_texinfo: :compact t
 - Key: C-c C-n (forge-create-post) ::
 - Key: C-c C-r ::
 
