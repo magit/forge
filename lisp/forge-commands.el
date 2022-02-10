@@ -43,6 +43,14 @@ for a repository using the command `forge-add-pullreq-refspec'."
                  (const :tag "Ask every time" ask)
                  (const :tag "Never add refspec" nil)))
 
+(defcustom forge-checkout-worktree-read-directory-function
+  'forge-checkout-worktree-default-read-directory-function
+  "Function used by `forge-checkout-worktree' to read worktree directory.
+Takes the pull-request as only argument and must return a directory."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type 'function)
+
 ;;; Dispatch
 
 ;;;###autoload (autoload 'forge-dispatch "forge-commands" nil t)
@@ -739,21 +747,10 @@ This is like `forge-checkout-pullreq', except that it also
 creates a new worktree. Please see the manual for more
 information."
   (interactive
-   (let* ((id (forge-read-pullreq "Checkout pull request" t))
-          (pullreq (forge-get-pullreq id)))
-     (with-slots (number head-ref) pullreq
-       (let ((path (read-directory-name
-                    (format "Checkout #%s in new worktree: " number)
-                    (file-name-directory
-                     (directory-file-name default-directory))
-                    nil nil
-                    (let ((branch (forge--pullreq-branch-internal pullreq)))
-                      (if (string-match-p "\\`pr-[0-9]+\\'" branch)
-                          (number-to-string number)
-                        (format "%s-%s" number head-ref))))))
-         (when (equal path "")
-           (user-error "The empty string isn't a valid path"))
-         (list path id)))))
+   (let ((id (forge-read-pullreq "Checkout pull request" t)))
+     (list (funcall forge-checkout-worktree-read-directory-function
+                    (forge-get-pullreq id))
+           id)))
   (when (and (file-exists-p path)
              (not (and (file-directory-p path)
                        (= (length (directory-files "/tmp/testing/")) 2))))
@@ -762,6 +759,21 @@ information."
                            (let ((magit-inhibit-refresh t))
                              (forge-branch-pullreq
                               (forge-get-pullreq pullreq)))))
+
+(defun forge-checkout-worktree-default-read-directory-function (pullreq)
+  (with-slots (number head-ref) pullreq
+    (let ((path (read-directory-name
+                 (format "Checkout #%s in new worktree: " number)
+                 (file-name-directory
+                  (directory-file-name default-directory))
+                 nil nil
+                 (let ((branch (forge--pullreq-branch-internal pullreq)))
+                   (if (string-match-p "\\`pr-[0-9]+\\'" branch)
+                       (number-to-string number)
+                     (format "%s-%s" number head-ref))))))
+      (when (equal path "")
+        (user-error "The empty string isn't a valid path"))
+      path)))
 
 ;;; Marks
 
