@@ -770,7 +770,8 @@ information."
                  (let ((branch (forge--pullreq-branch-internal pullreq)))
                    (if (string-match-p "\\`pr-[0-9]+\\'" branch)
                        (number-to-string number)
-                     (format "%s-%s" number head-ref))))))
+                     (format "%s-%s" number
+                             (replace-regexp-in-string "/" "-" head-ref)))))))
       (when (equal path "")
         (user-error "The empty string isn't a valid path"))
       path)))
