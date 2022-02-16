@@ -1,4 +1,25 @@
 # -*- mode: org -*-
+* v0.3.1    2022-02-16
+
+- Added several existing commands to ~forge-dispatch~.
+
+- Added new option ~forge-add-default-sections~, which can be set to ~nil~
+  to prevent Forge from adding bindings to Magit keymaps and transient
+  prefix commands.
+
+- Added new command ~forge-browse-repository~.  #443
+
+- Added new variable ~forge-format-avatar-function~.  #447
+
+- Added support for the ~sqlite-builtin~ and ~sqlite-module~ backends.
+  See https://github.com/skeeto/emacsql/pull/86.
+
+- Added new option ~forge-checkout-worktree-read-directory-function~.
+  #463
+
+- Also included are many other improvements, updated documentation and
+  bugfixes.
+
 * v0.3.0    2021-10-14
 
 - Many actions that were surprisingly slow are much faster now,
