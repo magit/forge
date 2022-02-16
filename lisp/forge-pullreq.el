@@ -293,11 +293,12 @@ Also see option `forge-topic-list-limit'."
 
 (defun forge-insert-assigned-pullreqs ()
   "Insert a list of open pull-requests that are assigned to you."
-  (when-let ((repo (forge-get-repository nil)))
-    (unless (oref repo sparse-p)
-      (forge-insert-topics "Assigned pull requests"
-                           (forge--ls-assigned-pullreqs repo)
-                           (forge--topic-type-prefix repo 'pullreq)))))
+  (when forge-display-in-status-buffer
+    (when-let ((repo (forge-get-repository nil)))
+      (unless (oref repo sparse-p)
+        (forge-insert-topics "Assigned pull requests"
+                             (forge--ls-assigned-pullreqs repo)
+                             (forge--topic-type-prefix repo 'pullreq))))))
 
 (defun forge--ls-assigned-pullreqs (repo)
   (mapcar (lambda (row)
@@ -340,11 +341,12 @@ Also see option `forge-topic-list-limit'."
 
 (defun forge-insert-authored-pullreqs ()
   "Insert a list of open pullreqs that are authored to you."
-  (when-let ((repo (forge-get-repository nil)))
-    (unless (oref repo sparse-p)
-      (forge-insert-topics "Authored pullreqs"
-                           (forge--ls-authored-pullreqs repo)
-                           (forge--topic-type-prefix repo 'pullreq)))))
+  (when forge-display-in-status-buffer
+    (when-let ((repo (forge-get-repository nil)))
+      (unless (oref repo sparse-p)
+        (forge-insert-topics "Authored pullreqs"
+                             (forge--ls-authored-pullreqs repo)
+                             (forge--topic-type-prefix repo 'pullreq))))))
 
 (defun forge--ls-authored-pullreqs (repo)
   (mapcar (lambda (row)
