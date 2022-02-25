@@ -493,8 +493,7 @@
                 (magit-split-branch-name target))
                (`(,head-remote . ,head-branch)
                 (magit-split-branch-name source))
-               (head-repo (forge-get-repository 'stub head-remote))
-               (issue (forge-get-issue repo issue)))
+               (head-repo (forge-get-repository 'stub head-remote)))
     (forge--ghub-post repo "/repos/:owner/:repo/pulls"
       `((issue . ,(oref issue number))
         (base  . ,base-branch)
