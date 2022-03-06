@@ -52,11 +52,6 @@ html-dir: $(PKG).texi
 	@printf "Generating $@\n"
 	@texi2pdf --clean $< > /dev/null
 
-.PHONY: stats
-stats:
-	@printf "Generating statistics\n"
-	@gitstats $(GITSTATS_ARGS) $(TOP) $(GITSTATS_DIR)
-
 PUBLISH_PATH   ?= /manual/
 RELEASE_PATH   ?= /manual/$(VERSION)/
 S3_BUCKET      ?= s3://$(DOMAIN)
@@ -86,7 +81,21 @@ release: html html-dir pdf
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(RELEASE_PATH),$(CFRONT_PATHS)))" > /dev/null
 
-CLEAN = $(PKG).info dir $(PKG) $(PKG).html $(PKG).pdf
+.PHONY: stats
+stats:
+	@printf "Generating statistics\n"
+	@$(GITSTATS) $(GITSTATS_ARGS) $(TOP) $(GITSTATS_DIR)
+
+stats-upload:
+	@printf "Uploading statistics...\n"
+	@aws s3 sync $(GITSTATS_DIR) $(S3_BUCKET)/stats/$(PKG)
+	@printf "Uploaded to $(S3_BUCKET)/stats/$(PKG)\n"
+	@printf "Generating CDN invalidation\n"
+	@aws cloudfront create-invalidation \
+	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
+
+
+CLEAN = $(PKG).info dir $(PKG) $(PKG).html $(PKG).pdf @(GITSTATS_DIR)
 
 clean:
 	@printf "Cleaning docs/*...\n"
