@@ -1,4 +1,12 @@
 # -*- mode: org -*-
+* v0.3.2    2022-03-07
+
+- The command ~forge-toggle-display-in-status-buffer~ now affects all
+  relevant sections. #470
+
+- It is possible to create a pull-request from an existing issue
+  again.  #473
+
 * v0.3.1    2022-02-16
 
 - Added several existing commands to ~forge-dispatch~.
