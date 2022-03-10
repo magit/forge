@@ -775,13 +775,7 @@ Return a value between 0 and 1."
   (save-match-data
     (save-excursion
       (goto-char (point-min))
-      ;; Unlike for issues, Github ignores the yaml front-matter for
-      ;; pull-requests.  We just assume that nobody tries to use it
-      ;; anyway.  If that turned out to be wrong, we would have to
-      ;; deal with it by complicating matters around here.
-      (let ((alist (or (and (forge--childp (forge-get-repository t)
-                                           'forge-github-repository)
-                            (save-excursion (forge--topic-parse-yaml)))
+      (let ((alist (or (save-excursion (forge--topic-parse-yaml))
                        (save-excursion (forge--topic-parse-plain)))))
         (setf (alist-get 'file alist) file)
         (setf (alist-get 'text alist) (magit--buffer-string nil nil ?\n))
