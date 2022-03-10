@@ -170,7 +170,9 @@ entry in `forge-alist'.
 
 Also update the object's `apihost', `githost' and `remote' slots
 according to the respective entry in `forge-alist' and the REMOTE
-argument.")
+argument.
+
+Also see info node `(forge) Repository Detection'.")
 
 (cl-defgeneric forge-get-topic ()
   "Return a forge issue or pullreq object.")

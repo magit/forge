@@ -136,6 +136,19 @@ forges and hosts."
 
 (defconst forge--signal-no-entry '(t stub create))
 
+(defun forge--get-remote (&optional warn)
+  (let* ((remotes (magit-list-remotes))
+         (config (magit-get "forge.remote"))
+         (remote (if (cdr remotes)
+                     (or (car (member config remotes))
+                         (car (member "upstream" remotes))
+                         (car (member "origin" remotes)))
+                   (car remotes))))
+    (when (and warn config remote (not (equal config remote)))
+      (message "Ignored forge.remote=%s; no such remote.\nSee %s." config
+               "https://magit.vc/manual/forge/Repository-Detection.html"))
+    remote))
+
 (cl-defmethod forge-get-repository (((_ id) (head :id)))
   (closql-get (forge-db) id 'forge-repository))
 
@@ -152,25 +165,23 @@ repository, if any."
            (forge-get-repository forge-buffer-topic))
       (magit--with-refresh-cache
           (list default-directory 'forge-get-repository demand)
-        (let* ((remotes (magit-list-remotes))
-               (remote (or remote
-                           (if (cdr remotes)
-                               (car (member (forge--get-remote) remotes))
-                             (car remotes)))))
-          (if-let ((url (and remote
-                             (magit-git-string "remote" "get-url" remote))))
-              (when-let ((repo (forge-get-repository url remote demand)))
-                (oset repo worktree (magit-toplevel))
-                repo)
-            (when (memq demand forge--signal-no-entry)
-              (error
-               "Cannot determine forge repository.  %s\n%s  %s"
-               (cond (remote  (format "No url configured for %S." remote))
-                     (remotes "Cannot decide on remote to use.")
-                     (t       "No remote configured."))
-               "You might have to set `forge.remote'."
-               "See https://magit.vc/manual/forge/Repository-Detection.html."
-               )))))))
+        (unless remote
+          (setq remote (forge--get-remote 'warn)))
+        (if-let ((url (and remote
+                           (magit-git-string "remote" "get-url" remote))))
+            (when-let ((repo (forge-get-repository url remote demand)))
+              (oset repo worktree (magit-toplevel))
+              repo)
+          (when (memq demand forge--signal-no-entry)
+            (error
+             "Cannot determine forge repository.  %s\nSee %s."
+             (cond (remote (format "No url configured for %S." remote))
+                   ((let ((config (magit-get "forge.remote")))
+                      (format "Value of `forge.remote' is %S but %s"
+                              config "that remote does not exist.")))
+                   ((magit-list-remotes) "Cannot decide on remote to use.")
+                   (t "No remote configured."))
+             "https://magit.vc/manual/forge/Repository-Detection.html"))))))
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
@@ -246,9 +257,6 @@ Return the repository identified by HOST, OWNER and NAME."
     (if (and worktree (file-directory-p worktree))
         (magit-status-setup-buffer worktree)
       (forge-list-issues (oref repo id)))))
-
-(defun forge--get-remote ()
-  (or (magit-get "forge.remote") "origin"))
 
 (defun forge-read-repository (prompt)
   (let ((choice (magit-completing-read

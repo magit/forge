@@ -304,25 +304,76 @@ than making hundreds of REST requests.
 
 Ghub does *not* associate a given local repository with a repository on
 a forge.  The Forge package itself takes care of this.  In doing so it
-ignores the Git variable ~ghub.host~ and other ~FORGE.host~ variables used
-by Ghub.  (But ~github.user~ and other variables used to specify the
-user are honored).  Forge associates the local repository with a forge
-repository by first determining which remote is associated with the
-upstream repository and then looking that up in ~forge-alist~.
+ignores the Git variable ~ghub.host~ and other ~*.host~ variables used by
+Ghub.  (But ~github.user~ and other variables used to specify the user
+are honored).
 
-If only one remote exists, then Forge uses that unconditionally.
+Forge associates the local repository with a forge repository by first
+determining which remote is associated with the upstream repository
+and then looking that up in ~forge-alist~.
+
+If only one remote exists, then Forge uses that unconditionally.  To
+reduce the number of support requests, this is even the case if the
+Git variable ~forge.remote~ names another, non-existent, remote.
+
 If several remotes exist, then a remote may be selected based on its
-name.
+name.  Almost always we want to fetch the data associated with the
+upstream repository, so that is what the logic described here tries to
+achieve.  The convention is to name the upstream remote "origin", and
+if that convention were universally followed, then things would be
+trivial.  However many people name the upstream remote "upstream",
+which also makes sense.
 
-The convention is to name the upstream remote ~origin~.  If you follow
-this convention, then you have to do nothing else and the remote by
-that name is automatically used, provided it exists and regardless of
-whether other remotes exist.  If it does not exist, then no other
-remotes are tried.
+#+begin_quote
+Note, however, that even though a surprising number of people do just
+that, it does not make any sense to use the name "origin" to refer to
+a fork; not even to your own fork.  A fork is a *copy* of the original,
+"copy" is an antonym for "original", and the word "origin" is not only
+closely related to but even contained in the word "original".  Naming
+a fork the "origin" is at best extremely confusing.
 
-If you do not follow the naming convention, then you have to inform
-Forge about that by setting the Git variable ~forge.remote~ to the name
-that you instead use for upstream remotes.
+- copy :: a thing made to be similar or identical to another.
+
+- original :: the earliest form of something, from which copies may be
+  made.
+
+- origin :: the point or place where something begins, arises, or is
+  derived.
+#+end_quote
+
+If several remotes exist, then the following remote names are tried in
+order and the first remote thus named that exists in the repository is
+used.
+
+1. The value of the Git variable ~forge.remote~, if set.  If the
+   variable has a value but no remote by the specified name exists,
+   then a warning is shown, but otherwise this conflict is ignored.
+   This behavior is arguably odd, but due to historic and pragmatic
+   reasons it is the least painful path forward.
+
+2. The remote named ~upstream~, if it exists.
+
+3. The remote named ~origin~, if it exists.
+
+The remote named "upstream" is preferred over the remote named
+"origin" because the existence of the former strongly suggests that
+the latter is either not used in this repository (in which case the
+order does not matter) or else it is abused as the name of a fork (in
+which case "upstream" must be preferred).
+
+- Variable: forge.remote ::
+
+  The value of this variable specifies the remote from which Forge
+  fetches data.  It is usually best to leave this unspecified and to
+  rely on the behavior described above.
+
+  If the remote has to be specified explicitly, then this should be
+  done locally, for a single repository.
+
+  Only ever set this globally, if you consistently use a certain name
+  to refer to the upstream repository and it isn't one of "upstream"
+  or "origin", and you *never* use that name to refer to a repository
+  that does *not* refer to the upstream repository.
 
 - Key: N r (forge-forge.remote) ::
 
