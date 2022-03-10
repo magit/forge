@@ -807,8 +807,9 @@ Return a value between 0 and 1."
                      (buffer-substring-no-properties beg end)
                      :object-type 'alist))
         (let-alist alist
-          (setf (alist-get 'prompt alist)
-                (format "[%s] %s" .name .about))
+          (when (and .name .about)
+            (setf (alist-get 'prompt alist)
+                  (format "[%s] %s" .name .about)))
           (when (and .labels (atom .labels))
             (setf (alist-get 'labels alist) (list .labels)))
           (when (and .assignees (atom .assignees))
