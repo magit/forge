@@ -338,7 +338,7 @@
                             (forge--ghub-massage-notification
                              data forge githost)))
                         (forge--ghub-get nil "/notifications"
-                          '((all . "true"))
+                          '((all . t))
                           :host apihost :unpaginate t)))
          (groups (-partition-all 50 notifs))
          (pages  (length groups))
@@ -525,8 +525,8 @@
                         head-branch
                       (concat (oref head-repo owner) ":"
                               head-branch)))
-          (draft . ,(and (member .draft '("t" "true" "yes"))
-                         t))
+          ;; KLUDGE for https://github.com/zkry/yaml.el/pull/28.
+          (draft . ,(if (eq .draft :false) nil .draft))
           (maintainer_can_modify . t))
         :callback  (forge--post-submit-callback)
         :errorback (forge--post-submit-errorback)))))

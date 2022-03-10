@@ -799,7 +799,11 @@ Return a value between 0 and 1."
         (setq end (match-beginning 0))
         (setq alist (yaml-parse-string
                      (buffer-substring-no-properties beg end)
-                     :object-type 'alist))
+                     :object-type 'alist
+                     :sequence-type 'list
+                     ;; FIXME Does not work because of
+                     ;; https://github.com/zkry/yaml.el/pull/28.
+                     :false-object nil))
         (let-alist alist
           (when (and .name .about)
             (setf (alist-get 'prompt alist)
