@@ -813,7 +813,17 @@ Return a value between 0 and 1."
           (when (and .labels (atom .labels))
             (setf (alist-get 'labels alist) (list .labels)))
           (when (and .assignees (atom .assignees))
-            (setf (alist-get 'assignees alist) (list .assignees))))))
+            (setf (alist-get 'assignees alist) (list .assignees))))
+        (forward-line)
+        (when (and (not (alist-get 'title alist))
+                   (looking-at "^\n?#*"))
+          (goto-char (match-end 0))
+          (setf (alist-get 'title alist)
+                (string-trim
+                 (magit--buffer-string (point) (line-end-position) t)))
+          (forward-line))
+        (setf (alist-get 'body alist)
+              (string-trim (magit--buffer-string (point) nil ?\n)))))
     alist))
 
 (defun forge--topic-parse-plain ()
