@@ -95,7 +95,7 @@ stats-upload:
 	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
 
 
-CLEAN = $(PKG).info dir $(PKG) $(PKG).html $(PKG).pdf @(GITSTATS_DIR)
+CLEAN = $(PKG).info dir $(PKG) $(PKG).html $(PKG).pdf $(GITSTATS_DIR)
 
 clean:
 	@printf "Cleaning docs/*...\n"
