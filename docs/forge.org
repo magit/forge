@@ -1029,6 +1029,11 @@ The following commands are available in buffers used to edit posts:
 :PROPERTIES:
 :APPENDIX:   t
 :END:
+
+This section lists some frequently asked questions.  Please also see
+https://github.com/magit/forge/wiki/FAQ for an extended list of common
+issues.
+
 ** Is it possible to create a single pull-request without pulling everything?
 
 Yes.  ~M-x forge-add-repository~ offers to add a repository to the

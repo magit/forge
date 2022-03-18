@@ -1348,6 +1348,10 @@ See @uref{https://nullprogram.com/blog/2014/02/06/}.
 @node FAQ
 @appendix FAQ
 
+This section lists some frequently asked questions.  Please also see
+@uref{https://github.com/magit/forge/wiki/FAQ} for an extended list of common
+issues.
+
 @menu
 * Is it possible to create a single pull-request without pulling everything?::
 * @code{error in process filter HTTP Error 502, "Bad gateway"}: @code{error in process filter HTTP Error 502 "Bad gateway"}. 
