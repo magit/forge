@@ -1,20 +1,17 @@
 blank_issues_enabled: false
 contact_links:
-  - name: "Suggest a feature"
+  - name: "💡 Suggest a feature"
     url: https://github.com/magit/forge/discussions
-    about: Use the "Ideas" category to suggest features.
-  - name: "SUPPORT ☛ The Discussions feature of this repository"
-    url: https://github.com/magit/forge/discussions
-    about: Please search, ask and answer questions here.
-  - name: "SUPPORT ☛ Emacs StackExchange"
-    url: https://emacs.stackexchange.com/questions/tagged/forge
-    about: Another place to search, ask and answer questions.
-  - name: "SUPPORT ☛ Emacs Reddit"
+    about: Start a discussion suggest an improvement or a new feature.
+  - name: "🆘 Ask the community for support"
     url: https://www.reddit.com/r/emacs
-    about: Another place to search, ask and answer questions.
-  - name: "Forge FAQ"
+    about: Please also consider supporting others.
+  - name: "🆘 Ask the maintainers for support"
+    url: https://github.com/magit/forge/discussions
+    about: Please keep in mind that our bandwidth is limited.
+  - name: "ℹ️ Forge FAQ"
     url: https://magit.vc/manual/forge/FAQ.html
-    about: It might be that many others had the same question.
-  - name: "Forge Manual"
+    about: Others might have had the same question before.
+  - name: "ℹ️ Forge Manual"
     url: https://magit.vc/manual/forge/#Top
     about: The fine manual may also be of use.
