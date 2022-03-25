@@ -91,7 +91,8 @@ Takes the pull-request as only argument and must return a directory."
     ("b P" "pull-requests" forge-browse-pullreqs)
     ("b t" "topic"         forge-browse-topic)
     ("b i" "issue"         forge-browse-issue)
-    ("b p" "pull-request"  forge-browse-pullreq)]]
+    ("b p" "pull-request"  forge-browse-pullreq)
+    ("b r" "remote"        forge-browse-remote)]]
   [["Configure"
     ("a  " "add repository to database" forge-add-repository)
     ("r  " "forge.remote"  forge-forge.remote)

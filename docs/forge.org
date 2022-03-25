@@ -632,6 +632,7 @@ on a commit or branch section.
 
 - Key: C-c C-w (forge-browse-TYPE) ::
 - Key: C-c C-w (forge-browse-dwim) ::
+- Key: N b r (forge-browse-remote) ::
 - Key: N b I (forge-browse-issues) ::
 - Key: N b P (forge-browse-pullreqs) ::
 - Key: N b t (forge-browse-topic) ::
