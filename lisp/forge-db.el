@@ -130,8 +130,8 @@ See https://nullprogram.com/blog/2014/02/06/."
          "You need to update the Forge package."))
        ((< version forge--db-version)
         (emacsql-close db)
-        (error "BUG: The Forge database scheme changed %s"
-               "and there is no upgrade path")))))
+        (error "The Forge database scheme changed %s (sql:%s var:%s)"
+               "and there is no upgrade path" version forge-db-version)))))
   forge--db-connection)
 
 ;;; Api
