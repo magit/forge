@@ -1,0 +1,10 @@
+* Work with Git forges from the comfort of Magit
+
+Work with Git forges, such as Github and Gitlab, from the comfort
+of Magit and the rest of Emacs.
+
+[[http://readme.emacsair.me/forge-status.png]]
+
+[[http://readme.emacsair.me/forge-topic.png]]
+
+Please see the [[https://magit.vc/manual/forge][manual]] and the [[https://emacsair.me/2018/12/19/forge-0.1][announcement]] for more information.
