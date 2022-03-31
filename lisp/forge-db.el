@@ -43,32 +43,37 @@
 This must be set before `forge' is loaded.  To use an alternative
 connector you must install the respective package explicitly.
 
-When `sqlite', then use the `emacsql-sqlite' library that is
-being maintained in the same repository as `emacsql' itself.
+The default is `sqlite', which uses the `emacsql-sqlite' library
+that is being maintained in the same repository as `emacsql'
+itself.
 
-When `sqlite-builtin', then use the builtin support in Emacs 29.
-When `sqlite-module', then use a module provided by the `sqlite3'
-package.  These two backends are experimental.
-See https://github.com/skeeto/emacsql/pull/86.
+If you are using Emacs 29, then the recommended connector is
+`sqlite-builtin', which uses the new builtin support for SQLite.
+You need to install the `emacsql-sqlite-builtin' package to use
+this connector.
 
-When `libsqlite3', then use the `emacsql-libsqlite' library,
-which itself uses a module provided by the `sqlite3' package.
-This is still experimental and likely to be deprecated in
-favor of `sqlite-module'.
+If you are using an older Emacs release, then the recommended
+connector is `sqlite-module', which uses the module provided by
+the `sqlite3' package.  This is very similar to the previous
+connector and the built-in support in Emacs 29 derives from this
+module.  You need to install the `emacsql-sqlite-module' package
+to use this connector.
 
-When `sqlite3', then use the `emacsql-sqlite3' library, which
-uses the official `sqlite3' command-line tool, which I do not
-recommended because it is not suitable to be used like this,
-but has the advantage that you likely don't need a compiler.
-See https://nullprogram.com/blog/2014/02/06/."
+For the time being `libsqlight3' is still supported.  Do not use
+this, it is an older version of the `sqlite-module' connector
+from before the connector and the package were renamed.
+
+For the time being `sqlite3' is also supported.  Do not use this.
+This uses the third-party `emacsql-sqlite3' package, which uses
+the official `sqlite3' command-line tool, which is not intended
+to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
   :package-version '(forge . "0.3.0")
   :group 'forge
   :type '(choice (const sqlite)
                  (const sqlite-builtin)
                  (const sqlite-module)
-                 (const libsqlite3)
-                 (const sqlite3)
-                 (symbol :tag "other")))
+                 (const :tag "libsqlite3 (OBSOLETE)" libsqlite3)
+                 (const :tag "sqlite3 (BROKEN)" sqlite3)))
 
 (defcustom forge-database-file
   (expand-file-name "forge-database.sqlite"  user-emacs-directory)
