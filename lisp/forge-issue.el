@@ -151,15 +151,15 @@
 
 (defvar forge-issues-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] 'forge-browse-issues)
-    (define-key map [remap magit-visit-thing]  'forge-list-issues)
-    (define-key map (kbd "C-c C-n")            'forge-create-issue)
+    (define-key map [remap magit-browse-thing] #'forge-browse-issues)
+    (define-key map [remap magit-visit-thing]  #'forge-list-issues)
+    (define-key map (kbd "C-c C-n")            #'forge-create-issue)
     map))
 
 (defvar forge-issue-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] 'forge-browse-issue)
-    (define-key map [remap magit-visit-thing]  'forge-visit-issue)
+    (define-key map [remap magit-browse-thing] #'forge-browse-issue)
+    (define-key map [remap magit-visit-thing]  #'forge-visit-issue)
     map))
 
 (defun forge-insert-issues ()

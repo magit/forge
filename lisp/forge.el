@@ -68,8 +68,8 @@ If you want to disable this, then you must set this to nil before
 `forge' is loaded.")
 
 (when (and forge-add-default-sections forge--sqlite-available-p)
-  (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-pullreqs nil t)
-  (magit-add-section-hook 'magit-status-sections-hook 'forge-insert-issues   nil t))
+  (magit-add-section-hook 'magit-status-sections-hook #'forge-insert-pullreqs nil t)
+  (magit-add-section-hook 'magit-status-sections-hook #'forge-insert-issues   nil t))
 
 ;;; Add Bindings
 
@@ -83,16 +83,16 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
 ;;;###autoload
 (with-eval-after-load 'magit-mode
   (when forge-add-default-bindings
-    (define-key magit-mode-map "'" 'forge-dispatch)
-    (define-key magit-mode-map "N" 'forge-dispatch)))
+    (define-key magit-mode-map "'" #'forge-dispatch)
+    (define-key magit-mode-map "N" #'forge-dispatch)))
 
 (when forge-add-default-bindings
-  (define-key magit-commit-section-map [remap magit-browse-thing] 'forge-browse-dwim)
-  (define-key magit-remote-section-map [remap magit-browse-thing] 'forge-browse-remote)
-  (define-key magit-branch-section-map [remap magit-browse-thing] 'forge-browse-branch)
+  (define-key magit-commit-section-map [remap magit-browse-thing] #'forge-browse-dwim)
+  (define-key magit-remote-section-map [remap magit-browse-thing] #'forge-browse-remote)
+  (define-key magit-branch-section-map [remap magit-browse-thing] #'forge-browse-branch)
 
-  (define-key magit-commit-section-map (kbd "C-c C-v") 'forge-visit-topic)
-  (define-key magit-branch-section-map (kbd "C-c C-v") 'forge-visit-topic)
+  (define-key magit-commit-section-map (kbd "C-c C-v") #'forge-visit-topic)
+  (define-key magit-branch-section-map (kbd "C-c C-v") #'forge-visit-topic)
 
   (transient-insert-suffix 'magit-dispatch "o"
     '("N" "Forge" forge-dispatch))

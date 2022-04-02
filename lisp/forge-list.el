@@ -97,11 +97,11 @@ This is a list of package names.  Used by the commands
 (defvar forge-topic-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map (kbd "RET") 'forge-visit-topic)
-    (define-key map [return]    'forge-visit-topic)
-    (define-key map (kbd "o")   'forge-browse-topic)
-    (define-key map (kbd "'")   'forge-dispatch)
-    (define-key map (kbd "?")   'magit-dispatch)
+    (define-key map (kbd "RET") #'forge-visit-topic)
+    (define-key map [return]    #'forge-visit-topic)
+    (define-key map (kbd "o")   #'forge-browse-topic)
+    (define-key map (kbd "'")   #'forge-dispatch)
+    (define-key map (kbd "?")   #'magit-dispatch)
     map)
   "Local keymap for Forge-Topic-List mode buffers.")
 
@@ -140,7 +140,7 @@ This is a list of package names.  Used by the commands
         (funcall mode))
       (forge-topic-list-refresh)
       (add-hook 'tabulated-list-revert-hook
-                'forge-topic-list-refresh nil t)
+                #'forge-topic-list-refresh nil t)
       (tabulated-list-init-header)
       (tabulated-list-print)
       (switch-to-buffer (current-buffer)))))
@@ -160,11 +160,11 @@ This is a list of package names.  Used by the commands
 (defvar forge-repository-list-mode-map
   (let ((map (make-sparse-keymap)))
     (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map (kbd "RET") 'forge-visit-repository)
-    (define-key map [return]    'forge-visit-repository)
-    (define-key map (kbd "o")   'forge-browse-repository)
-    (define-key map (kbd "'")   'forge-dispatch)
-    (define-key map (kbd "?")   'magit-dispatch)
+    (define-key map (kbd "RET") #'forge-visit-repository)
+    (define-key map [return]    #'forge-visit-repository)
+    (define-key map (kbd "o")   #'forge-browse-repository)
+    (define-key map (kbd "'")   #'forge-dispatch)
+    (define-key map (kbd "?")   #'magit-dispatch)
     map)
   "Local keymap for Forge-Repository-List mode buffers.")
 

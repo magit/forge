@@ -104,8 +104,8 @@
 ;; The double-prefix is necessary due to a limitation of magit-insert-section.
 (defvar forge-forge-repo-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] 'forge-browse-repository)
-    (define-key map [remap magit-visit-thing]  'forge-visit-repository)
+    (define-key map [remap magit-browse-thing] #'forge-browse-repository)
+    (define-key map [remap magit-visit-thing]  #'forge-visit-repository)
     map))
 
 (defun forge-insert-notifications ()

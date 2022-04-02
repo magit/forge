@@ -248,7 +248,7 @@
 
 (cl-defmethod forge--update-revnotes ((repo forge-github-repository) data)
   (emacsql-with-transaction (forge-db)
-    (mapc (apply-partially 'forge--update-revnote repo) data)))
+    (mapc (apply-partially #'forge--update-revnote repo) data)))
 
 (cl-defmethod forge--update-revnote ((repo forge-github-repository) data)
   (emacsql-with-transaction (forge-db)
@@ -432,13 +432,13 @@
   ((class (subclass forge-github-repository)) host user)
   (forge--fetch-user-repos
    class (forge--as-apihost host) user
-   (apply-partially 'forge--batch-add-callback (forge--as-githost host) user)))
+   (apply-partially #'forge--batch-add-callback (forge--as-githost host) user)))
 
 (cl-defmethod forge--add-organization-repos
   ((class (subclass forge-github-repository)) host org)
   (forge--fetch-organization-repos
    class (forge--as-apihost host) org
-   (apply-partially 'forge--batch-add-callback (forge--as-githost host) org)))
+   (apply-partially #'forge--batch-add-callback (forge--as-githost host) org)))
 
 (cl-defmethod forge--fetch-user-repos
   ((_ (subclass forge-github-repository)) host user callback)

@@ -244,15 +244,15 @@ yourself, in which case you probably should not reset either.
 
 (defvar forge-pullreqs-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] 'forge-browse-pullreqs)
-    (define-key map [remap magit-visit-thing]  'forge-list-pullreqs)
-    (define-key map (kbd "C-c C-n")            'forge-create-pullreq)
+    (define-key map [remap magit-browse-thing] #'forge-browse-pullreqs)
+    (define-key map [remap magit-visit-thing]  #'forge-list-pullreqs)
+    (define-key map (kbd "C-c C-n")            #'forge-create-pullreq)
     map))
 
 (defvar forge-pullreq-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] 'forge-browse-pullreq)
-    (define-key map [remap magit-visit-thing]  'forge-visit-pullreq)
+    (define-key map [remap magit-browse-thing] #'forge-browse-pullreq)
+    (define-key map [remap magit-visit-thing]  #'forge-visit-pullreq)
     map))
 
 (defun forge-insert-pullreqs ()

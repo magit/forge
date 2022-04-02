@@ -363,11 +363,11 @@ identifier."
 
 (defvar forge-topic-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-n") 'forge-create-post)
-    (define-key map (kbd "C-c C-r") 'forge-create-post)
-    (define-key map [remap magit-browse-thing] 'forge-browse-topic)
-    (define-key map [remap magit-visit-thing] 'markdown-follow-link-at-point)
-    (define-key map [mouse-2] 'markdown-follow-link-at-point)
+    (define-key map (kbd "C-c C-n") #'forge-create-post)
+    (define-key map (kbd "C-c C-r") #'forge-create-post)
+    (define-key map [remap magit-browse-thing] #'forge-browse-topic)
+    (define-key map [remap magit-visit-thing] #'markdown-follow-link-at-point)
+    (define-key map [mouse-2] #'markdown-follow-link-at-point)
     map))
 
 (define-derived-mode forge-topic-mode magit-mode "View Topic"
@@ -387,9 +387,9 @@ identifier."
 
 (defvar forge-post-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] 'forge-browse-post)
-    (define-key map [remap magit-edit-thing]   'forge-edit-post)
-    (define-key map (kbd "C-c C-k")            'forge-delete-comment)
+    (define-key map [remap magit-browse-thing] #'forge-browse-post)
+    (define-key map [remap magit-edit-thing]   #'forge-edit-post)
+    (define-key map (kbd "C-c C-k")            #'forge-delete-comment)
     map))
 
 (defvar-local forge-buffer-topic nil)
@@ -462,7 +462,7 @@ identifier."
 
 (defvar forge-topic-title-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] 'forge-edit-topic-title)
+    (define-key map [remap magit-edit-thing] #'forge-edit-topic-title)
     map))
 
 (cl-defun forge-insert-topic-title
@@ -472,7 +472,7 @@ identifier."
 
 (defvar forge-topic-state-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] 'forge-edit-topic-state)
+    (define-key map [remap magit-edit-thing] #'forge-edit-topic-state)
     map))
 
 (cl-defun forge-insert-topic-state
@@ -491,7 +491,7 @@ identifier."
 
 (defvar forge-topic-milestone-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] 'forge-edit-topic-milestone)
+    (define-key map [remap magit-edit-thing] #'forge-edit-topic-milestone)
     map))
 
 (cl-defun forge-insert-topic-milestone
@@ -511,7 +511,7 @@ identifier."
 
 (defvar forge-topic-labels-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] 'forge-edit-topic-labels)
+    (define-key map [remap magit-edit-thing] #'forge-edit-topic-labels)
     map))
 
 (cl-defun forge-insert-topic-labels
@@ -550,7 +550,7 @@ identifier."
 
 (defvar forge-topic-marks-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] 'forge-edit-topic-marks)
+    (define-key map [remap magit-edit-thing] #'forge-edit-topic-marks)
     map))
 
 (cl-defun forge-insert-topic-marks
@@ -624,7 +624,7 @@ Return a value between 0 and 1."
 
 (defvar forge-topic-assignees-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] 'forge-edit-topic-assignees)
+    (define-key map [remap magit-edit-thing] #'forge-edit-topic-assignees)
     map))
 
 (cl-defun forge-insert-topic-assignees
@@ -642,7 +642,7 @@ Return a value between 0 and 1."
 
 (defvar forge-topic-review-requests-section-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] 'forge-edit-topic-review-requests)
+    (define-key map [remap magit-edit-thing] #'forge-edit-topic-review-requests)
     map))
 
 (cl-defun forge-insert-topic-review-requests
@@ -961,7 +961,7 @@ modify `bug-reference-bug-regexp' if appropriate."
             (bug-reference-prog-mode 1)
           (bug-reference-mode 1))
         (add-hook 'completion-at-point-functions
-                  'forge-topic-completion-at-point nil t)))))
+                  #'forge-topic-completion-at-point nil t)))))
 
 (when (and (not noninteractive) forge--sqlite-available-p)
   (dolist (hook forge-bug-reference-hooks)
