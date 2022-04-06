@@ -877,7 +877,7 @@ is added anyway.  Currently this only supports Github and Gitlab."
   :class 'magit--git-variable:choices
   :variable "forge.remote"
   :choices #'magit-list-remotes
-  :default "origin")
+  :default (lambda (_) (forge--get-remote t)))
 
 ;;;###autoload
 (defun forge-list-notifications ()
