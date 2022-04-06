@@ -163,7 +163,11 @@
              (.name
               ;; A Github issue with yaml frontmatter.
               (save-excursion (insert .text))
-              (re-search-forward "^title: "))
+              (unless (re-search-forward "^title: " nil t)
+                (when (re-search-forward "^---" nil t 2)
+                  (beginning-of-line)
+                  (insert "title: \n")
+                  (backward-char))))
              (t
               (insert "# ")
               (let ((single
