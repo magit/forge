@@ -31,6 +31,8 @@
 (require 'forge)
 (require 'forge-post)
 
+(defvar bug-reference-auto-setup-functions)
+
 ;;; Options
 
 (defcustom forge-topic-list-order '(updated . string>)
