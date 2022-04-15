@@ -274,7 +274,7 @@
   (let-alist (car cur)
     (forge--glab-get repo (format "/projects/%s" .target_project_id) nil
       :errorback (lambda (_err _headers _status _req)
-                   (setf (alist-get 'source_project (car cur)) nil)
+                   (setf (alist-get 'target_project (car cur)) nil)
                    (funcall cb cb))
       :callback (lambda (value _headers _status _req)
                   (setf (alist-get 'target_project (car cur)) value)
