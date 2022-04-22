@@ -24,6 +24,7 @@
 ;;; Code:
 
 (require 'closql)
+(require 'compat)
 (require 'eieio)
 (require 'emacsql)
 (require 'emacsql-sqlite)

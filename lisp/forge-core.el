@@ -26,6 +26,7 @@
 (require 'magit)
 
 (require 'cl-lib)
+(require 'compat)
 (require 'dash)
 (require 'eieio)
 (require 'subr-x)
