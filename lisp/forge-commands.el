@@ -754,7 +754,7 @@ information."
            id)))
   (when (and (file-exists-p path)
              (not (and (file-directory-p path)
-                       (= (length (directory-files "/tmp/testing/")) 2))))
+                       (length= (directory-files "/tmp/testing/") 2))))
     (user-error "%s already exists and isn't empty" path))
   (magit-worktree-checkout path
                            (let ((magit-inhibit-refresh t))
