@@ -391,8 +391,7 @@
                   (owner  (oref repo owner))
                   (name   (oref repo name))
                   (id     (forge--object-id repoid (string-to-number .id)))
-                  (alias  (intern (concat "_" (replace-regexp-in-string
-                                               "=" "_" id)))))
+                  (alias  (intern (concat "_" (string-replace "=" "_" id)))))
              (list alias repo
                    `((,alias repository)
                      [(name ,name)

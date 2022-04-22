@@ -322,7 +322,7 @@ Return the repository identified by HOST, OWNER and NAME."
          (?o . ,owner)
          (?n . ,name)
          (?p . ,path)
-         (?P . ,(replace-regexp-in-string "/" "%2F" path)))))))
+         (?P . ,(string-replace "/" "%2F" path)))))))
 
 (cl-defmethod forge-get-url ((repo forge-repository))
   (forge--format (oref repo remote) 'remote-url-format))
@@ -339,10 +339,10 @@ Return the repository identified by HOST, OWNER and NAME."
 (defun forge--msg (repo echo done format &rest args)
   (let ((msg (apply #'format format args)))
     (when repo
-      (setq msg (replace-regexp-in-string
+      (setq msg (string-replace
                  "REPO"
                  (concat (oref repo owner) "/" (oref repo name))
-                 msg t)))
+                 msg)))
     (when (and echo msg)
       (message "%s%s" msg (if done "...done" "...")))
     (when (buffer-live-p forge--mode-line-buffer)

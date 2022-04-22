@@ -772,7 +772,7 @@ information."
                    (if (string-match-p "\\`pr-[0-9]+\\'" branch)
                        (number-to-string number)
                      (format "%s-%s" number
-                             (replace-regexp-in-string "/" "-" head-ref)))))))
+                             (string-replace "/" "-" head-ref)))))))
       (when (equal path "")
         (user-error "The empty string isn't a valid path"))
       path)))

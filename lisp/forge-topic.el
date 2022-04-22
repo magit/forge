@@ -295,9 +295,7 @@ implement such a function themselves.  See #447.")
 
 (defun forge--sanitize-string (string)
   ;; For Gitlab this may also be nil.
-  (if string
-      (replace-regexp-in-string "\r\n" "\n" string t t)
-    ""))
+  (if string (string-replace "\r\n" "\n" string) ""))
 
 (defun forge-insert-topics (heading topics prefix)
   "Under a new section with HEADING, insert TOPICS."

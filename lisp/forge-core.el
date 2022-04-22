@@ -235,7 +235,7 @@ at that time."
            (?o . ,owner)
            (?n . ,name)
            (?p . ,path)
-           (?P . ,(replace-regexp-in-string "/" "%2F" path)))))
+           (?P . ,(string-replace "/" "%2F" path)))))
     (user-error "Cannot browse non-forge remote %s" remote)))
 
 (defun forge--url-regexp ()
@@ -309,7 +309,7 @@ at that time."
                        ((v (ignore-errors
                              (cl-case slot
                                (repo    (oref object name))
-                               (project (concat (replace-regexp-in-string
+                               (project (concat (string-replace
                                                  "/" "%2F" (oref object owner))
                                                 "%2F"
                                                 (oref object name)))
