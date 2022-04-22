@@ -94,7 +94,7 @@
               'forge-issue))
 
 (cl-defmethod forge-get-issue ((number integer))
-  (when-let ((repo (forge-get-repository t)))
+  (and-let* ((repo (forge-get-repository t)))
     (forge-get-issue repo number)))
 
 (cl-defmethod forge-get-issue ((id string))
@@ -143,7 +143,7 @@
 
 (defun forge-issue-at-point ()
   (or (magit-section-value-if 'issue)
-      (when-let ((post (magit-section-value-if 'post)))
+      (and-let* ((post (magit-section-value-if 'post)))
         (cond ((forge-issue-p post)
                post)
               ((forge-issue-post-p post)

@@ -506,7 +506,7 @@ identifier."
             "\n")))
 
 (defun forge--get-topic-milestone (topic)
-  (when-let ((id (oref topic milestone)))
+  (and-let* ((id (oref topic milestone)))
     (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))))
 
 (defvar forge-topic-labels-section-map
@@ -524,7 +524,7 @@ identifier."
     (insert ?\n)))
 
 (defun forge--format-topic-labels (topic)
-  (when-let ((labels (closql--iref topic 'labels)))
+  (and-let* ((labels (closql--iref topic 'labels)))
     (mapconcat (pcase-lambda (`(,name ,color ,_desc))
                  (propertize name 'font-lock-face (list :box color)))
                labels " ")))

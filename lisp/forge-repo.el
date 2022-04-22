@@ -169,7 +169,8 @@ repository, if any."
           (setq remote (forge--get-remote 'warn)))
         (if-let ((url (and remote
                            (magit-git-string "remote" "get-url" remote))))
-            (when-let ((repo (forge-get-repository url remote demand)))
+            (when-let* ((repo (forge-get-repository url remote demand)))
+              ;; Cannot use and-let* because of debbugs#31840.
               (oset repo worktree (magit-toplevel))
               repo)
           (when (memq demand forge--signal-no-entry)
@@ -266,7 +267,7 @@ Return the repository identified by HOST, OWNER and NAME."
                          (forge-sql [:select [githost owner name]
                                      :from repository]))
                  nil t nil nil
-                 (when-let ((default (or (forge-current-repository)
+                 (and-let* ((default (or (forge-current-repository)
                                          (forge-get-repository nil))))
                    (format "%s/%s @%s"
                            (oref default owner)

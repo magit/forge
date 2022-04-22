@@ -49,11 +49,11 @@
 
 (cl-defmethod forge-get-repository ((notify forge-notification))
   "Return the object for the repository that NOTIFY belongs to."
-  (when-let ((id (oref notify repository)))
+  (and-let* ((id (oref notify repository)))
     (closql-get (forge-db) id 'forge-repository)))
 
 (cl-defmethod forge-get-notification ((topic forge-topic))
-  (when-let ((row (car (forge-sql [:select * :from notification
+  (and-let* ((row (car (forge-sql [:select * :from notification
                                    :where (and (= repository $s1)
                                                (= topic $s2))]
                                   (oref topic repository)

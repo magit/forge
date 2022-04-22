@@ -395,11 +395,11 @@ read an ISSUE to visit instead."
                    "Source branch"
                    (magit-list-remote-branch-names)
                    nil t nil 'magit-revision-history
-                   (or (when-let ((d (magit-branch-at-point)))
+                   (or (and-let* ((d (magit-branch-at-point)))
                          (if (magit-remote-branch-p d)
                              d
                            (magit-get-push-branch d t)))
-                       (when-let ((d (magit-get-current-branch)))
+                       (and-let* ((d (magit-get-current-branch)))
                          (if (magit-remote-branch-p d)
                              d
                            (magit-get-push-branch d t))))))
@@ -940,7 +940,7 @@ pull individual topics when the user invokes `forge-pull-topic'."
   (interactive
    (let ((str (magit-read-string-ns
                "Add repository to database (url or name)"
-               (when-let ((repo (forge-get-repository 'stub))
+               (and-let* ((repo (forge-get-repository 'stub))
                           (remote (oref repo remote)))
                  (magit-git-string "remote" "get-url" remote)))))
      (if (string-match-p "\\(://\\|@\\)" str)

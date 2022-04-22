@@ -77,10 +77,10 @@
 
 (defun forge-topic-at-point ()
   (or (magit-section-value-if '(issue pullreq))
-      (when-let ((branch (magit-branch-at-point)))
-        (when-let ((n (magit-get "branch" branch "pullRequest")))
-          (forge-get-pullreq (string-to-number n))))
-      (when-let ((rev (magit-commit-at-point)))
+      (and-let* ((branch (magit-branch-at-point))
+                 (n (magit-get "branch" branch "pullRequest")))
+        (forge-get-pullreq (string-to-number n)))
+      (and-let* ((rev (magit-commit-at-point)))
         (forge--pullreq-from-rev rev))))
 
 (defun forge-current-topic ()
@@ -91,12 +91,12 @@
            (forge-get-topic (tabulated-list-get-id)))))
 
 (defun forge--pullreq-from-rev (rev)
-  (when-let ((repo    (forge-get-repository nil))
+  (and-let* ((repo    (forge-get-repository nil))
              (refspec (oref repo pullreq-refspec))
              (name    (magit-rev-name rev (cadr (split-string refspec ":")))))
     (save-match-data
-      (when (string-match "\\([0-9]*\\)\\([~^][0-9]*\\)?\\'" name)
-        (forge-get-pullreq (string-to-number (match-string 0 name)))))))
+      (and (string-match "\\([0-9]*\\)\\([~^][0-9]*\\)?\\'" name)
+           (forge-get-pullreq (string-to-number (match-string 0 name)))))))
 
 ;;; Utilities
 

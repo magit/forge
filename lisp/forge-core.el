@@ -250,12 +250,12 @@ at that time."
           "\\(?:\\.git\\|/\\)?\\'"))
 
 (defun forge--split-remote-url (remote)
-  (when-let ((url (magit-git-string "remote" "get-url" remote)))
+  (and-let* ((url (magit-git-string "remote" "get-url" remote)))
     (forge--split-url url)))
 
 (defun forge--split-url (url)
   (and (string-match (forge--url-regexp) url)
-       (when-let ((host (match-string 1 url))
+       (and-let* ((host (match-string 1 url))
                   (path (match-string 2 url))
                   (path (forge--split-url-path
                          (nth 3 (assoc host forge-alist))
@@ -280,7 +280,7 @@ at that time."
          (nth 2 (assoc (match-string 1 url) forge-alist)))))
 
 (defun forge--forge-remote-p (remote)
-  (when-let ((url (magit-git-string "remote" "get-url" remote)))
+  (and-let* ((url (magit-git-string "remote" "get-url" remote)))
     (forge--url-p url)))
 
 (defun forge--url-equal (urlA urlB)
@@ -305,7 +305,7 @@ at that time."
            ":\\([^/]+\\)"
            (lambda (str)
              (let ((slot (intern (substring str 1))))
-               (or (when-let
+               (or (and-let*
                        ((v (ignore-errors
                              (cl-case slot
                                (repo    (oref object name))

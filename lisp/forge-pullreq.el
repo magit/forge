@@ -123,7 +123,7 @@
               'forge-pullreq))
 
 (cl-defmethod forge-get-pullreq ((number integer))
-  (when-let ((repo (forge-get-repository t)))
+  (and-let* ((repo (forge-get-repository t)))
     (forge-get-pullreq repo number)))
 
 (cl-defmethod forge-get-pullreq ((id string))
@@ -214,7 +214,7 @@ yourself, in which case you probably should not reset either.
     (and (magit-rev-verify ref) ref)))
 
 (defun forge--pullreq-range (pullreq &optional endpoints)
-  (when-let ((head (forge--pullreq-ref pullreq)))
+  (and-let* ((head (forge--pullreq-ref pullreq)))
     (concat (forge--get-remote) "/" (oref pullreq base-ref)
             (if endpoints "..." "..")
             head)))
@@ -236,7 +236,7 @@ yourself, in which case you probably should not reset either.
 
 (defun forge-pullreq-at-point ()
   (or (magit-section-value-if 'pullreq)
-      (when-let ((post (magit-section-value-if 'post)))
+      (and-let* ((post (magit-section-value-if 'post)))
         (cond ((forge-pullreq-p post)
                post)
               ((forge-pullreq-post-p post)
