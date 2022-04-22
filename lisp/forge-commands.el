@@ -134,8 +134,8 @@ If pulling is too slow, then also consider setting the Git variable
                           (oref repo name))))
         (oset repo selective-p nil))
       (setq forge--mode-line-buffer (current-buffer))
-      (when-let ((remote  (oref repo remote))
-                 (refspec (oref repo pullreq-refspec)))
+      (when-let* ((remote  (oref repo remote))
+                  (refspec (oref repo pullreq-refspec)))
         (when (and create
                    (not (member refspec (magit-get-all "remote" remote "fetch")))
                    (or (eq forge-add-pullreq-refspec t)
