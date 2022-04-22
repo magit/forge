@@ -98,5 +98,5 @@ stats-upload:
 CLEAN = $(PKG).info dir $(PKG) $(PKG).html $(PKG).pdf $(GITSTATS_DIR)
 
 clean:
-	@printf "Cleaning docs/*...\n"
+	@printf " Cleaning docs/*...\n"
 	@rm -rf $(CLEAN)
