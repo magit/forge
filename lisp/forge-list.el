@@ -449,7 +449,7 @@ it silently fails."
     (vconcat (if table
                  (let ((table (symbol-name table)))
                    (--map (let ((col (symbol-name it)))
-                            (if (string-match-p ":" col)
+                            (if (string-search ":" col)
                                 it
                               (intern (concat table ":" col))))
                           columns))

@@ -663,7 +663,7 @@ Please see the manual for more information."
            (remote head-user)
            (branch (forge--pullreq-branch-select pullreq))
            (pr-branch head-ref))
-      (when (string-match-p ":" pr-branch)
+      (when (string-search ":" pr-branch)
         ;; Such a branch name would be invalid.  If we encounter
         ;; it anyway, then that means that the source branch and
         ;; the merge-request ref are missing.
