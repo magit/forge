@@ -486,10 +486,10 @@ identifier."
                (magit--propertize-face
                 (symbol-name state)
                 (pcase (list state (forge-pullreq-p (forge-topic-at-point)))
-                  (`(merged) 'forge-topic-merged)
-                  (`(closed) 'forge-topic-closed)
-                  (`(open t) 'forge-topic-unmerged)
-                  (`(open)   'forge-topic-open))))))))
+                  ('(merged) 'forge-topic-merged)
+                  ('(closed) 'forge-topic-closed)
+                  ('(open t) 'forge-topic-unmerged)
+                  ('(open)   'forge-topic-open))))))))
 
 (defvar forge-topic-milestone-section-map
   (let ((map (make-sparse-keymap)))
