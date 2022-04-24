@@ -367,7 +367,7 @@
 (cl-defmethod forge--fetch-forks ((repo forge-gitlab-repository) callback)
   (forge--glab-get repo "/projects/:project/forks"
     '((per_page . 100)
-      (simple . "true"))
+      (simple . t))
     :unpaginate t
     :callback (lambda (value _headers _status _req)
                 (funcall callback callback (cons 'forks value)))))
@@ -554,7 +554,7 @@
                                     topic hash method)
   (forge--glab-put topic
     "/projects/:project/merge_requests/:number/merge"
-    `((squash . ,(if (eq method 'squash) "true" "false"))
+    `((squash . ,(eq method 'squash))
       ,@(and hash `((sha . ,hash))))))
 
 ;;; Utilities
