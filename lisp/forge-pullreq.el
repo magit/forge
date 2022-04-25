@@ -221,6 +221,9 @@ yourself, in which case you probably should not reset either.
 (cl-defmethod forge-get-url ((pullreq forge-pullreq))
   (forge--format pullreq 'pullreq-url-format))
 
+(defun forge--pullreq-by-forge-short-link-at-point ()
+  (forge--topic-by-forge-short-link-at-point '("#" "!") #'forge-get-pullreq))
+
 ;;; Sections
 
 (defun forge-current-pullreq ()
@@ -239,7 +242,8 @@ yourself, in which case you probably should not reset either.
         (cond ((forge-pullreq-p post)
                post)
               ((forge-pullreq-post-p post)
-               (forge-get-pullreq post))))))
+               (forge-get-pullreq post))))
+      (forge--pullreq-by-forge-short-link-at-point)))
 
 (defvar forge-pullreqs-section-map
   (let ((map (make-sparse-keymap)))

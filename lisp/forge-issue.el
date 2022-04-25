@@ -128,6 +128,9 @@
 (cl-defmethod forge-get-url ((issue forge-issue))
   (forge--format issue 'issue-url-format))
 
+(defun forge--issue-by-forge-short-link-at-point ()
+  (forge--topic-by-forge-short-link-at-point '("#") #'forge-get-issue))
+
 ;;; Sections
 
 (defun forge-current-issue ()
@@ -146,7 +149,8 @@
         (cond ((forge-issue-p post)
                post)
               ((forge-issue-post-p post)
-               (forge-get-issue post))))))
+               (forge-get-issue post))))
+      (forge--issue-by-forge-short-link-at-point)))
 
 (defvar forge-issues-section-map
   (let ((map (make-sparse-keymap)))

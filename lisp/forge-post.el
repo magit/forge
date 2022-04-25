@@ -80,7 +80,9 @@
                  (n (magit-get "branch" branch "pullRequest")))
         (forge-get-pullreq (string-to-number n)))
       (and-let* ((rev (magit-commit-at-point)))
-        (forge--pullreq-from-rev rev))))
+        (forge--pullreq-from-rev rev))
+      (forge--issue-by-forge-short-link-at-point)
+      (forge--pullreq-by-forge-short-link-at-point)))
 
 (defun forge-current-topic ()
   (or (forge-topic-at-point)

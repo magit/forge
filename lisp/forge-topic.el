@@ -358,6 +358,18 @@ identifier."
      (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
      t)))
 
+(defun forge--topic-by-forge-short-link-at-point (known-prefixes finder)
+  "Finds a topic by forge-dependant short link around point.
+The topic number is expected to be a number prefixed by any of
+the elements in KNOWN-PREFIXES. If a reference is found, FINDER
+is called and a topic object is returned if available."
+  (and-let* ((number (number-at-point))
+             (prefix (buffer-substring-no-properties
+                      (- (match-beginning 0) 1)
+                      (match-beginning 0))))
+    (and (member prefix known-prefixes)
+         (funcall finder number))))
+
 ;;; Mode
 
 (defvar forge-topic-mode-map

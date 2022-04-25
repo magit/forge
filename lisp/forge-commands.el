@@ -343,15 +343,19 @@ read a topic to visit instead."
 (defun forge-visit-pullreq (pullreq)
   "View the current pull-request in a separate buffer.
 If there is no current pull-request or with a prefix argument
-read a PULLREQ to visit instead."
+read a PULLREQ to visit instead. If point is looking at a pullreq
+reference with Gitlab/Github notation try to visit the pullreq
+with that number."
   (interactive (list (forge-read-pullreq "View pull-request" t)))
   (forge-visit (forge-get-pullreq pullreq)))
 
 ;;;###autoload
 (defun forge-visit-issue (issue)
   "Visit the current issue in a separate buffer.
-If there is no current issue or with a prefix argument
-read an ISSUE to visit instead."
+If there is no current issue or with a prefix argument read an
+ISSUE to visit instead. If point is looking at an issue reference
+with Gitlab/Github notation try to visit the issue with that
+number."
   (interactive (list (forge-read-issue "View issue" t)))
   (forge-visit (forge-get-issue issue)))
 
