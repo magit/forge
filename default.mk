@@ -34,7 +34,7 @@ DEPS += treepy
 DEPS += with-editor/lisp
 DEPS += yaml
 # Optional
-DEPS += emacsql-libsqlite3
+DEPS += emacsql-sqlite-builtin
 DEPS += sqlite3
 
 DOMAIN      ?= magit.vc
