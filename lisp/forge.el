@@ -80,6 +80,11 @@ If you want to disable this, then you must set this to nil before
 is loaded, then `magit-mode-map' ends up being modified anyway.")
 
 ;;;###autoload
+(with-eval-after-load 'git-commit
+  (when forge-add-default-bindings
+    (define-key git-commit-mode-map (kbd "C-c C-v") #'forge-visit-topic)))
+
+;;;###autoload
 (with-eval-after-load 'magit-mode
   (when forge-add-default-bindings
     (define-key magit-mode-map "'" #'forge-dispatch)
