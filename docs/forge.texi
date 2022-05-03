@@ -879,6 +879,7 @@ on a commit or branch section.
 @table @asis
 @item @kbd{C-c C-w} (@code{forge-browse-TYPE})
 @itemx @kbd{C-c C-w} (@code{forge-browse-dwim})
+@itemx @kbd{N b r} (@code{forge-browse-remote})
 @itemx @kbd{N b I} (@code{forge-browse-issues})
 @itemx @kbd{N b P} (@code{forge-browse-pullreqs})
 @itemx @kbd{N b t} (@code{forge-browse-topic})
@@ -886,6 +887,7 @@ on a commit or branch section.
 @itemx @kbd{N b p} (@code{forge-browse-pullreq})
 @kindex C-c C-w
 @kindex C-c C-w
+@kindex N b r
 @kindex N b I
 @kindex N b P
 @kindex N b t
@@ -893,6 +895,7 @@ on a commit or branch section.
 @kindex N b p
 @findex forge-browse-TYPE
 @findex forge-browse-dwim
+@findex forge-browse-remote
 @findex forge-browse-issues
 @findex forge-browse-pullreqs
 @findex forge-browse-topic
