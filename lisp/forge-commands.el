@@ -1028,7 +1028,7 @@ as merged."
 (defun forge-remove-topic-locally (topic)
   "Remove a topic from the local database only.
 Due to how the supported APIs work, it would be too expensive to
-automatically remove topics from the local datbase that were
+automatically remove topics from the local database that were
 removed from the forge.  The purpose of this command is to allow
 you to manually clean up the local database."
   (interactive (list (forge-read-topic "Delete topic LOCALLY only")))

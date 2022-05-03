@@ -1306,7 +1306,7 @@ The topic is not removed from the forge and, if it is later modified,
 then it will be added to the database again.
 
 Due to how the supported APIs work, it would be too expensive to
-automatically remove topics from the local datbase that were removed
+automatically remove topics from the local database that were removed
 from the forge.  The only purpose of this command is to allow you to
 manually clean up the local database.
 @end deffn
@@ -1369,7 +1369,7 @@ database without also fetching all pull-requests and issues.
 @node @code{error in process filter HTTP Error 502 "Bad gateway"}
 @appendixsec @code{error in process filter: HTTP Error: 502, "Bad gateway"}
 
-This is a frequently occuring error.  Adding some formatting the full
+This is a frequently occurring error.  Adding some formatting the full
 error is:
 
 @lisp
