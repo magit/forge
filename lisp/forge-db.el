@@ -93,12 +93,12 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
    (require (quote emacsql-sqlite-builtin))
    (with-no-warnings
      (defclass forge-database (emacsql-sqlite-builtin-connection closql-database)
-       ((object-class :initform 'epkg-package)))))
+       ((object-class :initform 'forge-repository)))))
   (sqlite-module
    (require (quote emacsql-sqlite-module))
    (with-no-warnings
      (defclass forge-database (emacsql-sqlite-module-connection closql-database)
-       ((object-class :initform 'epkg-package)))))
+       ((object-class :initform 'forge-repository)))))
   (libsqlite3
    (require (quote emacsql-libsqlite3))
    (with-no-warnings
