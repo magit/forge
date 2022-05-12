@@ -62,6 +62,8 @@ Takes the pull-request as only argument and must return a directory."
     """Create"
     ("c i" "issue"         forge-create-issue)
     ("c p" "pull-request"  forge-create-pullreq)
+    ("c d" "pull-request (draft)" forge-create-draft-pullreq
+     :if (lambda () (forge-github-repository-p (forge-get-repository nil))))
     ("c u" "pull-request from issue" forge-create-pullreq-from-issue
      :if (lambda () (forge-github-repository-p (forge-get-repository nil))))
     ("c f" "fork or remote" forge-fork)
@@ -378,6 +380,21 @@ number."
                "new-pullreq"
                (forge--format repo "Create new pull-request on %p")
                source target)))
+    (with-current-buffer buf
+      (setq forge--buffer-base-branch target)
+      (setq forge--buffer-head-branch source)
+      (setq forge--buffer-post-object repo)
+      (setq forge--submit-post-function #'forge--submit-create-pullreq))
+    (forge--display-post-buffer buf)))
+
+(defun forge-create-draft-pullreq (source target)
+  "Create a new draft pull-request for the current repository."
+  (interactive (forge-create-pullreq--read-args))
+  (let* ((repo (forge-get-repository t))
+         (buf (forge--prepare-post-buffer
+               "new-pullreq"
+               (forge--format repo "Create new draft pull-request on %p")
+               source target t)))
     (with-current-buffer buf
       (setq forge--buffer-base-branch target)
       (setq forge--buffer-head-branch source)

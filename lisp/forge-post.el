@@ -129,7 +129,7 @@
 (defvar-local forge--cancel-post-function nil)
 (defvar-local forge--pre-post-buffer nil)
 
-(defun forge--prepare-post-buffer (filename &optional header source target)
+(defun forge--prepare-post-buffer (filename &optional header source target is-draft)
   (let ((file (magit-git-dir
                (convert-standard-filename
                 (concat "magit/posts/" filename)))))
@@ -154,6 +154,8 @@
           (let-alist (forge--topic-template
                       (forge-get-repository t)
                       (if source 'forge-pullreq 'forge-issue))
+            (when is-draft
+              (insert "---\ndraft: true\n---\n\n"))
             (cond
              (.url
               (browse-url .url)
