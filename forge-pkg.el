@@ -10,6 +10,6 @@
     (magit          "3.3.0")
     (markdown-mode  "2.4")
     (transient      "0.3.6")
-    (yaml           "0.3.4"))
+    (yaml           "0.3.5"))
   :homepage "https://github.com/magit/forge"
   :keywords '("git" "tools" "vc"))

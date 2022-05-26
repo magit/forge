@@ -523,8 +523,7 @@
                         head-branch
                       (concat (oref head-repo owner) ":"
                               head-branch)))
-          ;; KLUDGE for https://github.com/zkry/yaml.el/pull/28.
-          (draft . ,(if (eq .draft :false) nil .draft))
+          (draft . , .draft)
           (maintainer_can_modify . t))
         :callback  (forge--post-submit-callback)
         :errorback (forge--post-submit-errorback)))))
