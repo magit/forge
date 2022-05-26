@@ -109,6 +109,7 @@
 
 (defvar forge-post-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-c C-e")                      #'forge-post-dispatch)
     (define-key map (kbd "C-c C-c")                      #'forge-post-submit)
     (define-key map [remap evil-save-and-close]          #'forge-post-submit)
     (define-key map [remap evil-save-modified-and-close] #'forge-post-submit)
@@ -128,6 +129,7 @@
 (defvar-local forge--submit-post-function nil)
 (defvar-local forge--cancel-post-function nil)
 (defvar-local forge--pre-post-buffer nil)
+(defvar-local forge--buffer-draft-p nil)
 
 (defun forge--prepare-post-buffer (filename &optional header source target)
   (let ((file (magit-git-dir
@@ -235,6 +237,21 @@
 (defun forge--post-submit-errorback ()
   (lambda (error &rest _)
     (error "Failed to submit post: %S" error)))
+
+(transient-define-prefix forge-post-dispatch ()
+  "Dispatch a post creation command."
+  ["Variables"
+   ("d" "Create draft" forge-post-toggle-draft)]
+  ["Act"
+   ("C-c" "Submit" forge-post-submit)
+   ("C-k" "Cancel" forge-post-cancel)])
+
+(transient-define-infix forge-post-toggle-draft ()
+  "Toggle whether the pull-request being created is a draft."
+  :class 'transient-lisp-variable
+  :variable 'forge--buffer-draft-p
+  :reader (lambda (&rest _) (not forge--buffer-draft-p))
+  :if (lambda () (equal (file-name-nondirectory buffer-file-name) "new-pullreq")))
 
 ;;; Notes
 

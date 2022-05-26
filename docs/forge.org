@@ -934,6 +934,17 @@ The following commands are available in buffers used to edit posts:
   This command cancels the post that is being edited in the current
   buffer.
 
+- Key: C-c C-e (forge-post-dispatch) ::
+
+  This prefix command features the above two commands as suffixes,
+  and when creating a pull-request also the following command.  More
+  suffix commands will likely be added in the future.
+
+- Key: C-c C-e d (forge-post-toggle-draft) ::
+
+  This command toggles whether the pull-request being created is a
+  draft.
+
 ** Miscellaneous
 
 - Key: N c f (forge-fork) ::

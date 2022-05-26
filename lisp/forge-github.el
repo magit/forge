@@ -507,6 +507,9 @@
 
 (cl-defmethod forge--submit-create-pullreq ((_ forge-github-repository) repo)
   (let-alist (forge--topic-parse-buffer)
+    (when (and .yaml (local-variable-p 'forge--buffer-draft-p))
+      (user-error "Cannot use yaml frontmatter and set `%s' at the same time"
+                  'forge--buffer-draft-p))
     (pcase-let* ((`(,base-remote . ,base-branch)
                   (magit-split-branch-name forge--buffer-base-branch))
                  (`(,head-remote . ,head-branch)
@@ -523,7 +526,9 @@
                         head-branch
                       (concat (oref head-repo owner) ":"
                               head-branch)))
-          (draft . , .draft)
+          (draft . ,(if (local-variable-p 'forge--buffer-draft-p)
+                        forge--buffer-draft-p
+                      .draft))
           (maintainer_can_modify . t))
         :callback  (forge--post-submit-callback)
         :errorback (forge--post-submit-errorback)))))

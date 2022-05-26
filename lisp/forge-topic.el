@@ -786,8 +786,10 @@ Return a value between 0 and 1."
   (save-match-data
     (save-excursion
       (goto-char (point-min))
-      (let ((alist (or (save-excursion (forge--topic-parse-yaml))
-                       (save-excursion (forge--topic-parse-plain)))))
+      (let ((alist (save-excursion (forge--topic-parse-yaml))))
+        (if alist
+            (setf (alist-get 'yaml alist) t)
+          (setq alist (save-excursion (forge--topic-parse-plain))))
         (setf (alist-get 'file alist) file)
         (setf (alist-get 'text alist) (magit--buffer-string nil nil ?\n))
         (when (and file (not (alist-get 'prompt alist)))

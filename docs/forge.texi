@@ -1241,6 +1241,19 @@ buffer.
 @findex forge-post-cancel
 This command cancels the post that is being edited in the current
 buffer.
+
+@item @kbd{C-c C-e} (@code{forge-post-dispatch})
+@kindex C-c C-e
+@findex forge-post-dispatch
+This prefix command features the above two commands as suffixes,
+and when creating a pull-request also the following command.  More
+suffix commands will likely be added in the future.
+
+@item @kbd{C-c C-e d} (@code{forge-post-toggle-draft})
+@kindex C-c C-e d
+@findex forge-post-toggle-draft
+This command toggles whether the pull-request being created is a
+draft.
 @end table
 
 @node Miscellaneous
