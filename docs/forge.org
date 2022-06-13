@@ -220,24 +220,32 @@ less likely that I will every do it every time I look at it.
 
 * Getting Started
 
-Getting started using Forge should be fairly easy provided you take the
-time to read the documentation.  First see [[info:ghub#Getting Started]]
-from Ghub's manual.  Ghub is the library that Forge uses to
-communicate with forge APIs.  While Ghub can be used independently of
-Forge, its "Getting Started" part was written with Forge users in
-mind.
+Initial setup turned out to more challenging for many users than I had
+hoped.  I am trying to counter that by providing detailed instructions
+that cover not just the happy path but also many of the issues users
+have ran into in the past.  The recommended reading is longer than one
+might wish, but skipping it does not necessarily save time.
 
-Please begin reading in [[info:ghub#Getting Started]] and then come back
-here and make sure to read the subsections.
+Forge uses the Ghub package to access the APIs of supported forges.
+How this works and how to create and store a token is documented in
+[[info:ghub#Getting Started]].  Please read that in full before coming
+back here and continuing with the subsections listed below.
+
+https://github.com/magit/forge/wiki lists additional resources;
+including a link to a much shorter quick-start guide provided by
+a user.
+
+** Loading Forge
 
 Loading Magit doesn't cause Forge to be loaded automatically.  Adding
-something like this to your init file takes care of this:
+something like this to your init file takes care of that:
 
 #+begin_src emacs-lisp
   (with-eval-after-load 'magit
     (require 'forge))
 #+end_src
 
+#+texinfo: @noindent
 Or if you use ~use-package~:
 
 #+begin_src emacs-lisp
