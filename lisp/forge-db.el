@@ -432,10 +432,12 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
       :on-delete :cascade))))
 
 (cl-defmethod closql--db-init ((db forge-database))
+  (message "Creating Forge database (%s)..." forge-database-file)
   (emacsql-with-transaction db
     (pcase-dolist (`(,table . ,schema) forge--db-table-schemata)
       (emacsql db [:create-table $i1 $S2] table schema))
-    (closql--db-set-version db forge--db-version)))
+    (closql--db-set-version db forge--db-version))
+  (message "Creating Forge database (%s)...done" forge-database-file))
 
 (defun forge--db-maybe-update (db version)
   (emacsql-with-transaction db
