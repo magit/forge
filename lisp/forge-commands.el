@@ -576,7 +576,7 @@ TOPIC and modify that instead."
           (magit-completing-read
            "Assignee" choices nil
            nil ; Empty input removes assignee.
-           (car value)))
+           (caar value)))
        (magit-completing-read-multiple*
         "Assignees: " choices nil
         (if (forge--childp repo 'forge-gitlab-repository)
