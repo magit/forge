@@ -658,8 +658,7 @@ Return a value between 0 and 1."
 
 (cl-defun forge-insert-topic-review-requests
     (&optional (topic forge-buffer-topic))
-  (when (and (forge-github-repository-p (forge-get-repository topic))
-             (forge-pullreq-p topic))
+  (when (forge-pullreq-p topic)
     (magit-insert-section (topic-review-requests)
       (insert (format "%-11s" "Review-Requests: "))
       (if-let ((review-requests (closql--iref topic 'review-requests)))

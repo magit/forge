@@ -321,6 +321,7 @@
         (closql-insert (forge-db) pullreq t)
         (unless (magit-get-boolean "forge.omitExpensive")
           (forge--set-id-slot repo pullreq 'assignees .assignees)
+          (forge--set-id-slot repo pullreq 'review-requests .reviewers)
           (forge--set-id-slot repo pullreq 'labels .labels))
         .body .id ; Silence Emacs 25 byte-compiler.
         (dolist (c .notes)
@@ -525,6 +526,13 @@
        (forge--set-topic-field repo topic 'assignee_ids
                                (or (--map (caddr (assoc it users)) assignees)
                                    0))))))
+
+(cl-defmethod forge--set-topic-review-requests
+  ((repo forge-gitlab-repository) topic reviewers)
+  (let ((users (mapcar #'cdr (oref repo assignees))))
+    (forge--set-topic-field repo topic 'reviewer_ids
+                            (or (--map (caddr (assoc it users)) reviewers)
+                                0))))
 
 (cl-defmethod forge--delete-comment
   ((_repo forge-gitlab-repository) post)
