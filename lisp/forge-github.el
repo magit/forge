@@ -210,6 +210,7 @@
                                          (t "0")))
         (oset pullreq closed       .closedAt)
         (oset pullreq merged       .mergedAt)
+        (oset pullreq draft-p      .isDraft)
         (oset pullreq locked-p     .locked)
         (oset pullreq editable-p   .maintainerCanModify)
         (oset pullreq cross-repo-p .isCrossRepository)

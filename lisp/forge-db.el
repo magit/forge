@@ -366,7 +366,8 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
       (marks           :default eieio-unbound)
       note
       base-rev
-      head-rev]
+      head-rev
+      draft-p]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))

@@ -389,6 +389,7 @@ is called and a topic object is returned if available."
 (defvar forge-topic-headers-hook
   '(forge-insert-topic-title
     forge-insert-topic-state
+    forge-insert-topic-draft
     forge-insert-topic-refs
     forge-insert-topic-milestone
     forge-insert-topic-labels
@@ -498,6 +499,12 @@ is called and a topic object is returned if available."
                   ('(closed) 'forge-topic-closed)
                   ('(open t) 'forge-topic-unmerged)
                   ('(open)   'forge-topic-open))))))))
+
+(cl-defun forge-insert-topic-draft
+    (&optional (topic forge-buffer-topic))
+  (when (forge-pullreq-p topic)
+    (magit-insert-section (topic-draft)
+      (insert (format "%-11s%s\n" "Draft: " (oref topic draft-p))))))
 
 (defvar forge-topic-milestone-section-map
   (let ((map (make-sparse-keymap)))

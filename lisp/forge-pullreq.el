@@ -70,6 +70,7 @@
    (note                 :initarg :note :initform nil)
    (base-rev             :initarg :base-rev)
    (head-rev             :initarg :head-rev)
+   (draft-p              :initarg :draft-p)
    ;; We don't use these fields:
    ;; includesCreatedEdit (huh?),
    ;; lastEditedAt (same as updatedAt?),

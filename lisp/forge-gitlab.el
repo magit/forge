@@ -307,6 +307,7 @@
                                  (and (member .state '("closed" "merged")) 1))
                :merged       (or .merged_at
                                  (and (equal .state "merged") 1))
+               :draft-p      .draft
                :locked-p     .discussion_locked
                :editable-p   .allow_maintainer_to_push
                :cross-repo-p (not (equal .source_project_id
