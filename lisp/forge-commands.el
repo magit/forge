@@ -570,19 +570,12 @@ TOPIC and modify that instead."
          (crm-separator ","))
     (forge--set-topic-assignees
      repo topic
-     (if (and (forge--childp topic 'forge-pullreq)
-              (forge--childp repo  'forge-gitlab-repository))
-         (list ; Gitlab merge-requests can only be assigned to a single user.
-          (magit-completing-read
-           "Assignee" choices nil
-           nil ; Empty input removes assignee.
-           (caar value)))
-       (magit-completing-read-multiple*
-        "Assignees: " choices nil
-        (if (forge--childp repo 'forge-gitlab-repository)
-            t ; Selecting something else would fail later on.
-          'confirm)
-        (mapconcat #'car value ","))))))
+     (magit-completing-read-multiple*
+      "Assignees: " choices nil
+      (if (forge--childp repo 'forge-gitlab-repository)
+          t ; Selecting something else would fail later on.
+        'confirm)
+      (mapconcat #'car value ",")))))
 
 (defun forge-edit-topic-review-requests (pullreq)
   "Edit the review-requests of the current pull-request.

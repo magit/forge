@@ -320,7 +320,7 @@
                :body         (forge--sanitize-string .description))))
         (closql-insert (forge-db) pullreq t)
         (unless (magit-get-boolean "forge.omitExpensive")
-          (forge--set-id-slot repo pullreq 'assignees (list .assignee))
+          (forge--set-id-slot repo pullreq 'assignees .assignees)
           (forge--set-id-slot repo pullreq 'labels .labels))
         .body .id ; Silence Emacs 25 byte-compiler.
         (dolist (c .notes)
