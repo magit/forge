@@ -214,8 +214,10 @@
         (oset pullreq editable-p   .maintainerCanModify)
         (oset pullreq cross-repo-p .isCrossRepository)
         (oset pullreq base-ref     .baseRef.name)
+        (oset pullreq base-rev     .baseRefOid)
         (oset pullreq base-repo    .baseRef.repository.nameWithOwner)
         (oset pullreq head-ref     .headRef.name)
+        (oset pullreq head-rev     .headRefOid)
         (oset pullreq head-user    .headRef.repository.owner.login)
         (oset pullreq head-repo    .headRef.repository.nameWithOwner)
         (oset pullreq milestone    (and .milestone.id

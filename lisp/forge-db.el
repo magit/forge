@@ -364,7 +364,9 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
       (reviews         :default eieio-unbound)
       (timeline        :default eieio-unbound)
       (marks           :default eieio-unbound)
-      note]
+      note
+      base-rev
+      head-rev]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))

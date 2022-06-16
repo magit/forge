@@ -312,8 +312,10 @@
                :cross-repo-p (not (equal .source_project_id
                                          .target_project_id))
                :base-ref     .target_branch
+               :base-rev     .diff_refs.start_sha
                :base-repo    .target_project.path_with_namespace
                :head-ref     .source_branch
+               :head-rev     .diff_refs.head_sha
                :head-user    .source_project.owner.username
                :head-repo    .source_project.path_with_namespace
                :milestone    .milestone.iid
