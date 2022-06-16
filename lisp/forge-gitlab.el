@@ -515,10 +515,12 @@
     (cl-typecase topic
       (forge-pullreq ; Can only be assigned to a single user.
        (forge--set-topic-field repo topic 'assignee_id
-                               (caddr (assoc (car assignees) users))))
+                               (or (caddr (assoc (car assignees) users))
+                                   0)))
       (forge-issue
        (forge--set-topic-field repo topic 'assignee_ids
-                               (--map (caddr (assoc it users)) assignees))))))
+                               (or (--map (caddr (assoc it users)) assignees)
+                                   0))))))
 
 (cl-defmethod forge--delete-comment
   ((_repo forge-gitlab-repository) post)
