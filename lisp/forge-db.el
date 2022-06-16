@@ -440,6 +440,9 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
   (message "Creating Forge database (%s)...done" forge-database-file))
 
 (defun forge--db-maybe-update (db version)
+  (when (and (< version forge--db-version)
+             (yes-or-no-p "Forge database needs to be updated.  Backup first? "))
+    (forge--db-dump version))
   (emacsql-with-transaction db
     (when (= version 2)
       (message "Upgrading Forge database from version 2 to 3...")
@@ -492,10 +495,34 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
                 (forge--object-id repo-id (cdar milestone)))))
       (closql--db-set-version db (setq version 7))
       (message "Upgrading Forge database from version 6 to 7...done"))
-    ;; Going forward create a backup before upgrading:
-    ;; (message "Upgrading Forge database from version 7 to 8...")
-    ;; (copy-file forge-database-file (concat forge-database-file "-v7"))
     version))
+
+(defun forge--db-dump (&optional version)
+  (let ((dump (format "%s-v%s-%s.sql"
+                      (file-name-sans-extension forge-database-file)
+                      (or version forge--db-version)
+                      (format-time-string "%Y%m%d-%H%M"))))
+    (message "Dumping Forge database to %s..." dump)
+    (with-temp-file dump
+      (unless (zerop (save-excursion
+                       (call-process "sqlite3" nil t nil
+                                     forge-database-file ".dump")))
+        (error "Failed to dump %s" forge-database-file))
+      (insert (format "PRAGMA user_version=%s;\n" forge--db-version))
+      (when (re-search-forward "^PRAGMA foreign_keys=\\(OFF\\);" 1000 t)
+        (replace-match "ON" t t nil 1)))
+    (message "Dumping Forge database to %s...done" dump)))
+
+(defun forge--db-restore (dump)
+  (when (and forge--db-connection (emacsql-live-p forge--db-connection))
+    (emacsql-close forge--db-connection))
+  (forge--db-dump)
+  (with-temp-buffer
+    (unless (zerop (call-process "sqlite3" nil t nil
+                                 forge-database-file
+                                 (format ".read %s" dump)))
+      (error "Failed to read %s: %s" dump (buffer-string))))
+  (forge-db))
 
 ;;; _
 (provide 'forge-db)
