@@ -601,12 +601,6 @@
     :payload labels
     :callback (forge--set-field-callback)))
 
-(cl-defmethod forge--delete-comment
-  ((_repo forge-github-repository) post)
-  (forge--ghub-delete post "/repos/:owner/:repo/issues/comments/:number")
-  (closql-delete post)
-  (magit-refresh))
-
 (cl-defmethod forge--set-topic-assignees
   ((_repo forge-github-repository) topic assignees)
   (let ((value (mapcar #'car (closql--iref topic 'assignees))))
@@ -630,6 +624,12 @@
         "/repos/:owner/:repo/pulls/:number/requested_reviewers"
         `((reviewers . ,remove)))))
   (forge-pull))
+
+(cl-defmethod forge--delete-comment
+  ((_repo forge-github-repository) post)
+  (forge--ghub-delete post "/repos/:owner/:repo/issues/comments/:number")
+  (closql-delete post)
+  (magit-refresh))
 
 (cl-defmethod forge--topic-templates ((repo forge-github-repository)
                                       (_ (subclass forge-issue)))
