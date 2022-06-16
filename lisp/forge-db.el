@@ -110,7 +110,7 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
      (defclass forge-database (emacsql-sqlite3-connection closql-database)
        ((object-class :initform 'forge-repository))))))
 
-(defconst forge--db-version 7)
+(defconst forge--db-version 8)
 (defconst forge--sqlite-available-p
   (with-demoted-errors "Forge initialization: %S"
     (emacsql-sqlite-ensure-binary)
@@ -498,6 +498,13 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
                 (forge--object-id repo-id (cdar milestone)))))
       (closql--db-set-version db (setq version 7))
       (message "Upgrading Forge database from version 6 to 7...done"))
+    (when (= version 7)
+      (message "Upgrading Forge database from version 7 to 8...")
+      (emacsql db [:alter-table pullreq :add-column base-rev :default nil])
+      (emacsql db [:alter-table pullreq :add-column head-rev :default nil])
+      (emacsql db [:alter-table pullreq :add-column draft-p  :default nil])
+      (closql--db-set-version db (setq version 8))
+      (message "Upgrading Forge database from version 7 to 8...done"))
     version))
 
 (defun forge--db-dump (&optional version)
