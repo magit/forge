@@ -71,16 +71,6 @@
    (base-rev             :initarg :base-rev)
    (head-rev             :initarg :head-rev)
    (draft-p              :initarg :draft-p)
-   ;; We don't use these fields:
-   ;; includesCreatedEdit (huh?),
-   ;; lastEditedAt (same as updatedAt?),
-   ;; publishedAt (same as createdAt?),
-   ;; activeLockReason, additions, authorAssociation, (baseRefName), baseRefOid,
-   ;; bodyHTML, bodyText, canBeRebased, changedFiles, closed, createdViaEmail,
-   ;; databaseId, deletions, editor, (headRefName), headRefOid, mergeCommit,
-   ;; mergeStateStatus, mergeable, merged, mergedBy, permalink,
-   ;; potentialMergeCommit,, reactionGroups, resourcePath, revertResourcePath,
-   ;; revertUrl, url, viewer{*}
    ))
 
 (defclass forge-pullreq-post (forge-post)
@@ -98,14 +88,6 @@
    (body                 :initarg :body)
    (edits)
    (reactions)
-   ;; We don't use these fields:
-   ;; includesCreatedEdit (huh?),
-   ;; lastEditedAt (same as updatedAt?),
-   ;; publishedAt (same as createdAt?),
-   ;; pullRequest (same as issue),
-   ;; repository (use .pullreq.project),
-   ;; authorAssociation, bodyHTML, bodyText, createdViaEmail,
-   ;; editor, id, reactionGroups, resourcePath, url, viewer{*}
    ))
 
 ;;; Query
