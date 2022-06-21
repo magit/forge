@@ -522,6 +522,16 @@ TOPIC and modify that instead."
   (let ((topic (forge-get-topic topic)))
     (forge--set-topic-state (forge-get-repository topic) topic)))
 
+(defun forge-edit-topic-draft (pullreq)
+  "Toggle whether the current pull-request is a draft.
+If there is no current topic or with a prefix argument read a
+TOPIC and modify that instead."
+  (interactive (list (forge-read-pullreq "Toggle draft state of")))
+  (let ((pullreq (forge-get-pullreq pullreq)))
+    (forge--set-topic-draft (forge-get-repository pullreq)
+                            pullreq
+                            (not (oref pullreq draft-p)))))
+
 (defun forge-edit-topic-milestone (topic)
   (interactive (list (forge-read-topic "Edit milestone of")))
   (let* ((topic (forge-get-topic topic))

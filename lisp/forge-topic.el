@@ -500,6 +500,11 @@ is called and a topic object is returned if available."
                   ('(open t) 'forge-topic-unmerged)
                   ('(open)   'forge-topic-open))))))))
 
+(defvar forge-topic-draft-section-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map [remap magit-edit-thing] #'forge-edit-topic-draft)
+    map))
+
 (cl-defun forge-insert-topic-draft
     (&optional (topic forge-buffer-topic))
   (when (forge-pullreq-p topic)

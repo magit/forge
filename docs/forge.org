@@ -877,6 +877,11 @@ a post visits that post in a browser.
   This command toggles the state of an existing topic between "open"
   and "closed".
 
+- Key: C-c C-e [on "Draft" section] (forge-edit-topic-draft) ::
+
+  This command toggles whether an existing topic between is a draft
+  or not.
+
 - Key: C-c C-e [on "Labels" section] (forge-edit-topic-labels) ::
 
   This command reads a list of labels for an existing topic in the

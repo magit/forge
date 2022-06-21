@@ -1176,6 +1176,12 @@ minibuffer.
 This command toggles the state of an existing topic between "open"
 and "closed".
 
+@item @kbd{C-c C-e [on "Draft" section]} (@code{forge-edit-topic-draft})
+@kindex C-c C-e [on "Draft" section]
+@findex forge-edit-topic-draft
+This command toggles whether an existing topic between is a draft
+or not.
+
 @item @kbd{C-c C-e [on "Labels" section]} (@code{forge-edit-topic-labels})
 @kindex C-c C-e [on "Labels" section]
 @findex forge-edit-topic-labels

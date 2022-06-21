@@ -147,6 +147,7 @@
                                       :repository (oref repo id)
                                       :number     .number)))))
         (oset issue id         issue-id)
+        (oset issue their-id   .id)
         (oset issue state      (pcase-exhaustive .state
                                  ("CLOSED" 'closed)
                                  ("OPEN"   'open)))
@@ -197,6 +198,7 @@
                            (forge-pullreq :id           pullreq-id
                                           :repository   (oref repo id)
                                           :number       .number)))))
+        (oset pullreq their-id     .id)
         (oset pullreq state        (pcase-exhaustive .state
                                      ("MERGED" 'merged)
                                      ("CLOSED" 'closed)
@@ -581,6 +583,28 @@
                   (closed "OPEN")
                   (open   "CLOSED"))))
     :callback (forge--set-field-callback)))
+
+(cl-defmethod forge--set-topic-draft
+  ((_repo forge-github-repository) topic value)
+  (let ((buffer (current-buffer)))
+    (ghub-graphql
+     `(mutation (,(if value
+                      'convertPullRequestToDraft
+                    'markPullRequestReadyForReview)
+                 [(input $input ,(if value
+                                     'ConvertPullRequestToDraftInput!
+                                   'MarkPullRequestReadyForReviewInput!))]
+                 (pullRequest isDraft)))
+     `((input (pullRequestId . ,(oref topic their-id))))
+     :host (oref (forge-get-repository topic) apihost)
+     :auth 'forge
+     :callback (lambda (data &rest _)
+                 (if (assq 'error data)
+                     (ghub--graphql-pp-response data)
+                   (oset topic draft-p value)
+                   (when (buffer-live-p buffer)
+                     (with-current-buffer buffer
+                       (magit-refresh-buffer))))))))
 
 (cl-defmethod forge--set-topic-milestone
   ((repo forge-github-repository) topic milestone)

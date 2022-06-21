@@ -172,8 +172,9 @@
              (issue
               (forge-issue
                :id           issue-id
-               :repository   (oref repo id)
+               :their-id     .iid
                :number       .iid
+               :repository   (oref repo id)
                :state        (pcase-exhaustive .state
                                ("closed" 'closed)
                                ("opened" 'open))
@@ -289,8 +290,9 @@
              (pullreq
               (forge-pullreq
                :id           pullreq-id
-               :repository   (oref repo id)
+               :their-id     .iid
                :number       .iid
+               :repository   (oref repo id)
                :state        (pcase-exhaustive .state
                                ("merged" 'merged)
                                ("closed" 'closed)
@@ -511,6 +513,28 @@
                           (cl-ecase (oref topic state)
                             (closed "reopen")
                             (open   "close"))))
+
+(cl-defmethod forge--set-topic-draft
+  ((repo forge-gitlab-repository) topic value)
+  (let ((buffer (current-buffer)))
+    (glab-graphql
+     `(mutation (mergeRequestSetDraft
+                 [(input $input MergeRequestSetDraftInput!)]
+                 (mergeRequest iid draft)))
+     `((input (projectPath . ,(format "%s/%s"
+                                      (oref repo owner)
+                                      (oref repo name)))
+              (iid . ,(number-to-string (oref topic number)))
+              (draft . ,value)))
+     :host (oref (forge-get-repository topic) apihost)
+     :auth 'forge
+     :callback (lambda (data &rest _)
+                 (if (assq 'error data)
+                     (ghub--graphql-pp-response data)
+                   (oset topic draft-p value)
+                   (when (buffer-live-p buffer)
+                     (with-current-buffer buffer
+                       (magit-refresh-buffer))))))))
 
 (cl-defmethod forge--set-topic-labels
   ((repo forge-gitlab-repository) topic labels)

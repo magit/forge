@@ -71,6 +71,7 @@
    (base-rev             :initarg :base-rev)
    (head-rev             :initarg :head-rev)
    (draft-p              :initarg :draft-p)
+   (their-id             :initarg :their-id)
    ))
 
 (defclass forge-pullreq-post (forge-post)
