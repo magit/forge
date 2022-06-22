@@ -229,7 +229,8 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
       (reactions    :default eieio-unbound)
       (timeline     :default eieio-unbound)
       (marks        :default eieio-unbound)
-      note]
+      note
+      their-id]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
@@ -367,7 +368,8 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
       note
       base-rev
       head-rev
-      draft-p]
+      draft-p
+      their-id]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
