@@ -275,6 +275,10 @@ around reading the documentation and doing this manually I am afraid.
   More information about these and other scopes can be found at
   https://docs.github.com/en/developers/apps/scopes-for-oauth-apps.
 
+  Visiting this link will autopopulate the token creation form with
+  the necessary scopes:
+  https://github.com/settings/tokens/new?scopes=repo,user,read:org&description=magit-forge
+
 - For Gitlab instances ~api~ is the only required scope.  It gives read
   and write access to everything.  The Gitlab API provides more
   fine-grained scopes for read-only access, but when any write access
