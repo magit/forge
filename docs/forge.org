@@ -17,19 +17,7 @@ from the comfort of Magit and the rest of Emacs.
 #+texinfo: @noindent
 This manual is for Forge version 0.3.2-git.
 
-#+begin_quote
-Copyright (C) 2018-{{{year}}} Jonas Bernoulli <jonas@bernoul.li>
-
-You can redistribute this document and/or modify it under the terms
-of the GNU General Public License as published by the Free Software
-Foundation, either version 3 of the License, or (at your option) any
-later version.
-
-This document is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.
-#+end_quote
+#+texinfo: @insertcopying
 :END:
 * Introduction
 
