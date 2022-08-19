@@ -145,12 +145,10 @@
 (defvar-local forge--pre-post-buffer nil)
 (defvar-local forge--buffer-draft-p nil)
 
-(defun forge-insert-post-buffer-pull-request-heading (source target)
-  (ignore source target)
+(defun forge-insert-post-buffer-pull-request-heading (&optional source target)
   (insert "# "))
 
-(defun forge-insert-post-buffer-pull-request-body (source target)
-  (ignore target)
+(defun forge-insert-post-buffer-pull-request-body (&optional source target)
   (magit-rev-insert-format "%B" source))
 
 (defun forge--prepare-post-buffer (filename &optional header source target)
@@ -194,7 +192,9 @@
                   (insert "title: \n")
                   (backward-char))))
              (t
-              (funcall forge-insert-post-buffer-pull-request-heading-fn source target)
+              (if (and source target)
+                  (funcall forge-insert-post-buffer-pull-request-heading-fn source target)
+                (forge-insert-post-buffer-pull-request-heading))
               (let ((single
                      (and source
                           (= (car (magit-rev-diff-count source target)) 1))))
