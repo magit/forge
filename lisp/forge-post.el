@@ -38,6 +38,20 @@
   :options '(visual-line-mode
              turn-on-flyspell))
 
+(defcustom forge-insert-post-buffer-pull-request-heading-fn
+  #'forge-insert-post-buffer-pull-request-heading
+  "Function for inserting the message heading in merge request post buffers."
+  :package-version '(forge . "0.3.1")
+  :group 'forge
+  :type 'function)
+
+(defcustom forge-insert-post-buffer-pull-request-body-fn
+  #'forge-insert-post-buffer-pull-request-body
+  "Function for inserting the message body of merge request post buffers."
+  :package-version '(forge . "0.3.1")
+  :group 'forge
+  :type 'function)
+
 ;;; Class
 
 (defclass forge-post (forge-object) () :abstract t)
@@ -131,6 +145,14 @@
 (defvar-local forge--pre-post-buffer nil)
 (defvar-local forge--buffer-draft-p nil)
 
+(defun forge-insert-post-buffer-pull-request-heading (source target)
+  (ignore source target)
+  (insert "# "))
+
+(defun forge-insert-post-buffer-pull-request-body (source target)
+  (ignore target)
+  (magit-rev-insert-format "%B" source))
+
 (defun forge--prepare-post-buffer (filename &optional header source target)
   (let ((file (magit-git-dir
                (convert-standard-filename
@@ -172,14 +194,14 @@
                   (insert "title: \n")
                   (backward-char))))
              (t
-              (insert "# ")
+              (funcall forge-insert-post-buffer-pull-request-heading-fn source target)
               (let ((single
                      (and source
                           (= (car (magit-rev-diff-count source target)) 1))))
                 (save-excursion
                   (when single
                     ;; A pull-request.
-                    (magit-rev-insert-format "%B" source))
+		    (funcall forge-insert-post-buffer-pull-request-body-fn source target))
                   (when .text
                     (if single
                         (insert "-------\n")
