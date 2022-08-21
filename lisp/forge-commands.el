@@ -382,7 +382,8 @@ number."
       (setq forge--buffer-base-branch target)
       (setq forge--buffer-head-branch source)
       (setq forge--buffer-post-object repo)
-      (setq forge--submit-post-function #'forge--submit-create-pullreq))
+      (setq forge--submit-post-function #'forge--submit-create-pullreq)
+      (run-hooks 'forge-create-pullreq-hook))
     (forge--display-post-buffer buf)))
 
 (defun forge-create-pullreq-from-issue (issue source target)
