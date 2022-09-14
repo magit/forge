@@ -516,20 +516,26 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
     version))
 
 (defun forge--db-dump (&optional version)
-  (let ((dump (format "%s-v%s-%s.sql"
-                      (file-name-sans-extension forge-database-file)
-                      (or version forge--db-version)
-                      (format-time-string "%Y%m%d-%H%M"))))
-    (message "Dumping Forge database to %s..." dump)
-    (with-temp-file dump
-      (unless (zerop (save-excursion
-                       (call-process "sqlite3" nil t nil
-                                     forge-database-file ".dump")))
-        (error "Failed to dump %s" forge-database-file))
-      (insert (format "PRAGMA user_version=%s;\n" forge--db-version))
-      (when (re-search-forward "^PRAGMA foreign_keys=\\(OFF\\);" 1000 t)
-        (replace-match "ON" t t nil 1)))
-    (message "Dumping Forge database to %s...done" dump)))
+  (let* ((dump (locate-file "sqlite3" exec-path))
+         (file (format "%s-v%s-%s.%s"
+                       (file-name-sans-extension forge-database-file)
+                       (or version forge--db-version)
+                       (format-time-string "%Y%m%d-%H%M")
+                       (if dump "sql" "sqlite"))))
+    (if dump
+        (with-temp-file file
+          (message "Dumping Forge database to %s..." file)
+          (unless (zerop (save-excursion
+                           (call-process "sqlite3" nil t nil
+                                         forge-database-file ".dump")))
+            (error "Failed to dump %s" forge-database-file))
+          (insert (format "PRAGMA user_version=%s;\n" forge--db-version))
+          (when (re-search-forward "^PRAGMA foreign_keys=\\(OFF\\);" 1000 t)
+            (replace-match "ON" t t nil 1))
+          (message "Dumping Forge database to %s...done" file))
+      (message "Copying Forge database to %s..." file)
+      (copy-file forge-database-file file)
+      (message "Copying Forge database to %s...done" file))))
 
 (defun forge--db-restore (dump)
   (when (and forge--db-connection (emacsql-live-p forge--db-connection))
