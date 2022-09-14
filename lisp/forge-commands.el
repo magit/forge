@@ -50,6 +50,15 @@ Takes the pull-request as only argument and must return a directory."
   :group 'forge
   :type 'function)
 
+(defcustom forge-checkout-reset-existing-branch
+  nil
+  "srtsrt"
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type '(choice (const :tag "Reset the branch as it exists remotely" t)
+                 (const :tag "Ask the user if the branch should be left intact" ask)
+                 (const :tag "Keep the branch intact" nil)))
+
 ;;; Dispatch
 
 ;;;###autoload (autoload 'forge-dispatch "forge-commands" nil t)
@@ -736,17 +745,24 @@ because the source branch has been deleted"))
 
 ;;;###autoload
 (defun forge-checkout-pullreq (pullreq)
-  "Create, configure and checkout a new branch from a pull-request.
-Please see the manual for more information."
+  "Checkout the branch of a PULLREQ."
   (interactive (list (forge-read-pullreq "Checkout pull request" t)))
-  (let ((pullreq (forge-get-pullreq pullreq)))
+  (when-let* (pullreq
+              (pullreq (forge-get-pullreq pullreq))
+              (branch (or (if (not (eq (oref pullreq state) 'open))
+                              (magit-ref-p (format "refs/pullreqs/%s"
+                                                   (oref pullreq number)))
+                            (forge--pullreq-branch-active pullreq))
+                          (forge--pullreq-branch-internal pullreq))))
     (magit-checkout
-     (or (if (not (eq (oref pullreq state) 'open))
-             (magit-ref-p (format "refs/pullreqs/%s"
-                                  (oref pullreq number)))
-           (forge--pullreq-branch-active pullreq))
+     (if (or
+          (not (magit-branch-p branch))
+          (eq forge-checkout-reset-existing-branch t)
+          (and (eq forge-checkout-reset-existing-branch 'ask)
+               (y-or-n-p (format "Reset %s?" branch))))
          (let ((magit-inhibit-refresh t))
-           (forge-branch-pullreq pullreq))))))
+           (forge-branch-pullreq pullreq))
+       branch))))
 
 ;;;###autoload
 (defun forge-checkout-worktree (path pullreq)
