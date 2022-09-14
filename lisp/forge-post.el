@@ -38,6 +38,15 @@
   :options '(visual-line-mode
              turn-on-flyspell))
 
+(defcustom forge-buffer-draft-p nil
+  "Whether new pull-requests start out as drafts by default.
+
+The buffer-local value is use to keep track of the draft status
+of the current pull-request."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type 'boolean)
+
 ;;; Class
 
 (defclass forge-post (forge-object) () :abstract t)
@@ -129,7 +138,7 @@
 (defvar-local forge--submit-post-function nil)
 (defvar-local forge--cancel-post-function nil)
 (defvar-local forge--pre-post-buffer nil)
-(defvar-local forge--buffer-draft-p nil)
+(make-variable-buffer-local 'forge-buffer-draft-p)
 
 (defun forge--prepare-post-buffer (filename &optional header source target)
   (let ((file (magit-git-dir
@@ -249,8 +258,8 @@
 (transient-define-infix forge-post-toggle-draft ()
   "Toggle whether the pull-request being created is a draft."
   :class 'transient-lisp-variable
-  :variable 'forge--buffer-draft-p
-  :reader (lambda (&rest _) (not forge--buffer-draft-p))
+  :variable 'forge-buffer-draft-p
+  :reader (lambda (&rest _) (not forge-buffer-draft-p))
   :if (lambda () (equal (file-name-nondirectory buffer-file-name) "new-pullreq")))
 
 ;;; Notes

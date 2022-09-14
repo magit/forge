@@ -442,8 +442,8 @@
                   (magit-split-branch-name forge--buffer-head-branch))
                  (head-repo (forge-get-repository 'stub head-remote)))
       (forge--glab-post head-repo "/projects/:project/merge_requests"
-        `((title . ,(if (if (local-variable-p 'forge--buffer-draft-p)
-                            forge--buffer-draft-p
+        `((title . ,(if (if (local-variable-p 'forge-buffer-draft-p)
+                            forge-buffer-draft-p
                           .draft)
                         (concat "Draft: " .title)
                       .title))
