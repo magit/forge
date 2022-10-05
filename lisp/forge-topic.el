@@ -628,21 +628,23 @@ Return a value between 0 and 1."
 (cl-defun forge-insert-topic-refs
     (&optional (topic forge-buffer-topic))
   (when (forge-pullreq-p topic)
-    (magit-insert-section (topic-refs)
-      (with-slots (cross-repo-p base-repo base-ref head-repo head-ref) topic
-        (let ((separator (propertize ":" 'font-lock-face 'magit-dimmed))
-              (deleted (propertize "(deleted)" 'font-lock-face 'magit-dimmed)))
-          (insert (format "%-11s" "Refs: ")
-                  (if cross-repo-p
-                      (concat base-repo separator base-ref)
-                    base-ref)
-                  (propertize "..." 'font-lock-face 'magit-dimmed)
-                  (if cross-repo-p
-                      (if (and head-repo head-ref)
-                          (concat head-repo separator head-ref)
-                        deleted)
-                    (or head-ref deleted))
-                  "\n"))))))
+    (with-slots (cross-repo-p base-repo base-ref head-repo head-ref) topic
+      (let* ((separator (propertize ":" 'font-lock-face 'magit-dimmed))
+             (deleted (propertize "(deleted)" 'font-lock-face 'magit-dimmed))
+             (refs (format "%s%s%s"
+                           (if cross-repo-p
+                               (concat base-repo separator base-ref)
+                             base-ref)
+                           (propertize "..." 'font-lock-face 'magit-dimmed)
+                           (if cross-repo-p
+                               (if (and head-repo head-ref)
+                                   (concat head-repo separator head-ref)
+                                 deleted)
+                             (or head-ref deleted)))))
+        (magit-insert-section (topic-refs refs)
+                              (insert (format "%-11s" "Refs: ")
+                                      refs
+                                      "\n"))))))
 
 (defvar forge-topic-assignees-section-map
   (let ((map (make-sparse-keymap)))
