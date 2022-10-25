@@ -674,8 +674,8 @@ Please see the manual for more information."
         ;; Such a branch name would be invalid.  If we encounter
         ;; it anyway, then that means that the source branch and
         ;; the merge-request ref are missing.
-        (error "Cannot check out this Gitlab merge-request \
-because the source branch has been deleted"))
+        (error "Cannot check out this Gitlab merge-request %s"
+               "because the source branch has been deleted"))
       (if (not (eq state 'open))
           (magit-git "branch" "--force" branch
                      (format "refs/pullreqs/%s" number))
