@@ -53,27 +53,14 @@ You need to install the `emacsql-sqlite-builtin' package to use
 this connector.
 
 If you are using an older Emacs release, then the recommended
-connector is `sqlite-module', which uses the module provided by
-the `sqlite3' package.  This is very similar to the previous
-connector and the built-in support in Emacs 29 derives from this
-module.  You need to install the `emacsql-sqlite-module' package
-to use this connector.
-
-For the time being `libsqlight3' is still supported.  Do not use
-this, it is an older version of the `sqlite-module' connector
-from before the connector and the package were renamed.
-
-For the time being `sqlite3' is also supported.  Do not use this.
-This uses the third-party `emacsql-sqlite3' package, which uses
-the official `sqlite3' command-line tool, which is not intended
-to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
+connector is `sqlite-module', which uses the module provided
+by the `sqlite3' package.  You need to install thef
+`emacsql-sqlite-module' package to use this connector."
   :package-version '(forge . "0.3.0")
   :group 'forge
   :type '(choice (const sqlite)
                  (const sqlite-builtin)
-                 (const sqlite-module)
-                 (const :tag "libsqlite3 (OBSOLETE)" libsqlite3)
-                 (const :tag "sqlite3 (BROKEN)" sqlite3)))
+                 (const sqlite-module)))
 
 (defcustom forge-database-file
   (expand-file-name "forge-database.sqlite"  user-emacs-directory)
@@ -87,8 +74,10 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
 (declare-function forge-database--eieio-childp "forge-db.el" (obj) t)
 (cl-ecase forge-database-connector
   (sqlite
-   (defclass forge-database (emacsql-sqlite-connection closql-database)
-     ((object-class :initform 'forge-repository))))
+   (require (quote emacsql-sqlite))
+   (with-no-warnings
+     (defclass forge-database (emacsql-sqlite-connection closql-database)
+       ((object-class :initform 'forge-repository)))))
   (sqlite-builtin
    (require (quote emacsql-sqlite-builtin))
    (with-no-warnings
@@ -98,16 +87,6 @@ to be used like this.  See https://nullprogram.com/blog/2014/02/06/."
    (require (quote emacsql-sqlite-module))
    (with-no-warnings
      (defclass forge-database (emacsql-sqlite-module-connection closql-database)
-       ((object-class :initform 'forge-repository)))))
-  (libsqlite3
-   (require (quote emacsql-libsqlite3))
-   (with-no-warnings
-     (defclass forge-database (emacsql-libsqlite3-connection closql-database)
-       ((object-class :initform 'forge-repository)))))
-  (sqlite3
-   (require (quote emacsql-sqlite3))
-   (with-no-warnings
-     (defclass forge-database (emacsql-sqlite3-connection closql-database)
        ((object-class :initform 'forge-repository))))))
 
 (defconst forge--db-version 9)
