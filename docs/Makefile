@@ -44,7 +44,7 @@ HTML_FIXUP_MENU   = '/<\/body>/i<div id="s-css-s--menu"><\/div>'
 
 html-dir: $(PKG).texi
 	@printf "Generating $(PKG)/*.html\n"
-	@$(MAKEINFO) --html $(MANUAL_HTML_ARGS) $<
+	@$(MAKEINFO) --html -o $(PKG)/ $(MANUAL_HTML_ARGS) $<
 	@for f in $$(find $(PKG) -name '*.html') ; do \
 	sed -i -e $(HTML_FIXUP_CSS) -e $(HTML_FIXUP_ONLOAD) -e $(HTML_FIXUP_MENU) $$f ; \
 	done
