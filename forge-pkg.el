@@ -1,4 +1,4 @@
-(define-package "forge" "0"
+(define-package "forge" "0.3.2.50-git"
   "Access Git forges from Magit."
   '((emacs          "25.1")
     (compat         "28.1.1.0")
