@@ -642,10 +642,13 @@ Please see the manual for more information."
     (if-let ((branch (forge--pullreq-branch-active pullreq)))
         (progn (message "Branch %S already exists and is configured" branch)
                branch)
-      (forge--branch-pullreq (forge-get-repository pullreq) pullreq))))
+      (forge--branch-pullreq (forge-get-repository pullreq) pullreq)
+      (magit-refresh))))
 
-(cl-defmethod forge--branch-pullreq ((_repo forge-unusedapi-repository)
-                                     (pullreq forge-pullreq))
+(cl-defmethod forge--branch-pullreq ((pullreq forge-pullreq))
+  (forge--branch-pullreq (forge-get-repository pullreq) pullreq))
+
+(cl-defmethod forge--branch-pullreq ((_repo forge-unusedapi-repository) pullreq)
   ;; We don't know enough to do a good job.
   (let* ((number (oref pullreq number))
          (branch (format "pr-%s" number)))
@@ -655,11 +658,9 @@ Please see the manual for more information."
     ;; More often than not this is the correct target branch.
     (magit-call-git "branch" branch "--set-upstream-to=master")
     (magit-set (number-to-string number) "branch" branch "pullRequest")
-    (magit-refresh)
     branch))
 
-(cl-defmethod forge--branch-pullreq ((repo forge-repository)
-                                     (pullreq forge-pullreq))
+(cl-defmethod forge--branch-pullreq ((repo forge-repository) pullreq)
   (with-slots (number title editable-p cross-repo-p state
                       base-ref base-repo
                       head-ref head-repo head-user)
@@ -731,7 +732,6 @@ Please see the manual for more information."
                              base-ref))))
       (magit-set (number-to-string number) "branch" branch "pullRequest")
       (magit-set title                     "branch" branch "description")
-      (magit-refresh)
       branch)))
 
 ;;;###autoload
@@ -745,8 +745,7 @@ Please see the manual for more information."
              (magit-ref-p (format "refs/pullreqs/%s"
                                   (oref pullreq number)))
            (forge--pullreq-branch-active pullreq))
-         (let ((magit-inhibit-refresh t))
-           (forge-branch-pullreq pullreq))))))
+         (forge--branch-pullreq pullreq)))))
 
 ;;;###autoload
 (defun forge-checkout-worktree (path pullreq)
@@ -764,9 +763,7 @@ information."
                        (length= (directory-files path) 2))))
     (user-error "%s already exists and isn't empty" path))
   (magit-worktree-checkout path
-                           (let ((magit-inhibit-refresh t))
-                             (forge-branch-pullreq
-                              (forge-get-pullreq pullreq)))))
+                           (forge--branch-pullreq (forge-get-pullreq pullreq))))
 
 (defun forge-checkout-worktree-default-read-directory-function (pullreq)
   (with-slots (number head-ref) pullreq
