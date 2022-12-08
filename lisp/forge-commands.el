@@ -661,47 +661,49 @@ Please see the manual for more information."
     branch))
 
 (cl-defmethod forge--branch-pullreq ((repo forge-repository) pullreq)
-  (with-slots (number title editable-p cross-repo-p state
-                      base-ref head-ref head-user)
-      pullreq
-    (let* ((upstream (oref repo remote))
-           (remote head-user)
-           (branch (forge--pullreq-branch-select pullreq))
-           (pr-branch head-ref))
-      (when (string-search ":" pr-branch)
-        ;; Such a branch name would be invalid.  If we encounter
-        ;; it anyway, then that means that the source branch and
-        ;; the merge-request ref are missing.
-        (error "Cannot check out this Gitlab merge-request %s"
-               "because the source branch has been deleted"))
-      (if (not (eq state 'open))
-          (magit-git "branch" "--force" branch
-                     (format "refs/pullreqs/%s" number))
-        (if (not cross-repo-p)
-            (let ((tracking (concat upstream "/" pr-branch)))
-              (unless (magit-branch-p tracking)
-                (magit-call-git "fetch" upstream))
-              (magit-call-git "branch" branch tracking)
-              (magit-branch-maybe-adjust-upstream branch tracking)
-              (magit-set upstream "branch" branch "pushRemote")
-              (magit-set upstream "branch" branch "pullRequestRemote"))
-          (forge--setup-pullreq-remote pullreq)
-          (magit-git "branch" "--force" branch (concat remote "/" pr-branch))
-          (if (and editable-p
-                   (equal branch pr-branch))
-              (magit-set remote "branch" branch "pushRemote")
-            (magit-set upstream "branch" branch "pushRemote")))
-        (magit-set remote "branch" branch "pullRequestRemote")
-        (magit-set "true" "branch" branch "rebase")
-        (magit-git "branch" branch
-                   (concat "--set-upstream-to="
-                           (if (or magit-branch-prefer-remote-upstream
-                                   (not (magit-branch-p base-ref)))
-                               (concat upstream "/" base-ref)
-                             base-ref))))
-      (magit-set (number-to-string number) "branch" branch "pullRequest")
-      (magit-set title                     "branch" branch "description")
-      branch)))
+  (let ((number (oref pullreq number))
+        (branch (forge--pullreq-branch-select pullreq)))
+    (cond ((string-search ":" (oref pullreq head-ref))
+           ;; Such a branch name would be invalid.  If we encounter
+           ;; it anyway, then that means that the source branch and
+           ;; the merge-request ref are missing.
+           (error "Cannot check out this Gitlab merge-request %s"
+                  "because the source branch has been deleted"))
+          ((not (eq (oref pullreq state) 'open))
+           (magit-git "branch" "--force" branch
+                      (format "refs/pullreqs/%s" number)))
+          (t
+           (let ((upstream  (oref repo remote))
+                 (pr-remote (oref pullreq head-user))
+                 (pr-branch (oref pullreq head-ref)))
+             (cond ((not (oref pullreq cross-repo-p))
+                    (let ((tracking (concat upstream "/" pr-branch)))
+                      (unless (magit-branch-p tracking)
+                        (magit-call-git "fetch" upstream))
+                      (magit-call-git "branch" branch tracking)
+                      (magit-branch-maybe-adjust-upstream branch tracking)
+                      (magit-set upstream "branch" branch "pushRemote")
+                      (magit-set upstream "branch" branch "pullRequestRemote")))
+                   (t
+                    (forge--setup-pullreq-remote pullreq)
+                    (magit-git "branch" "--force" branch
+                               (concat pr-remote "/" pr-branch))
+                    (if (and (oref pullreq editable-p)
+                             (equal branch pr-branch))
+                        (magit-set pr-remote "branch" branch "pushRemote")
+                      (magit-set upstream "branch" branch "pushRemote"))))
+             (magit-set pr-remote "branch" branch "pullRequestRemote")
+             (magit-set "true" "branch" branch "rebase")
+             (magit-git "branch" branch
+                        (let ((base-ref (oref pullreq base-ref)))
+                          (concat "--set-upstream-to="
+                                  (if (or magit-branch-prefer-remote-upstream
+                                          (not (magit-branch-p base-ref)))
+                                      (concat upstream "/" base-ref)
+                                    base-ref)))))))
+    (magit-set (number-to-string number) "branch" branch "pullRequest")
+    (magit-set (oref pullreq title) "branch" branch "description")
+    branch))
 
 (defun forge--setup-pullreq-remote (pullreq)
   (let* ((pr-remote (oref pullreq head-user))
