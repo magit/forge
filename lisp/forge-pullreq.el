@@ -159,41 +159,6 @@
              (equal (magit-get "branch" branch-n "pullRequest") number)
              branch-n))))
 
-(defun forge--pullreq-branch-select (pullreq)
-  (let* ((number (oref pullreq number))
-         (branch-n (format "pr-%s" number))
-         (branch (or (forge--pullreq-branch-internal pullreq)
-                     branch-n)))
-    (when (member branch '("master" "next" "maint"))
-      (setq branch branch-n))
-    (when (magit-branch-p branch)
-      (if (equal branch branch-n)
-          (unless (y-or-n-p (format "Reset existing branch %S? " branch))
-            (user-error "Abort"))
-        (pcase (read-char-choice
-                (format "A branch named %S already exists.
-
-This could be because you checked out this pull-request before,
-in which case resetting might be the appropriate thing to do.
-
-Or the contributor worked directly on their version of a branch
-that also exists on the upstream, in which case you probably
-should not reset because you would end up resetting your version.
-
-Or you are trying to checkout a pull-request that you created
-yourself, in which case you probably should not reset either.
-
-  [r]eset existing %S branch
-  [c]reate new \"pr-%s\" branch instead
-  [a]bort" branch branch number) '(?r ?c ?a))
-          (?r)
-          (?c (setq branch branch-n)
-              (when (magit-branch-p branch)
-                (error "Oh no!  %S already exists too" branch)))
-          (?a (user-error "Abort"))))
-      (message ""))
-    branch))
-
 (defun forge--pullreq-ref (pullreq)
   (let ((ref (format "refs/pullreqs/%s" (oref pullreq number))))
     (and (magit-rev-verify ref) ref)))

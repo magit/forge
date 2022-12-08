@@ -661,8 +661,9 @@ Please see the manual for more information."
     branch))
 
 (cl-defmethod forge--branch-pullreq ((repo forge-repository) pullreq)
-  (let ((number (oref pullreq number))
-        (branch (forge--pullreq-branch-select pullreq)))
+  (let* ((number (oref pullreq number))
+         (branch-n (format "pr-%s" number))
+         (branch (or (forge--pullreq-branch-internal pullreq) branch-n)))
     (cond ((string-search ":" (oref pullreq head-ref))
            ;; Such a branch name would be invalid.  If we encounter
            ;; it anyway, then that means that the source branch and
@@ -682,14 +683,22 @@ Please see the manual for more information."
                     (let ((tracking (concat upstream "/" pr-branch)))
                       (unless (magit-branch-p tracking)
                         (magit-call-git "fetch" upstream))
-                      (magit-call-git "branch" branch tracking)
+                      (forge--setup-pullreq-branch branch tracking)
                       (magit-branch-maybe-adjust-upstream branch tracking)
                       (magit-set upstream "branch" branch "pushRemote")
                       (magit-set upstream "branch" branch "pullRequestRemote")))
                    (t
+                    ;; For prs within the upstream we are more permissive,
+                    ;; but any request to merge a branch with a well known
+                    ;; name from fork, is highly suspicious and likely the
+                    ;; result of a contributor not bothering to name their
+                    ;; feature branch.
+                    (when (and (member branch magit-main-branch-names)
+                               (magit-branch-p branch))
+                      (setq branch branch-n))
                     (forge--setup-pullreq-remote pullreq)
-                    (magit-git "branch" "--force" branch
-                               (concat pr-remote "/" pr-branch))
+                    (forge--setup-pullreq-branch
+                     branch (concat pr-remote "/" pr-branch))
                     (if (and (oref pullreq editable-p)
                              (equal branch pr-branch))
                         (magit-set pr-remote "branch" branch "pushRemote")
@@ -706,6 +715,12 @@ Please see the manual for more information."
     (magit-set (number-to-string number) "branch" branch "pullRequest")
     (magit-set (oref pullreq title) "branch" branch "description")
     branch))
+
+(defun forge--setup-pullreq-branch (branch tracking)
+  (if (magit-branch-p branch)
+      (unless (magit-rev-equal branch tracking)
+        (message "Existing branch %s diverged from %s" branch tracking))
+    (magit-git "branch" branch tracking)))
 
 (defun forge--setup-pullreq-remote (pullreq)
   (let* ((pr-remote (oref pullreq head-user))
@@ -747,13 +762,7 @@ Please see the manual for more information."
   "Create, configure and checkout a new branch from a pull-request.
 Please see the manual for more information."
   (interactive (list (forge-read-pullreq "Checkout pull request" t)))
-  (let ((pullreq (forge-get-pullreq pullreq)))
-    (magit-checkout
-     (or (if (not (eq (oref pullreq state) 'open))
-             (magit-ref-p (format "refs/pullreqs/%s"
-                                  (oref pullreq number)))
-           (forge--pullreq-branch-active pullreq))
-         (forge--branch-pullreq pullreq)))))
+  (magit-checkout (forge--branch-pullreq (forge-get-pullreq pullreq))))
 
 ;;;###autoload
 (defun forge-checkout-worktree (path pullreq)
