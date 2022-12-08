@@ -662,12 +662,9 @@ Please see the manual for more information."
 
 (cl-defmethod forge--branch-pullreq ((repo forge-repository) pullreq)
   (with-slots (number title editable-p cross-repo-p state
-                      base-ref base-repo
-                      head-ref head-repo head-user)
+                      base-ref head-ref head-user)
       pullreq
-    (let* ((host (oref repo githost))
-           (upstream (oref repo remote))
-           (upstream-url (magit-git-string "remote" "get-url" upstream))
+    (let* ((upstream (oref repo remote))
            (remote head-user)
            (branch (forge--pullreq-branch-select pullreq))
            (pr-branch head-ref))
@@ -688,35 +685,7 @@ Please see the manual for more information."
               (magit-branch-maybe-adjust-upstream branch tracking)
               (magit-set upstream "branch" branch "pushRemote")
               (magit-set upstream "branch" branch "pullRequestRemote"))
-          (if (magit-remote-p remote)
-              (let ((url   (magit-git-string "remote" "get-url" remote))
-                    (fetch (magit-get-all "remote" remote "fetch")))
-                (unless (forge--url-equal
-                         url (format "git@%s:%s.git" host head-repo))
-                  (user-error
-                   "Remote `%s' already exists but does not point to %s"
-                   remote url))
-                (unless (or (member (format "+refs/heads/*:refs/remotes/%s/*"
-                                            remote)
-                                    fetch)
-                            (member (format "+refs/heads/%s:refs/remotes/%s/%s"
-                                            pr-branch remote pr-branch)
-                                    fetch))
-                  (magit-git "remote" "set-branches" "--add" remote pr-branch)
-                  (magit-git "fetch" remote)))
-            (magit-git
-             "remote" "add" "-f" "--no-tags"
-             "-t" pr-branch remote
-             (cond ((or (string-prefix-p "git@" upstream-url)
-                        (string-prefix-p "ssh://git@" upstream-url))
-                    (format "git@%s:%s.git" host head-repo))
-                   ((string-prefix-p "https://" upstream-url)
-                    (format "https://%s/%s.git" host head-repo))
-                   ((string-prefix-p "git://" upstream-url)
-                    (format "git://%s/%s.git" host head-repo))
-                   ((string-prefix-p "http://" upstream-url)
-                    (format "http://%s/%s.git" host head-repo))
-                   (t (error "%s has an unexpected format" upstream-url)))))
+          (forge--setup-pullreq-remote pullreq)
           (magit-git "branch" "--force" branch (concat remote "/" pr-branch))
           (if (and editable-p
                    (equal branch pr-branch))
@@ -733,6 +702,41 @@ Please see the manual for more information."
       (magit-set (number-to-string number) "branch" branch "pullRequest")
       (magit-set title                     "branch" branch "description")
       branch)))
+
+(defun forge--setup-pullreq-remote (pullreq)
+  (let* ((pr-remote (oref pullreq head-user))
+         (pr-branch (oref pullreq head-ref))
+         (repo (forge-get-repository pullreq))
+         (host (oref repo githost))
+         (fork (oref pullreq head-repo)))
+    (if (magit-remote-p pr-remote)
+        (let ((url (magit-git-string "remote" "get-url" pr-remote))
+              (fetch (magit-get-all "remote" pr-remote "fetch")))
+          (unless (forge--url-equal url (format "git@%s:%s.git" host fork))
+            (user-error "Remote `%s' already exists but does not point to %s"
+                        pr-remote url))
+          (unless (or (member (format "+refs/heads/*:refs/remotes/%s/*"
+                                      pr-remote)
+                              fetch)
+                      (member (format "+refs/heads/%s:refs/remotes/%s/%s"
+                                      pr-branch pr-remote pr-branch)
+                              fetch))
+            (magit-git "remote" "set-branches" "--add" pr-remote pr-branch)
+            (magit-git "fetch" pr-remote)))
+      (let ((url (magit-git-string "remote" "get-url" (oref repo remote))))
+        (magit-git
+         "remote" "add" "-f" "--no-tags"
+         "-t" pr-branch pr-remote
+         (cond ((or (string-prefix-p "git@" url)
+                    (string-prefix-p "ssh://git@" url))
+                (format "git@%s:%s.git" host fork))
+               ((string-prefix-p "https://" url)
+                (format "https://%s/%s.git" host fork))
+               ((string-prefix-p "git://" url)
+                (format "git://%s/%s.git" host fork))
+               ((string-prefix-p "http://" url)
+                (format "http://%s/%s.git" host fork))
+               ((error "%s has an unexpected format" url))))))))
 
 ;;;###autoload
 (defun forge-checkout-pullreq (pullreq)
