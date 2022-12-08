@@ -666,9 +666,11 @@ Please see the manual for more information."
     (cond ((string-search ":" (oref pullreq head-ref))
            ;; Such a branch name would be invalid.  If we encounter
            ;; it anyway, then that means that the source branch and
-           ;; the merge-request ref are missing.
-           (error "Cannot check out this Gitlab merge-request %s"
-                  "because the source branch has been deleted"))
+           ;; the merge-request ref are missing.  Luckily Gitlab no
+           ;; longer does this, but we nevertheless have to deal
+           ;; with merge-requests that have been lost in time.
+           (error "Cannot check out this merge-request because %s"
+                  "on old Gitlab version discared the source branch"))
           ((not (eq (oref pullreq state) 'open))
            (magit-git "branch" "--force" branch
                       (format "refs/pullreqs/%s" number)))
