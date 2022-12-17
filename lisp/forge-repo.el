@@ -176,7 +176,7 @@ repository, if any."
             (error
              "Cannot determine forge repository.  %s\nSee %s."
              (cond (remote (format "No url configured for %S." remote))
-                   ((let ((config (magit-get "forge.remote")))
+                   ((and-let* ((config (magit-get "forge.remote")))
                       (format "Value of `forge.remote' is %S but %s"
                               config "that remote does not exist.")))
                    ((magit-list-remotes) "Cannot decide on remote to use.")
