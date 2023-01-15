@@ -1059,6 +1059,41 @@ you to manually clean up the local database."
     (magit-refresh)))
 
 ;;;###autoload
+(defun forge-rename-default-branch ()
+  "Rename the default branch to NEWNAME.
+Change the name on the upstream remote and locally, and update
+the upstream remotes of local branches accordingly."
+  (interactive)
+  (let* ((repo (forge-get-repository 'full))
+         (_ (unless (forge-github-repository-p repo)
+              (user-error "Updating default branch not supported for forge `%s'"
+                          (oref repo forge))))
+         (remote (or (and (fboundp 'forge--get-remote)
+                          (forge--get-remote))
+                     (magit-get-some-remote)
+                     (user-error "No remote configured")))
+         (symref (format "refs/remotes/%s/HEAD" remote))
+         (oldhead (progn
+                    (message "Determining old default branch...")
+                    (magit-git "fetch" "--prune")
+                    (magit-git "remote" "set-head" "--auto" remote)
+                    (message "Determining old default branch...done")
+                    (magit-git-string "symbolic-ref" "--short" symref)))
+         (oldname (if oldhead
+                      (cdr (magit-split-branch-name oldhead))
+                    (error "Cannot determine old default branch")))
+         (default (and (not (equal oldname "main")) "main"))
+         (newname (read-string
+                   (format "Rename default branch `%s' to%s: "
+                           oldname
+                           (if default (format " (default: %s)" default) ""))
+                   nil nil default)))
+    (message "Renaming default branch...")
+    (forge--set-default-branch repo newname oldname)
+    (magit-refresh)
+    (message "Renaming default branch...done")))
+
+;;;###autoload
 (defun forge-reset-database ()
   "Move the current database file to the trash.
 This is useful after the database scheme has changed, which will
