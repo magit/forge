@@ -807,7 +807,7 @@ dedicated buffers:
     created within this account.  If unspecified, then the name of the
     account is used.
 
-  Example: ~(("tarsius") ("emacsmirror" :remote-name "mirror"))~.
+  Example: ~(("tarsius") ("emacsmirror" remote-name "mirror"))~.
 
 - User Option: forge-owned-ignored ::
 

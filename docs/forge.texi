@@ -1090,7 +1090,7 @@ created within this account.  If unspecified, then the name of the
 account is used.
 @end itemize
 
-Example: @code{(("tarsius") ("emacsmirror" :remote-name "mirror"))}.
+Example: @code{(("tarsius") ("emacsmirror" remote-name "mirror"))}.
 @end defopt
 
 @defopt forge-owned-ignored
