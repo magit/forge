@@ -11,6 +11,6 @@ Please see the [[https://magit.vc/manual/forge][manual]] and the [[https://emacs
 
 #+html: <br><br>
 #+html: <a href="https://github.com/magit/forge/actions/workflows/compile.yml"><img alt="Compile" src="https://github.com/magit/forge/actions/workflows/compile.yml/badge.svg"/></a>
-#+html: <a href="https://github.com/magit/forge/actions/workflows/manual.yml"><img alt="Compile" src="https://github.com/magit/forge/actions/workflows/manual.yml/badge.svg"/></a>
+#+html: <a href="https://github.com/magit/forge/actions/workflows/manual.yml"><img alt="Manual" src="https://github.com/magit/forge/actions/workflows/manual.yml/badge.svg"/></a>
 #+html: <a href="https://stable.melpa.org/#/forge"><img alt="MELPA Stable" src="https://stable.melpa.org/packages/forge-badge.svg"/></a>
 #+html: <a href="https://melpa.org/#/forge"><img alt="MELPA" src="https://melpa.org/packages/forge-badge.svg"/></a>
