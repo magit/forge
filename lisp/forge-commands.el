@@ -882,7 +882,7 @@ is added anyway.  Currently this only supports Github and Gitlab."
      (list fork
            (read-string "Remote name: "
                         (or (plist-get (cdr (assoc fork forge-owned-accounts))
-                                       'remote-name)
+                                       :remote-name)
                             fork)))))
   (let ((repo (forge-get-repository 'stub)))
     (forge--fork-repository repo fork)
