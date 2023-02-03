@@ -986,7 +986,7 @@ modify `bug-reference-bug-regexp' if appropriate."
         (add-hook 'completion-at-point-functions
                   #'forge-topic-completion-at-point nil t)))))
 
-(when (and (not noninteractive) forge--sqlite-available-p)
+(unless noninteractive
   (dolist (hook forge-bug-reference-hooks)
     (add-hook hook #'forge-bug-reference-setup)))
 
