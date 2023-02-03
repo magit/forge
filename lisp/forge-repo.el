@@ -135,6 +135,14 @@ forges and hosts."
 
 (defconst forge--signal-no-entry '(t stub create))
 
+(defun forge--ensure-db-available (&optional demand)
+  (condition-case err
+      (forge-db)
+    (error
+     (prog1 nil
+       (when (memq demand forge--signal-no-entry)
+         (error "Cannot open forge database.  %s" (cdr err)))))))
+
 (defun forge--get-remote (&optional warn)
   (let* ((remotes (magit-list-remotes))
          (config (magit-get "forge.remote"))
@@ -195,49 +203,50 @@ repository, if any."
   "((host owner name) &optional remote demand)
 
 Return the repository identified by HOST, OWNER and NAME."
-  (if-let ((spec (assoc host forge-alist)))
-      (pcase-let ((`(,githost ,apihost ,forge ,class) spec))
-        (let* ((row (car (forge-sql [:select * :from repository
-                                     :where (and (= forge $s1)
-                                                 (= owner $s2)
-                                                 (= name  $s3))]
-                                    forge owner name)))
-               (obj (and row (closql--remake-instance class (forge-db) row))))
-          (when obj
-            (oset obj apihost apihost)
-            (oset obj githost githost)
-            (oset obj remote  remote))
-          (cond ((and (eq demand t)
-                      (or (not obj)
-                          (oref obj sparse-p)))
-                 (error "Cannot use `%s' in %S yet.\n%s"
-                        this-command (magit-toplevel)
-                        "Use `M-x forge-add-repository' before trying again."))
-                ((and (eq demand 'full) obj
-                      (oref obj sparse-p))
-                 (setq obj nil)))
-          (when (and (memq demand '(stub create))
-                     (not obj))
-            (pcase-let ((`(,id . ,forge-id)
-                         (forge--repository-ids class host owner name
-                                                (eq demand 'stub))))
-              ;; The repo might have been renamed on the forge.  #188
-              (unless (setq obj (forge-get-repository (list :id id)))
-                (setq obj (funcall class
-                                   :id       id
-                                   :forge-id forge-id
-                                   :forge    forge
-                                   :owner    owner
-                                   :name     name
-                                   :apihost  apihost
-                                   :githost  githost
-                                   :remote   remote))
-                (when (eq demand 'create)
-                  (closql-insert (forge-db) obj)))))
-          obj))
-    (when (memq demand forge--signal-no-entry)
-      (error "Cannot determine forge repository.  No entry for %S in %s"
-             host 'forge-alist))))
+  (when (forge--ensure-db-available demand)
+    (if-let ((spec (assoc host forge-alist)))
+        (pcase-let ((`(,githost ,apihost ,forge ,class) spec))
+          (let* ((row (car (forge-sql [:select * :from repository
+                                               :where (and (= forge $s1)
+                                                           (= owner $s2)
+                                                           (= name  $s3))]
+                                      forge owner name)))
+                 (obj (and row (closql--remake-instance class (forge-db) row))))
+            (when obj
+              (oset obj apihost apihost)
+              (oset obj githost githost)
+              (oset obj remote  remote))
+            (cond ((and (eq demand t)
+                        (or (not obj)
+                            (oref obj sparse-p)))
+                   (error "Cannot use `%s' in %S yet.\n%s"
+                          this-command (magit-toplevel)
+                          "Use `M-x forge-add-repository' before trying again."))
+                  ((and (eq demand 'full) obj
+                        (oref obj sparse-p))
+                   (setq obj nil)))
+            (when (and (memq demand '(stub create))
+                       (not obj))
+              (pcase-let ((`(,id . ,forge-id)
+                           (forge--repository-ids class host owner name
+                                                  (eq demand 'stub))))
+                ;; The repo might have been renamed on the forge.  #188
+                (unless (setq obj (forge-get-repository (list :id id)))
+                  (setq obj (funcall class
+                                     :id       id
+                                     :forge-id forge-id
+                                     :forge    forge
+                                     :owner    owner
+                                     :name     name
+                                     :apihost  apihost
+                                     :githost  githost
+                                     :remote   remote))
+                  (when (eq demand 'create)
+                    (closql-insert (forge-db) obj)))))
+            obj))
+      (when (memq demand forge--signal-no-entry)
+        (error "Cannot determine forge repository.  No entry for %S in %s"
+               host 'forge-alist)))))
 
 (cl-defmethod forge-get-repository ((repo forge-repository))
   repo)
