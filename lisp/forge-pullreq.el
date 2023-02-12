@@ -196,18 +196,14 @@
                (forge-get-pullreq post))))
       (forge--pullreq-by-forge-short-link-at-point)))
 
-(defvar forge-pullreqs-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] #'forge-browse-pullreqs)
-    (define-key map [remap magit-visit-thing]  #'forge-list-pullreqs)
-    (define-key map (kbd "C-c C-n")            #'forge-create-pullreq)
-    map))
+(defvar-keymap forge-pullreqs-section-map
+  "<remap> <magit-browse-thing>" #'forge-browse-pullreqs
+  "<remap> <magit-visit-thing>"  #'forge-list-pullreqs
+  "C-c C-n"                      #'forge-create-pullreq)
 
-(defvar forge-pullreq-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] #'forge-browse-pullreq)
-    (define-key map [remap magit-visit-thing]  #'forge-visit-pullreq)
-    map))
+(defvar-keymap forge-pullreq-section-map
+  "<remap> <magit-browse-thing>" #'forge-browse-pullreq
+  "<remap> <magit-visit-thing>"  #'forge-visit-pullreq)
 
 (defun forge-insert-pullreqs ()
   "Insert a list of mostly recent and/or open pull-requests.

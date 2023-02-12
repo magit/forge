@@ -116,18 +116,16 @@ of the current pull-request."
 
 ;;; Mode
 
-(defvar forge-post-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-e")                      #'forge-post-dispatch)
-    (define-key map (kbd "C-c C-c")                      #'forge-post-submit)
-    (define-key map [remap evil-save-and-close]          #'forge-post-submit)
-    (define-key map [remap evil-save-modified-and-close] #'forge-post-submit)
-    (define-key map (kbd "C-c C-k")                      #'forge-post-cancel)
-    (define-key map [remap kill-buffer]                  #'forge-post-cancel)
-    (define-key map [remap ido-kill-buffer]              #'forge-post-cancel)
-    (define-key map [remap iswitchb-kill-buffer]         #'forge-post-cancel)
-    (define-key map [remap evil-quit]                    #'forge-post-cancel)
-    map))
+(defvar-keymap forge-post-mode-map
+  "C-c C-e"                                #'forge-post-dispatch
+  "C-c C-c"                                #'forge-post-submit
+  "<remap> <evil-save-and-close>"          #'forge-post-submit
+  "<remap> <evil-save-modified-and-close>" #'forge-post-submit
+  "C-c C-k"                                #'forge-post-cancel
+  "<remap> <kill-buffer>"                  #'forge-post-cancel
+  "<remap> <ido-kill-buffer>"              #'forge-post-cancel
+  "<remap> <iswitchb-kill-buffer>"         #'forge-post-cancel
+  "<remap> <evil-quit>"                    #'forge-post-cancel)
 
 (define-derived-mode forge-post-mode gfm-mode "Forge-Post" "")
 
@@ -266,10 +264,8 @@ of the current pull-request."
 
 (defclass forge-note (forge-post) ())
 
-(defvar forge-note-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] #'forge-edit-topic-note)
-    map))
+(defvar-keymap forge-note-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-note)
 
 (defun forge--save-note (_repo topic)
   (let ((value (string-trim (buffer-substring-no-properties

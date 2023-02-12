@@ -372,14 +372,12 @@ is called and a topic object is returned if available."
 
 ;;; Mode
 
-(defvar forge-topic-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "C-c C-n") #'forge-create-post)
-    (define-key map (kbd "C-c C-r") #'forge-create-post)
-    (define-key map [remap magit-browse-thing] #'forge-browse-topic)
-    (define-key map [remap magit-visit-thing] #'markdown-follow-link-at-point)
-    (define-key map [mouse-2] #'markdown-follow-link-at-point)
-    map))
+(defvar-keymap forge-topic-mode-map
+  "C-c C-n"                      #'forge-create-post
+  "C-c C-r"                      #'forge-create-post
+  "<remap> <magit-browse-thing>" #'forge-browse-topic
+  "<remap> <magit-visit-thing>"  #'markdown-follow-link-at-point
+  "<mouse-2>"                    #'markdown-follow-link-at-point)
 
 (define-derived-mode forge-topic-mode magit-mode "View Topic"
   "View a forge issue or pull-request."
@@ -397,12 +395,10 @@ is called and a topic object is returned if available."
     forge-insert-topic-assignees
     forge-insert-topic-review-requests))
 
-(defvar forge-post-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] #'forge-browse-post)
-    (define-key map [remap magit-edit-thing]   #'forge-edit-post)
-    (define-key map (kbd "C-c C-k")            #'forge-delete-comment)
-    map))
+(defvar-keymap forge-post-section-map
+  "<remap> <magit-browse-thing>" #'forge-browse-post
+  "<remap> <magit-edit-thing>"   #'forge-edit-post
+  "C-c C-k"                      #'forge-delete-comment)
 
 (defvar-local forge-buffer-topic nil)
 (defvar-local forge-buffer-topic-ident nil)
@@ -471,20 +467,16 @@ is called and a topic object is returned if available."
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
   forge-buffer-topic-ident)
 
-(defvar forge-topic-title-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] #'forge-edit-topic-title)
-    map))
+(defvar-keymap forge-topic-title-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-title)
 
 (cl-defun forge-insert-topic-title
     (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-title)
     (insert (format "%-11s" "Title: ") (oref topic title) "\n")))
 
-(defvar forge-topic-state-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] #'forge-edit-topic-state)
-    map))
+(defvar-keymap forge-topic-state-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-state)
 
 (cl-defun forge-insert-topic-state
     (&optional (topic forge-buffer-topic))
@@ -500,10 +492,8 @@ is called and a topic object is returned if available."
                   ('(open t) 'forge-topic-unmerged)
                   ('(open)   'forge-topic-open))))))))
 
-(defvar forge-topic-draft-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] #'forge-edit-topic-draft)
-    map))
+(defvar-keymap forge-topic-draft-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-draft)
 
 (cl-defun forge-insert-topic-draft
     (&optional (topic forge-buffer-topic))
@@ -511,10 +501,8 @@ is called and a topic object is returned if available."
     (magit-insert-section (topic-draft)
       (insert (format "%-11s%s\n" "Draft: " (oref topic draft-p))))))
 
-(defvar forge-topic-milestone-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] #'forge-edit-topic-milestone)
-    map))
+(defvar-keymap forge-topic-milestone-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-milestone)
 
 (cl-defun forge-insert-topic-milestone
     (&optional (topic forge-buffer-topic))
@@ -531,10 +519,8 @@ is called and a topic object is returned if available."
   (and-let* ((id (oref topic milestone)))
     (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))))
 
-(defvar forge-topic-labels-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] #'forge-edit-topic-labels)
-    map))
+(defvar-keymap forge-topic-labels-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-labels)
 
 (cl-defun forge-insert-topic-labels
     (&optional (topic forge-buffer-topic))
@@ -570,10 +556,8 @@ is called and a topic object is returned if available."
         (when description
           (overlay-put o 'help-echo description))))))
 
-(defvar forge-topic-marks-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] #'forge-edit-topic-marks)
-    map))
+(defvar-keymap forge-topic-marks-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-marks)
 
 (cl-defun forge-insert-topic-marks
     (&optional (topic forge-buffer-topic))
@@ -644,10 +628,8 @@ Return a value between 0 and 1."
                     (or head-ref deleted))
                   "\n"))))))
 
-(defvar forge-topic-assignees-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] #'forge-edit-topic-assignees)
-    map))
+(defvar-keymap forge-topic-assignees-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-assignees)
 
 (cl-defun forge-insert-topic-assignees
     (&optional (topic forge-buffer-topic))
@@ -662,10 +644,8 @@ Return a value between 0 and 1."
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
 
-(defvar forge-topic-review-requests-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-edit-thing] #'forge-edit-topic-review-requests)
-    map))
+(defvar-keymap forge-topic-review-requests-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-review-requests)
 
 (cl-defun forge-insert-topic-review-requests
     (&optional (topic forge-buffer-topic))

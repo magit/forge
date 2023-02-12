@@ -66,11 +66,9 @@
 
 ;;; Mode
 
-(defvar forge-notifications-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map magit-mode-map)
-    map)
-  "Keymap for `forge-notifications-mode'.")
+(defvar-keymap forge-notifications-mode-map
+  :doc "Keymap for `forge-notifications-mode'."
+  :parent magit-mode-map)
 
 (define-derived-mode forge-notifications-mode magit-mode "Forge Notifications"
   "Mode for looking at forge notifications."
@@ -101,11 +99,9 @@
 ;;; Sections
 
 ;; The double-prefix is necessary due to a limitation of magit-insert-section.
-(defvar forge-forge-repo-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] #'forge-browse-repository)
-    (define-key map [remap magit-visit-thing]  #'forge-visit-repository)
-    map))
+(defvar-keymap forge-forge-repo-section-map
+  "<remap> <magit-browse-thing>" #'forge-browse-repository
+  "<remap> <magit-visit-thing>"  #'forge-visit-repository)
 
 (defun forge-insert-notifications ()
   (when-let ((ns (forge--list-notifications-all)))

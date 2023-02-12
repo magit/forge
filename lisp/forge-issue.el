@@ -153,18 +153,14 @@
                (forge-get-issue post))))
       (forge--issue-by-forge-short-link-at-point)))
 
-(defvar forge-issues-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] #'forge-browse-issues)
-    (define-key map [remap magit-visit-thing]  #'forge-list-issues)
-    (define-key map (kbd "C-c C-n")            #'forge-create-issue)
-    map))
+(defvar-keymap forge-issues-section-map
+  "<remap> <magit-browse-thing>" #'forge-browse-issues
+  "<remap> <magit-visit-thing>"  #'forge-list-issues
+  "C-c C-n"                      #'forge-create-issue)
 
-(defvar forge-issue-section-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map [remap magit-browse-thing] #'forge-browse-issue)
-    (define-key map [remap magit-visit-thing]  #'forge-visit-issue)
-    map))
+(defvar-keymap forge-issue-section-map
+  "<remap> <magit-browse-thing>" #'forge-browse-issue
+  "<remap> <magit-visit-thing>"  #'forge-visit-issue)
 
 (defun forge-insert-issues ()
   "Insert a list of mostly recent and/or open issues.

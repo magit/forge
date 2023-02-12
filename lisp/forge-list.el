@@ -93,16 +93,14 @@ This is a list of package names.  Used by the commands
 ;;; Modes
 ;;;; Topics
 
-(defvar forge-topic-list-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map (kbd "RET") #'forge-visit-topic)
-    (define-key map [return]    #'forge-visit-topic)
-    (define-key map (kbd "o")   #'forge-browse-topic)
-    (define-key map (kbd "'")   #'forge-dispatch)
-    (define-key map (kbd "?")   #'magit-dispatch)
-    map)
-  "Local keymap for Forge-Topic-List mode buffers.")
+(defvar-keymap forge-topic-list-mode-map
+  :doc "Local keymap for Forge-Topic-List mode buffers."
+  :parent tabulated-list-mode-map
+  "RET"      #'forge-visit-topic
+  "<return>" #'forge-visit-topic
+  "o"        #'forge-browse-topic
+  "'"        #'forge-dispatch
+  "?"        #'magit-dispatch)
 
 (define-derived-mode forge-topic-list-mode tabulated-list-mode
   "Issues"
@@ -156,16 +154,14 @@ This is a list of package names.  Used by the commands
 
 ;;;; Repository
 
-(defvar forge-repository-list-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map tabulated-list-mode-map)
-    (define-key map (kbd "RET") #'forge-visit-repository)
-    (define-key map [return]    #'forge-visit-repository)
-    (define-key map (kbd "o")   #'forge-browse-repository)
-    (define-key map (kbd "'")   #'forge-dispatch)
-    (define-key map (kbd "?")   #'magit-dispatch)
-    map)
-  "Local keymap for Forge-Repository-List mode buffers.")
+(defvar-keymap forge-repository-list-mode-map
+  :doc "Local keymap for Forge-Repository-List mode buffers."
+  :parent tabulated-list-mode-map
+  "RET"      #'forge-visit-repository
+  "<return>" #'forge-visit-repository
+  "o"        #'forge-browse-repository
+  "'"        #'forge-dispatch
+  "?"        #'magit-dispatch)
 
 (define-derived-mode forge-repository-list-mode tabulated-list-mode
   "Repositories"
