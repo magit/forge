@@ -106,7 +106,21 @@ Complications:
 * When connecting to a Github Enterprise edition whose REST
   API's end point is \"<host>/v3\" and whose GraphQL API's
   end point is \"<host>/graphql\", then use \"<host>/v3\" as
-  APIHOST.  This is a historic accident.  See issue #174."
+  APIHOST.  This is a historic accident.  See issue #174.
+
+* This variable does not account for the possibility that the
+  git repository does not use the same address as the web
+  interface.  That is another historic accident and if many
+  users are affected by it, we might have to fix it properly.
+  If you would like that, comment on issue #532.
+
+  For now a workaround has to be used.  Assuming the web
+  interface is available at \"example.com\" and the repository
+  is at \"ssh.example.com\", use \"example.com\" as GITHOST and
+  add something like this to \".gitconfig\":
+
+    [url \"git@ssh.example.com\"]
+        insteadOf = git@example.com"
   :package-version '(forge . "0.1.0")
   :group 'forge
   :type '(repeat (list (string :tag "Git host")
