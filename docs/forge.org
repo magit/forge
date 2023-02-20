@@ -68,6 +68,11 @@ Forge's support for Github can be considered the "reference
   back to use the REST API in many cases because the former is still
   rather incomplete.
 
+- The Github GraphQL API has a hard-coded timeout on queries. The only solution
+  is to reduce the number of entities we query at once, which can be done by
+  adjusting either the ~forge.graphqlItemLimit~ git variable or the field "GQL
+  entity limit" in a status buffer.
+
 - Forge depends on the ~updated_at~ field being updated when
   appropriate.  For Github pull-requests at least, that is not always
   done.

@@ -96,7 +96,9 @@ Takes the pull-request as only argument and must return a directory."
     ("a  " "add repository to database" forge-add-repository)
     ("r  " "forge.remote"  forge-forge.remote)
     ("t t" forge-toggle-display-in-status-buffer)
-    ("t c" forge-toggle-closed-visibility)]])
+    ("t c" forge-toggle-closed-visibility)
+    ("t l" "GQL entity limit" forge-forge.graphqlItemLimit
+     :if (lambda () (forge-github-repository-p (forge-get-repository nil)))) ]])
 
 ;;; Pull
 
@@ -933,6 +935,12 @@ This only affect the current status buffer."
       (setq forge-topic-list-limit (cons forge-topic-list-limit 5))
     (setcdr forge-topic-list-limit (* -1 (cdr forge-topic-list-limit))))
   (magit-refresh))
+
+(transient-define-infix forge-forge.graphqlItemLimit ()
+  "Change the maximum number of GraphQL entities to pull at once."
+  :class 'magit--git-variable
+  :variable "forge.graphqlItemLimit"
+  :reader #'read-string)
 
 ;;;###autoload
 (defun forge-add-pullreq-refspec ()

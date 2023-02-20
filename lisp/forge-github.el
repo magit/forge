@@ -51,7 +51,10 @@
                            &optional callback)
   (let ((buf (current-buffer))
         (dir default-directory)
-        (selective-p (oref repo selective-p)))
+        (selective-p (oref repo selective-p))
+        (ghub-graphql-items-per-request
+         (string-to-number
+          (or (magit-get "forge.graphqlItemLimit") "100"))))
     (ghub-fetch-repository
      (oref repo owner)
      (oref repo name)

@@ -165,6 +165,12 @@ back to use the REST API in many cases because the former is still
 rather incomplete.
 
 @item
+The Github GraphQL API has a hard-coded timeout on queries. The only solution
+is to reduce the number of entities we query at once, which can be done by
+adjusting either the @code{forge.graphqlItemLimit} git variable or the field "GQL
+entity limit" in a status buffer.
+
+@item
 Forge depends on the @code{updated_at} field being updated when
 appropriate.  For Github pull-requests at least, that is not always
 done.
