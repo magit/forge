@@ -426,7 +426,7 @@ by the `sqlite3' package.  You need to install thef
 (defun forge--db-maybe-update (db version)
   (let ((code-version forge--db-version))
     (when (< version code-version)
-      (forge--db-dump version))
+      (forge--backup-database db))
     (emacsql-with-transaction db
       (when (= version 2)
         (message "Upgrading Forge database from version 2 to 3...")
@@ -494,38 +494,14 @@ by the `sqlite3' package.  You need to install thef
         (message "Upgrading Forge database from version 8 to 9...done"))
       version)))
 
-(defun forge--db-dump (&optional version)
-  (let* ((dump (locate-file "sqlite3" exec-path))
-         (file (format "%s-v%s-%s.%s"
-                       (file-name-sans-extension forge-database-file)
-                       (or version forge--db-version)
-                       (format-time-string "%Y%m%d-%H%M")
-                       (if dump "sql" "sqlite"))))
-    (if dump
-        (with-temp-file file
-          (message "Dumping Forge database to %s..." file)
-          (unless (zerop (save-excursion
-                           (call-process "sqlite3" nil t nil
-                                         forge-database-file ".dump")))
-            (error "Failed to dump %s" forge-database-file))
-          (insert (format "PRAGMA user_version=%s;\n" forge--db-version))
-          (when (re-search-forward "^PRAGMA foreign_keys=\\(OFF\\);" 1000 t)
-            (replace-match "ON" t t nil 1))
-          (message "Dumping Forge database to %s...done" file))
-      (message "Copying Forge database to %s..." file)
-      (copy-file forge-database-file file)
-      (message "Copying Forge database to %s...done" file))))
-
-(defun forge--db-restore (dump)
-  (when (and forge--db-connection (emacsql-live-p forge--db-connection))
-    (emacsql-close forge--db-connection))
-  (forge--db-dump)
-  (with-temp-buffer
-    (unless (zerop (call-process "sqlite3" nil t nil
-                                 forge-database-file
-                                 (format ".read %s" dump)))
-      (error "Failed to read %s: %s" dump (buffer-string))))
-  (forge-db))
+(defun forge--backup-database (db)
+  (let ((dst (concat (file-name-sans-extension forge-database-file)
+                     (format "-v%s" (caar (emacsql db [:pragma user-version])))
+                     (format-time-string "-%Y%m%d-%H%M")
+                     ".sqlite")))
+    (message "Copying Forge database to %s..." dst)
+    (copy-file forge-database-file dst)
+    (message "Copying Forge database to %s...done" dst)))
 
 ;;; _
 (provide 'forge-db)
