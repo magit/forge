@@ -425,8 +425,7 @@ by the `sqlite3' package.  You need to install thef
 
 (defun forge--db-maybe-update (db version)
   (let ((code-version forge--db-version))
-    (when (and (< version code-version)
-               (yes-or-no-p "Forge database needs to be updated.  Backup first? "))
+    (when (< version code-version)
       (forge--db-dump version))
     (emacsql-with-transaction db
       (when (= version 2)
