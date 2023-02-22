@@ -63,7 +63,7 @@ by the `sqlite3' package.  You need to install thef
                  (const sqlite-module)))
 
 (defcustom forge-database-file
-  (expand-file-name "forge-database.sqlite"  user-emacs-directory)
+  (expand-file-name "forge-database.sqlite" user-emacs-directory)
   "The file used to store the forge database."
   :package-version '(forge . "0.1.0")
   :group 'forge
