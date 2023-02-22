@@ -75,9 +75,15 @@ If you want to disable this, then you must set this to nil before
 ;;;###autoload
 (defvar forge-add-default-bindings t
   "Whether to add Forge's bindings to various Magit keymaps.
+
 If you want to disable this, then you must set this to nil before
 `magit' is loaded.  If you do it before `forge' but after `magit'
-is loaded, then `magit-mode-map' ends up being modified anyway.")
+is loaded, then `magit-mode-map' ends up being modified anyway.
+
+If this is nil, then `forge-toggle-display-in-status-buffer' can
+no longer do its job.  It might be better to set the global value
+of `forge-display-in-status-buffer' to nil instead.  That way you
+can still display topics on demand in the status buffer.")
 
 ;;;###autoload
 (with-eval-after-load 'git-commit
