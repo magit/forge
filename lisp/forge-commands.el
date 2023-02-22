@@ -1119,8 +1119,8 @@ heavy development."
   (interactive)
   (when (and (file-exists-p forge-database-file)
              (yes-or-no-p "Really trash Forge's database file? "))
-    (when forge--db-connection
-      (emacsql-close forge--db-connection))
+    (when-let ((db (forge-db t)))
+      (emacsql-close db))
     (delete-file forge-database-file t)
     (magit-refresh)))
 
@@ -1129,7 +1129,7 @@ heavy development."
   (interactive)
   (let ((db (forge-db)))
     (emacsql-enable-debugging db)
-    (switch-to-buffer-other-window (emacsql-log-buffer db))))
+    (switch-to-buffer-other-window (emacsql-log-buffer (oref db connection)))))
 
 (magit-define-section-jumper forge-jump-to-pullreqs "Pull requests" pullreqs)
 (magit-define-section-jumper forge-jump-to-issues "Issues" issues)

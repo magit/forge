@@ -73,7 +73,7 @@
                    (t
                     (forge--msg repo t t   "Pulling REPO")
                     (forge--msg repo t nil "Storing REPO")
-                    (emacsql-with-transaction (forge-db)
+                    (closql-with-transaction (forge-db)
                       (forge--update-repository repo val)
                       (forge--update-assignees  repo .assignees)
                       (forge--update-labels     repo .labels)
@@ -166,7 +166,7 @@
                   (funcall cb cb)))))
 
 (cl-defmethod forge--update-issue ((repo forge-gitlab-repository) data)
-  (emacsql-with-transaction (forge-db)
+  (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((issue-id (forge--object-id 'forge-issue repo .iid))
              (issue
@@ -284,7 +284,7 @@
                   (funcall cb cb)))))
 
 (cl-defmethod forge--update-pullreq ((repo forge-gitlab-repository) data)
-  (emacsql-with-transaction (forge-db)
+  (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .iid))
              (pullreq

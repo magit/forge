@@ -61,7 +61,7 @@
      (lambda (data)
        (forge--msg repo t t   "Pulling REPO")
        (forge--msg repo t nil "Storing REPO")
-       (emacsql-with-transaction (forge-db)
+       (closql-with-transaction (forge-db)
          (let-alist data
            (forge--update-repository repo data)
            (forge--update-assignees  repo .assignableUsers)
@@ -136,11 +136,11 @@
     (oset repo watchers       .watchers.totalCount)))
 
 (cl-defmethod forge--update-issues ((repo forge-github-repository) data bump)
-  (emacsql-with-transaction (forge-db)
+  (closql-with-transaction (forge-db)
     (mapc (lambda (e) (forge--update-issue repo e bump)) data)))
 
 (cl-defmethod forge--update-issue ((repo forge-github-repository) data bump)
-  (emacsql-with-transaction (forge-db)
+  (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((issue-id (forge--object-id 'forge-issue repo .number))
              (issue (or (forge-get-issue repo .number)
@@ -188,11 +188,11 @@
         issue))))
 
 (cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data bump)
-  (emacsql-with-transaction (forge-db)
+  (closql-with-transaction (forge-db)
     (mapc (lambda (e) (forge--update-pullreq repo e bump)) data)))
 
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data bump)
-  (emacsql-with-transaction (forge-db)
+  (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .number))
              (pullreq (or (forge-get-pullreq repo .number)
@@ -254,11 +254,11 @@
         pullreq))))
 
 (cl-defmethod forge--update-revnotes ((repo forge-github-repository) data)
-  (emacsql-with-transaction (forge-db)
+  (closql-with-transaction (forge-db)
     (mapc (apply-partially #'forge--update-revnote repo) data)))
 
 (cl-defmethod forge--update-revnote ((repo forge-github-repository) data)
-  (emacsql-with-transaction (forge-db)
+  (closql-with-transaction (forge-db)
     (let-alist data
       (closql-insert
        (forge-db)
@@ -365,7 +365,7 @@
                          nil #'cb nil :auth 'forge :host apihost))
                (forge--msg nil t t   "Pulling notifications")
                (forge--msg nil t nil "Storing notifications")
-               (emacsql-with-transaction (forge-db)
+               (closql-with-transaction (forge-db)
                  (forge-sql [:delete-from notification
                              :where (= forge $s1)] forge)
                  (pcase-dolist (`(,key ,repo ,query ,obj) notifs)

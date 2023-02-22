@@ -26,41 +26,13 @@
 (require 'compat)
 (require 'eieio)
 (require 'emacsql)
-(require 'emacsql-sqlite)
 
-(defvar forge--db-table-schemata)
-
-;; For `forge--db-maybe-update':
+;; For `closql--db-update-schema':
 (declare-function forge-get-issue "forge-core")
 (declare-function forge-get-pullreq "forge-core")
 (declare-function forge--object-id "forge-core")
 
 ;;; Options
-
-(defcustom forge-database-connector 'sqlite
-  "The database connector used by Forge.
-
-This must be set before `forge' is loaded.  To use an alternative
-connector you must install the respective package explicitly.
-
-The default is `sqlite', which uses the `emacsql-sqlite' library
-that is being maintained in the same repository as `emacsql'
-itself.
-
-If you are using Emacs 29, then the recommended connector is
-`sqlite-builtin', which uses the new builtin support for SQLite.
-You need to install the `emacsql-sqlite-builtin' package to use
-this connector.
-
-If you are using an older Emacs release, then the recommended
-connector is `sqlite-module', which uses the module provided
-by the `sqlite3' package.  You need to install thef
-`emacsql-sqlite-module' package to use this connector."
-  :package-version '(forge . "0.3.0")
-  :group 'forge
-  :type '(choice (const sqlite)
-                 (const sqlite-builtin)
-                 (const sqlite-module)))
 
 (defcustom forge-database-file
   (expand-file-name "forge-database.sqlite" user-emacs-directory)
@@ -71,54 +43,21 @@ by the `sqlite3' package.  You need to install thef
 
 ;;; Core
 
-(declare-function forge-database--eieio-childp "forge-db.el" (obj) t)
-(cl-ecase forge-database-connector
-  (sqlite
-   (require (quote emacsql-sqlite))
-   (with-no-warnings
-     (defclass forge-database (emacsql-sqlite-connection closql-database)
-       ((object-class :initform 'forge-repository)))))
-  (sqlite-builtin
-   (require (quote emacsql-sqlite-builtin))
-   (with-no-warnings
-     (defclass forge-database (emacsql-sqlite-builtin-connection closql-database)
-       ((object-class :initform 'forge-repository)))))
-  (sqlite-module
-   (require (quote emacsql-sqlite-module))
-   (with-no-warnings
-     (defclass forge-database (emacsql-sqlite-module-connection closql-database)
-       ((object-class :initform 'forge-repository))))))
+(defclass forge-database (closql-database)
+  ((name         :initform "Forge")
+   (object-class :initform 'forge-repository)
+   (file         :initform 'forge-database-file)
+   (schemata     :initform 'forge--db-table-schemata)
+   (version      :initform 9)))
 
-(defconst forge--db-version 9)
-(defconst forge--sqlite-available-p
-  (with-demoted-errors "Forge initialization: %S"
-    (emacsql-sqlite-ensure-binary)
-    t))
+(defvar forge--override-connection-class nil)
+(defvar forge--sqlite-available-p t)
 
-(defvar forge--db-connection nil
-  "The EmacSQL database connection.")
-
-(defun forge-db ()
-  (unless (and forge--db-connection (emacsql-live-p forge--db-connection))
-    (make-directory (file-name-directory forge-database-file) t)
-    (closql-db 'forge-database 'forge--db-connection
-               forge-database-file t)
-    (let* ((db forge--db-connection)
-           (version (closql--db-get-version db))
-           (version (forge--db-maybe-update forge--db-connection version)))
-      (cond
-       ((> version forge--db-version)
-        (emacsql-close db)
-        (user-error
-         "The Forge database was created with a newer Forge version.  %s"
-         "You need to update the Forge package."))
-       ((< version forge--db-version)
-        (emacsql-close db)
-        (error "The Forge database scheme changed %s (sql:%s var:%s)"
-               "and there is no upgrade path" version forge--db-version)))))
-  forge--db-connection)
-
-;;; Api
+(defun forge-db (&optional livep)
+  (condition-case err
+      (closql-db 'forge-database livep forge--override-connection-class)
+    (error (setq forge--sqlite-available-p nil)
+           (signal (car err) (cdr err)))))
 
 (defun forge-sql (sql &rest args)
   (if (stringp sql)
@@ -415,19 +354,12 @@ by the `sqlite3' package.  You need to install thef
       [repository] :references repository [id]
       :on-delete :cascade))))
 
-(cl-defmethod closql--db-init ((db forge-database))
-  (message "Creating Forge database (%s)..." forge-database-file)
-  (emacsql-with-transaction db
-    (pcase-dolist (`(,table . ,schema) forge--db-table-schemata)
-      (emacsql db [:create-table $i1 $S2] table schema))
-    (closql--db-set-version db forge--db-version))
-  (message "Creating Forge database (%s)...done" forge-database-file))
-
-(defun forge--db-maybe-update (db version)
-  (let ((code-version forge--db-version))
+(cl-defmethod closql--db-update-schema ((db forge-database))
+  (let ((code-version (oref-default 'forge-database version))
+        (version (closql--db-get-version db)))
     (when (< version code-version)
       (forge--backup-database db))
-    (emacsql-with-transaction db
+    (closql-with-transaction db
       (when (= version 2)
         (message "Upgrading Forge database from version 2 to 3...")
         (emacsql db [:create-table pullreq-review-request $S1]
@@ -491,12 +423,13 @@ by the `sqlite3' package.  You need to install thef
         (emacsql db [:alter-table pullreq :add-column their-id :default nil])
         (emacsql db [:alter-table issue   :add-column their-id :default nil])
         (closql--db-set-version db (setq version 9))
-        (message "Upgrading Forge database from version 8 to 9...done"))
-      version)))
+        (message "Upgrading Forge database from version 8 to 9...done")))
+    (cl-call-next-method)))
 
 (defun forge--backup-database (db)
   (let ((dst (concat (file-name-sans-extension forge-database-file)
-                     (format "-v%s" (caar (emacsql db [:pragma user-version])))
+                     (format "-v%s" (caar (emacsql (oref db connection)
+                                                   [:pragma user-version])))
                      (format-time-string "-%Y%m%d-%H%M")
                      ".sqlite")))
     (message "Copying Forge database to %s..." dst)
