@@ -66,7 +66,7 @@
 If you want to disable this, then you must set this to nil before
 `forge' is loaded.")
 
-(when (and forge-add-default-sections forge--sqlite-available-p)
+(when forge-add-default-sections
   (magit-add-section-hook 'magit-status-sections-hook #'forge-insert-pullreqs nil t)
   (magit-add-section-hook 'magit-status-sections-hook #'forge-insert-issues   nil t))
 

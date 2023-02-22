@@ -51,18 +51,20 @@
    (version      :initform 9)))
 
 (defvar forge--override-connection-class nil)
-(defvar forge--sqlite-available-p t)
 
 (defun forge-db (&optional livep)
-  (condition-case err
-      (closql-db 'forge-database livep forge--override-connection-class)
-    (error (setq forge--sqlite-available-p nil)
-           (signal (car err) (cdr err)))))
+  (closql-db 'forge-database livep forge--override-connection-class))
 
 (defun forge-sql (sql &rest args)
   (if (stringp sql)
       (emacsql (forge-db) (apply #'format sql args))
     (apply #'emacsql (forge-db) sql args)))
+
+(defun forge-connect-database-once ()
+  "Try to connect Forge database on first use of `magit-status' only."
+  (remove-hook 'magit-status-mode-hook #'forge-connect-database-once)
+  (forge-db))
+(add-hook 'magit-status-mode-hook #'forge-connect-database-once)
 
 ;;; Schemata
 

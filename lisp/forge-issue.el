@@ -165,7 +165,7 @@
 (defun forge-insert-issues ()
   "Insert a list of mostly recent and/or open issues.
 Also see option `forge-topic-list-limit'."
-  (when forge-display-in-status-buffer
+  (when (and forge-display-in-status-buffer (forge-db t))
     (when-let ((repo (forge-get-repository nil)))
       (when (and (not (oref repo sparse-p))
                  (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE

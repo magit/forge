@@ -930,7 +930,8 @@ alist, containing just `text' and `position'.")
 If forge data has been fetched for the current repository, then
 enable `bug-reference-mode' or `bug-reference-prog-mode' and
 modify `bug-reference-bug-regexp' if appropriate."
-  (unless bug-reference-url-format
+  (unless (or bug-reference-url-format
+              (not (forge-db t)))
     (magit--with-safe-default-directory nil
       (when-let ((repo (forge-get-repository 'full)))
         (if (>= emacs-major-version 28)
@@ -967,7 +968,7 @@ modify `bug-reference-bug-regexp' if appropriate."
         (add-hook 'completion-at-point-functions
                   #'forge-topic-completion-at-point nil t)))))
 
-(when (and (not noninteractive) forge--sqlite-available-p)
+(unless noninteractive
   (dolist (hook forge-bug-reference-hooks)
     (add-hook hook #'forge-bug-reference-setup)))
 

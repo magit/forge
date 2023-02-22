@@ -208,7 +208,7 @@
 (defun forge-insert-pullreqs ()
   "Insert a list of mostly recent and/or open pull-requests.
 Also see option `forge-topic-list-limit'."
-  (when forge-display-in-status-buffer
+  (when (and forge-display-in-status-buffer (forge-db t))
     (when-let ((repo (forge-get-repository nil)))
       (unless (oref repo sparse-p)
         (forge-insert-topics "Pull requests"
