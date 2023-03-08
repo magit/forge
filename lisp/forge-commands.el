@@ -940,7 +940,8 @@ This only affect the current status buffer."
   "Change the maximum number of GraphQL entities to pull at once."
   :class 'magit--git-variable
   :variable "forge.graphqlItemLimit"
-  :reader #'read-string)
+  :reader #'read-string
+  :default (lambda () (number-to-string ghub-graphql-items-per-request)))
 
 ;;;###autoload
 (defun forge-add-pullreq-refspec ()
