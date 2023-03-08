@@ -95,10 +95,10 @@ Takes the pull-request as only argument and must return a directory."
   [["Configure"
     ("a  " "add repository to database" forge-add-repository)
     ("r  " "forge.remote"  forge-forge.remote)
+    ("t l" "forge.graphqlItemLimit" forge-forge.graphqlItemLimit
+     :if (lambda () (forge-github-repository-p (forge-get-repository nil))))
     ("t t" forge-toggle-display-in-status-buffer)
-    ("t c" forge-toggle-closed-visibility)
-    ("t l" "GQL entity limit" forge-forge.graphqlItemLimit
-     :if (lambda () (forge-github-repository-p (forge-get-repository nil)))) ]])
+    ("t c" forge-toggle-closed-visibility)]])
 
 ;;; Pull
 
