@@ -665,18 +665,19 @@ Please see the manual for more information."
 (cl-defmethod forge--branch-pullreq ((repo forge-repository) pullreq)
   (let* ((number (oref pullreq number))
          (branch-n (format "pr-%s" number))
-         (branch (or (forge--pullreq-branch-internal pullreq) branch-n)))
-    (cond ((string-search ":" (oref pullreq head-ref))
+         (branch (or (forge--pullreq-branch-internal pullreq) branch-n))
+         (pullreq-ref (format "refs/pullreqs/%s" number)))
+    (cond ((and-let* ((pr-branch (oref pullreq head-ref)))
+             (string-search ":" pr-branch))
            ;; Such a branch name would be invalid.  If we encounter
            ;; it anyway, then that means that the source branch and
            ;; the merge-request ref are missing.  Luckily Gitlab no
            ;; longer does this, but we nevertheless have to deal
            ;; with merge-requests that have been lost in time.
            (error "Cannot check out this merge-request because %s"
-                  "on old Gitlab version discared the source branch"))
+                  "on old Gitlab version discarded the source branch"))
           ((not (eq (oref pullreq state) 'open))
-           (magit-git "branch" "--force" branch
-                      (format "refs/pullreqs/%s" number)))
+           (magit-git "branch" "--force" branch pullreq-ref))
           (t
            (let ((upstream  (oref repo remote))
                  (pr-remote (oref pullreq head-user))
@@ -689,6 +690,12 @@ Please see the manual for more information."
                       (magit-branch-maybe-adjust-upstream branch tracking)
                       (magit-set upstream "branch" branch "pushRemote")
                       (magit-set upstream "branch" branch "pullRequestRemote")))
+                   ((not pr-branch)
+                    ;; The pullreq branch (on Github) has been deleted.
+                    (setq pr-remote nil)
+                    (setq branch branch-n)
+                    (forge--setup-pullreq-branch branch pullreq-ref)
+                    (magit-set upstream "branch" branch "pushRemote"))
                    (t
                     ;; For prs within the upstream we are more permissive,
                     ;; but any request to merge a branch with a well known
@@ -705,7 +712,8 @@ Please see the manual for more information."
                              (equal branch pr-branch))
                         (magit-set pr-remote "branch" branch "pushRemote")
                       (magit-set upstream "branch" branch "pushRemote"))))
-             (magit-set pr-remote "branch" branch "pullRequestRemote")
+             (when pr-remote
+               (magit-set pr-remote "branch" branch "pullRequestRemote"))
              (magit-set "true" "branch" branch "rebase")
              (magit-git "branch" branch
                         (let ((base-ref (oref pullreq base-ref)))
