@@ -103,7 +103,7 @@ Takes the pull-request as only argument and must return a directory."
 ;;; Pull
 
 ;;;###autoload
-(defun forge-pull (&optional repo until)
+(defun forge-pull (&optional repo until interactive)
   "Pull topics from the forge repository.
 
 With a prefix argument and if the repository has not been fetched
@@ -111,24 +111,24 @@ before, then read a date from the user and limit pulled topics to
 those that have been updated since then.
 
 If pulling is too slow, then also consider setting the Git variable
-`forge.omitExpensive' to `true'."
+`forge.omitExpensive' to `true'.
+\n(fn &optional REPO UNTIL)"
   (interactive
    (list nil
          (and current-prefix-arg
               (not (forge-get-repository 'full))
-              (forge-read-date "Limit pulling to topics updates since: "))))
+              (forge-read-date "Limit pulling to topics updates since: "))
+         t))
   (let (create)
     (unless repo
       (setq repo (forge-get-repository 'full))
       (unless repo
         (setq repo (forge-get-repository 'create))
         (setq create t)))
-    (when (or create
-              (called-interactively-p 'any)
-              (magit-git-config-p "forge.autoPull" t))
+    (when (or create interactive (magit-git-config-p "forge.autoPull" t))
       (forge--zap-repository-cache repo)
-      (when (and (oref repo selective-p)
-                 (called-interactively-p 'any)
+      (when (and interactive
+                 (oref repo selective-p)
                  (yes-or-no-p
                   (format "Always pull all of %s/%s's topics going forward?"
                           (oref repo owner)
