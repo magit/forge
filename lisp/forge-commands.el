@@ -555,7 +555,7 @@ TOPIC and modify that instead."
          (repo  (forge-get-repository topic))
          (crm-separator ","))
     (forge--set-topic-labels
-     repo topic (magit-completing-read-multiple*
+     repo topic (magit-completing-read-multiple
                  "Labels: "
                  (mapcar #'cadr (oref repo labels))
                  nil t
@@ -583,7 +583,7 @@ TOPIC and modify that instead."
          (crm-separator ","))
     (forge--set-topic-assignees
      repo topic
-     (magit-completing-read-multiple*
+     (magit-completing-read-multiple
       "Assignees: " choices nil
       (if (forge--childp repo 'forge-gitlab-repository)
           t ; Selecting something else would fail later on.
@@ -602,7 +602,7 @@ PULLREQ and modify that instead."
          (crm-separator ","))
     (forge--set-topic-review-requests
      repo topic
-     (magit-completing-read-multiple*
+     (magit-completing-read-multiple
       "Request review from: " choices nil
       'confirm
       (mapconcat #'car value ",")))))
@@ -862,7 +862,7 @@ information."
   (let ((marks (forge-sql [:select [name id] :from mark]))
         (crm-separator ","))
     (--map (cadr (assoc it marks))
-           (magit-completing-read-multiple*
+           (magit-completing-read-multiple
             prompt (mapcar #'car marks) nil t
             (and topic
                  (mapconcat #'car (closql--iref topic 'marks) ","))))))
