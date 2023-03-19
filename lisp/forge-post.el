@@ -139,9 +139,9 @@ of the current pull-request."
 (make-variable-buffer-local 'forge-buffer-draft-p)
 
 (defun forge--prepare-post-buffer (filename &optional header source target)
-  (let ((file (magit-git-dir
-               (convert-standard-filename
-                (concat "magit/posts/" filename)))))
+  (let ((file (convert-standard-filename
+               (expand-file-name (concat "magit/posts/" filename)
+                                 (magit-gitdir)))))
     (make-directory (file-name-directory file) t)
     (let ((prevbuf (current-buffer))
           (resume (and (file-exists-p file)
