@@ -221,7 +221,7 @@ Also see option `forge-topic-list-limit'."
         ;; Numeric pr ref, pr branch (if it exists) and api
         ;; pr range may be out of sync.  Just show them all.
         (magit-insert-section-body
-          (magit-insert-log
+          (magit--insert-log nil
            (delq nil (list (concat "^" (or (oref pullreq base-rev)
                                            (concat (forge--get-remote) "/"
                                                    (oref pullreq base-ref))))
@@ -233,7 +233,7 @@ Also see option `forge-topic-list-limit'."
           (magit-make-margin-overlay nil t))
       (when-let ((range (forge--pullreq-range pullreq)))
         (magit-insert-section-body
-          (magit-insert-log range magit-buffer-log-args)
+          (magit--insert-log nil range magit-buffer-log-args)
           (magit-make-margin-overlay nil t))))))
 
 (cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq)
