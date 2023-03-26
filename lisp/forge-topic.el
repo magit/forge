@@ -455,8 +455,9 @@ is called and a topic object is returned if available."
                                                  (float-time
                                                   (date-to-time created))))
                                          'font-lock-face 'forge-post-date))))))
-              (add-face-text-property 0 (length heading)
-                                      'magit-diff-hunk-heading t heading)
+              (font-lock-append-text-property
+               0 (length heading)
+               'font-lock-face 'magit-diff-hunk-heading heading)
               (magit-insert-heading heading))
             (insert (forge--fontify-markdown body) "\n\n"))))
       (when (and (display-images-p)
