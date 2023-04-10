@@ -32,6 +32,9 @@
 (declare-function forge-get-pullreq "forge-core")
 (declare-function forge--object-id "forge-core")
 
+(eval-when-compile
+  (cl-pushnew 'value eieio--known-slot-names))
+
 ;;; Options
 
 (defcustom forge-database-file
