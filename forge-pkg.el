@@ -2,9 +2,9 @@
   "Access Git forges from Magit."
   '((emacs          "25.1")
     (compat         "29.1.3.4")
-    (closql         "20230220")
+    (closql         "20230407")
     (dash           "2.19.1")
-    (emacsql        "20230220")
+    (emacsql        "20230409")
     (ghub           "20220621")
     (let-alist      "1.0.6")
     (magit          "20230319")
