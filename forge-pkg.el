@@ -5,6 +5,7 @@
     (closql         "20230407")
     (dash           "2.19.1")
     (emacsql        "20230409")
+    (emacsql-sqlite-module "20230409.1847")
     (ghub           "20220621")
     (let-alist      "1.0.6")
     (magit          "20230319")
