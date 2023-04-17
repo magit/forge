@@ -12,6 +12,9 @@
 
 - Added ~forge-visit-topic~ to ~git-commit-mode-map~.  05529a2a
 
+- Removed option ~forge-database-connector~.  EmacSQL now automatically
+  uses the best available backend.
+
 Bug fixes:
 
 - d8773c8d, 0ca0ca8a Fix handling of JSON and YAML booleans

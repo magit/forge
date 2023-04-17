@@ -1021,28 +1021,6 @@ The following commands are available in buffers used to edit posts:
   which will happen a few times while the Forge functionality is still
   under heavy development.
 
-* Other Options
-
-- User Option: forge-database-connector ::
-
-  This option controls which database connector is used by Forge.
-
-  This must be set before ~forge~ is loaded.  To use an alternative
-  connector you must install the respective package explicitly.
-
-  - When ~sqlite~, then use the ~emacsql-sqlite~ library that is
-    being maintained in the same repository as ~emacsql~ itself.
-
-  - When ~libsqlite3~, then use the ~emacsql-libsqlite~ library,
-    which itself uses a module provided by the ~sqlite3~ package.
-    This is still experimental.
-
-  - When ~sqlite3~, then use the ~emacsql-sqlite3~ library, which
-    uses the official ~sqlite3~ command-line tool, which I do not
-    recommended because it is not suitable to be used like this,
-    but has the advantage that you likely don't need a compiler.
-    See https://nullprogram.com/blog/2014/02/06/.
-
 * FAQ
 :PROPERTIES:
 :APPENDIX:   t
