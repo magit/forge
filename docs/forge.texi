@@ -58,7 +58,6 @@ This manual is for Forge version 0.3.2.50-git.
 * Supported Forges and Hosts::
 * Getting Started::
 * Usage::
-* Other Options::
 * FAQ::
 * Keystroke Index::
 * Function and Command Index::
@@ -1342,34 +1341,6 @@ This is useful after the database's table schemata have changed,
 which will happen a few times while the Forge functionality is still
 under heavy development.
 @end deffn
-
-@node Other Options
-@chapter Other Options
-
-@defopt forge-database-connector
-This option controls which database connector is used by Forge.
-
-This must be set before @code{forge} is loaded.  To use an alternative
-connector you must install the respective package explicitly.
-
-@itemize
-@item
-When @code{sqlite}, then use the @code{emacsql-sqlite} library that is
-being maintained in the same repository as @code{emacsql} itself.
-
-@item
-When @code{libsqlite3}, then use the @code{emacsql-libsqlite} library,
-which itself uses a module provided by the @code{sqlite3} package.
-This is still experimental.
-
-@item
-When @code{sqlite3}, then use the @code{emacsql-sqlite3} library, which
-uses the official @code{sqlite3} command-line tool, which I do not
-recommended because it is not suitable to be used like this,
-but has the advantage that you likely don't need a compiler.
-See @uref{https://nullprogram.com/blog/2014/02/06/}.
-@end itemize
-@end defopt
 
 @node FAQ
 @appendix FAQ
