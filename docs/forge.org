@@ -872,8 +872,7 @@ a post visits that post in a browser.
 
 - Key: C-c C-e [on "Draft" section] (forge-edit-topic-draft) ::
 
-  This command toggles whether an existing topic between is a draft
-  or not.
+  This command toggles whether an existing topic is a draft or not.
 
 - Key: C-c C-e [on "Labels" section] (forge-edit-topic-labels) ::
 
