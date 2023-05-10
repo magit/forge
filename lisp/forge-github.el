@@ -345,7 +345,7 @@
                             (forge--ghub-massage-notification
                              data forge githost)))
                         (forge--ghub-get nil "/notifications"
-                          '((all . t))
+                          '((all . nil))
                           :host apihost :unpaginate t)))
          (groups (-partition-all 50 notifs))
          (pages  (length groups))
