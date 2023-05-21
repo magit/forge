@@ -772,7 +772,7 @@ Please see the manual for more information."
   "Create, configure and checkout a new branch from a pull-request.
 Please see the manual for more information."
   (interactive (list (forge-read-pullreq "Checkout pull request" t)))
-  (magit-checkout (forge--branch-pullreq (forge-get-pullreq pullreq))))
+  (magit--checkout (forge--branch-pullreq (forge-get-pullreq pullreq))))
 
 ;;;###autoload
 (defun forge-checkout-worktree (path pullreq)
