@@ -31,17 +31,17 @@
 ;;; Class
 
 (defclass forge-gitlab-repository (forge-repository)
-  ((issues-url-format         :initform "https://%h/%o/%n/issues")
-   (issue-url-format          :initform "https://%h/%o/%n/issues/%i")
-   (issue-post-url-format     :initform "https://%h/%o/%n/issues/%i#note_%I")
-   (pullreqs-url-format       :initform "https://%h/%o/%n/merge_requests")
-   (pullreq-url-format        :initform "https://%h/%o/%n/merge_requests/%i")
-   (pullreq-post-url-format   :initform "https://%h/%o/%n/merge_requests/%i#note_%I")
-   (commit-url-format         :initform "https://%h/%o/%n/commit/%r")
-   (branch-url-format         :initform "https://%h/%o/%n/commits/%r")
+  ((issues-url-format         :initform "https://%h/%o/%n/-/issues")
+   (issue-url-format          :initform "https://%h/%o/%n/-/issues/%i")
+   (issue-post-url-format     :initform "https://%h/%o/%n/-/issues/%i#note_%I")
+   (pullreqs-url-format       :initform "https://%h/%o/%n/-/merge_requests")
+   (pullreq-url-format        :initform "https://%h/%o/%n/-/merge_requests/%i")
+   (pullreq-post-url-format   :initform "https://%h/%o/%n/-/merge_requests/%i#note_%I")
+   (commit-url-format         :initform "https://%h/%o/%n/-/commit/%r")
+   (branch-url-format         :initform "https://%h/%o/%n/-/commits/%r")
    (remote-url-format         :initform "https://%h/%o/%n")
-   (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
-   (create-pullreq-url-format :initform "https://%h/%o/%n/merge_requests/new")
+   (create-issue-url-format   :initform "https://%h/%o/%n/-/issues/new")
+   (create-pullreq-url-format :initform "https://%h/%o/%n/-/merge_requests/new")
    (pullreq-refspec :initform "+refs/merge-requests/*/head:refs/pullreqs/*")))
 
 ;;; Pull
