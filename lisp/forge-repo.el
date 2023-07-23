@@ -192,9 +192,10 @@ repository, if any."
 
 (cl-defmethod forge-get-repository (((host owner name) list)
                                     &optional remote demand)
-  "((host owner name) &optional remote demand)
+  "((GITHOST OWNER NAME) &optional REMOTE DEMAND)
 
-Return the repository identified by HOST, OWNER and NAME."
+Return the repository identified by GITHOST, OWNER and NAME.
+See `forge-alist' for valid Git hosts."
   (if-let ((spec (assoc host forge-alist)))
       (pcase-let ((`(,githost ,apihost ,forge ,class) spec))
         (let* ((row (car (forge-sql [:select * :from repository
