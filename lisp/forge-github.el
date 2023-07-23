@@ -367,7 +367,8 @@
                (forge--msg nil t nil "Storing notifications")
                (closql-with-transaction (forge-db)
                  (forge-sql [:delete-from notification
-                             :where (= forge $s1)] forge)
+                             :where (= forge $s1)]
+                            forge)
                  (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
                    (closql-insert (forge-db) obj)
                    (forge--zap-repository-cache (forge-get-repository obj))
