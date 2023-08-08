@@ -584,7 +584,7 @@ is called and a topic object is returned if available."
         (overlay-put o 'help-echo description)))))
 
 (defun forge--sanitize-color (color)
-  (cond ((x-color-values color) color)
+  (cond ((color-values color) color)
         ;; Discard alpha information.
         ((string-match-p "\\`#.\\{4\\}\\'" color) (substring color 0 3))
         ((string-match-p "\\`#.\\{8\\}\\'" color) (substring color 0 6))
@@ -598,7 +598,7 @@ is called and a topic object is returned if available."
 (defun forge--x-color-luminance (color)
   "Calculate the luminance of a color string (e.g. \"#ffaa00\", \"blue\").
 Return a value between 0 and 1."
-  (let ((values (x-color-values color)))
+  (let ((values (color-values color)))
     (forge--color-luminance (/ (nth 0 values) 256.0)
                             (/ (nth 1 values) 256.0)
                             (/ (nth 2 values) 256.0))))
