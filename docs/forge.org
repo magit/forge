@@ -503,7 +503,7 @@ same transient prefix commands as the suffix commands used to create
 and check out branches and work trees in a more generic fashion
 (~magit-branch~ on ~b~ and ~magit-worktree~ on ~%~).
 
-- Key: b N (forge-branch-pullreq) ::
+- Key: b F (forge-branch-pullreq) ::
 
   This command creates and configures a new branch from a pull-request,
   creating and configuring a new remote if necessary.
@@ -587,7 +587,7 @@ and check out branches and work trees in a more generic fashion
     the variable ~branch.<name>.pullRequestRemote~ is set to the remote
     on which the pull-request branch is located.
 
-- Key: b n (forge-checkout-pullreq) ::
+- Key: b f (forge-checkout-pullreq) ::
 
   This command creates and configures a new branch from a pull-request
   the same way ~forge-branch-pullreq~ does.  Additionally it checks out
