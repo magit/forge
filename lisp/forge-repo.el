@@ -111,7 +111,7 @@ forges and hosts."
                           ;; This is base64 encoded, according to
                           ;; https://docs.github.com/en/graphql/reference/scalars#id.
                           ;; Unfortunately that is not always true.
-                          ;; E.g. https://github.com/dit7ya/roamex.
+                          ;; E.g., https://github.com/dit7ya/roamex.
                           (condition-case nil
                               (base64-decode-string their-id)
                             (error their-id)))

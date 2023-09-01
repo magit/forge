@@ -596,7 +596,7 @@ is called and a topic object is returned if available."
 
 ;; Copy of `rainbow-x-color-luminance'.
 (defun forge--x-color-luminance (color)
-  "Calculate the luminance of a color string (e.g. \"#ffaa00\", \"blue\").
+  "Calculate the luminance of a color string (e.g., \"#ffaa00\", \"blue\").
 Return a value between 0 and 1."
   (let ((values (color-values color)))
     (forge--color-luminance (/ (nth 0 values) 256.0)
