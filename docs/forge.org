@@ -383,7 +383,7 @@ which case "upstream" must be preferred).
 
 If this variable is set, then Forge uses the remote by that name, if
 it exists, the same way it may have used ~origin~ if the the variable
-were undefined.  I.e. it does not fall through to try ~origin~ if no
+were undefined.  I.e., it does not fall through to try ~origin~ if no
 remote by your chosen name exists.
 
 Once the upstream remote has been determined, Forge looks it up in
@@ -477,7 +477,7 @@ This is less disruptive, more reliable, and easier to understand than
 if Forge did the pulling by itself at random intervals.  It might
 however mean that you occasionally invoke a command expecting the most
 recent data to be available and then have to abort to pull first.
-The same can happen with Git, e.g. you might attempt to merge a branch
+The same can happen with Git, e.g., you might attempt to merge a branch
 that you know exists but haven't actually pulled yet.
 
 - Key: N f t (forge-pull-topic) ::
@@ -539,7 +539,7 @@ and check out branches and work trees in a more generic fashion
   Like for other commands that create a branch, it depends on the
   option ~magit-branch-prefer-remote-upstream~ whether the remote branch
   itself or the respective local branch is used as the upstream, so
-  this section may also be titled e.g. "Unmerged into master".
+  this section may also be titled, e.g., "Unmerged into master".
 
   When necessary and possible, the remote pull-request branch is
   configured to be used as the push-target.  This makes it easy to see
@@ -612,8 +612,8 @@ also delete the corresponding remote.  It does not offer to delete a
 remote if (1) the remote is the upstream remote, and/or (2) if other
 branches are being fetched from the remote.
 
-Note that you have to delete the local branch (e.g. "feature") for
-this to work.  If you delete the tracking branch (e.g "fork/feature"),
+Note that you have to delete the local branch (e.g., "feature") for
+this to work.  If you delete the tracking branch (e.g., "fork/feature"),
 then the remote is never removed.
 
 ** Working with Topics
@@ -661,7 +661,7 @@ on a commit or branch section.
   The ~RET~ binding is only available when point is on a issue or
   pull-request section because that key is already bound to something
   else for most of Magit's own sections.  ~C-c C-v~ however is also
-  available on regular commit (e.g. in a log) and branch sections.
+  available on regular commit (e.g., in a log) and branch sections.
 
   This is implemented using various commands named ~forge-visit-TYPE~
   and the key binding is defined by remapping ~magit-visit-thing~ (as
@@ -838,8 +838,8 @@ We call both issues and pull-requests "topics".  The contributions to
 the conversation are called "posts".  The post that initiated the
 conversation is also called a post.
 
-These commands are available only from the topic buffer (i.e. from the
-buffer that shows the posts on a topic).  Other commands that also
+These commands are available only from the topic buffer (i.e., from
+the buffer that shows the posts on a topic).  Other commands that also
 work in other buffers are available here also.  For example ~C-c C-w~ on
 a post visits that post in a browser.
 
