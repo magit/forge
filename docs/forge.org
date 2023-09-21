@@ -673,7 +673,7 @@ By default Forge lists a subset of topics directly in the Magit status
 buffer.  It also provides commands to list topics and notifications in
 separate buffers.
 
-Forge adds the following two functions to ~magit-status-sections-hook~:
+Forge adds the following functions to ~magit-status-sections-hook~:
 
 - Function: forge-insert-pullreqs ::
 
@@ -700,7 +700,7 @@ Forge adds the following two functions to ~magit-status-sections-hook~:
   This command toggles whether the above two functions list recently
   closed issues in the current buffer.
 
-The following three functions are also suitable for
+The following functions are also suitable for
 ~magit-status-sections-hook~:
 
 - Function: forge-insert-assigned-pullreqs ::
