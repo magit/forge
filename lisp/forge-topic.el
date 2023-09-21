@@ -502,6 +502,9 @@ an error."
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
   forge-buffer-topic-ident)
 
+;;; Headers
+;;;; Title
+
 (defvar-keymap forge-topic-title-section-map
   "<remap> <magit-edit-thing>" #'forge-edit-topic-title)
 
@@ -536,6 +539,8 @@ an error."
     (magit-insert-section (topic-draft)
       (insert (format "%-11s%s\n" "Draft: " (oref topic draft-p))))))
 
+;;;; Milestone
+
 (defvar-keymap forge-topic-milestone-section-map
   "<remap> <magit-edit-thing>" #'forge-edit-topic-milestone)
 
@@ -553,6 +558,8 @@ an error."
 (defun forge--get-topic-milestone (topic)
   (and-let* ((id (oref topic milestone)))
     (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))))
+
+;;;; Labels
 
 (defvar-keymap forge-topic-labels-section-map
   "<remap> <magit-edit-thing>" #'forge-edit-topic-labels)
@@ -591,6 +598,8 @@ an error."
         (when description
           (overlay-put o 'help-echo description))))))
 
+;;;; Marks
+
 (defvar-keymap forge-topic-marks-section-map
   "<remap> <magit-edit-thing>" #'forge-edit-topic-marks)
 
@@ -616,6 +625,66 @@ an error."
       (overlay-put o 'font-lock-face (list face 'forge-topic-label))
       (when description
         (overlay-put o 'help-echo description)))))
+
+;;;; Refs
+
+(cl-defun forge-insert-topic-refs
+    (&optional (topic forge-buffer-topic))
+  (when (forge-pullreq-p topic)
+    (magit-insert-section (topic-refs)
+      (with-slots (cross-repo-p base-repo base-ref head-repo head-ref) topic
+        (let ((separator (propertize ":" 'font-lock-face 'magit-dimmed))
+              (deleted (propertize "(deleted)" 'font-lock-face 'magit-dimmed)))
+          (insert (format "%-11s" "Refs: ")
+                  (if cross-repo-p
+                      (concat base-repo separator base-ref)
+                    base-ref)
+                  (propertize "..." 'font-lock-face 'magit-dimmed)
+                  (if cross-repo-p
+                      (if (and head-repo head-ref)
+                          (concat head-repo separator head-ref)
+                        deleted)
+                    (or head-ref deleted))
+                  "\n"))))))
+
+;;;; Assignees
+
+(defvar-keymap forge-topic-assignees-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-assignees)
+
+(cl-defun forge-insert-topic-assignees
+    (&optional (topic forge-buffer-topic))
+  (magit-insert-section (topic-assignees)
+    (insert (format "%-11s" "Assignees: "))
+    (if-let ((assignees (closql--iref topic 'assignees)))
+        (insert (mapconcat (pcase-lambda (`(,login ,name))
+                             (format "%s%s (@%s)"
+                                     (forge--format-avatar login)
+                                     name login))
+                           assignees ", "))
+      (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
+    (insert ?\n)))
+
+;;;; Review-Requests
+
+(defvar-keymap forge-topic-review-requests-section-map
+  "<remap> <magit-edit-thing>" #'forge-edit-topic-review-requests)
+
+(cl-defun forge-insert-topic-review-requests
+    (&optional (topic forge-buffer-topic))
+  (when (forge-pullreq-p topic)
+    (magit-insert-section (topic-review-requests)
+      (insert (format "%-11s" "Review-Requests: "))
+      (if-let ((review-requests (closql--iref topic 'review-requests)))
+          (insert (mapconcat (pcase-lambda (`(,login ,name))
+                               (format "%s%s (@%s)"
+                                       (forge--format-avatar login)
+                                       name login))
+                             review-requests ", "))
+        (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
+      (insert ?\n))))
+
+;;; Internal Utilities
 
 (defun forge--sanitize-color (color)
   (cond ((color-values color) color)
@@ -643,58 +712,6 @@ Return a value between 0 and 1."
   "Calculate the luminance of color composed of RED, GREEN and BLUE.
 Return a value between 0 and 1."
   (/ (+ (* .2126 red) (* .7152 green) (* .0722 blue)) 256))
-
-(cl-defun forge-insert-topic-refs
-    (&optional (topic forge-buffer-topic))
-  (when (forge-pullreq-p topic)
-    (magit-insert-section (topic-refs)
-      (with-slots (cross-repo-p base-repo base-ref head-repo head-ref) topic
-        (let ((separator (propertize ":" 'font-lock-face 'magit-dimmed))
-              (deleted (propertize "(deleted)" 'font-lock-face 'magit-dimmed)))
-          (insert (format "%-11s" "Refs: ")
-                  (if cross-repo-p
-                      (concat base-repo separator base-ref)
-                    base-ref)
-                  (propertize "..." 'font-lock-face 'magit-dimmed)
-                  (if cross-repo-p
-                      (if (and head-repo head-ref)
-                          (concat head-repo separator head-ref)
-                        deleted)
-                    (or head-ref deleted))
-                  "\n"))))))
-
-(defvar-keymap forge-topic-assignees-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-assignees)
-
-(cl-defun forge-insert-topic-assignees
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-assignees)
-    (insert (format "%-11s" "Assignees: "))
-    (if-let ((assignees (closql--iref topic 'assignees)))
-        (insert (mapconcat (pcase-lambda (`(,login ,name))
-                             (format "%s%s (@%s)"
-                                     (forge--format-avatar login)
-                                     name login))
-                           assignees ", "))
-      (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
-    (insert ?\n)))
-
-(defvar-keymap forge-topic-review-requests-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-review-requests)
-
-(cl-defun forge-insert-topic-review-requests
-    (&optional (topic forge-buffer-topic))
-  (when (forge-pullreq-p topic)
-    (magit-insert-section (topic-review-requests)
-      (insert (format "%-11s" "Review-Requests: "))
-      (if-let ((review-requests (closql--iref topic 'review-requests)))
-          (insert (mapconcat (pcase-lambda (`(,login ,name))
-                               (format "%s%s (@%s)"
-                                       (forge--format-avatar login)
-                                       name login))
-                             review-requests ", "))
-        (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
-      (insert ?\n))))
 
 (defun forge--fontify-markdown (text)
   (with-temp-buffer
