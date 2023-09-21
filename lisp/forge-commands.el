@@ -509,113 +509,93 @@ point is currently on."
       (insert (oref post body)))
     (forge--display-post-buffer buf)))
 
-(defun forge-edit-topic-title (topic)
-  "Edit the title of the current topic.
-If there is no current topic or with a prefix argument read a
-TOPIC and modify that instead."
-  (interactive (list (forge-read-topic "Edit title of")))
-  (forge--topic-set 'title (read-string "Title: "
-                                        (oref (forge-get-topic topic) title))))
+(defun forge-edit-topic-title (title)
+  "Edit the TITLE of the current topic."
+  (interactive (list (read-string "Title: "
+                                  (oref (forge-current-topic t) title))))
+  (forge--topic-set 'title title))
 
-(defun forge-edit-topic-state (topic state)
-  "Close or reopen the current topic.
-If there is no current topic or with a prefix argument read a
-TOPIC and modify that instead."
-  (interactive
-   (let* ((id (forge-read-topic "Close/reopen"))
-          (topic (forge-get-topic id))
-          (state (oref topic state)))
-     (when (eq state 'merged)
-       (error "Merged pull-requests cannot be reopened"))
-     (if (magit-y-or-n-p (format "%s %S"
-                                 (if (eq state 'closed) "Reopen" "Close")
-                                 (car (forge--topic-format-choice topic))))
-         (list id (if (eq state 'closed) 'open 'closed))
-       (user-error "Abort"))))
-  (forge--topic-set 'state state))
+(defun forge-edit-topic-state ()
+  "Close or reopen the current topic."
+  (interactive)
+  (let* ((topic (forge-current-topic t))
+         (state (oref topic state)))
+    (when (eq state 'merged)
+      (user-error "Merged pull-requests cannot be reopened"))
+    (if (magit-y-or-n-p (format "%s %S"
+                                (if (eq state 'closed) "Reopen" "Close")
+                                (car (forge--topic-format-choice topic))))
+        (forge--topic-set 'state (if (eq state 'closed) 'open 'closed))
+      (user-error "Abort"))))
 
-(defun forge-edit-topic-draft (pullreq)
-  "Toggle whether the current pull-request is a draft.
-If there is no current topic or with a prefix argument read a
-TOPIC and modify that instead."
-  (interactive (list (forge-read-pullreq "Toggle draft state of")))
-  (forge--topic-set 'draft (not (oref pullreq draft-p))))
+(defun forge-edit-topic-draft ()
+  "Toggle whether the current pull-request is a draft."
+  (interactive)
+  (forge--topic-set 'draft (not (oref (forge-current-pullreq t) draft-p))))
 
-(defun forge-edit-topic-milestone (topic)
-  (interactive (list (forge-read-topic "Edit milestone of")))
-  (let* ((topic (forge-get-topic topic))
-         (repo  (forge-get-repository topic)))
-    (forge--topic-set 'milestone
-                      (magit-completing-read
-                       "Milestone"
-                       (mapcar #'caddr (oref repo milestones))
-                       nil t (forge--get-topic-milestone topic)))))
+(defun forge-edit-topic-milestone (milestone)
+  "Edit what MILESTONE the current topic belongs to."
+  (interactive;
+   (let ((topic (forge-current-topic t)))
+     (list (magit-completing-read
+            "Milestone"
+            (mapcar #'caddr (oref (forge-get-repository topic) milestones))
+            nil t (forge--get-topic-milestone topic)))))
+  (forge--topic-set 'milestone milestone))
 
-(defun forge-edit-topic-labels (topic)
-  "Edit the labels of the current topic.
-If there is no current topic or with a prefix argument read a
-TOPIC and modify that instead."
-  (interactive (list (forge-read-topic "Edit labels of")))
-  (let* ((topic (forge-get-topic topic))
-         (repo  (forge-get-repository topic))
-         (crm-separator ","))
-    (forge--topic-set 'labels
-                      (magit-completing-read-multiple
-                       "Labels: "
-                       (mapcar #'cadr (oref repo labels))
-                       nil t
-                       (mapconcat #'car (closql--iref topic 'labels) ",")))))
+(defun forge-edit-topic-labels (labels)
+  "Edit the LABELS of the current topic."
+  (interactive;
+   (let* ((topic (forge-current-topic t))
+          (repo  (forge-get-repository topic))
+          (crm-separator ","))
+     (list (magit-completing-read-multiple
+            "Labels: "
+            (mapcar #'cadr (oref repo labels))
+            nil t
+            (mapconcat #'car (closql--iref topic 'labels) ",")))))
+  (forge--topic-set 'labels labels))
 
-(defun forge-edit-topic-marks (topic marks)
-  "Edit the marks of the current topic.
-If there is no current topic or with a prefix argument read a
-TOPIC and modify that instead."
-  (interactive
-   (let ((topic (forge-read-topic "Edit marks of")))
-     (list topic (forge-read-marks "Marks: " (forge-get-topic topic)))))
-  (oset (forge-get-topic topic) marks marks)
+(defun forge-edit-topic-marks (marks)
+  "Edit the MARKS of the current topic."
+  (interactive (list (forge-read-marks "Marks: " (forge-current-topic t))))
+  (oset (forge-current-topic t) marks marks)
   (magit-refresh))
 
-(defun forge-edit-topic-assignees (topic)
-  "Edit the assignees of the current topic.
-If there is no current topic or with a prefix argument read a
-TOPIC and modify that instead."
-  (interactive (list (forge-read-topic "Edit assignees of")))
-  (let* ((topic (forge-get-topic topic))
-         (repo  (forge-get-repository topic))
-         (value (closql--iref topic 'assignees))
-         (choices (mapcar #'cadr (oref repo assignees)))
-         (crm-separator ","))
-    (forge--topic-set 'assignees
-                      (magit-completing-read-multiple
-                       "Assignees: " choices nil
-                       (if (forge--childp repo 'forge-gitlab-repository)
-                           t ; Selecting something else would fail later on.
-                         'confirm)
-                       (mapconcat #'car value ",")))))
+(defun forge-edit-topic-assignees (assignees)
+  "Edit the ASSIGNEES of the current topic."
+  (interactive
+   (let* ((topic (forge-current-topic t))
+          (repo  (forge-get-repository topic))
+          (value (closql--iref topic 'assignees))
+          (choices (mapcar #'cadr (oref repo assignees)))
+          (crm-separator ","))
+     (list (magit-completing-read-multiple
+            "Assignees: " choices nil
+            (if (forge--childp repo 'forge-gitlab-repository)
+                t ; Selecting something else would fail later on.
+              'confirm)
+            (mapconcat #'car value ",")))))
+  (forge--topic-set 'assignees assignees))
 
-(defun forge-edit-topic-review-requests (pullreq)
-  "Edit the review-requests of the current pull-request.
-If there is no current topic or with a prefix argument read a
-PULLREQ and modify that instead."
-  (interactive (list (forge-read-pullreq "Request review for")))
-  (let* ((topic (forge-get-pullreq pullreq))
-         (repo  (forge-get-repository topic))
-         (value (closql--iref topic 'review-requests))
-         (choices (mapcar #'cadr (oref repo assignees)))
-         (crm-separator ","))
-    (forge--topic-set 'review-requests
-                      (magit-completing-read-multiple
-                       "Request review from: " choices nil
-                       'confirm
-                       (mapconcat #'car value ",")))))
+(defun forge-edit-topic-review-requests (review-requests)
+  "Edit the REVIEW-REQUESTS of the current pull-request."
+  (interactive
+   (let* ((topic (forge-current-topic t))
+          (repo  (forge-get-repository topic))
+          (value (closql--iref topic 'review-requests))
+          (choices (mapcar #'cadr (oref repo assignees)))
+          (crm-separator ","))
+     (list (magit-completing-read-multiple
+            "Request review from: " choices nil
+            'confirm
+            (mapconcat #'car value ",")))))
+  (forge--topic-set 'review-requests review-requests))
 
-(defun forge-edit-topic-note (topic)
-  "Edit your private note about the current topic.
-If there is no current topic or with a prefix argument read a
-TOPIC and modify that instead."
-  (interactive (list (forge-read-topic "Edit note about")))
-  (let* ((topic (forge-get-topic topic))
+(defun forge-edit-topic-note ()
+  "Edit your private note about the current topic."
+  (interactive)
+  (let* ((topic (forge-current-topic t))
          (buf (forge--prepare-post-buffer
                (forge--format topic "%i;note")
                (forge--format topic "New note on #%i of %p"))))
