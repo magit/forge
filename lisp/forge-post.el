@@ -73,15 +73,23 @@ of the current pull-request."
 
 ;;; Sections
 
-(defun forge-post-at-point ()
-  (magit-section-value-if '(issue pullreq post)))
+(defun forge-post-at-point (&optional assert)
+  "Return the post at point.
+If there is no such post and demand is non-nil, then signal
+an error."
+  (or (magit-section-value-if '(issue pullreq post))
+      (and assert (user-error "There is no post at point"))))
 
-(defun forge-comment-at-point ()
-  (and (magit-section-value-if '(post))
-       (let ((post (oref (magit-current-section) value)))
-         (and (or (forge-pullreq-post-p post)
-                  (forge-issue-post-p post))
-              post))))
+(defun forge-comment-at-point (&optional assert)
+  "Return the comment at point.
+If there is no such comment and demand is non-nil, then signal
+an error."
+  (or (and (magit-section-value-if '(post))
+           (let ((post (oref (magit-current-section) value)))
+             (and (or (forge-pullreq-post-p post)
+                      (forge-issue-post-p post))
+                  post)))
+      (and assert (user-error "There is no comment at point"))))
 
 (defun forge--pullreq-from-rev (rev)
   (and-let* ((repo    (forge-get-repository nil))

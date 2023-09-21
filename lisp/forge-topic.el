@@ -372,22 +372,30 @@ is called and a topic object is returned if available."
 
 ;;; Sections
 
-(defun forge-current-topic ()
+(defun forge-current-topic (&optional demand)
+  "Return the topic at point or being visited.
+If there is no such topic and demand is non-nil, then signal
+an error."
   (or (forge-topic-at-point)
       (and (derived-mode-p 'forge-topic-mode)
            forge-buffer-topic)
-      (and (derived-mode-p 'forge-topic-list-mode)
-           (forge-get-topic (tabulated-list-get-id)))))
+      (and demand (user-error "No current topic"))))
 
-(defun forge-topic-at-point ()
+(defun forge-topic-at-point (&optional demand)
+  "Return the topic at point.
+If there is no such topic and demand is non-nil, then signal
+an error."
   (or (magit-section-value-if '(issue pullreq))
       (and-let* ((branch (magit-branch-at-point))
                  (n (magit-get "branch" branch "pullRequest")))
         (forge-get-pullreq (string-to-number n)))
       (and-let* ((rev (magit-commit-at-point)))
         (forge--pullreq-from-rev rev))
+      (and (derived-mode-p 'forge-topic-list-mode)
+           (forge-get-topic (tabulated-list-get-id)))
       (forge--issue-by-forge-short-link-at-point)
-      (forge--pullreq-by-forge-short-link-at-point)))
+      (forge--pullreq-by-forge-short-link-at-point)
+      (and demand (user-error "No topic at point"))))
 
 ;;; Mode
 

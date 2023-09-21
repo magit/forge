@@ -138,24 +138,32 @@ a prefix argument is in effect."
 
 ;;; Sections
 
-(defun forge-current-issue ()
+(defun forge-current-issue (&optional demand)
+  "Return the issue at point or being visited.
+If there is no such issue and demand is non-nil, then signal
+an error."
   (or (forge-issue-at-point)
       (and (derived-mode-p 'forge-topic-mode)
            (forge-issue-p forge-buffer-topic)
            forge-buffer-topic)
-      (and (derived-mode-p 'forge-topic-list-mode)
-           (let ((topic (forge-get-topic (tabulated-list-get-id))))
-             (and (forge-issue-p topic)
-                  topic)))))
+      (and demand (user-error "No current issue"))))
 
-(defun forge-issue-at-point ()
+(defun forge-issue-at-point (&optional demand)
+  "Return the issue at point.
+If there is no such issue and demand is non-nil, then signal
+an error."
   (or (magit-section-value-if 'issue)
       (and-let* ((post (magit-section-value-if 'post)))
         (cond ((forge-issue-p post)
                post)
               ((forge-issue-post-p post)
                (forge-get-issue post))))
-      (forge--issue-by-forge-short-link-at-point)))
+      (and (derived-mode-p 'forge-topic-list-mode)
+           (let ((topic (forge-get-topic (tabulated-list-get-id))))
+             (and (forge-issue-p topic)
+                  topic)))
+      (forge--issue-by-forge-short-link-at-point)
+      (and demand (user-error "No issue at point"))))
 
 (defvar-keymap forge-issues-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-issues

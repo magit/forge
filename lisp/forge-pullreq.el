@@ -182,24 +182,32 @@ is in effect."
 
 ;;; Sections
 
-(defun forge-current-pullreq ()
+(defun forge-current-pullreq (&optional demand)
+  "Return the pull-request at point or being visited.
+If there is no such pull-request and demand is non-nil, then signal
+an error."
   (or (forge-pullreq-at-point)
       (and (derived-mode-p 'forge-topic-mode)
            (forge-pullreq-p forge-buffer-topic)
            forge-buffer-topic)
-      (and (derived-mode-p 'forge-topic-list-mode)
-           (let ((topic (forge-get-topic (tabulated-list-get-id))))
-             (and (forge-pullreq-p topic)
-                  topic)))))
+      (and demand (user-error "No current pull-request"))))
 
-(defun forge-pullreq-at-point ()
+(defun forge-pullreq-at-point (&optional demand)
+  "Return the pull-request at point.
+If there is no such pull-request and demand is non-nil, then signal
+an error."
   (or (magit-section-value-if 'pullreq)
       (and-let* ((post (magit-section-value-if 'post)))
         (cond ((forge-pullreq-p post)
                post)
               ((forge-pullreq-post-p post)
                (forge-get-pullreq post))))
-      (forge--pullreq-by-forge-short-link-at-point)))
+      (and (derived-mode-p 'forge-topic-list-mode)
+           (let ((topic (forge-get-topic (tabulated-list-get-id))))
+             (and (forge-pullreq-p topic)
+                  topic)))
+      (forge--pullreq-by-forge-short-link-at-point)
+      (and demand (user-error "No pull-request at point"))))
 
 (defvar-keymap forge-pullreqs-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-pullreqs

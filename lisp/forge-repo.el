@@ -257,13 +257,22 @@ no argument."
 
 ;;; Utilities
 
-(defun forge-repository-at-point ()
-  (magit-section-value-if 'forge-repo))
-
-(defun forge-current-repository ()
+(defun forge-current-repository (&optional demand)
+  "Return the repository at point or being visited.
+If there is no such repository and demand is non-nil, then signal
+an error."
   (or (forge-repository-at-point)
+      (forge-get-repository nil)
+      (and demand (user-error "No current repository"))))
+
+(defun forge-repository-at-point (&optional demand)
+  "Return the repository at point.
+If there is no such repository and demand is non-nil, then signal
+an error."
+  (or (magit-section-value-if 'forge-repo)
       (and (derived-mode-p 'forge-repository-list-mode)
-           (forge-get-repository (list :id (tabulated-list-get-id))))))
+           (forge-get-repository (list :id (tabulated-list-get-id))))
+      (and demand (user-error "No repository at point"))))
 
 (cl-defmethod forge-visit ((repo forge-repository))
   (let ((worktree (oref repo worktree)))
