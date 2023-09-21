@@ -266,9 +266,9 @@ Prefer a topic over a branch and that over a commit."
         (let ((cons (magit-split-branch-name branch)))
           (setq remote (car cons))
           (setq branch (cdr cons)))
-      (or (setq remote (or (magit-get-push-remote branch)
-                           (magit-get-upstream-remote branch)))
-          (user-error "Cannot determine remote for %s" branch)))
+      (unless (setq remote (or (magit-get-push-remote branch)
+                               (magit-get-upstream-remote branch)))
+        (user-error "Cannot determine remote for %s" branch)))
     (browse-url (forge--format remote 'branch-url-format
                                `((?r . ,branch))))))
 
