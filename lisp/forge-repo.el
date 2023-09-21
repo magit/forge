@@ -249,6 +249,12 @@ See `forge-alist' for valid Git hosts."
 (cl-defmethod forge-get-repository ((repo forge-repository))
   repo)
 
+(defun forge-get-repository-p ()
+  "Like (forge-get-repository nil), but don't require an argument.
+Needed because Eieio does not support adding a method that takes
+no argument."
+  (forge-get-repository nil))
+
 ;;; Utilities
 
 (defun forge-repository-at-point ()
