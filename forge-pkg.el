@@ -9,6 +9,7 @@
     (let-alist      "1.0.6")
     (magit          "20230319")
     (markdown-mode  "2.4")
+    (seq            "2.24")
     (transient      "0.4.0")
     (yaml           "0.5.2"))
   :homepage "https://github.com/magit/forge"
