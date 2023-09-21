@@ -226,8 +226,8 @@ Prefer a topic over a branch and that over a commit."
       (call-interactively #'forge-browse-commit))))
 
 ;;;###autoload
-(defun forge-browse-commit (rev)
-  "Visit the url corresponding to REV using a browser."
+(defun forge-browse-commit (commit)
+  "Read a COMMIT and visit it using a browser."
   (interactive
    (list (or (magit-completing-read "Browse commit"
                                     (magit-list-branch-names)
@@ -236,15 +236,15 @@ Prefer a topic over a branch and that over a commit."
              (user-error "Nothing selected"))))
   (let ((repo (forge-get-repository 'stub)))
     (unless (magit-list-containing-branches
-             rev "-r" (concat (oref repo remote) "/*"))
-      (if-let ((branch (car (magit-list-containing-branches rev "-r"))))
+             commit "-r" (concat (oref repo remote) "/*"))
+      (if-let ((branch (car (magit-list-containing-branches commit "-r"))))
           (setq repo (forge-get-repository
                       'stub (cdr (magit-split-branch-name branch))))
         (message "%s does not appear to be available on any remote.  %s"
-                 rev "You might have to push it first.")))
+                 commit "You might have to push it first.")))
     (browse-url
      (forge--format repo 'commit-url-format
-                    `((?r . ,(magit-commit-p rev)))))))
+                    `((?r . ,(magit-commit-p commit)))))))
 
 ;;;###autoload
 (defun forge-copy-url-at-point-as-kill ()
