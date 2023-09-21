@@ -29,6 +29,7 @@ DEPS += emacsql
 DEPS += ghub/lisp
 DEPS += magit/lisp
 DEPS += markdown-mode
+DEPS += seq
 DEPS += transient/lisp
 DEPS += treepy
 DEPS += with-editor/lisp
