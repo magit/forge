@@ -1046,7 +1046,9 @@ upstream remote.  Also fetch from REMOTE."
   "Add a repository to the database.
 Offer to either pull topics (now and in the future) or to only
 pull individual topics when the user invokes `forge-pull-topic'."
-  :description "add repository to database"
+  :description (lambda ()
+                 (format "add %srepository to database"
+                         (if (forge-get-repository nil) "another " "")))
   (interactive
    (let ((str (magit-read-string-ns
                "Add repository to database (url or name)"
