@@ -519,24 +519,23 @@ TOPIC and modify that instead."
      (forge-get-repository topic) topic
      (read-string "Title: " (oref topic title)))))
 
-(defun forge-edit-topic-state (topic)
+(defun forge-edit-topic-state (topic state)
   "Close or reopen the current topic.
 If there is no current topic or with a prefix argument read a
 TOPIC and modify that instead."
   (interactive
    (let* ((id (forge-read-topic "Close/reopen"))
-          (topic (forge-get-topic id)))
-     (if (magit-y-or-n-p
-          (format "%s %S"
-                  (cl-ecase (oref topic state)
-                    (merged (error "Merged pull-requests cannot be reopened"))
-                    (closed "Reopen")
-                    (open   "Close"))
-                  (car (forge--topic-format-choice topic))))
-         (list id)
+          (topic (forge-get-topic id))
+          (state (oref topic state)))
+     (when (eq state 'merged)
+       (error "Merged pull-requests cannot be reopened"))
+     (if (magit-y-or-n-p (format "%s %S"
+                                 (if (eq state 'closed) "Reopen" "Close")
+                                 (car (forge--topic-format-choice topic))))
+         (list id (if (eq state 'closed) 'open 'closed))
        (user-error "Abort"))))
   (let ((topic (forge-get-topic topic)))
-    (forge--set-topic-state (forge-get-repository topic) topic)))
+    (forge--set-topic-state (forge-get-repository topic) topic state)))
 
 (defun forge-edit-topic-draft (pullreq)
   "Toggle whether the current pull-request is a draft.
