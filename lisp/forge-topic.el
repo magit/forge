@@ -340,6 +340,13 @@ identifier."
                       (oref topic number))
               'font-lock-face 'magit-dimmed))
 
+(cl-defmethod forge--topic-type-prefix ((_ forge-topic))
+  "Get the identifier prefix specific to the type of TOPIC."
+  "#")
+
+(cl-defmethod forge--topic-type-prefix ((_repo forge-repository) _type)
+  "#")
+
 (cl-defmethod forge--insert-topic-contents ((topic forge-topic) width prefix)
   (with-slots (number title unread-p closed) topic
     (insert (format (if width (format "%%-%is" (1+ width)) "%s")
@@ -698,13 +705,6 @@ Return a value between 0 and 1."
     (when forge-post-fill-region
       (fill-region (point-min) (point-max)))
     (buffer-string)))
-
-(cl-defmethod forge--topic-type-prefix ((_ forge-topic))
-  "Get the identifier prefix specific to the type of TOPIC."
-  "#")
-
-(cl-defmethod forge--topic-type-prefix ((_repo forge-repository) _type)
-  "#")
 
 (defun forge--markdown-translate-filename-function (file)
   (if (string-match-p "\\`https?://" file)
