@@ -535,7 +535,7 @@ point is currently on."
 
 (defun forge-edit-topic-milestone (milestone)
   "Edit what MILESTONE the current topic belongs to."
-  (interactive;
+  (interactive
    (let ((topic (forge-current-topic t)))
      (list (magit-completing-read
             "Milestone"
@@ -545,7 +545,7 @@ point is currently on."
 
 (defun forge-edit-topic-labels (labels)
   "Edit the LABELS of the current topic."
-  (interactive;
+  (interactive
    (let* ((topic (forge-current-topic t))
           (repo  (forge-get-repository topic))
           (crm-separator ","))
