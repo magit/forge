@@ -179,8 +179,10 @@ valid values are:
   object in the database and return it.
 
 If DEMAND is t, `stub' or `create', then also signal an error if
-the repository cannot be determined because there is no matching
-entry in `forge-alist'.
+if the Forge repository cannot be determined.  This happens if
+`default-directory' is not inside a Git repository, if there is
+no matching entry in `forge-alist', of if it is unclear which
+remote to use.
 
 Also update the object's `apihost', `githost' and `remote' slots
 according to the respective entry in `forge-alist' and the REMOTE

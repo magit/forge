@@ -164,24 +164,28 @@ repository, if any."
            (forge-get-repository forge-buffer-topic))
       (magit--with-refresh-cache
           (list default-directory 'forge-get-repository demand)
-        (unless remote
-          (setq remote (forge--get-remote 'warn)))
-        (if-let ((url (and remote
-                           (magit-git-string "remote" "get-url" remote))))
-            (and-let* ((repo (forge-get-repository url remote demand)))
-              (progn ; work around debbugs#31840
-                (oset repo worktree (magit-toplevel))
-                repo))
-          (when (memq demand forge--signal-no-entry)
-            (error
-             "Cannot determine forge repository.  %s\nSee %s."
-             (cond (remote (format "No url configured for %S." remote))
-                   ((and-let* ((config (magit-get "forge.remote")))
-                      (format "Value of `forge.remote' is %S but %s"
-                              config "that remote does not exist.")))
-                   ((magit-list-remotes) "Cannot decide on remote to use.")
-                   (t "No remote configured."))
-             "https://magit.vc/manual/forge/Repository-Detection.html"))))))
+        (if (not (magit-gitdir))
+            (when (memq demand forge--signal-no-entry)
+              (error
+               "Cannot determine Forge repository outside of Git repository"))
+          (unless remote
+            (setq remote (forge--get-remote 'warn)))
+          (if-let ((url (and remote
+                             (magit-git-string "remote" "get-url" remote))))
+              (and-let* ((repo (forge-get-repository url remote demand)))
+                (progn ; work around debbugs#31840
+                  (oset repo worktree (magit-toplevel))
+                  repo))
+            (when (memq demand forge--signal-no-entry)
+              (error
+               "Cannot determine forge repository.  %s\nSee %s."
+               (cond (remote (format "No url configured for %S." remote))
+                     ((and-let* ((config (magit-get "forge.remote")))
+                        (format "Value of `forge.remote' is %S but %s"
+                                config "that remote does not exist.")))
+                     ((magit-list-remotes) "Cannot decide on remote to use.")
+                     (t "No remote configured."))
+               "https://magit.vc/manual/forge/Repository-Detection.html")))))))
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
