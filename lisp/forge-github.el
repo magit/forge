@@ -341,10 +341,10 @@
         ((`(,_ ,apihost ,forge ,_) spec)
          (notifs
           (seq-keep (lambda (data)
-                      ;; Github may return notifications for repos
-                      ;; the user no longer has access to.  Trying
-                      ;; to retrieve information for such a repo
-                      ;; leads to an error, which we suppress.  See #164.
+                      ;; Github returns notifications for repositories the
+                      ;; user no longer has access to.  Trying to retrieve
+                      ;; information for such repositories leads to errors,
+                      ;; which we suppress.  See #164.
                       (with-demoted-errors "forge--pull-notifications: %S"
                         (forge--ghub-massage-notification
                          data forge githost)))
