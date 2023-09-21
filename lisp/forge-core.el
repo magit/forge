@@ -170,6 +170,9 @@ valid values are:
   the `id' and `forge-id' slots whose value differ from what they
   would be if the object were retrieved from the database.
 
+* `maybe' Like `stub', but when that would signal an error, just
+  return nil.
+
 * `create' This value is only intended to be used by commands
   that fetch data from the API.  If the repository is stored in
   the database, then return that, regardless of whether the

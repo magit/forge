@@ -222,11 +222,12 @@ See `forge-alist' for valid Git hosts."
                       (oref obj sparse-p)
                       (eq demand 'full))
                  (setq obj nil)))
-          (when (and (memq demand '(stub create))
+          (when (and (memq demand '(create stub maybe))
                      (not obj))
             (pcase-let ((`(,id . ,forge-id)
-                         (forge--repository-ids class host owner name
-                                                (eq demand 'stub))))
+                         (forge--repository-ids
+                          class host owner name
+                          (memq demand '(stub maybe)))))
               ;; The repo might have been renamed on the forge.  #188
               (unless (setq obj (forge-get-repository (list :id id)))
                 (setq obj (funcall class
