@@ -715,6 +715,11 @@ Return a value between 0 and 1."
 ;;; Completion
 
 (defun forge-read-topic (prompt &optional type allow-number)
+  "Read a topic with completion using PROMPT.
+TYPE can be `open', `closed', or nil to select from all topics.
+TYPE can also be t to select from open topics, or all topics if
+a prefix argument is in effect.  If ALLOW-NUMBER is non-nil, then
+allow exiting with a number that doesn't match any candidate."
   (when (eq type t)
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-topic))

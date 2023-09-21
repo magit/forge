@@ -111,6 +111,10 @@
 ;;; Utilities
 
 (defun forge-read-issue (prompt &optional type)
+  "Read an issue with completion using PROMPT.
+TYPE can be `open', `closed', or nil to select from all issues.
+TYPE can also be t to select from open issues, or all issues if
+a prefix argument is in effect."
   (when (eq type t)
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-issue))

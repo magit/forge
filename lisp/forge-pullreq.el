@@ -125,6 +125,11 @@
 ;;; Utilities
 
 (defun forge-read-pullreq (prompt &optional type)
+  "Read a pull-request with completion using PROMPT.
+TYPE can be `open', `closed', or nil to select from all
+pull-requests.  TYPE can also be t to select from open
+pull-requests, or all pull-requests if a prefix argument
+is in effect."
   (when (eq type t)
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-pullreq))
