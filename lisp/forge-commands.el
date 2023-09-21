@@ -56,6 +56,7 @@ Takes the pull-request as only argument and must return a directory."
 (transient-define-prefix forge-dispatch ()
   "Dispatch a forge command."
   [["Fetch"
+    :if forge-get-repository-p
     ("f f" "all topics"    forge-pull)
     ("f t" "one topic"     forge-pull-topic)
     ("f n" "notifications" forge-pull-notifications)
@@ -68,6 +69,7 @@ Takes the pull-request as only argument and must return a directory."
     """Merge"
     (7 "M  " "merge using API" forge-merge)]
    ["List"
+    :if forge-get-repository-p
     ("l t" "topics"        forge-list-topics)
     ("l i" "issues"        forge-list-issues)
     ("l p" "pull-requests" forge-list-pullreqs)
@@ -82,6 +84,7 @@ Takes the pull-request as only argument and must return a directory."
     (7 "o p" "owned pull-requests"    forge-list-owned-pullreqs)
     (7 "o r" "owned repositories"     forge-list-owned-repositories)]
    ["Visit"
+    :if forge-get-repository-p
     ("v t" "topic"         forge-visit-topic)
     ("v i" "issue"         forge-visit-issue)
     ("v p" "pull-request"  forge-visit-pullreq)
@@ -93,12 +96,21 @@ Takes the pull-request as only argument and must return a directory."
     ("b p" "pull-request"  forge-browse-pullreq)
     ("b r" "remote"        forge-browse-remote)]]
   [["Configure"
+    :if forge-get-repository-p
     ("a  " forge-add-repository)
     ("R  " forge-add-pullreq-refspec)
     ("r  " forge-forge.remote)
     ("t l" forge-forge.graphqlItemLimit)
     ("t t" forge-toggle-display-in-status-buffer)
-    ("t c" forge-toggle-closed-visibility)]])
+    ("t c" forge-toggle-closed-visibility)]]
+  [[:description (lambda ()
+                   (if (magit-gitdir)
+                       "Forge doesn't know about this Git repository yet"
+                     "Not inside a Git repository"))
+    :if-not forge-get-repository-p
+    ("a" "add repository to database" forge-add-repository)
+    ("f" "fetch notifications"        forge-pull-notifications)
+    ("l" "list notifications"         forge-list-notifications)]])
 
 ;;; Pull
 
