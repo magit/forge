@@ -181,6 +181,14 @@ implement such a function themselves.  See #447.")
     'utf-8)
    t))
 
+(defun forge--topic-set (slot value &optional topic)
+  (unless topic
+    (setq topic (forge-current-topic t)))
+  (funcall (intern (format "forge--set-topic-%s" slot))
+           (forge-get-repository topic)
+           topic
+           value))
+
 ;;; Query
 
 (cl-defmethod forge-get-parent ((topic forge-topic))

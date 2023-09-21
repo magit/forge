@@ -514,10 +514,8 @@ point is currently on."
 If there is no current topic or with a prefix argument read a
 TOPIC and modify that instead."
   (interactive (list (forge-read-topic "Edit title of")))
-  (let ((topic (forge-get-topic topic)))
-    (forge--set-topic-title
-     (forge-get-repository topic) topic
-     (read-string "Title: " (oref topic title)))))
+  (forge--topic-set 'title (read-string "Title: "
+                                        (oref (forge-get-topic topic) title))))
 
 (defun forge-edit-topic-state (topic state)
   "Close or reopen the current topic.
@@ -534,29 +532,24 @@ TOPIC and modify that instead."
                                  (car (forge--topic-format-choice topic))))
          (list id (if (eq state 'closed) 'open 'closed))
        (user-error "Abort"))))
-  (let ((topic (forge-get-topic topic)))
-    (forge--set-topic-state (forge-get-repository topic) topic state)))
+  (forge--topic-set 'state state))
 
 (defun forge-edit-topic-draft (pullreq)
   "Toggle whether the current pull-request is a draft.
 If there is no current topic or with a prefix argument read a
 TOPIC and modify that instead."
   (interactive (list (forge-read-pullreq "Toggle draft state of")))
-  (let ((pullreq (forge-get-pullreq pullreq)))
-    (forge--set-topic-draft (forge-get-repository pullreq)
-                            pullreq
-                            (not (oref pullreq draft-p)))))
+  (forge--topic-set 'draft (not (oref pullreq draft-p))))
 
 (defun forge-edit-topic-milestone (topic)
   (interactive (list (forge-read-topic "Edit milestone of")))
   (let* ((topic (forge-get-topic topic))
          (repo  (forge-get-repository topic)))
-    (forge--set-topic-milestone
-     repo topic
-     (magit-completing-read
-      "Milestone"
-      (mapcar #'caddr (oref repo milestones))
-      nil t (forge--get-topic-milestone topic)))))
+    (forge--topic-set 'milestone
+                      (magit-completing-read
+                       "Milestone"
+                       (mapcar #'caddr (oref repo milestones))
+                       nil t (forge--get-topic-milestone topic)))))
 
 (defun forge-edit-topic-labels (topic)
   "Edit the labels of the current topic.
@@ -566,12 +559,12 @@ TOPIC and modify that instead."
   (let* ((topic (forge-get-topic topic))
          (repo  (forge-get-repository topic))
          (crm-separator ","))
-    (forge--set-topic-labels
-     repo topic (magit-completing-read-multiple
-                 "Labels: "
-                 (mapcar #'cadr (oref repo labels))
-                 nil t
-                 (mapconcat #'car (closql--iref topic 'labels) ",")))))
+    (forge--topic-set 'labels
+                      (magit-completing-read-multiple
+                       "Labels: "
+                       (mapcar #'cadr (oref repo labels))
+                       nil t
+                       (mapconcat #'car (closql--iref topic 'labels) ",")))))
 
 (defun forge-edit-topic-marks (topic marks)
   "Edit the marks of the current topic.
@@ -593,14 +586,13 @@ TOPIC and modify that instead."
          (value (closql--iref topic 'assignees))
          (choices (mapcar #'cadr (oref repo assignees)))
          (crm-separator ","))
-    (forge--set-topic-assignees
-     repo topic
-     (magit-completing-read-multiple
-      "Assignees: " choices nil
-      (if (forge--childp repo 'forge-gitlab-repository)
-          t ; Selecting something else would fail later on.
-        'confirm)
-      (mapconcat #'car value ",")))))
+    (forge--topic-set 'assignees
+                      (magit-completing-read-multiple
+                       "Assignees: " choices nil
+                       (if (forge--childp repo 'forge-gitlab-repository)
+                           t ; Selecting something else would fail later on.
+                         'confirm)
+                       (mapconcat #'car value ",")))))
 
 (defun forge-edit-topic-review-requests (pullreq)
   "Edit the review-requests of the current pull-request.
@@ -612,12 +604,11 @@ PULLREQ and modify that instead."
          (value (closql--iref topic 'review-requests))
          (choices (mapcar #'cadr (oref repo assignees)))
          (crm-separator ","))
-    (forge--set-topic-review-requests
-     repo topic
-     (magit-completing-read-multiple
-      "Request review from: " choices nil
-      'confirm
-      (mapconcat #'car value ",")))))
+    (forge--topic-set 'review-requests
+                      (magit-completing-read-multiple
+                       "Request review from: " choices nil
+                       'confirm
+                       (mapconcat #'car value ",")))))
 
 (defun forge-edit-topic-note (topic)
   "Edit your private note about the current topic.
