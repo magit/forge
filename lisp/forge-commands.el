@@ -93,12 +93,10 @@ Takes the pull-request as only argument and must return a directory."
     ("b p" "pull-request"  forge-browse-pullreq)
     ("b r" "remote"        forge-browse-remote)]]
   [["Configure"
-    ("a  " "add repository to database" forge-add-repository)
-    ("R  " "add pull-request refspec" forge-add-pullreq-refspec
-     :if-not forge--pullreq-refspec)
-    ("r  " "forge.remote"  forge-forge.remote)
-    ("t l" "forge.graphqlItemLimit" forge-forge.graphqlItemLimit
-     :if (lambda () (forge-github-repository-p (forge-get-repository nil))))
+    ("a  " forge-add-repository)
+    ("R  " forge-add-pullreq-refspec)
+    ("r  " forge-forge.remote)
+    ("t l" forge-forge.graphqlItemLimit)
     ("t t" forge-toggle-display-in-status-buffer)
     ("t c" forge-toggle-closed-visibility)]])
 
@@ -980,6 +978,7 @@ the upstream remotes of local branches accordingly."
 
 (transient-define-infix forge-forge.graphqlItemLimit ()
   "Change the maximum number of GraphQL entities to pull at once."
+  :if (lambda () (forge-github-repository-p (forge-get-repository nil)))
   :class 'magit--git-variable
   :variable "forge.graphqlItemLimit"
   :reader #'read-string
@@ -998,12 +997,12 @@ the upstream remotes of local branches accordingly."
 (transient-define-suffix forge-toggle-closed-visibility ()
   "Toggle whether to display recently closed topics.
 This only affect the current status buffer."
+  :inapt-if-not (lambda () forge-display-in-status-buffer)
   :description (lambda ()
                  (if (or (atom forge-topic-list-limit)
                          (> (cdr forge-topic-list-limit) 0))
                      "hide closed topics"
                    "display recently closed topics"))
-  :inapt-if-not (lambda () forge-display-in-status-buffer)
   (interactive)
   (magit-repository-local-delete (list 'forge-ls-recent-topics 'issue))
   (magit-repository-local-delete (list 'forge-ls-recent-topics 'pullreq))
@@ -1013,12 +1012,14 @@ This only affect the current status buffer."
     (setcdr forge-topic-list-limit (* -1 (cdr forge-topic-list-limit))))
   (magit-refresh))
 
-;;;###autoload
-(defun forge-add-pullreq-refspec ()
+;;;###autoload (autoload 'forge-add-pullreq-refspec "forge-commands" nil t)
+(transient-define-suffix forge-add-pullreq-refspec ()
   "Configure Git to fetch all pull-requests.
 This is done by adding \"+refs/pull/*/head:refs/pullreqs/*\"
 to the value of `remote.REMOTE.fetch', where REMOTE is the
 upstream remote.  Also fetch from REMOTE."
+  :if-not 'forge--pullreq-refspec
+  :description "add pull-request refspec"
   (interactive)
   (let* ((repo    (forge-get-repository 'stub))
          (remote  (oref repo remote))
@@ -1040,12 +1041,12 @@ upstream remote.  Also fetch from REMOTE."
 
 ;;; Add repositories
 
-;;;###autoload
-(defun forge-add-repository (url)
+;;;###autoload (autoload 'forge-add-repository "forge-commands" nil t)
+(transient-define-suffix forge-add-repository (url)
   "Add a repository to the database.
 Offer to either pull topics (now and in the future) or to only
 pull individual topics when the user invokes `forge-pull-topic'."
-  (declare (interactive-only t))
+  :description "add repository to database"
   (interactive
    (let ((str (magit-read-string-ns
                "Add repository to database (url or name)"
