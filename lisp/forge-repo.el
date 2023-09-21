@@ -168,10 +168,10 @@ repository, if any."
           (setq remote (forge--get-remote 'warn)))
         (if-let ((url (and remote
                            (magit-git-string "remote" "get-url" remote))))
-            (when-let* ((repo (forge-get-repository url remote demand)))
-              ;; Cannot use and-let* because of debbugs#31840.
-              (oset repo worktree (magit-toplevel))
-              repo)
+            (and-let* ((repo (forge-get-repository url remote demand)))
+              (progn ; work around debbugs#31840
+                (oset repo worktree (magit-toplevel))
+                repo))
           (when (memq demand forge--signal-no-entry)
             (error
              "Cannot determine forge repository.  %s\nSee %s."
@@ -214,8 +214,9 @@ See `forge-alist' for valid Git hosts."
                  (error "Cannot use `%s' in %S yet.\n%s"
                         this-command (magit-toplevel)
                         "Use `M-x forge-add-repository' before trying again."))
-                ((and (eq demand 'full) obj
-                      (oref obj sparse-p))
+                ((and obj
+                      (oref obj sparse-p)
+                      (eq demand 'full))
                  (setq obj nil)))
           (when (and (memq demand '(stub create))
                      (not obj))
