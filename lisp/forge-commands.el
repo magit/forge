@@ -882,7 +882,7 @@ information."
         (magit-refresh))
     (user-error "There is no topic at point")))
 
-;;; Fork
+;;; Remotely
 
 ;;;###autoload
 (defun forge-fork (fork remote)
@@ -904,7 +904,72 @@ is added anyway.  Currently this only supports Github and Gitlab."
                                                (oref repo name))
                       (list "--fetch"))))
 
-;;; Misc
+;;;###autoload
+(defun forge-merge (pullreq method)
+  "Merge the current pull-request using METHOD using the forge's API.
+
+If there is no current pull-request or with a prefix argument,
+then read pull-request PULLREQ to visit instead.
+
+Use of this command is discouraged.  Unless the remote repository
+is configured to disallow that, you should instead merge locally
+and then push the target branch.  Forges detect that you have
+done that and respond by automatically marking the pull-request
+as merged."
+  (interactive
+   (list (forge-read-pullreq "Merge pull-request" t)
+         (if (forge--childp (forge-get-repository t) 'forge-gitlab-repository)
+             (magit-read-char-case "Merge method " t
+               (?m "[m]erge"  'merge)
+               (?s "[s]quash" 'squash))
+           (magit-read-char-case "Merge method " t
+             (?m "[m]erge"  'merge)
+             (?s "[s]quash" 'squash)
+             (?r "[r]ebase" 'rebase)))))
+  (let ((pullreq (forge-get-pullreq pullreq)))
+    (forge--merge-pullreq (forge-get-repository pullreq)
+                          pullreq
+                          (magit-rev-hash
+                           (forge--pullreq-branch-internal pullreq))
+                          method))
+  (forge-pull))
+
+;;;###autoload
+(defun forge-rename-default-branch ()
+  "Rename the default branch to NEWNAME.
+Change the name on the upstream remote and locally, and update
+the upstream remotes of local branches accordingly."
+  (interactive)
+  (let* ((repo (forge-get-repository 'full))
+         (_ (unless (forge-github-repository-p repo)
+              (user-error "Updating default branch not supported for forge `%s'"
+                          (oref repo forge))))
+         (remote (or (and (fboundp 'forge--get-remote)
+                          (forge--get-remote))
+                     (magit-get-some-remote)
+                     (user-error "No remote configured")))
+         (symref (format "refs/remotes/%s/HEAD" remote))
+         (oldhead (progn
+                    (message "Determining old default branch...")
+                    (magit-git "fetch" "--prune")
+                    (magit-git "remote" "set-head" "--auto" remote)
+                    (message "Determining old default branch...done")
+                    (magit-git-string "symbolic-ref" "--short" symref)))
+         (oldname (if oldhead
+                      (cdr (magit-split-branch-name oldhead))
+                    (error "Cannot determine old default branch")))
+         (default (and (not (equal oldname "main")) "main"))
+         (newname (read-string
+                   (format "Rename default branch `%s' to%s: "
+                           oldname
+                           (if default (format " (default: %s)" default) ""))
+                   nil nil default)))
+    (message "Renaming default branch...")
+    (forge--set-default-branch repo newname oldname)
+    (magit-refresh)
+    (message "Renaming default branch...done")))
+
+;;; Configuration
 
 (transient-define-infix forge-forge.remote ()
   "Change the local value of the `forge.remote' Git variable."
@@ -913,11 +978,12 @@ is added anyway.  Currently this only supports Github and Gitlab."
   :choices #'magit-list-remotes
   :default (lambda (_) (forge--get-remote t)))
 
-;;;###autoload
-(defun forge-list-notifications ()
-  "List notifications."
-  (interactive)
-  (forge-notifications-setup-buffer))
+(transient-define-infix forge-forge.graphqlItemLimit ()
+  "Change the maximum number of GraphQL entities to pull at once."
+  :class 'magit--git-variable
+  :variable "forge.graphqlItemLimit"
+  :reader #'read-string
+  :default (lambda () (number-to-string ghub-graphql-items-per-request)))
 
 (transient-define-suffix forge-toggle-display-in-status-buffer ()
   "Toggle whether to display topics in the current status buffer."
@@ -947,13 +1013,6 @@ This only affect the current status buffer."
     (setcdr forge-topic-list-limit (* -1 (cdr forge-topic-list-limit))))
   (magit-refresh))
 
-(transient-define-infix forge-forge.graphqlItemLimit ()
-  "Change the maximum number of GraphQL entities to pull at once."
-  :class 'magit--git-variable
-  :variable "forge.graphqlItemLimit"
-  :reader #'read-string
-  :default (lambda () (number-to-string ghub-graphql-items-per-request)))
-
 ;;;###autoload
 (defun forge-add-pullreq-refspec ()
   "Configure Git to fetch all pull-requests.
@@ -978,6 +1037,8 @@ upstream remote.  Also fetch from REMOTE."
          (fetch   (magit-get-all "remote" remote "fetch"))
          (refspec (oref repo pullreq-refspec)))
     (car (member refspec fetch))))
+
+;;; Add repositories
 
 ;;;###autoload
 (defun forge-add-repository (url)
@@ -1025,35 +1086,7 @@ This may take a while.  Only Github is supported at the moment."
          (read-string "Organization: ")))
   (forge--add-organization-repos 'forge-github-repository host organization))
 
-;;;###autoload
-(defun forge-merge (pullreq method)
-  "Merge the current pull-request using METHOD using the forge's API.
-
-If there is no current pull-request or with a prefix argument,
-then read pull-request PULLREQ to visit instead.
-
-Use of this command is discouraged.  Unless the remote repository
-is configured to disallow that, you should instead merge locally
-and then push the target branch.  Forges detect that you have
-done that and respond by automatically marking the pull-request
-as merged."
-  (interactive
-   (list (forge-read-pullreq "Merge pull-request" t)
-         (if (forge--childp (forge-get-repository t) 'forge-gitlab-repository)
-             (magit-read-char-case "Merge method " t
-               (?m "[m]erge"  'merge)
-               (?s "[s]quash" 'squash))
-           (magit-read-char-case "Merge method " t
-             (?m "[m]erge"  'merge)
-             (?s "[s]quash" 'squash)
-             (?r "[r]ebase" 'rebase)))))
-  (let ((pullreq (forge-get-pullreq pullreq)))
-    (forge--merge-pullreq (forge-get-repository pullreq)
-                          pullreq
-                          (magit-rev-hash
-                           (forge--pullreq-branch-internal pullreq))
-                          method))
-  (forge-pull))
+;;; Cleanup
 
 ;;;###autoload
 (defun forge-remove-repository (host owner name)
@@ -1087,41 +1120,6 @@ you to manually clean up the local database."
     (magit-refresh)))
 
 ;;;###autoload
-(defun forge-rename-default-branch ()
-  "Rename the default branch to NEWNAME.
-Change the name on the upstream remote and locally, and update
-the upstream remotes of local branches accordingly."
-  (interactive)
-  (let* ((repo (forge-get-repository 'full))
-         (_ (unless (forge-github-repository-p repo)
-              (user-error "Updating default branch not supported for forge `%s'"
-                          (oref repo forge))))
-         (remote (or (and (fboundp 'forge--get-remote)
-                          (forge--get-remote))
-                     (magit-get-some-remote)
-                     (user-error "No remote configured")))
-         (symref (format "refs/remotes/%s/HEAD" remote))
-         (oldhead (progn
-                    (message "Determining old default branch...")
-                    (magit-git "fetch" "--prune")
-                    (magit-git "remote" "set-head" "--auto" remote)
-                    (message "Determining old default branch...done")
-                    (magit-git-string "symbolic-ref" "--short" symref)))
-         (oldname (if oldhead
-                      (cdr (magit-split-branch-name oldhead))
-                    (error "Cannot determine old default branch")))
-         (default (and (not (equal oldname "main")) "main"))
-         (newname (read-string
-                   (format "Rename default branch `%s' to%s: "
-                           oldname
-                           (if default (format " (default: %s)" default) ""))
-                   nil nil default)))
-    (message "Renaming default branch...")
-    (forge--set-default-branch repo newname oldname)
-    (magit-refresh)
-    (message "Renaming default branch...done")))
-
-;;;###autoload
 (defun forge-reset-database ()
   "Move the current database file to the trash.
 This is useful after the database scheme has changed, which will
@@ -1134,6 +1132,14 @@ heavy development."
       (emacsql-close db))
     (delete-file forge-database-file t)
     (magit-refresh)))
+
+;;; Misc
+
+;;;###autoload
+(defun forge-list-notifications ()
+  "List notifications."
+  (interactive)
+  (forge-notifications-setup-buffer))
 
 (defun forge-enable-sql-logging ()
   "Enable logging Forge's SQL queries."
