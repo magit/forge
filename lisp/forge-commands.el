@@ -986,6 +986,9 @@ the upstream remotes of local branches accordingly."
 
 (transient-define-suffix forge-toggle-display-in-status-buffer ()
   "Toggle whether to display topics in the current status buffer."
+  :inapt-if-not (lambda ()
+                  (and (eq major-mode 'magit-status-mode)
+                       (forge-get-repository nil)))
   :description (lambda ()
                  (if forge-display-in-status-buffer
                      "hide all topics"
@@ -997,7 +1000,10 @@ the upstream remotes of local branches accordingly."
 (transient-define-suffix forge-toggle-closed-visibility ()
   "Toggle whether to display recently closed topics.
 This only affect the current status buffer."
-  :inapt-if-not (lambda () forge-display-in-status-buffer)
+  :inapt-if-not (lambda ()
+                  (and forge-display-in-status-buffer
+                       (eq major-mode 'magit-status-mode)
+                       (forge-get-repository nil)))
   :description (lambda ()
                  (if (or (atom forge-topic-list-limit)
                          (> (cdr forge-topic-list-limit) 0))
