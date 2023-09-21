@@ -63,7 +63,7 @@ Takes the pull-request as only argument and must return a directory."
     ("c i" "issue"         forge-create-issue)
     ("c p" "pull-request"  forge-create-pullreq)
     ("c u" "pull-request from issue" forge-create-pullreq-from-issue
-     :if (lambda () (forge-github-repository-p (forge-get-repository nil))))
+     :if forge-get-github-repository-p)
     ("c f" "fork or remote" forge-fork)
     """Merge"
     (7 "M  " "merge using API" forge-merge)]
@@ -979,7 +979,7 @@ the upstream remotes of local branches accordingly."
 
 (transient-define-infix forge-forge.graphqlItemLimit ()
   "Change the maximum number of GraphQL entities to pull at once."
-  :if (lambda () (forge-github-repository-p (forge-get-repository nil)))
+  :if #'forge-get-github-repository-p
   :class 'magit--git-variable
   :variable "forge.graphqlItemLimit"
   :reader #'read-string
