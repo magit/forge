@@ -88,21 +88,21 @@ can still display topics on demand in the status buffer.")
 ;;;###autoload
 (with-eval-after-load 'git-commit
   (when forge-add-default-bindings
-    (define-key git-commit-mode-map (kbd "C-c C-v") #'forge-visit-topic)))
+    (keymap-set git-commit-mode-map "C-c C-v" #'forge-visit-topic)))
 
 ;;;###autoload
 (with-eval-after-load 'magit-mode
   (when forge-add-default-bindings
-    (define-key magit-mode-map "'" #'forge-dispatch)
-    (define-key magit-mode-map "N" #'forge-dispatch)))
+    (keymap-set magit-mode-map "'" #'forge-dispatch)
+    (keymap-set magit-mode-map "N" #'forge-dispatch)))
 
 (when forge-add-default-bindings
-  (define-key magit-commit-section-map [remap magit-browse-thing] #'forge-browse-dwim)
-  (define-key magit-remote-section-map [remap magit-browse-thing] #'forge-browse-remote)
-  (define-key magit-branch-section-map [remap magit-browse-thing] #'forge-browse-branch)
+  (keymap-set magit-commit-section-map "<remap> <magit-browse-thing>" #'forge-browse-dwim)
+  (keymap-set magit-remote-section-map "<remap> <magit-browse-thing>" #'forge-browse-remote)
+  (keymap-set magit-branch-section-map "<remap> <magit-browse-thing>" #'forge-browse-branch)
 
-  (define-key magit-commit-section-map (kbd "C-c C-v") #'forge-visit-topic)
-  (define-key magit-branch-section-map (kbd "C-c C-v") #'forge-visit-topic)
+  (keymap-set magit-commit-section-map "C-c C-v" #'forge-visit-topic)
+  (keymap-set magit-branch-section-map "C-c C-v" #'forge-visit-topic)
 
   (transient-insert-suffix 'magit-dispatch "o"
     '("N" "Forge" forge-dispatch))
