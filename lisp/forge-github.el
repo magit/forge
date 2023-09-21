@@ -434,7 +434,7 @@
   (when (oref topic unread-p)
     (oset topic unread-p nil)
     (when-let ((notif (forge-get-notification topic)))
-      (oset topic unread-p nil)
+      (oset notif unread-p nil)
       (forge--ghub-patch notif "/notifications/threads/:thread-id"))))
 
 ;;;; Miscellaneous
