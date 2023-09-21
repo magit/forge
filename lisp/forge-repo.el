@@ -284,9 +284,9 @@ See `forge-alist' for valid Git hosts."
   (magit-completing-read
    prompt
    (if class
-       (-keep (pcase-lambda (`(,githost ,_apihost ,_id ,c))
-                (and (child-of-class-p c class) githost))
-              forge-alist)
+       (seq-keep (pcase-lambda (`(,githost ,_apihost ,_id ,c))
+                   (and (child-of-class-p c class) githost))
+                 forge-alist)
      (mapcar #'car forge-alist))
    nil t))
 

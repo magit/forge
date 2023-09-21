@@ -336,17 +336,18 @@
     (forge--msg nil t nil "Pulling notifications")
     (pcase-let*
         ((`(,_ ,apihost ,forge ,_) spec)
-         (notifs (-keep (lambda (data)
-                          ;; Github may return notifications for repos
-                          ;; the user no longer has access to.  Trying
-                          ;; to retrieve information for such a repo
-                          ;; leads to an error, which we suppress.  See #164.
-                          (with-demoted-errors "forge--pull-notifications: %S"
-                            (forge--ghub-massage-notification
-                             data forge githost)))
-                        (forge--ghub-get nil "/notifications"
-                          '((all . nil))
-                          :host apihost :unpaginate t)))
+         (notifs
+          (seq-keep (lambda (data)
+                      ;; Github may return notifications for repos
+                      ;; the user no longer has access to.  Trying
+                      ;; to retrieve information for such a repo
+                      ;; leads to an error, which we suppress.  See #164.
+                      (with-demoted-errors "forge--pull-notifications: %S"
+                        (forge--ghub-massage-notification
+                         data forge githost)))
+                    (forge--ghub-get nil "/notifications"
+                      '((all . nil))
+                      :host apihost :unpaginate t)))
          (groups (-partition-all 50 notifs))
          (pages  (length groups))
          (page   0)
@@ -361,7 +362,7 @@
                                     "Pulling notifications (page %s/%s)"
                                     page pages)
                         (ghub--graphql-vacuum
-                         (cons 'query (-keep #'caddr (pop groups)))
+                         (cons 'query (seq-keep #'caddr (pop groups)))
                          nil #'cb nil :auth 'forge :host apihost))
                (forge--msg nil t t   "Pulling notifications")
                (forge--msg nil t nil "Storing notifications")
