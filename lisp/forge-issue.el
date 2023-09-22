@@ -159,11 +159,6 @@ If there is no such issue and demand is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-issue)
       (magit-section-value-if 'issue)
-      (and-let* ((post (magit-section-value-if 'post)))
-        (cond ((forge-issue-p post)
-               post)
-              ((forge-issue-post-p post)
-               (forge-get-issue post))))
       (and (derived-mode-p 'forge-topic-list-mode)
            (let ((topic (forge-get-topic (tabulated-list-get-id))))
              (and (forge-issue-p topic)

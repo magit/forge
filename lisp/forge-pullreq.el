@@ -203,11 +203,6 @@ If there is no such pull-request and demand is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-pullreq)
       (magit-section-value-if 'pullreq)
-      (and-let* ((post (magit-section-value-if 'post)))
-        (cond ((forge-pullreq-p post)
-               post)
-              ((forge-pullreq-post-p post)
-               (forge-get-pullreq post))))
       (and (derived-mode-p 'forge-topic-list-mode)
            (let ((topic (forge-get-topic (tabulated-list-get-id))))
              (and (forge-pullreq-p topic)
