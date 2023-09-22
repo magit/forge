@@ -157,7 +157,8 @@ an error."
   "Return the issue at point.
 If there is no such issue and demand is non-nil, then signal
 an error."
-  (or (magit-section-value-if 'issue)
+  (or (thing-at-point 'forge-issue)
+      (magit-section-value-if 'issue)
       (and-let* ((post (magit-section-value-if 'post)))
         (cond ((forge-issue-p post)
                post)
@@ -167,7 +168,6 @@ an error."
            (let ((topic (forge-get-topic (tabulated-list-get-id))))
              (and (forge-issue-p topic)
                   topic)))
-      (thing-at-point 'forge-issue)
       (and demand (user-error "No issue at point"))))
 
 (defvar-keymap forge-issues-section-map

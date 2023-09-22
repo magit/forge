@@ -201,7 +201,8 @@ an error."
   "Return the pull-request at point.
 If there is no such pull-request and demand is non-nil, then signal
 an error."
-  (or (magit-section-value-if 'pullreq)
+  (or (thing-at-point 'forge-pullreq)
+      (magit-section-value-if 'pullreq)
       (and-let* ((post (magit-section-value-if 'post)))
         (cond ((forge-pullreq-p post)
                post)
@@ -211,7 +212,6 @@ an error."
            (let ((topic (forge-get-topic (tabulated-list-get-id))))
              (and (forge-pullreq-p topic)
                   topic)))
-      (thing-at-point 'forge-pullreq)
       (and demand (user-error "No pull-request at point"))))
 
 (defvar-keymap forge-pullreqs-section-map
