@@ -373,17 +373,14 @@ identifier."
      (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
      t)))
 
-(defun forge--topic-by-forge-short-link-at-point (known-prefixes finder)
-  "Finds a topic by forge-dependant short link around point.
-The topic number is expected to be a number prefixed by any of
-the elements in KNOWN-PREFIXES. If a reference is found, FINDER
-is called and a topic object is returned if available."
-  (and-let* ((number (number-at-point))
-             (prefix (buffer-substring-no-properties
-                      (- (match-beginning 0) 1)
-                      (match-beginning 0))))
-    (and (member prefix known-prefixes)
-         (funcall finder number))))
+(put 'forge-topic 'thing-at-point #'forge-thingatpt--topic)
+(defun forge-thingatpt--topic ()
+  (and-let* ((repo (forge-get-repository nil)))
+    (and (thing-at-point-looking-at
+          (format "[%s%s]\\([0-9]+\\)\\_>"
+                  (forge--topic-type-prefix repo 'issue)
+                  (forge--topic-type-prefix repo 'pullreq)))
+         (forge-get-topic repo (string-to-number (match-string 1))))))
 
 ;;; Sections
 
@@ -408,8 +405,7 @@ an error."
         (forge--pullreq-from-rev rev))
       (and (derived-mode-p 'forge-topic-list-mode)
            (forge-get-topic (tabulated-list-get-id)))
-      (forge--issue-by-forge-short-link-at-point)
-      (forge--pullreq-by-forge-short-link-at-point)
+      (thing-at-point 'forge-topic)
       (and demand (user-error "No topic at point"))))
 
 ;;; Mode

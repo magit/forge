@@ -133,8 +133,13 @@ a prefix argument is in effect."
 (cl-defmethod forge-get-url ((issue forge-issue))
   (forge--format issue 'issue-url-format))
 
-(defun forge--issue-by-forge-short-link-at-point ()
-  (forge--topic-by-forge-short-link-at-point '("#") #'forge-get-issue))
+(put 'forge-issue 'thing-at-point #'forge-thingatpt--issue)
+(defun forge-thingatpt--issue ()
+  (and-let* ((repo (forge-get-repository nil)))
+    (and (thing-at-point-looking-at
+          (format "%s\\([0-9]+\\)\\_>"
+                  (forge--topic-type-prefix repo 'issue)))
+         (forge-get-issue repo (string-to-number (match-string 1))))))
 
 ;;; Sections
 
@@ -162,7 +167,7 @@ an error."
            (let ((topic (forge-get-topic (tabulated-list-get-id))))
              (and (forge-issue-p topic)
                   topic)))
-      (forge--issue-by-forge-short-link-at-point)
+      (thing-at-point 'forge-issue)
       (and demand (user-error "No issue at point"))))
 
 (defvar-keymap forge-issues-section-map

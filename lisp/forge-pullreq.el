@@ -177,8 +177,13 @@ is in effect."
 (cl-defmethod forge-get-url ((pullreq forge-pullreq))
   (forge--format pullreq 'pullreq-url-format))
 
-(defun forge--pullreq-by-forge-short-link-at-point ()
-  (forge--topic-by-forge-short-link-at-point '("#" "!") #'forge-get-pullreq))
+(put 'forge-pullreq 'thing-at-point #'forge-thingatpt--pullreq)
+(defun forge-thingatpt--pullreq ()
+  (and-let* ((repo (forge-get-repository nil)))
+    (and (thing-at-point-looking-at
+          (format "%s\\([0-9]+\\)\\_>"
+                  (forge--topic-type-prefix repo 'pullreq)))
+         (forge-get-pullreq repo (string-to-number (match-string 1))))))
 
 ;;; Sections
 
@@ -206,7 +211,7 @@ an error."
            (let ((topic (forge-get-topic (tabulated-list-get-id))))
              (and (forge-pullreq-p topic)
                   topic)))
-      (forge--pullreq-by-forge-short-link-at-point)
+      (thing-at-point 'forge-pullreq)
       (and demand (user-error "No pull-request at point"))))
 
 (defvar-keymap forge-pullreqs-section-map
