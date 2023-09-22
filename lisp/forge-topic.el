@@ -399,9 +399,7 @@ If there is no such topic and demand is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-topic)
       (magit-section-value-if '(issue pullreq))
-      (and-let* ((branch (magit-branch-at-point))
-                 (n (magit-get "branch" branch "pullRequest")))
-        (forge-get-pullreq (string-to-number n)))
+      (forge-get-pullreq (list :branch (magit-branch-at-point)))
       (and (derived-mode-p 'forge-topic-list-mode)
            (forge-get-topic (tabulated-list-get-id)))
       (and demand (user-error "No topic at point"))))

@@ -119,6 +119,11 @@
               (oref post pullreq)
               'forge-pullreq))
 
+(cl-defmethod forge-get-pullreq (((_ branch) (head :branch)))
+  (and branch
+       (and-let* ((n (magit-get "branch" branch "pullRequest")))
+         (forge-get-pullreq (string-to-number n)))))
+
 (cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type select)
   (forge-ls-topics repo 'forge-pullreq type select))
 
