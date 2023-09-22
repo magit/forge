@@ -402,8 +402,6 @@ an error."
       (and-let* ((branch (magit-branch-at-point))
                  (n (magit-get "branch" branch "pullRequest")))
         (forge-get-pullreq (string-to-number n)))
-      (and-let* ((rev (magit-commit-at-point)))
-        (forge--pullreq-from-rev rev))
       (and (derived-mode-p 'forge-topic-list-mode)
            (forge-get-topic (tabulated-list-get-id)))
       (and demand (user-error "No topic at point"))))

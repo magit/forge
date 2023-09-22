@@ -91,14 +91,6 @@ an error."
                   post)))
       (and assert (user-error "There is no comment at point"))))
 
-(defun forge--pullreq-from-rev (rev)
-  (and-let* ((repo    (forge-get-repository nil))
-             (refspec (oref repo pullreq-refspec))
-             (name    (magit-rev-name rev (cadr (split-string refspec ":")))))
-    (save-match-data
-      (and (string-match "\\([0-9]*\\)\\([~^][0-9]*\\)?\\'" name)
-           (forge-get-pullreq (string-to-number (match-string 0 name)))))))
-
 ;;; Utilities
 
 (cl-defmethod forge--format ((post forge-post) slot &optional spec)
