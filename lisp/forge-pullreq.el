@@ -121,8 +121,9 @@
 
 (cl-defmethod forge-get-pullreq (((_ branch) (head :branch)))
   (and branch
-       (and-let* ((n (magit-get "branch" branch "pullRequest")))
-         (forge-get-pullreq (string-to-number n)))))
+       (and-let* ((branch (cdr (magit-split-branch-name branch)))
+                  (number (magit-get "branch" branch "pullRequest")))
+         (forge-get-pullreq (string-to-number number)))))
 
 (cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type select)
   (forge-ls-topics repo 'forge-pullreq type select))
