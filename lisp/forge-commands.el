@@ -226,17 +226,6 @@ TOPIC to pull instead."
 ;;; Browse
 
 ;;;###autoload
-(defun forge-browse-dwim ()
-  "Visit a topic, branch or commit using a browser.
-Prefer a topic over a branch and that over a commit."
-  (interactive)
-  (if-let ((topic (forge-topic-at-point)))
-      (forge-browse topic)
-    (if-let ((branch (magit-branch-at-point)))
-        (forge-browse-branch branch)
-      (call-interactively #'forge-browse-commit))))
-
-;;;###autoload
 (defun forge-browse-commit (commit)
   "Read a COMMIT and visit it using a browser."
   (interactive
@@ -256,17 +245,6 @@ Prefer a topic over a branch and that over a commit."
     (browse-url
      (forge--format repo 'commit-url-format
                     `((?r . ,(magit-commit-p commit)))))))
-
-;;;###autoload
-(defun forge-copy-url-at-point-as-kill ()
-  "Copy the url of the thing at point."
-  (interactive)
-  (if-let ((url (forge-get-url (or (forge-post-at-point)
-                                   (forge-current-topic)))))
-      (progn
-        (kill-new url)
-        (message "Copied %S" url))
-    (user-error "Nothing at point with a URL")))
 
 ;;;###autoload
 (defun forge-browse-branch (branch)
@@ -341,6 +319,28 @@ read an ISSUE to visit."
   (if-let ((post (forge-post-at-point)))
       (forge-browse post)
     (user-error "There is no current post")))
+
+;;;###autoload
+(defun forge-copy-url-at-point-as-kill ()
+  "Copy the url of the thing at point."
+  (interactive)
+  (if-let ((url (forge-get-url (or (forge-post-at-point)
+                                   (forge-current-topic)))))
+      (progn
+        (kill-new url)
+        (message "Copied %S" url))
+    (user-error "Nothing at point with a URL")))
+
+;;;###autoload
+(defun forge-browse-dwim ()
+  "Visit a topic, branch or commit using a browser.
+Prefer a topic over a branch and that over a commit."
+  (interactive)
+  (if-let ((topic (forge-topic-at-point)))
+      (forge-browse topic)
+    (if-let ((branch (magit-branch-at-point)))
+        (forge-browse-branch branch)
+      (call-interactively #'forge-browse-commit))))
 
 ;;; Visit
 
