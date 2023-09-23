@@ -82,19 +82,20 @@ Takes the pull-request as only argument and must return a directory."
     (7 "m p" "authored pull-requests" forge-list-authored-pullreqs)
     (7 "o i" "owned issues"           forge-list-owned-issues)
     (7 "o p" "owned pull-requests"    forge-list-owned-pullreqs)
-    (7 "o r" "owned repositories"     forge-list-owned-repositories)]
-   ["Visit"
-    :if forge-get-repository-p
+    (7 "o r" "owned repositories"     forge-list-owned-repositories)]]
+  [:if forge-get-repository-p
+   [:description (lambda () (forge-dispatch--format-description "Visit"))
     ("v t" "topic"         forge-visit-topic)
     ("v i" "issue"         forge-visit-issue)
-    ("v p" "pull-request"  forge-visit-pullreq)
-    """Browse"
-    ("b I" "issues"        forge-browse-issues)
-    ("b P" "pull-requests" forge-browse-pullreqs)
+    ("v p" "pull-request"  forge-visit-pullreq)]
+   [:description (lambda () (forge-dispatch--format-description "Browse"))
     ("b t" "topic"         forge-browse-topic)
     ("b i" "issue"         forge-browse-issue)
-    ("b p" "pull-request"  forge-browse-pullreq)
-    ("b r" "remote"        forge-browse-remote)]]
+    ("b p" "pull-request"  forge-browse-pullreq)]
+   ["Browse"
+    ("b r" "remote"        forge-browse-remote)
+    ("b I" "issues"        forge-browse-issues)
+    ("b P" "pull-requests" forge-browse-pullreqs)]]
   [["Configure"
     :if forge-get-repository-p
     ("a  " forge-add-repository)
@@ -111,6 +112,33 @@ Takes the pull-request as only argument and must return a directory."
     ("a" "add repository to database" forge-add-repository)
     ("f" "fetch notifications"        forge-pull-notifications)
     ("l" "list notifications"         forge-list-notifications)]])
+
+(defun forge-dispatch--format-description (action)
+  (concat
+   (propertize (concat action " ") 'face 'transient-heading)
+   (propertize "[" 'face 'transient-inactive-value)
+   (cond
+    (prefix-arg
+     (concat
+      (format (propertize "open(%s)" 'face 'transient-inactive-value)
+              (propertize (or (ignore-errors
+                                (key-description
+                                 (car (where-is-internal 'transient-quit-one
+                                                         transient-base-map))))
+                              "C-g")
+                          'face 'transient-key))
+      (propertize "|" 'face 'transient-inactive-value)
+      (propertize "any" 'face 'transient-heading)))
+    ((concat
+      (propertize "open" 'face 'transient-heading)
+      (propertize "|" 'face 'transient-inactive-value)
+      (format (propertize "any(%s)" 'face 'transient-inactive-value)
+              (propertize (or (ignore-errors
+                                (key-description
+                                 (car (where-is-internal 'universal-argument))))
+                              "C-p")
+                          'face 'transient-key)))))
+   (propertize "]" 'face 'transient-inactive-value)))
 
 ;;; Pull
 
