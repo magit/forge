@@ -119,7 +119,7 @@
               (oref post pullreq)
               'forge-pullreq))
 
-(cl-defmethod forge-get-pullreq (((_ branch) (head :branch)))
+(cl-defmethod forge-get-pullreq ((_(eql :branch)) branch)
   (and branch
        (and-let* ((branch (cdr (magit-split-branch-name branch)))
                   (number (magit-get "branch" branch "pullRequest")))
@@ -209,7 +209,7 @@ If there is no such pull-request and demand is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-pullreq)
       (magit-section-value-if 'pullreq)
-      (forge-get-pullreq (list :branch (magit-branch-at-point)))
+      (forge-get-pullreq :branch (magit-branch-at-point))
       (and (derived-mode-p 'forge-topic-list-mode)
            (let ((topic (forge-get-topic (tabulated-list-get-id))))
              (and (forge-pullreq-p topic)
