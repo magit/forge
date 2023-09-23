@@ -148,7 +148,7 @@ forges and hosts."
                "https://magit.vc/manual/forge/Repository-Detection.html"))
     remote))
 
-(cl-defmethod forge-get-repository (((_ id) (head :id)))
+(cl-defmethod forge-get-repository ((_(eql :id)) id)
   (closql-get (forge-db) id 'forge-repository))
 
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
@@ -229,7 +229,7 @@ See `forge-alist' for valid Git hosts."
                           class host owner name
                           (memq demand '(stub maybe)))))
               ;; The repo might have been renamed on the forge.  #188
-              (unless (setq obj (forge-get-repository (list :id id)))
+              (unless (setq obj (forge-get-repository :id id))
                 (setq obj (funcall class
                                    :id       id
                                    :forge-id forge-id
@@ -271,7 +271,7 @@ If there is no such repository and demand is non-nil, then signal
 an error."
   (or (magit-section-value-if 'forge-repo)
       (and (derived-mode-p 'forge-repository-list-mode)
-           (forge-get-repository (list :id (tabulated-list-get-id))))
+           (forge-get-repository :id (tabulated-list-get-id)))
       (and demand (user-error "No repository at point"))))
 
 (cl-defmethod forge-visit ((repo forge-repository))

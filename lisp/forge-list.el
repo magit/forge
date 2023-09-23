@@ -119,7 +119,7 @@ This is a list of package names.  Used by the commands
 
 (defun forge-topic-list-setup (mode id buffer-name columns fn)
   (declare (indent 4))
-  (let* ((repo (forge-get-repository (list :id id)))
+  (let* ((repo (forge-get-repository :id id))
          (topdir (magit-toplevel)))
     (with-current-buffer
         (get-buffer-create
@@ -265,7 +265,7 @@ List them in a separate buffer."
                               (isnull issue:closed))
                   :order-by [(desc updated)]]
                  (forge--tablist-columns-vector 'issue)
-                 id (ghub--username (forge-get-repository (list :id id)))))))
+                 id (ghub--username (forge-get-repository :id id))))))
 
 ;;;###autoload
 (defun forge-list-owned-issues ()
@@ -337,7 +337,7 @@ List them in a separate buffer."
                               (isnull pullreq:closed))
                   :order-by [(desc updated)]]
                  (forge--tablist-columns-vector 'pullreq)
-                 id (ghub--username (forge-get-repository (list :id id)))))))
+                 id (ghub--username (forge-get-repository :id id))))))
 
 ;;;###autoload
 (defun forge-list-requested-reviews (id)
@@ -354,7 +354,7 @@ List them in a separate buffer."
                               (isnull pullreq:closed))
                   :order-by [(desc updated)]]
                  (forge--tablist-columns-vector 'pullreq)
-                 id (ghub--username (forge-get-repository (list :id id)))))))
+                 id (ghub--username (forge-get-repository :id id))))))
 
 ;;;###autoload
 (defun forge-list-owned-pullreqs ()
@@ -391,7 +391,7 @@ List them in a separate buffer."
                               (isnull pullreq:closed))
                   :order-by [(desc updated)]]
                  (forge--tablist-columns-vector 'pullreq)
-                 id (ghub--username (forge-get-repository (list :id id)))))))
+                 id (ghub--username (forge-get-repository :id id))))))
 
 ;;;###autoload
 (defun forge-list-authored-issues (id)
@@ -406,7 +406,7 @@ List them in a separate buffer."
                               (isnull issue:closed))
                   :order-by [(desc updated)]]
                  (forge--tablist-columns-vector 'issue)
-                 id (ghub--username (forge-get-repository (list :id id)))))))
+                 id (ghub--username (forge-get-repository :id id))))))
 
 ;;;; Repository
 
