@@ -368,6 +368,8 @@ argument also offer closed pull-requests."
         (forge-get-url :remote remote))
       (forge-post-at-point)
       (forge-current-topic)
+      (and magit-buffer-revision
+           (forge-get-url :commit magit-buffer-revision))
       (forge-current-repository)))
 
 (cl-defmethod forge-get-url ((_(eql :commit)) commit)
