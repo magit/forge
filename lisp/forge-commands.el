@@ -853,15 +853,14 @@ information."
 
 (defun forge-toggle-mark (mark)
   "Toggle MARK for the current topic."
-  (if-let ((topic (forge-current-topic)))
-      (let* ((value (mapcar #'car (closql--iref topic 'marks)))
-             (value (if (member mark value)
-                        (delete mark value)
-                      (cons mark value)))
-             (marks (forge-sql [:select [name id] :from mark])))
-        (oset topic marks (--map (cadr (assoc it marks)) value))
-        (magit-refresh))
-    (user-error "There is no topic at point")))
+  (let* ((topic (forge-current-topic t))
+         (value (mapcar #'car (closql--iref topic 'marks)))
+         (value (if (member mark value)
+                    (delete mark value)
+                  (cons mark value)))
+         (marks (forge-sql [:select [name id] :from mark])))
+    (oset topic marks (--map (cadr (assoc it marks)) value))
+    (magit-refresh)))
 
 ;;; Remotely
 
