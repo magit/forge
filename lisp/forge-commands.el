@@ -270,47 +270,28 @@ read an ISSUE to visit."
                                     nil nil nil 'magit-revision-history
                                     (magit-branch-or-commit-at-point))
              (user-error "Nothing selected"))))
-  (let ((repo (forge-get-repository 'stub)))
-    (unless (magit-list-containing-branches
-             commit "-r" (concat (oref repo remote) "/*"))
-      (if-let ((branch (car (magit-list-containing-branches commit "-r"))))
-          (setq repo (forge-get-repository
-                      'stub (cdr (magit-split-branch-name branch))))
-        (message "%s does not appear to be available on any remote.  %s"
-                 commit "You might have to push it first.")))
-    (browse-url
-     (forge--format repo 'commit-url-format
-                    `((?r . ,(magit-commit-p commit)))))))
+  (browse-url (forge-get-url :commit commit)))
 
 ;;;###autoload
 (defun forge-browse-branch (branch)
   "Visit the url corresponding BRANCH using a browser."
   (interactive (list (magit-read-branch "Browse branch")))
-  (let (remote)
-    (if (magit-remote-branch-p branch)
-        (let ((cons (magit-split-branch-name branch)))
-          (setq remote (car cons))
-          (setq branch (cdr cons)))
-      (unless (setq remote (or (magit-get-push-remote branch)
-                               (magit-get-upstream-remote branch)))
-        (user-error "Cannot determine remote for %s" branch)))
-    (browse-url (forge--format remote 'branch-url-format
-                               `((?r . ,branch))))))
+  (browse-url (forge-get-url :branch branch)))
 
 ;;;###autoload
 (defun forge-browse-remote (remote)
   "Visit the url corresponding to REMOTE using a browser."
   (interactive (list (magit-read-remote "Browse remote")))
-  (browse-url (forge--format remote 'remote-url-format)))
+  (browse-url (forge-get-url :remote remote)))
 
 ;;;###autoload
-(defun forge-browse-repository (repo)
+(defun forge-browse-repository (repository)
   "View the current repository in a separate buffer."
   (interactive
    (list (or (forge-current-repository)
              (forge-get-repository
               (forge-read-repository "Browse repository")))))
-  (browse-url (forge--format repo 'remote-url-format)))
+  (browse-url (forge-get-url (forge-get-repository repository))))
 
 ;;;###autoload
 (defun forge-browse-post ()
@@ -341,6 +322,33 @@ Prefer a topic over a branch and that over a commit."
     (if-let ((branch (magit-branch-at-point)))
         (forge-browse-branch branch)
       (call-interactively #'forge-browse-commit))))
+
+(cl-defmethod forge-get-url ((_(eql :commit)) commit)
+  (let ((repo (forge-get-repository 'stub)))
+    (unless (magit-list-containing-branches
+             commit "-r" (concat (oref repo remote) "/*"))
+      (if-let ((branch (car (magit-list-containing-branches commit "-r"))))
+          (setq repo (forge-get-repository
+                      'stub (cdr (magit-split-branch-name branch))))
+        (message "%s does not appear to be available on any remote.  %s"
+                 commit "You might have to push it first.")))
+    (forge--format repo 'commit-url-format
+                   `((?r . ,(magit-commit-p commit))))))
+
+(cl-defmethod forge-get-url ((_(eql :branch)) branch)
+  (let (remote)
+    (if (magit-remote-branch-p branch)
+        (let ((cons (magit-split-branch-name branch)))
+          (setq remote (car cons))
+          (setq branch (cdr cons)))
+      (unless (setq remote (or (magit-get-push-remote branch)
+                               (magit-get-upstream-remote branch)))
+        (user-error "Cannot determine remote for %s" branch)))
+    (forge--format remote 'branch-url-format
+                   `((?r . ,branch)))))
+
+(cl-defmethod forge-get-url ((_(eql :remote)) remote)
+  (forge--format remote 'remote-url-format))
 
 ;;; Visit
 
