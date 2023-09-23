@@ -226,6 +226,42 @@ TOPIC to pull instead."
 ;;; Browse
 
 ;;;###autoload
+(defun forge-browse-issues ()
+  "Visit the current repository's issues using a browser."
+  (interactive)
+  (browse-url (forge--format (forge-get-repository 'stub)
+                             'issues-url-format)))
+
+;;;###autoload
+(defun forge-browse-pullreqs ()
+  "Visit the current repository's pull-requests using a browser."
+  (interactive)
+  (browse-url (forge--format (forge-get-repository 'stub)
+                             'pullreqs-url-format)))
+
+;;;###autoload
+(defun forge-browse-topic ()
+  "Visit the current topic using a browser."
+  (interactive)
+  (if-let ((topic (forge-current-topic)))
+      (forge-browse topic)
+    (user-error "There is no current topic")))
+
+;;;###autoload
+(defun forge-browse-issue (issue)
+  "Visit the current issue using a browser.
+If there is no current issue or with a prefix argument
+read an ISSUE to visit."
+  (interactive (list (forge-read-issue "Browse issue" t)))
+  (forge-browse (forge-get-issue issue)))
+
+;;;###autoload
+(defun forge-browse-pullreq (pullreq)
+  "Visit the url corresponding to PULLREQ using a browser."
+  (interactive (list (forge-read-pullreq "Browse pull-request" t)))
+  (forge-browse (forge-get-pullreq pullreq)))
+
+;;;###autoload
 (defun forge-browse-commit (commit)
   "Read a COMMIT and visit it using a browser."
   (interactive
@@ -277,42 +313,6 @@ TOPIC to pull instead."
   (browse-url (forge--format repo 'remote-url-format)))
 
 ;;;###autoload
-(defun forge-browse-topic ()
-  "Visit the current topic using a browser."
-  (interactive)
-  (if-let ((topic (forge-current-topic)))
-      (forge-browse topic)
-    (user-error "There is no current topic")))
-
-;;;###autoload
-(defun forge-browse-pullreqs ()
-  "Visit the current repository's pull-requests using a browser."
-  (interactive)
-  (browse-url (forge--format (forge-get-repository 'stub)
-                             'pullreqs-url-format)))
-
-;;;###autoload
-(defun forge-browse-pullreq (pullreq)
-  "Visit the url corresponding to PULLREQ using a browser."
-  (interactive (list (forge-read-pullreq "Browse pull-request" t)))
-  (forge-browse (forge-get-pullreq pullreq)))
-
-;;;###autoload
-(defun forge-browse-issues ()
-  "Visit the current repository's issues using a browser."
-  (interactive)
-  (browse-url (forge--format (forge-get-repository 'stub)
-                             'issues-url-format)))
-
-;;;###autoload
-(defun forge-browse-issue (issue)
-  "Visit the current issue using a browser.
-If there is no current issue or with a prefix argument
-read an ISSUE to visit."
-  (interactive (list (forge-read-issue "Browse issue" t)))
-  (forge-browse (forge-get-issue issue)))
-
-;;;###autoload
 (defun forge-browse-post ()
   "Visit the current post using a browser."
   (interactive)
@@ -355,16 +355,6 @@ read a topic to visit instead."
   (forge-visit (forge-get-topic topic)))
 
 ;;;###autoload
-(defun forge-visit-pullreq (pullreq)
-  "View the current pull-request in a separate buffer.
-If there is no current pull-request or with a prefix argument
-read a PULLREQ to visit instead. If point is looking at a pullreq
-reference with Gitlab/Github notation try to visit the pullreq
-with that number."
-  (interactive (list (forge-read-pullreq "View pull-request" t)))
-  (forge-visit (forge-get-pullreq pullreq)))
-
-;;;###autoload
 (defun forge-visit-issue (issue)
   "Visit the current issue in a separate buffer.
 If there is no current issue or with a prefix argument read an
@@ -373,6 +363,16 @@ with Gitlab/Github notation try to visit the issue with that
 number."
   (interactive (list (forge-read-issue "View issue" t)))
   (forge-visit (forge-get-issue issue)))
+
+;;;###autoload
+(defun forge-visit-pullreq (pullreq)
+  "View the current pull-request in a separate buffer.
+If there is no current pull-request or with a prefix argument
+read a PULLREQ to visit instead. If point is looking at a pullreq
+reference with Gitlab/Github notation try to visit the pullreq
+with that number."
+  (interactive (list (forge-read-pullreq "View pull-request" t)))
+  (forge-visit (forge-get-pullreq pullreq)))
 
 ;;;###autoload
 (defun forge-visit-repository (repo)
