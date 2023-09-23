@@ -608,12 +608,12 @@ point is currently on."
 
 ;;; Delete
 
-(defun forge-delete-comment (comment)
+(defun forge-delete-comment ()
   "Delete the comment at point."
-  (interactive (list (or (forge-comment-at-point)
-                         (user-error "There is no comment at point"))))
-  (when (yes-or-no-p "Do you really want to delete the selected comment? ")
-    (forge--delete-comment (forge-get-repository t) comment)))
+  (interactive)
+  (let ((comment (forge-comment-at-point t)))
+    (when (yes-or-no-p "Do you really want to delete the selected comment? ")
+      (forge--delete-comment (forge-get-repository t) comment))))
 
 ;;; Branch
 
