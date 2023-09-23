@@ -228,9 +228,7 @@ If pulling is too slow, then also consider setting the Git variable
 
 ;;;###autoload
 (defun forge-pull-topic (topic)
-  "Pull the API data for the current topic.
-If there is no current topic or with a prefix argument read a
-TOPIC to pull instead."
+  "Read a TOPIC and pull data about it from its forge."
   (interactive (list (forge-read-topic "Pull topic" nil t)))
   (let ((repo (forge-get-repository t)))
     (forge--zap-repository-cache repo)
