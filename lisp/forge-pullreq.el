@@ -223,7 +223,7 @@ an error."
 
 (defvar-keymap forge-pullreq-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-pullreq
-  "<remap> <magit-visit-thing>"  #'forge-visit-pullreq)
+  "<remap> <magit-visit-thing>"  #'forge-visit-this-topic)
 
 (defun forge-insert-pullreqs ()
   "Insert a list of mostly recent and/or open pull-requests.

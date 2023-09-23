@@ -172,7 +172,7 @@ an error."
 
 (defvar-keymap forge-issue-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-issue
-  "<remap> <magit-visit-thing>"  #'forge-visit-issue)
+  "<remap> <magit-visit-thing>"  #'forge-visit-this-topic)
 
 (defun forge-insert-issues ()
   "Insert a list of mostly recent and/or open issues.

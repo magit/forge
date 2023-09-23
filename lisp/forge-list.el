@@ -96,8 +96,8 @@ This is a list of package names.  Used by the commands
 (defvar-keymap forge-topic-list-mode-map
   :doc "Local keymap for Forge-Topic-List mode buffers."
   :parent tabulated-list-mode-map
-  "RET"      #'forge-visit-topic
-  "<return>" #'forge-visit-topic
+  "RET"      #'forge-visit-this-topic
+  "<return>" #'forge-visit-this-topic
   "o"        #'forge-browse-topic
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
@@ -157,8 +157,8 @@ This is a list of package names.  Used by the commands
 (defvar-keymap forge-repository-list-mode-map
   :doc "Local keymap for Forge-Repository-List mode buffers."
   :parent tabulated-list-mode-map
-  "RET"      #'forge-visit-repository
-  "<return>" #'forge-visit-repository
+  "RET"      #'forge-visit-this-repository
+  "<return>" #'forge-visit-this-repository
   "o"        #'forge-browse-repository
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)

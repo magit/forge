@@ -354,42 +354,39 @@ Prefer a topic over a branch and that over a commit."
 
 ;;;###autoload
 (defun forge-visit-topic (topic)
-  "View the current topic in a separate buffer.
-If there is no current topic or with a prefix argument
-read a topic to visit instead."
-  (interactive (list (if-let ((topic (forge-current-topic)))
-                         (oref topic id)
-                       (forge-read-topic "View topic"))))
+  "Read a TOPIC and visit it.
+By default only offer open topics for completion;
+with a prefix argument also closed topics."
+  (interactive (list (forge-read-topic "View topic" t)))
   (forge-visit (forge-get-topic topic)))
 
 ;;;###autoload
 (defun forge-visit-issue (issue)
-  "Visit the current issue in a separate buffer.
-If there is no current issue or with a prefix argument read an
-ISSUE to visit instead. If point is looking at an issue reference
-with Gitlab/Github notation try to visit the issue with that
-number."
+  "Read an ISSUE and visit it.
+By default only offer open topics for completion;
+with a prefix argument also closed topics."
   (interactive (list (forge-read-issue "View issue" t)))
   (forge-visit (forge-get-issue issue)))
 
 ;;;###autoload
-(defun forge-visit-pullreq (pullreq)
-  "View the current pull-request in a separate buffer.
-If there is no current pull-request or with a prefix argument
-read a PULLREQ to visit instead. If point is looking at a pullreq
-reference with Gitlab/Github notation try to visit the pullreq
-with that number."
+(defun forge-visit-pullreq (pull-request)
+  "Read a PULL-REQUEST and visit it.
+By default only offer open topics for completion;
+with a prefix argument also closed topics."
   (interactive (list (forge-read-pullreq "View pull-request" t)))
-  (forge-visit (forge-get-pullreq pullreq)))
+  (forge-visit (forge-get-pullreq pull-request)))
 
 ;;;###autoload
-(defun forge-visit-repository (repo)
-  "View the current repository in a separate buffer."
-  (interactive
-   (list (or (forge-current-repository)
-             (forge-get-repository
-              (forge-read-repository "Visit repository")))))
-  (forge-visit repo))
+(defun forge-visit-this-topic ()
+  "Visit the topic at point."
+  (interactive)
+  (forge-visit (forge-topic-at-point)))
+
+;;;###autoload
+(defun forge-visit-this-repository ()
+  "Visit the repository at point."
+  (interactive)
+  (forge-visit (forge-repository-at-point)))
 
 ;;; Create
 
