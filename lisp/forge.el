@@ -92,7 +92,7 @@ can still display topics on demand in the status buffer.")
     (keymap-set magit-mode-map "N" #'forge-dispatch)
     (keymap-set magit-mode-map "<remap> <magit-browse-thing>"
                 #'forge-browse)
-    (keymap-set magit-mode-map "<remap> <magit-copy-thing-as-url>"
+    (keymap-set magit-mode-map "<remap> <magit-copy-thing>"
                 #'forge-copy-url-at-point-as-kill)))
 
 ;;;###autoload
