@@ -764,7 +764,7 @@ allow exiting with a number that doesn't match any candidate."
         (and allow-number
              (let ((number (string-to-number choice)))
                (if (= number 0)
-                   (user-error "Not an existing topic or number: %s")
+                   (user-error "Not an existing topic or number: %s" choice)
                  number))))))
 
 (cl-defmethod forge--topic-format-choice ((topic forge-topic))
