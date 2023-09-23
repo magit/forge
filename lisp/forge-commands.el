@@ -308,7 +308,7 @@ Prefer a topic over a branch and that over a commit."
 
 ;;;###autoload
 (defun forge-browse-pullreqs ()
-  "Visit the pull-requests of the current repository using a browser."
+  "Visit the current repository's pull-requests using a browser."
   (interactive)
   (browse-url (forge--format (forge-get-repository 'stub)
                              'pullreqs-url-format)))
@@ -321,7 +321,7 @@ Prefer a topic over a branch and that over a commit."
 
 ;;;###autoload
 (defun forge-browse-issues ()
-  "Visit the issues of the current repository using a browser."
+  "Visit the current repository's issues using a browser."
   (interactive)
   (browse-url (forge--format (forge-get-repository 'stub)
                              'issues-url-format)))
