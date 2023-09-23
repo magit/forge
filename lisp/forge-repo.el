@@ -288,8 +288,7 @@ an error."
                          (forge-sql [:select [githost owner name]
                                      :from repository]))
                  nil t nil nil
-                 (and-let* ((default (or (forge-current-repository)
-                                         (forge-get-repository nil))))
+                 (and-let* ((default (forge-current-repository)))
                    (format "%s/%s @%s"
                            (oref default owner)
                            (oref default name)
