@@ -222,7 +222,6 @@ an error."
   "C-c C-n"                      #'forge-create-pullreq)
 
 (defvar-keymap forge-pullreq-section-map
-  "<remap> <magit-browse-thing>" #'forge-browse-pullreq
   "<remap> <magit-visit-thing>"  #'forge-visit-this-topic)
 
 (defun forge-insert-pullreqs ()

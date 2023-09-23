@@ -100,7 +100,7 @@
 
 ;; The double-prefix is necessary due to a limitation of magit-insert-section.
 (defvar-keymap forge-forge-repo-section-map
-  "<remap> <magit-browse-thing>" #'forge-browse-repository
+  "<remap> <magit-browse-thing>" #'forge-browse-this-repository
   "<remap> <magit-visit-thing>"  #'forge-visit-this-repository)
 
 (defun forge-insert-notifications ()

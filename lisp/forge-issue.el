@@ -171,7 +171,6 @@ an error."
   "C-c C-n"                      #'forge-create-issue)
 
 (defvar-keymap forge-issue-section-map
-  "<remap> <magit-browse-thing>" #'forge-browse-issue
   "<remap> <magit-visit-thing>"  #'forge-visit-this-topic)
 
 (defun forge-insert-issues ()

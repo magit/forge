@@ -409,7 +409,6 @@ an error."
 (defvar-keymap forge-topic-mode-map
   "C-c C-n"                      #'forge-create-post
   "C-c C-r"                      #'forge-create-post
-  "<remap> <magit-browse-thing>" #'forge-browse-topic
   "<remap> <magit-visit-thing>"  #'markdown-follow-link-at-point
   "<mouse-2>"                    #'markdown-follow-link-at-point)
 
@@ -430,7 +429,6 @@ an error."
     forge-insert-topic-review-requests))
 
 (defvar-keymap forge-post-section-map
-  "<remap> <magit-browse-thing>" #'forge-browse-post
   "<remap> <magit-edit-thing>"   #'forge-edit-post
   "C-c C-k"                      #'forge-delete-comment)
 

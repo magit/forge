@@ -206,10 +206,6 @@ Also see info node `(forge) Repository Detection'.")
 (cl-defgeneric forge-get-url (obj)
   "Return the URL for a forge object.")
 
-(cl-defgeneric forge-browse (obj)
-  "Visit the URL corresponding to a forge object in a browser."
-  (browse-url (forge-get-url obj)))
-
 (cl-defgeneric forge-visit (obj)
   "View a forge object in a separate buffer.")
 

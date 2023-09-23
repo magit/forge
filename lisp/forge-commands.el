@@ -240,26 +240,33 @@ TOPIC to pull instead."
                              'pullreqs-url-format)))
 
 ;;;###autoload
-(defun forge-browse-topic ()
-  "Visit the current topic using a browser."
-  (interactive)
-  (if-let ((topic (forge-current-topic)))
-      (forge-browse topic)
-    (user-error "There is no current topic")))
+(defun forge-browse-topic (topic)
+  "Read a TOPIC and visit it using a browser.
+By default only offer open topics but with a prefix argument
+also offer closed topics."
+  (interactive (list (forge-read-pullreq "Browse topic" t)))
+  (forge--browse-topic topic))
 
 ;;;###autoload
 (defun forge-browse-issue (issue)
-  "Visit the current issue using a browser.
-If there is no current issue or with a prefix argument
-read an ISSUE to visit."
+  "Read an ISSUE and visit it using a browser.
+By default only offer open issues but with a prefix argument
+also offer closed issues."
   (interactive (list (forge-read-issue "Browse issue" t)))
-  (forge-browse (forge-get-issue issue)))
+  (forge--browse-topic issue))
 
 ;;;###autoload
-(defun forge-browse-pullreq (pullreq)
-  "Visit the url corresponding to PULLREQ using a browser."
+(defun forge-browse-pullreq (pull-request)
+  "Read a PULL-REQUEST and visit it using a browser.
+By default only offer open pull-requests but with a prefix
+argument also offer closed pull-requests."
   (interactive (list (forge-read-pullreq "Browse pull-request" t)))
-  (forge-browse (forge-get-pullreq pullreq)))
+  (forge--browse-topic pull-request))
+
+(defun forge--browse-topic (topic)
+  (let ((obj (forge-get-topic topic)))
+    (browse-url (forge-get-url obj))
+    (oset obj unread-p nil)))
 
 ;;;###autoload
 (defun forge-browse-commit (commit)
@@ -274,54 +281,68 @@ read an ISSUE to visit."
 
 ;;;###autoload
 (defun forge-browse-branch (branch)
-  "Visit the url corresponding BRANCH using a browser."
+  "Read a BRANCH and visit it using a browser."
   (interactive (list (magit-read-branch "Browse branch")))
   (browse-url (forge-get-url :branch branch)))
 
 ;;;###autoload
 (defun forge-browse-remote (remote)
-  "Visit the url corresponding to REMOTE using a browser."
+  "Read a REMOTE and visit it using a browser."
   (interactive (list (magit-read-remote "Browse remote")))
   (browse-url (forge-get-url :remote remote)))
 
 ;;;###autoload
 (defun forge-browse-repository (repository)
-  "View the current repository in a separate buffer."
-  (interactive
-   (list (or (forge-current-repository)
-             (forge-get-repository
-              (forge-read-repository "Browse repository")))))
+  "Read a REPOSITORY and visit it using a browser."
+  (interactive (list (forge-read-repository "Browse repository")))
   (browse-url (forge-get-url (forge-get-repository repository))))
 
 ;;;###autoload
-(defun forge-browse-post ()
-  "Visit the current post using a browser."
+(defun forge-browse-this-topic ()
+  "Visit the topic at point using a browser."
   (interactive)
-  (if-let ((post (forge-post-at-point)))
-      (forge-browse post)
-    (user-error "There is no current post")))
+  (forge-browse-topic (forge-topic-at-point)))
+
+;;;###autoload
+(defun forge-browse-this-repository ()
+  "Visit the repository at point using a browser."
+  (interactive)
+  (forge-browse-repository (forge-repository-at-point)))
 
 ;;;###autoload
 (defun forge-copy-url-at-point-as-kill ()
   "Copy the url of the thing at point."
   (interactive)
-  (if-let ((url (forge-get-url (or (forge-post-at-point)
-                                   (forge-current-topic)))))
-      (progn
+  (if-let ((target (forge--browse-target)))
+      (let ((url (if (stringp target) target (forge-get-url target))))
         (kill-new url)
         (message "Copied %S" url))
     (user-error "Nothing at point with a URL")))
 
 ;;;###autoload
-(defun forge-browse-dwim ()
-  "Visit a topic, branch or commit using a browser.
-Prefer a topic over a branch and that over a commit."
+(defun forge-browse ()
+  "Visit the thing at point using a browser."
   (interactive)
-  (if-let ((topic (forge-topic-at-point)))
-      (forge-browse topic)
-    (if-let ((branch (magit-branch-at-point)))
-        (forge-browse-branch branch)
-      (call-interactively #'forge-browse-commit))))
+  (if-let ((target (forge--browse-target)))
+      (if (stringp target)
+          (browse-url target)
+        (browse-url (forge-get-url target))
+        (when (cl-typep target 'forge-topic)
+          (oset target unread-p nil)))
+    (user-error "Nothing to browse here")))
+
+(defun forge--browse-target ()
+  (or (and-let* ((branch (magit--painted-branch-at-point)))
+        (forge-get-url :branch branch))
+      (and-let* ((commit (magit-commit-at-point)))
+        (forge-get-url :commit commit))
+      (and-let* ((branch (magit-branch-at-point)))
+        (forge-get-url :branch branch))
+      (and-let* ((remote (magit-remote-at-point)))
+        (forge-get-url :remote remote))
+      (forge-post-at-point)
+      (forge-current-topic)
+      (forge-current-repository)))
 
 (cl-defmethod forge-get-url ((_(eql :commit)) commit)
   (let ((repo (forge-get-repository 'stub)))

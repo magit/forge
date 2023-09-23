@@ -98,7 +98,7 @@ This is a list of package names.  Used by the commands
   :parent tabulated-list-mode-map
   "RET"      #'forge-visit-this-topic
   "<return>" #'forge-visit-this-topic
-  "o"        #'forge-browse-topic
+  "o"        #'forge-browse-this-topic
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
 
@@ -159,7 +159,7 @@ This is a list of package names.  Used by the commands
   :parent tabulated-list-mode-map
   "RET"      #'forge-visit-this-repository
   "<return>" #'forge-visit-this-repository
-  "o"        #'forge-browse-repository
+  "o"        #'forge-browse-this-repository
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
 
