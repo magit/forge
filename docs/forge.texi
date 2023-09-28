@@ -134,7 +134,7 @@ A host is a particular instance of a forge.  For example the hosts
 @uref{https://gitlab.com} and @uref{https://salsa.debian.org} are both instances of
 the Gitlab forge.  Forge supports some well known hosts out of the box
 and additional hosts can easily be supported by adding entries to the
-option @code{forge-alist}.
+option @code{forge-alist} (see @ref{Repository Detection}).
 
 For more details about the caveats mentioned below (and some others)
 also see @ref{Getting Started}.
@@ -578,6 +578,63 @@ remote by your chosen name exists.
 Once the upstream remote has been determined, Forge looks it up in
 @code{forge-alist}, using the host part of the URL as the key.  For example
 the key for @code{git@@github.com:magit/forge.git} is @code{github.com}.
+
+@defopt forge-alist
+This option defines forge hosts known to Forge.
+
+Each entry has the form @code{(GITHOST APIHOST ID CLASS)}.
+
+@itemize
+@item
+GITHOST is matched against the host part of Git remote urls
+using @code{forge--url-regexp} to identify the forge.
+@item
+APIHOST is the api endpoint of the forge's api.
+@item
+ID is used to identify the forge in the local database.
+@item
+CLASS is the class to be used for repository from the forge.
+@end itemize
+
+GITHOST and APIHOST can be changed, but ID and CLASS are final.
+If you change ID, then the identity of every repository from
+that forge changes.  If you change CLASS, then things start
+falling apart.
+
+There can be multiple elements that only differ in GITHOST@.
+Among those, the canonical element should come first.  Any
+elements that have the same APIHOST must also have the same
+ID, and vice-versa.
+
+When adding a new entry, look at the default entries.
+
+Complications:
+
+@itemize
+@item
+When connecting to a Github Enterprise edition whose REST
+API's end point is "<host>/v3" and whose GraphQL API's
+end point is "<host>/graphql", then use "<host>/v3" as
+APIHOST@.  This is a historic accident.  See issue #174.
+
+@item
+This variable does not account for the possibility that the
+git repository does not use the same address as the web
+interface.  That is another historic accident and if many
+users are affected by it, we might have to fix it properly.
+If you would like that, comment on issue #532.
+
+For now a workaround has to be used.  Assuming the web
+interface is available at "example.com" and the repository
+is at "ssh.example.com", use "example.com" as GITHOST and
+add something like this to ".gitconfig":
+
+@example
+[url "git@@ssh.example.com"]
+    insteadOf = git@@example.com"
+@end example
+@end itemize
+@end defopt
 
 @node Caveats
 @section Caveats
