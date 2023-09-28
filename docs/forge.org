@@ -599,7 +599,7 @@ and check out branches and work trees in a more generic fashion
   the same way ~forge-branch-pullreq~ does.  Additionally it checks out
   the new branch using a new working tree.
 
-- User Options: forge-checkout-worktree-read-directory-function ::
+- User Option: forge-checkout-worktree-read-directory-function ::
 
   This function is used by ~forge-checkout-worktree~ to read read the
   new worktree directory where it checks out to pull-request.  It

@@ -837,13 +837,14 @@ the new branch.
 This command creates and configures a new branch from a pull-request
 the same way @code{forge-branch-pullreq} does.  Additionally it checks out
 the new branch using a new working tree.
+@end table
 
-@item User Options: forge-checkout-worktree-read-directory-function
+@defopt forge-checkout-worktree-read-directory-function
 This function is used by @code{forge-checkout-worktree} to read read the
 new worktree directory where it checks out to pull-request.  It
 takes the pull-request as the only argument and must return a
 directory.
-@end table
+@end defopt
 
 When you delete a pull-request branch, which was created using one of
 the above three commands, then @code{magit-branch-delete} usually offers to
@@ -947,7 +948,7 @@ By default Forge lists a subset of topics directly in the Magit status
 buffer.  It also provides commands to list topics and notifications in
 separate buffers.
 
-Forge adds the following two functions to @code{magit-status-sections-hook}:
+Forge adds the following functions to @code{magit-status-sections-hook}:
 
 @defun forge-insert-pullreqs
 This function inserts a list of the most recent and/or open
@@ -974,7 +975,7 @@ This command toggles whether the above two functions list recently
 closed issues in the current buffer.
 @end deffn
 
-The following three functions are also suitable for
+The following functions are also suitable for
 @code{magit-status-sections-hook}:
 
 @defun forge-insert-assigned-pullreqs
