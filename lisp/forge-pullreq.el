@@ -195,7 +195,7 @@ is in effect."
 
 (defun forge-current-pullreq (&optional demand)
   "Return the pull-request at point or being visited.
-If there is no such pull-request and demand is non-nil, then signal
+If there is no such pull-request and DEMAND is non-nil, then signal
 an error."
   (or (forge-pullreq-at-point)
       (and (derived-mode-p 'forge-topic-mode)
@@ -205,7 +205,7 @@ an error."
 
 (defun forge-pullreq-at-point (&optional demand)
   "Return the pull-request at point.
-If there is no such pull-request and demand is non-nil, then signal
+If there is no such pull-request and DEMAND is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-pullreq)
       (magit-section-value-if 'pullreq)

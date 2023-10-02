@@ -72,14 +72,14 @@ of the current pull-request."
 
 (defun forge-post-at-point (&optional assert)
   "Return the post at point.
-If there is no such post and demand is non-nil, then signal
+If there is no such post and DEMAND is non-nil, then signal
 an error."
   (or (magit-section-value-if '(issue pullreq post))
       (and assert (user-error "There is no post at point"))))
 
 (defun forge-comment-at-point (&optional assert)
   "Return the comment at point.
-If there is no such comment and demand is non-nil, then signal
+If there is no such comment and DEMAND is non-nil, then signal
 an error."
   (or (and (magit-section-value-if '(post))
            (let ((post (oref (magit-current-section) value)))

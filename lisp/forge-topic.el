@@ -386,7 +386,7 @@ identifier."
 
 (defun forge-current-topic (&optional demand)
   "Return the topic at point or being visited.
-If there is no such topic and demand is non-nil, then signal
+If there is no such topic and DEMAND is non-nil, then signal
 an error."
   (or (forge-topic-at-point)
       (and (derived-mode-p 'forge-topic-mode)
@@ -395,7 +395,7 @@ an error."
 
 (defun forge-topic-at-point (&optional demand)
   "Return the topic at point.
-If there is no such topic and demand is non-nil, then signal
+If there is no such topic and DEMAND is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-topic)
       (magit-section-value-if '(issue pullreq))

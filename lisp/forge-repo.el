@@ -259,7 +259,7 @@ no argument."
 
 (defun forge-current-repository (&optional demand)
   "Return the repository at point or being visited.
-If there is no such repository and demand is non-nil, then signal
+If there is no such repository and DEMAND is non-nil, then signal
 an error."
   (or (forge-repository-at-point)
       (forge-get-repository nil)
@@ -267,7 +267,7 @@ an error."
 
 (defun forge-repository-at-point (&optional demand)
   "Return the repository at point.
-If there is no such repository and demand is non-nil, then signal
+If there is no such repository and DEMAND is non-nil, then signal
 an error."
   (or (magit-section-value-if 'forge-repo)
       (and (derived-mode-p 'forge-repository-list-mode)

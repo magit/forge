@@ -145,7 +145,7 @@ a prefix argument is in effect."
 
 (defun forge-current-issue (&optional demand)
   "Return the issue at point or being visited.
-If there is no such issue and demand is non-nil, then signal
+If there is no such issue and DEMAND is non-nil, then signal
 an error."
   (or (forge-issue-at-point)
       (and (derived-mode-p 'forge-topic-mode)
@@ -155,7 +155,7 @@ an error."
 
 (defun forge-issue-at-point (&optional demand)
   "Return the issue at point.
-If there is no such issue and demand is non-nil, then signal
+If there is no such issue and DEMAND is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-issue)
       (magit-section-value-if 'issue)
