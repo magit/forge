@@ -373,9 +373,16 @@ identifier."
      (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
      t)))
 
+(defun forge--repo-for-thingatpt ()
+  (or (forge-repository-at-point)
+      (and-let* ((topic (forge-topic-at-point nil 'not-thingatpt)))
+        (forge-get-repository topic))
+      (and (not forge-buffer-unassociated-p)
+           (forge-get-repository nil))))
+
 (put 'forge-topic 'thing-at-point #'forge-thingatpt--topic)
 (defun forge-thingatpt--topic ()
-  (and-let* ((repo (forge-get-repository nil)))
+  (and-let* ((repo (forge--repo-for-thingatpt)))
     (and (thing-at-point-looking-at
           (format "[%s%s]\\([0-9]+\\)\\_>"
                   (forge--topic-type-prefix repo 'issue)
@@ -393,11 +400,13 @@ an error."
            forge-buffer-topic)
       (and demand (user-error "No current topic"))))
 
-(defun forge-topic-at-point (&optional demand)
+(defun forge-topic-at-point (&optional demand not-thingatpt)
   "Return the topic at point.
 If there is no such topic and DEMAND is non-nil, then signal
-an error."
-  (or (thing-at-point 'forge-topic)
+an error.  If NOT-THINGATPT is non-nil, then don't use
+`thing-at-point'."
+  (or (and (not not-thingatpt)
+           (thing-at-point 'forge-topic))
       (magit-section-value-if '(issue pullreq))
       (forge-get-pullreq :branch (magit-branch-at-point))
       (and (derived-mode-p 'forge-topic-list-mode)

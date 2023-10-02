@@ -185,7 +185,7 @@ is in effect."
 
 (put 'forge-pullreq 'thing-at-point #'forge-thingatpt--pullreq)
 (defun forge-thingatpt--pullreq ()
-  (and-let* ((repo (forge-get-repository nil)))
+  (and-let* ((repo (forge--repo-for-thingatpt)))
     (and (thing-at-point-looking-at
           (format "%s\\([0-9]+\\)\\_>"
                   (forge--topic-type-prefix repo 'pullreq)))

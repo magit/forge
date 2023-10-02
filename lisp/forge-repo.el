@@ -133,6 +133,8 @@ forges and hosts."
 (defvar-local forge-buffer-repository nil)
 (put 'forge-buffer-repository 'permanent-local t)
 
+(defvar-local forge-buffer-unassociated-p nil)
+
 (defconst forge--signal-no-entry '(t stub create))
 
 (defun forge--get-remote (&optional warn)

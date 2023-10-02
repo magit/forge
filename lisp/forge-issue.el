@@ -135,7 +135,7 @@ a prefix argument is in effect."
 
 (put 'forge-issue 'thing-at-point #'forge-thingatpt--issue)
 (defun forge-thingatpt--issue ()
-  (and-let* ((repo (forge-get-repository nil)))
+  (and-let* ((repo (forge--repo-for-thingatpt)))
     (and (thing-at-point-looking-at
           (format "%s\\([0-9]+\\)\\_>"
                   (forge--topic-type-prefix repo 'issue)))

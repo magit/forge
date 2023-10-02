@@ -79,7 +79,8 @@
   (cl-letf (((symbol-function 'magit-get-mode-buffer)
              (lambda (&rest _)
                (get-buffer-create "*forge-notifications*"))))
-    (magit-setup-buffer #'forge-notifications-mode)))
+    (magit-setup-buffer #'forge-notifications-mode nil
+      (forge-buffer-unassociated-p t))))
 
 (defun forge-notifications-refresh-buffer ()
   (forge-insert-notifications))
