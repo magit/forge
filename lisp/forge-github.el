@@ -560,43 +560,66 @@
 (defun forge--ghub-massage-notification (data githost)
   (let-alist data
     (let* ((type (intern (downcase .subject.type)))
-           (type (if (eq type 'pullrequest) 'pullreq type)))
-      (and (memq type '(pullreq issue))
-           (let* ((number (and (string-match "[0-9]*\\'" .subject.url)
-                               (string-to-number (match-string 0 .subject.url))))
-                  (repo   (forge-get-repository
-                           (list githost
-                                 .repository.owner.login
-                                 .repository.name)
-                           nil :insert!))
-                  (repoid (oref repo id))
-                  (owner  (oref repo owner))
-                  (name   (oref repo name))
-                  (id     (forge--object-id repoid (string-to-number .id)))
-                  (alias  (intern (concat "_" (string-replace "=" "_" id)))))
-             (list alias id
-                   `((,alias repository)
-                     [(name ,name)
-                      (owner ,owner)]
-                     ,@(cddr
-                        (caddr
-                         (ghub--graphql-prepare-query
-                          ghub-fetch-repository
-                          (if (eq type 'issue)
-                              `(repository issues (issue . ,number))
-                            `(repository pullRequest (pullRequest . ,number)))
-                          ))))
-                   repo type data))))))
+           (type (if (eq type 'pullrequest) 'pullreq type))
+           (_ (unless (memq type '(commit discussion issue pullreq))
+                (error "BUG: New unsupported notification type: %s" type)))
+           ;; To get a topic using the GraphQL API, we need the topic
+           ;; number, which is missing from the REST response, but for
+           ;; issues and pull-requests we extract it from one of the
+           ;; URLs included in the response.  For discussions we don't
+           ;; get so lucky; it features the same URL field, but its
+           ;; value is always false!  For commits we need the commit
+           ;; hash, which we can extract from the same URL field.
+           (number-or-commit (and .subject.url
+                                  (string-match "[^/]*\\'" .subject.url)
+                                  (match-string 0 .subject.url)))
+           (number (and (not (eq type 'commit))
+                        (string-to-number number-or-commit)))
+           (commit (and (eq type 'commit) number-or-commit))
+           (repo   (forge-get-repository
+                    (list githost
+                          .repository.owner.login
+                          .repository.name)
+                    nil :insert!))
+           (repoid (oref repo id))
+           (owner  (oref repo owner))
+           (name   (oref repo name))
+           (id     (forge--object-id repoid (string-to-number .id)))
+           (alias  (intern (concat "_" (string-replace "=" "_" id)))))
+      (when (and (eq type 'discussion)
+                 (not number))
+        (setq number nil)) ; TODO
+      (list alias id
+            (and number
+                 `((,alias repository)
+                   [(name ,name)
+                    (owner ,owner)]
+                   ,@(cddr
+                      (caddr
+                       (ghub--graphql-prepare-query
+                        ghub-fetch-repository
+                        (pcase type
+                          ('discussion `(repository
+                                         discussions
+                                         (discussion . ,number))) ; One can hope.
+                          ('issue      `(repository
+                                         issues
+                                         (issue . ,number)))
+                          ('pullreq    `(repository
+                                         pullRequest
+                                         (pullRequest . ,number)))))))))
+            repo type data))))
 
 (defun forge--ghub-update-notifications (notifs topics initial-pull)
   (closql-with-transaction (forge-db)
-    (pcase-dolist (`(,alias ,id ,_ ,repo ,type ,data) notifs)
+    (pcase-dolist (`(,alias ,id ,query ,repo ,type ,data) notifs)
       (let-alist data
         (and-let*
             ((topic-data (cdr (cadr (assq alias topics))))
-             (topic (funcall (if (eq type 'issue)
-                                 #'forge--update-issue
-                               #'forge--update-pullreq)
+             (topic (funcall (pcase-exhaustive type
+                               ('discussion #'forge--update-discussion)
+                               ('issue      #'forge--update-issue)
+                               (epullreq    #'forge--update-pullreq))
                              repo topic-data nil initial-pull))
              (notif (or (forge-get-notification id)
                         (closql-insert (forge-db)
