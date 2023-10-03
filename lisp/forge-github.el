@@ -423,15 +423,14 @@
     (forge-sql [:delete-from notification
                 :where (= forge $s1)]
                forge)
-    (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
+    (pcase-dolist (`(,key ,repo ,_ ,obj) notifs)
       (closql-insert (forge-db) obj)
       (forge--zap-repository-cache (forge-get-repository obj))
-      (when query
-        (oset (funcall (if (eq (oref obj type) 'issue)
-                           #'forge--update-issue
-                         #'forge--update-pullreq)
-                       repo (cdr (cadr (assq key topics))) nil)
-              unread-p (oref obj unread-p))))))
+      (oset (funcall (if (eq (oref obj type) 'issue)
+                         #'forge--update-issue
+                       #'forge--update-pullreq)
+                     repo (cdr (cadr (assq key topics))) nil)
+            unread-p (oref obj unread-p)))))
 
 (cl-defmethod forge-topic-mark-read ((_ forge-github-repository) topic)
   (when (oref topic unread-p)
