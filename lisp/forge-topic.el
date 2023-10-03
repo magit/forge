@@ -172,8 +172,8 @@ implement such a function themselves.  See #447.")
             (base64-decode-string prefix)
             (if (numberp number-or-id)
                 number-or-id
-              ;; Currently every id is base64 encode.  Unfortunately
-              ;; we cannot use the ids of Gitlab labels (see comment
+              ;; Currently every ID is base64 encoded.  Unfortunately
+              ;; we cannot use the IDs of Gitlab labels (see comment
               ;; in the respective `forge--update-labels' method),
               ;; and have to use their names, which are not encoded.
               (or (ignore-errors (base64-decode-string number-or-id))
