@@ -354,11 +354,11 @@
          (groups (-partition-all 50 notifs))
          (pages  (length groups))
          (page   0)
-         (result nil))
+         (topics nil))
       (cl-labels
           ((cb (&optional data _headers _status _req)
              (when data
-               (setq result (nconc result (cdr data))))
+               (setq topics (nconc topics (cdr data))))
              (if groups
                  (progn (cl-incf page)
                         (forge--msg nil t nil
@@ -369,19 +369,7 @@
                          nil #'cb nil :auth 'forge :host apihost))
                (forge--msg nil t t   "Pulling notifications")
                (forge--msg nil t nil "Storing notifications")
-               (closql-with-transaction (forge-db)
-                 (forge-sql [:delete-from notification
-                             :where (= forge $s1)]
-                            forge)
-                 (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
-                   (closql-insert (forge-db) obj)
-                   (forge--zap-repository-cache (forge-get-repository obj))
-                   (when query
-                     (oset (funcall (if (eq (oref obj type) 'issue)
-                                        #'forge--update-issue
-                                      #'forge--update-pullreq)
-                                    repo (cdr (cadr (assq key result))) nil)
-                           unread-p (oref obj unread-p)))))
+               (forge--ghub-update-notifications forge topics notifs)
                (forge--msg nil t t "Storing notifications")
                (when callback
                  (funcall callback)))))
@@ -429,6 +417,21 @@
                     :type         type
                     :topic        number
                     :url          .subject.url)))))))
+
+(defun forge--ghub-update-notifications (forge topics notifs)
+  (closql-with-transaction (forge-db)
+    (forge-sql [:delete-from notification
+                :where (= forge $s1)]
+               forge)
+    (pcase-dolist (`(,key ,repo ,query ,obj) notifs)
+      (closql-insert (forge-db) obj)
+      (forge--zap-repository-cache (forge-get-repository obj))
+      (when query
+        (oset (funcall (if (eq (oref obj type) 'issue)
+                           #'forge--update-issue
+                         #'forge--update-pullreq)
+                       repo (cdr (cadr (assq key topics))) nil)
+              unread-p (oref obj unread-p))))))
 
 (cl-defmethod forge-topic-mark-read ((_ forge-github-repository) topic)
   (when (oref topic unread-p)
