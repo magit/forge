@@ -350,10 +350,10 @@ identifier."
 
 (cl-defmethod forge--topic-type-prefix ((_ forge-topic))
   "Get the identifier prefix specific to the type of TOPIC."
-  "#")
+  (quote "#"))
 
 (cl-defmethod forge--topic-type-prefix ((_repo forge-repository) _type)
-  "#")
+  (quote "#"))
 
 (cl-defmethod forge--insert-topic-contents ((topic forge-topic) width prefix)
   (with-slots (number title unread-p closed) topic
