@@ -51,6 +51,9 @@
   (and-let* ((id (oref notify repository)))
     (closql-get (forge-db) id 'forge-repository)))
 
+(cl-defmethod forge-get-notification ((id string))
+  (closql-get (forge-db) id 'forge-notification))
+
 (cl-defmethod forge-get-notification ((topic forge-topic))
   (and-let* ((row (car (forge-sql [:select * :from notification
                                    :where (and (= repository $s1)
