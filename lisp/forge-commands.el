@@ -104,6 +104,10 @@ Takes the pull-request as only argument and must return a directory."
     ("t l" forge-forge.graphqlItemLimit)
     ("t t" forge-toggle-display-in-status-buffer)
     ("t c" forge-toggle-closed-visibility)]]
+  [["Configure notifications display"
+    :if-mode forge-notifications-mode
+    ("n w" "set style and refresh"     forge-set-notifications-display-style)
+    ("n h" "set selection and refresh" forge-set-notifications-display-selection)]]
   [[:description (lambda ()
                    (if (magit-gitdir)
                        "Forge doesn't know about this Git repository yet"

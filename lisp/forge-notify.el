@@ -92,10 +92,55 @@
 (defun forge-notifications-refresh-buffer ()
   (forge-insert-notifications))
 
-;;; Utilities
+;;; Display options
+
+(defvar forge-notifications-display-style 'flat)
+(defvar forge-notifications-display-list-function
+  #'forge--list-notifications-all)
+
+(defun forge-set-notifications-display-style ()
+  "Set the value of `forge-notifications-display-style' and refresh."
+  (interactive)
+  (unless (eq major-mode 'forge-notifications-mode)
+    (user-error "Not in forge-notifications-mode"))
+  (setq forge-notifications-display-style
+        (magit-read-char-case "Display notifications " t
+          (?g "[g]rouped by repository" 'nested)
+          (?f "as a [f]lat list"        'flat)))
+  (magit-refresh))
+
+(defun forge-set-notifications-display-selection ()
+  "Set the value of `forge-notifications-display-list-function' and refresh."
+  (interactive)
+  (unless (eq major-mode 'forge-notifications-mode)
+    (user-error "Not in forge-notifications-mode"))
+  (setq forge-notifications-display-list-function
+        (magit-read-char-case "Display " t
+          (?a "[a]ll"    #'forge--list-notifications-all)
+          (?m "[r]ecent" #'forge--list-notifications-recent)
+          (?o "[o]pen"   #'forge--list-notifications-open)
+          (?u "[u]nread" #'forge--list-notifications-unread)))
+  (magit-refresh))
 
 (defun forge--list-notifications-all ()
-  (closql-query (forge-db) nil nil 'forge-notification))
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-notification (forge-db) row))
+          (forge-sql [:select * :from notification
+                      :order-by [(desc updated)]])))
+
+(defun forge--list-notifications-recent ()
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-notification (forge-db) row))
+          (forge-sql [:select * :from notification
+                      :order-by [(desc updated)]
+                      :limit 100])))
+
+(defun forge--list-notifications-open ()
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-notification (forge-db) row))
+          (forge-sql [:select * :from notification
+                      :where (isnull done-p)
+                      :order-by [(desc updated)]])))
 
 (defun forge--list-notifications-unread ()
   (mapcar (lambda (row)
@@ -112,23 +157,34 @@
   "<remap> <magit-visit-thing>"  #'forge-visit-this-repository)
 
 (defun forge-insert-notifications ()
-  (when-let ((notifs (forge--list-notifications-all)))
+  (when-let ((notifs (funcall forge-notifications-display-list-function)))
     (magit-insert-section (notifications)
-      (magit-insert-heading "Notifications:")
-      (pcase-dolist (`(,_ . ,notifs)
-                     (--group-by (oref it repository) notifs))
-        (let ((repo (forge-get-repository (car notifs))))
-          (magit-insert-section (forge-repo repo t)
-            (magit-insert-heading
-              (concat (propertize (format "%s/%s"
-                                          (oref repo owner)
-                                          (oref repo name))
-                                  'font-lock-face 'bold)
-                      (format " (%s)" (length notifs))))
-            (magit-insert-section-body
-              (dolist (notif notifs)
-                (forge-insert-notification notif))
-              (insert ?\n))))))))
+      (magit-insert-heading
+        (concat (pcase forge-notifications-display-list-function
+                  ('forge--list-notifications-all    "All")
+                  ('forge--list-notifications-recent "Recent")
+                  ('forge--list-notifications-open   "Open")
+                  ('forge--list-notifications-unread "Unread"))
+                " notifications:"))
+      (if (eq forge-notifications-display-style 'flat)
+          (magit-insert-section-body
+            (dolist (notif notifs)
+              (forge-insert-notification notif))
+            (insert ?\n))
+        (pcase-dolist (`(,_ . ,notifs)
+                       (--group-by (oref it repository) notifs))
+          (let ((repo (forge-get-repository (car notifs))))
+            (magit-insert-section (forge-repo repo)
+              (magit-insert-heading
+                (concat (propertize (format "%s/%s"
+                                            (oref repo owner)
+                                            (oref repo name))
+                                    'font-lock-face 'bold)
+                        (format " (%s)" (length notifs))))
+              (magit-insert-section-body
+                (dolist (notif notifs)
+                  (forge-insert-notification notif))
+                (insert ?\n)))))))))
 
 (defun forge-insert-notification (notif)
   (with-slots (type title url unread-p) notif
