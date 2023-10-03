@@ -103,7 +103,7 @@ This is a list of package names.  Used by the commands
   "?"        #'magit-dispatch)
 
 (define-derived-mode forge-topic-list-mode tabulated-list-mode
-  "Issues"
+  "Topics"
   "Major mode for browsing a list of topics."
   (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
