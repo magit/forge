@@ -51,6 +51,10 @@
   (and-let* ((id (oref notify repository)))
     (closql-get (forge-db) id 'forge-repository)))
 
+(cl-defmethod forge-get-topic ((notify forge-notification))
+  (and-let* ((repo (forge-get-repository notify)))
+    (forge-get-topic repo (oref notify topic))))
+
 (cl-defmethod forge-get-notification ((id string))
   (closql-get (forge-db) id 'forge-notification))
 
@@ -122,12 +126,10 @@
                       (format " (%s)" (length ns))))
             (magit-insert-section-body
               (dolist (notify ns)
-                (with-slots (type topic title url unread-p) notify
+                (with-slots (type title url unread-p) notify
                   (pcase type
-                    ('issue
-                     (forge-insert-topic (forge-get-issue repo topic)))
-                    ('pullreq
-                     (forge-insert-topic (forge-get-pullreq repo topic)))
+                    ((or 'issue 'pullreq)
+                     (forge-insert-topic (forge-get-topic notify)))
                     ('commit
                      (magit-insert-section (ncommit nil) ; !commit
                        (string-match "[^/]*\\'" url)
