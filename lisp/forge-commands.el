@@ -439,6 +439,19 @@ with a prefix argument also closed topics."
 
 ;;; Create
 
+(defun forge-create-issue ()
+  "Create a new issue for the current repository."
+  (interactive)
+  (let* ((repo (forge-get-repository t))
+         (buf (forge--prepare-post-buffer
+               "new-issue"
+               (forge--format repo "Create new issue on %p"))))
+    (when buf
+      (with-current-buffer buf
+        (setq forge--buffer-post-object repo)
+        (setq forge--submit-post-function #'forge--submit-create-issue))
+      (forge--display-post-buffer buf))))
+
 (defun forge-create-pullreq (source target)
   "Create a new pull-request for the current repository."
   (interactive (forge-create-pullreq--read-args))
@@ -492,19 +505,6 @@ with a prefix argument also closed topics."
                                                "master")))))
                      (car (member d targets))))))
     (list source target)))
-
-(defun forge-create-issue ()
-  "Create a new issue for the current repository."
-  (interactive)
-  (let* ((repo (forge-get-repository t))
-         (buf (forge--prepare-post-buffer
-               "new-issue"
-               (forge--format repo "Create new issue on %p"))))
-    (when buf
-      (with-current-buffer buf
-        (setq forge--buffer-post-object repo)
-        (setq forge--submit-post-function #'forge--submit-create-issue))
-      (forge--display-post-buffer buf))))
 
 (defun forge-create-post (&optional quote)
   "Create a new post on an existing topic.
