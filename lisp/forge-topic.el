@@ -357,7 +357,8 @@ identifier."
 
 (cl-defmethod forge--insert-topic-contents ((topic forge-topic) width prefix)
   (with-slots (number title unread-p closed) topic
-    (insert (format (string-pad (forge--format-topic-id topic prefix) width)))
+    (insert (format (string-pad (forge--format-topic-id topic prefix)
+                                (or width 5))))
     (insert " ")
     (forge--insert-topic-marks topic)
     (insert " ")
