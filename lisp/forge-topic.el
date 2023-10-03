@@ -415,6 +415,10 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 ;;; Mode
 
+(defvar-keymap forge-post-section-map
+  "<remap> <magit-edit-thing>"   #'forge-edit-post
+  "C-c C-k"                      #'forge-delete-comment)
+
 (defvar-keymap forge-topic-mode-map
   "C-c C-n"                      #'forge-create-post
   "C-c C-r"                      #'forge-create-post
@@ -436,10 +440,6 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
     forge-insert-topic-marks
     forge-insert-topic-assignees
     forge-insert-topic-review-requests))
-
-(defvar-keymap forge-post-section-map
-  "<remap> <magit-edit-thing>"   #'forge-edit-post
-  "C-c C-k"                      #'forge-delete-comment)
 
 (defvar-local forge-buffer-topic nil)
 (defvar-local forge-buffer-topic-ident nil)
