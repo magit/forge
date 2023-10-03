@@ -112,24 +112,25 @@
   "<remap> <magit-visit-thing>"  #'forge-visit-this-repository)
 
 (defun forge-insert-notifications ()
-  (when-let ((ns (forge--list-notifications-all)))
+  (when-let ((notifs (forge--list-notifications-all)))
     (magit-insert-section (notifications)
       (magit-insert-heading "Notifications:")
-      (pcase-dolist (`(,_ . ,ns) (--group-by (oref it repository) ns))
-        (let ((repo (forge-get-repository (car ns))))
+      (pcase-dolist (`(,_ . ,notifs)
+                     (--group-by (oref it repository) notifs))
+        (let ((repo (forge-get-repository (car notifs))))
           (magit-insert-section (forge-repo repo t)
             (magit-insert-heading
               (concat (propertize (format "%s/%s"
                                           (oref repo owner)
                                           (oref repo name))
                                   'font-lock-face 'bold)
-                      (format " (%s)" (length ns))))
+                      (format " (%s)" (length notifs))))
             (magit-insert-section-body
-              (dolist (notify ns)
-                (with-slots (type title url unread-p) notify
+              (dolist (notif notifs)
+                (with-slots (type title url unread-p) notif
                   (pcase type
                     ((or 'issue 'pullreq)
-                     (forge-insert-topic (forge-get-topic notify)))
+                     (forge-insert-topic (forge-get-topic notif)))
                     ('commit
                      (magit-insert-section (ncommit nil) ; !commit
                        (string-match "[^/]*\\'" url)
@@ -147,7 +148,7 @@
                      ;; The documentation does not mention what "types"
                      ;; exist.  Make it obvious that this is something
                      ;; we do not know how to handle properly yet.
-                     (magit-insert-section (notification notify)
+                     (magit-insert-section (notification notif)
                        (insert (propertize (format "(%s) %s\n" type title)
                                            'font-lock-face 'error)))))))
               (insert ?\n))))))))
