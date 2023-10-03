@@ -497,6 +497,16 @@
 
 ;;; Mutations
 
+(cl-defmethod forge--submit-create-issue ((_ forge-github-repository) repo)
+  (let-alist (forge--topic-parse-buffer)
+    (forge--ghub-post repo "/repos/:owner/:repo/issues"
+      `((title . , .title)
+        (body  . , .body)
+        ,@(and .labels    (list (cons 'labels    .labels)))
+        ,@(and .assignees (list (cons 'assignees .assignees))))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback))))
+
 (cl-defmethod forge--create-pullreq-from-issue ((repo forge-github-repository)
                                                 (issue forge-issue)
                                                 source target)
@@ -545,16 +555,6 @@
           (maintainer_can_modify . t))
         :callback  (forge--post-submit-callback)
         :errorback (forge--post-submit-errorback)))))
-
-(cl-defmethod forge--submit-create-issue ((_ forge-github-repository) repo)
-  (let-alist (forge--topic-parse-buffer)
-    (forge--ghub-post repo "/repos/:owner/:repo/issues"
-      `((title . , .title)
-        (body  . , .body)
-        ,@(and .labels    (list (cons 'labels    .labels)))
-        ,@(and .assignees (list (cons 'assignees .assignees))))
-      :callback  (forge--post-submit-callback)
-      :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-post ((_ forge-github-repository) topic)
   (forge--ghub-post topic "/repos/:owner/:repo/issues/:number/comments"
