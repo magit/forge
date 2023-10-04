@@ -323,7 +323,7 @@ Also see option `forge-topic-list-limit'."
     (ghub--username repo))))
 
 (defun forge-insert-authored-pullreqs ()
-  "Insert a list of open pullreqs that are authored to you."
+  "Insert a list of open pullreqs that are authored by you."
   (when forge-display-in-status-buffer
     (when-let ((repo (forge-get-repository nil)))
       (unless (oref repo sparse-p)
