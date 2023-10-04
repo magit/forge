@@ -479,7 +479,8 @@ This mode itself is never used directly."
                                 default-directory
                               (or (oref repo worktree)
                                   default-directory))))
-    (magit-setup-buffer #'forge-topic-mode t
+    (magit-setup-buffer
+        (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode) t
       (forge-buffer-topic topic)
       (forge-buffer-topic-ident ident))))
 
