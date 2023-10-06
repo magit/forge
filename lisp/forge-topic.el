@@ -334,19 +334,6 @@ identifier."
   (magit-insert-section ((eval topic-section-type) topic t)
     (forge--insert-topic-contents topic width prefix)))
 
-(cl-defmethod forge--format-topic-id ((topic forge-topic) &optional prefix)
-  (propertize (format "%s%s"
-                      (or prefix (forge--topic-type-prefix topic))
-                      (oref topic number))
-              'font-lock-face 'magit-dimmed))
-
-(cl-defmethod forge--topic-type-prefix ((_ forge-topic))
-  "Get the identifier prefix specific to the type of TOPIC."
-  (quote "#"))
-
-(cl-defmethod forge--topic-type-prefix ((_repo forge-repository) _type)
-  (quote "#"))
-
 (cl-defmethod forge--insert-topic-contents ((topic forge-topic) width prefix)
   (with-slots (number title unread-p closed) topic
     (insert (string-pad (forge--format-topic-id topic prefix) (or width 5)))
@@ -403,6 +390,19 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
       (and (derived-mode-p 'forge-topic-list-mode)
            (forge-get-topic (tabulated-list-get-id)))
       (and demand (user-error "No topic at point"))))
+
+(cl-defmethod forge--format-topic-id ((topic forge-topic) &optional prefix)
+  (propertize (format "%s%s"
+                      (or prefix (forge--topic-type-prefix topic))
+                      (oref topic number))
+              'font-lock-face 'magit-dimmed))
+
+(cl-defmethod forge--topic-type-prefix ((_ forge-topic))
+  "Get the identifier prefix specific to the type of TOPIC."
+  (quote "#"))
+
+(cl-defmethod forge--topic-type-prefix ((_repo forge-repository) _type)
+  (quote "#"))
 
 ;;; Topic Modes
 ;;;; Modes
