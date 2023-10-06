@@ -343,6 +343,10 @@ at that time."
                  (eieio-object-class object)))
       resource)))
 
+(defun forge--sanitize-string (string)
+  ;; For Gitlab this may also be nil.
+  (if string (string-replace "\r\n" "\n" string) ""))
+
 ;; This is a copy of `org-id-uuid'.
 (defun forge--uuid ()
   "Return string with random (version 4) UUID."

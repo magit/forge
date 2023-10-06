@@ -296,10 +296,6 @@ implement such a function themselves.  See #447.")
 (cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
   (oset topic unread-p nil))
 
-(defun forge--sanitize-string (string)
-  ;; For Gitlab this may also be nil.
-  (if string (string-replace "\r\n" "\n" string) ""))
-
 (defun forge-insert-topics (heading topics prefix)
   "Under a new section with HEADING, insert TOPICS."
   (when topics
