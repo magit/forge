@@ -206,9 +206,6 @@ Also see info node `(forge) Repository Detection'.")
 (cl-defgeneric forge-get-url (obj)
   "Return the URL for a forge object.")
 
-(cl-defgeneric forge-visit (obj)
-  "View a forge object in a separate buffer.")
-
 (cl-defgeneric forge--object-id (class &rest args)
   "Return the database id for the CLASS object specified by ARGS.")
 

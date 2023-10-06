@@ -411,7 +411,7 @@ argument also offer closed pull-requests."
 By default only offer open topics for completion;
 with a prefix argument also closed topics."
   (interactive (list (forge-read-topic "View topic" t)))
-  (forge-visit (forge-get-topic topic)))
+  (forge-topic-setup-buffer (forge-get-topic topic)))
 
 ;;;###autoload
 (defun forge-visit-issue (issue)
@@ -419,7 +419,7 @@ with a prefix argument also closed topics."
 By default only offer open topics for completion;
 with a prefix argument also closed topics."
   (interactive (list (forge-read-issue "View issue" t)))
-  (forge-visit (forge-get-issue issue)))
+  (forge-topic-setup-buffer (forge-get-issue issue)))
 
 ;;;###autoload
 (defun forge-visit-pullreq (pull-request)
@@ -427,19 +427,23 @@ with a prefix argument also closed topics."
 By default only offer open topics for completion;
 with a prefix argument also closed topics."
   (interactive (list (forge-read-pullreq "View pull-request" t)))
-  (forge-visit (forge-get-pullreq pull-request)))
+  (forge-topic-setup-buffer (forge-get-pullreq pull-request)))
 
 ;;;###autoload
 (defun forge-visit-this-topic ()
   "Visit the topic at point."
   (interactive)
-  (forge-visit (forge-topic-at-point)))
+  (forge-topic-setup-buffer (forge-topic-at-point)))
 
 ;;;###autoload
 (defun forge-visit-this-repository ()
   "Visit the repository at point."
   (interactive)
-  (forge-visit (forge-repository-at-point)))
+  (let* ((repo (forge-repository-at-point))
+         (worktree (oref repo worktree)))
+    (if (and worktree (file-directory-p worktree))
+        (magit-status-setup-buffer worktree)
+      (forge-list-issues (oref repo id)))))
 
 ;;; Create
 

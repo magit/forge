@@ -278,12 +278,6 @@ an error."
            (forge-get-repository :id (tabulated-list-get-id)))
       (and demand (user-error "No repository at point"))))
 
-(cl-defmethod forge-visit ((repo forge-repository))
-  (let ((worktree (oref repo worktree)))
-    (if (and worktree (file-directory-p worktree))
-        (magit-status-setup-buffer worktree)
-      (forge-list-issues (oref repo id)))))
-
 (defun forge-read-repository (prompt)
   (let ((choice (magit-completing-read
                  prompt

@@ -293,10 +293,6 @@ implement such a function themselves.  See #447.")
   (forge--format (forge-get-repository topic) slot
                  `(,@spec (?i . ,(oref topic number)))))
 
-(cl-defmethod forge-visit ((topic forge-topic))
-  (forge-topic-setup-buffer topic)
-  (forge-topic-mark-read (forge-get-repository topic) topic))
-
 (cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
   (oset topic unread-p nil))
 
@@ -480,7 +476,8 @@ This mode itself is never used directly."
     (magit-setup-buffer
         (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode) t
       (forge-buffer-topic topic)
-      (forge-buffer-topic-ident ident))))
+      (forge-buffer-topic-ident ident))
+    (forge-topic-mark-read repo topic)))
 
 (defun forge-topic-refresh-buffer ()
   (let ((topic (closql-reload forge-buffer-topic)))
