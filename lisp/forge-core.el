@@ -222,9 +222,14 @@ Also see info node `(forge) Repository Detection'.")
   "Return the database and forge ids for the specified CLASS object.")
 
 (cl-defmethod magit-section-ident-value ((obj forge-object))
+  "Return the value ob OBJ's `id' slot.
+Using OBJ itself would not be appropriate because multiple
+non-equal objects may exist, representing the same thing."
   (oref obj id))
 
 (defun forge--set-id-slot (repo object slot rows)
+  "Set the value in OBJECT for SLOT to VALUE, actually storing foreign keys."
+  ;; TODO Should CloSQL advice `oset' to make this unnecessary?
   (let ((repo-id (oref repo id)))
     (closql-oset
      object slot
@@ -235,7 +240,13 @@ Also see info node `(forge) Repository Detection'.")
 
 ;;; Format
 
-(cl-defgeneric forge--format (object slot &optional spec))
+(cl-defgeneric forge--format (object slot &optional spec)
+  "Return a string based on SPEC and the format-string in OBJECT's SLOT.
+The available `format'-like specs depend on the type of OBJECT.
+SPEC can be used to add additional specs, as for `format-spec'.
+The latter override the former.  SLOT is expected to be class-
+allocated.  Some methods also accept a format string in place
+of SLOT.")
 
 (cl-defmethod forge--format ((remote string) slot &optional spec)
   (if-let ((parts (forge--split-remote-url remote)))
@@ -252,6 +263,15 @@ Also see info node `(forge) Repository Detection'.")
     (user-error "Cannot browse non-forge remote %s" remote)))
 
 (cl-defmethod forge--format-resource ((object forge-object) resource)
+  "Return an API resource based on RESOURCE and slots of OBJECT.
+For use in `forge--FORGE-METHOD' such as `forge--ghub-get'.
+RESOURCE is a string separated by slashes.  Each part that begins
+with a colon is replaced with a value from OBJECT.  `:repo' is a
+synonym for `:name'.  `:project' is a like `:owner/:name', but the
+slash is quoted on Gitlab.  `:topic' is a synonym for `:number'
+but only if OBJECT is a topic.  Any other `:SLOT' means to use
+the value of that slot in OBJECT, or if that doesn't exist in its
+parent object (determined using `forge-get-parent')."
   (save-match-data
     (setq resource
           (replace-regexp-in-string
@@ -348,9 +368,10 @@ Also see info node `(forge) Repository Detection'.")
   ;; For Gitlab this may also be nil.
   (if string (string-replace "\r\n" "\n" string) ""))
 
-;; This is a copy of `org-id-uuid'.
 (defun forge--uuid ()
   "Return string with random (version 4) UUID."
+  ;; This is a copy of `org-id-uuid'.
+  ;; Only used in `forge-create-mark'.
   (let ((rnd (md5 (format "%s%s%s%s%s%s%s"
                           (random)
                           (current-time)
