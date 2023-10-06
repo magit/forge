@@ -335,6 +335,24 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
   (forge--format (forge-get-repository topic) slot
                  `(,@spec (?i . ,(oref topic number)))))
 
+(defun forge--format-topic-line (topic &optional width)
+  (with-slots (slug title unread-p closed) topic
+    (concat (string-pad (propertize
+                         slug 'font-lock-face
+                         (cond ((forge-issue-p topic)
+                                'magit-dimmed)
+                               ((oref topic merged)
+                                'forge-topic-merged)
+                               ('forge-topic-unmerged)))
+                        (or width 5))
+            " "
+            (magit-log-propertize-keywords
+             nil (propertize
+                  title 'font-lock-face
+                  (cond (unread-p 'forge-topic-unread)
+                        (closed   'forge-topic-closed)
+                        (t        'forge-topic-open)))))))
+
 ;;; Insert
 
 (defun forge--insert-topics (heading topics)
@@ -369,27 +387,14 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
     (forge--insert-topic-contents topic width)))
 
 (cl-defmethod forge--insert-topic-contents ((topic forge-topic) width)
-  (with-slots (slug title unread-p closed) topic
-    (insert (string-pad (propertize slug 'font-lock-face
-                                    (cond ((forge-issue-p topic)
-                                           'magit-dimmed)
-                                          ((oref topic merged)
-                                           'forge-topic-merged)
-                                          ('forge-topic-unmerged)))
-                        (or width 5)))
-    (insert " ")
-    (forge--insert-topic-marks topic t)
-    (insert (magit-log-propertize-keywords
-             nil (propertize title 'font-lock-face
-                             (cond (unread-p 'forge-topic-unread)
-                                   (closed   'forge-topic-closed)
-                                   (t        'forge-topic-open)))))
-    (forge--insert-topic-labels topic)
-    (insert "\n")
-    (magit-log-format-author-margin
-     (oref topic author)
-     (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
-     t)))
+  (insert (forge--format-topic-line topic (or width 5)))
+  (forge--insert-topic-marks topic)
+  (forge--insert-topic-labels topic)
+  (insert "\n")
+  (magit-log-format-author-margin
+   (oref topic author)
+   (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
+   t))
 
 ;;; Topic Modes
 ;;;; Modes
