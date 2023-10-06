@@ -59,6 +59,22 @@
        :foreground "black"
        :background "#fb4933"))
   "Face used for successful workflow labels.")
+
+;;; Options
+
+(defcustom forge-workflow-show-commit-status nil
+  "When set to t, modify the commit in PR view to show workflow status."
+  ;; TODO type and such
+  )
+
+(defcustom forge-workflow-commit-status-alist
+  '((:success . "+")
+    (:failure . "!")
+    (:in-progress . "o"))
+  "Labels used for showing commit status in PR view."
+  ;; TODO type and such
+  )
+
 ;;; Classes
 
 (defclass forge-workflow (forge-topic)
@@ -204,6 +220,35 @@
                           ('success 'forge-workflow-success)
                           ('failure 'forge-workflow-failure)))
     (propertize (forge--workflow-format status) 'face 'italic)))
+
+(defun forge--insert-commit-status (&rest _)
+  "Modify the commits list in to show workflow status."
+  (when forge-workflow-show-commit-status
+    (save-excursion
+      (forward-line -2)
+      (beginning-of-line)
+      (while (magit-commit-section-p (magit-current-section))
+        (let-alist (forge--workflow-checks-info
+                    (forge-sql
+                     [:select [name status conclusion]
+                      :from workflow
+                      :where (like commit $s1)]
+                     (format "%s%%"(magit-thing-at-point 'git-revision t))))
+          (let ((text
+                 (cond
+                  (.in-progress-p
+                   (alist-get :in-progress forge-workflow-commit-status-alist))
+                  (.correct-p
+                   (alist-get :success forge-workflow-commit-status-alist))
+                  ((alist-get :failure forge-workflow-commit-status-alist))))
+                (face (cond (.in-progress-p 'forge-workflow-in-progress)
+                            (.correct-p 'forge-workflow-success)
+                            (t 'forge-workflow-failure))))
+            (magit-insert-section-body
+              (insert (propertize text 'face face))
+              (insert " "))))
+        (forward-line -1)
+        (beginning-of-line)))))
 
 ;;; _
 (provide 'forge-workflow)
