@@ -350,6 +350,15 @@
       [pullreq] :references pullreq [id]
       :on-delete :cascade))
 
+    (workflow
+     [(class :not-null)
+      (id :not-null :primary-key)
+      commit
+      name
+      status
+      conclusion
+      runs])
+
     (revnote
      [(class :not-null)
       (id :not-null :primary-key)
@@ -451,7 +460,12 @@
           (oset o slug (format "#%s" (oref o number))))
         (closql--db-set-version db (setq version 10))
         (message "Upgrading Forge database from version 9 to 10...done"))
-      )
+      (when (= version 10)
+        (message "Upgrading Forge database from version 10 to 11...")
+        (emacsql db [:create-table workflow $S1]
+                 (cdr (assq 'workflow forge--db-table-schemata)))
+        (closql--db-set-version db (setq version 10))
+        (message "Upgrading Forge database from version 10 to 11...done")))
     (cl-call-next-method)))
 
 (defun forge--backup-database (db)

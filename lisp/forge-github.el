@@ -27,6 +27,7 @@
 (require 'forge)
 (require 'forge-issue)
 (require 'forge-pullreq)
+(require 'forge-workflow)
 
 ;;; Class
 
@@ -198,6 +199,32 @@
     (mapc (lambda (e) (forge--update-pullreq repo e bump)) data)))
 
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data bump)
+  (forge--fetch-workflow
+   repo
+   (alist-get 'id data)
+   (lambda (data)
+     (closql-with-transaction (forge-db)
+       (let-alist data
+         (let* ((workflow-id (forge--object-id 'forge-workflow repo
+                                               (format "%s:%s"
+                                                       .name .run-number)))
+                (workflow (or (forge-get-workflow repo .name .run-number)
+                              (closql-insert
+                               (forge-db)
+                               (forge-workflow :id workflow-id
+                                               :commit .commit-id
+                                               :name .name)))))
+           (oset workflow status (forge--workflow-parse-status .status))
+           (oset workflow runs
+                 (mapcar
+                  (lambda (run)
+                    (pcase-exhaustive run
+                      (`(,name ,status ,conclusion)
+                       `(,name ,(forge--workflow-parse-status status)
+                               ,(forge--workflow-parse-conclusion conclusion)))))
+                  .runs))
+           (oset workflow conclusion
+                 (forge--workflow-parse-conclusion .conclusion)))))))
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .number))
@@ -502,6 +529,7 @@
     (funcall cb)))
 
 ;;; Mutations
+;;;; Workflows
 
 (cl-defmethod forge--submit-create-issue ((_ forge-github-repository) repo)
   (let-alist (forge--topic-parse-buffer)
@@ -512,6 +540,52 @@
         ,@(and .assignees (list (cons 'assignees .assignees))))
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
+(cl-defmethod forge--fetch-workflow ((repo forge-github-repository)
+                                     pr-id callback)
+  (ghub--graphql-vacuum
+   '(query
+     (node [(id $pr ID!)]
+           (\...\ on\ PullRequest
+            id
+            (commits [(:edges t)]
+                     (commit
+                      oid
+                      (checkSuites
+                       [(last 3)]
+                       (nodes
+                        conclusion
+                        status
+                        (workflowRun
+                         runNumber
+                         (workflow name)
+                         (checkSuite conclusion
+                                     (checkRuns
+                                      [(:edges t)]
+                                      status name conclusion))))))))))
+   `((pr . ,pr-id))
+   (lambda (data)
+     (let-alist data
+       (dolist (commit .node.commits)
+         (let-alist commit
+           (let ((oid .commit.oid)
+                 (suites .commit.checkSuites.nodes))
+             (dolist (run suites)
+               (let-alist run
+                 (funcall
+                  callback
+                  `((name . ,.workflowRun.workflow.name)
+                    (run-number . ,.workflowRun.runNumber)
+                    (commit-id . ,oid)
+                    (status . ,.status)
+                    (conclusion . ,.conclusion)
+                    (runs . ,(mapcar
+                              (lambda (sub-run)
+                                (let-alist sub-run
+                                  (list .name .status .conclusion)))
+                              .workflowRun.checkSuite.checkRuns)))))))))))
+   nil
+   :host (oref repo apihost)
+   :auth 'forge))
 
 (cl-defmethod forge--create-pullreq-from-issue ((repo forge-github-repository)
                                                 (issue forge-issue)
