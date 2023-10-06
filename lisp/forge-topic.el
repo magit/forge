@@ -359,13 +359,10 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 ;;; Insert
 
-(defun forge--insert-topics (heading topics)
+(defun forge--insert-topics (type heading topics)
   (when topics
     (let ((width (apply #'max (--map (length (oref it slug)) topics))))
-      (magit-insert-section
-        ((eval (cond ((forge--childp (car topics) 'forge-issue)   'issues)
-                     ((forge--childp (car topics) 'forge-pullreq) 'pullreqs)))
-         nil t)
+      (magit-insert-section ((eval type) nil t)
         (magit-insert-heading
           (concat (magit--propertize-face (concat heading " ")
                                           'magit-section-heading)
@@ -392,6 +389,16 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
                (not (oref topic merged)))
       (magit-insert-heading)
       (forge--insert-pullreq-commits topic))))
+
+(defun forge--assert-insert-topics-get-repository (&optional issues-p)
+  (and (forge-db t)
+       (or forge-display-in-status-buffer
+           (not (eq major-mode 'magit-status-mode)))
+       (and-let* ((repo (forge-get-repository nil)))
+         (and (not (oref repo sparse-p))
+              (or (not issues-p)
+                  (oref repo issues-p))
+              repo))))
 
 ;;; Topic Modes
 ;;;; Modes

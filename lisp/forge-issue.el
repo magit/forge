@@ -142,6 +142,9 @@ an error."
 (defun forge-ls-issues (repo &optional type select)
   (forge-ls-topics repo 'forge-issue type select))
 
+(defun forge--ls-recent-issues (repo)
+  (forge-ls-recent-topics repo 'issue))
+
 (defun forge--ls-assigned-issues (repo)
   (mapcar (lambda (row)
             (closql--remake-instance 'forge-issue (forge-db) row))
@@ -204,29 +207,19 @@ a prefix argument is in effect."
 (defun forge-insert-issues ()
   "Insert a list of mostly recent and/or open issues.
 Also see option `forge-topic-list-limit'."
-  (when (and forge-display-in-status-buffer (forge-db t))
-    (when-let ((repo (forge-get-repository nil)))
-      (when (and (not (oref repo sparse-p))
-                 (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE
-                     (oref repo issues-p)))
-        (forge--insert-topics "Issues"
-                              (forge-ls-recent-topics repo 'issue))))))
+  (forge--insert-issues "Issues" #'forge--ls-recent-issues))
 
 (defun forge-insert-assigned-issues ()
   "Insert a list of open issues that are assigned to you."
-  (when forge-display-in-status-buffer
-    (when-let ((repo (forge-get-repository nil)))
-      (unless (oref repo sparse-p)
-        (forge--insert-topics "Assigned issues"
-                              (forge--ls-assigned-issues repo))))))
+  (forge--insert-issues "Assigned issues" #'forge--ls-assigned-issues))
 
 (defun forge-insert-authored-issues ()
   "Insert a list of open issues that are authored by you."
-  (when forge-display-in-status-buffer
-    (when-let ((repo (forge-get-repository nil)))
-      (unless (oref repo sparse-p)
-        (forge--insert-topics "Authored issues"
-                              (forge--ls-authored-issues repo))))))
+  (forge--insert-issues "Authored issues" #'forge--ls-assigned-issues))
+
+(defun forge--insert-issues (heading getter)
+  (when-let ((repo (forge--assert-insert-topics-get-repository t)))
+    (forge--insert-topics 'issues heading (funcall getter repo))))
 
 ;;; _
 (provide 'forge-issue)

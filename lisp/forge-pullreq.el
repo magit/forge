@@ -166,6 +166,9 @@ an error."
 (defun forge-ls-pullreqs (repo &optional type select)
   (forge-ls-topics repo 'forge-pullreq type select))
 
+(defun forge--ls-recent-pullreqs (repo)
+  (forge-ls-recent-topics repo 'pullreq))
+
 (defun forge--ls-assigned-pullreqs (repo)
   (mapcar (lambda (row)
             (closql--remake-instance 'forge-pullreq (forge-db) row))
@@ -276,34 +279,27 @@ is in effect."
 (defun forge-insert-pullreqs ()
   "Insert a list of mostly recent and/or open pull-requests.
 Also see option `forge-topic-list-limit'."
-  (when (and forge-display-in-status-buffer (forge-db t))
-    (when-let ((repo (forge-get-repository nil)))
-      (unless (oref repo sparse-p)
-        (forge--insert-topics "Pull requests"
-                              (forge-ls-recent-topics repo 'pullreq))))))
+  (forge--insert-pullreqs "Pull requests"
+                          #'forge--ls-recent-pullreqs))
 
 (defun forge-insert-assigned-pullreqs ()
   "Insert a list of open pull-requests that are assigned to you."
-  (when forge-display-in-status-buffer
-    (when-let ((repo (forge-get-repository nil)))
-      (unless (oref repo sparse-p)
-        (forge--insert-topics "Assigned pull requests"
-                              (forge--ls-assigned-pullreqs repo))))))
+  (forge--insert-pullreqs "Assigned pull requests"
+                          #'forge--ls-assigned-pullreqs))
 
 (defun forge-insert-requested-reviews ()
   "Insert a list of pull-requests that are awaiting your review."
-  (when-let ((repo (forge-get-repository nil)))
-    (unless (oref repo sparse-p)
-      (forge--insert-topics "Pull requests awaiting review"
-                            (forge--ls-requested-reviews repo)))))
+  (forge--insert-pullreqs "Pull requests awaiting review"
+                          #'forge--ls-requested-reviews))
 
 (defun forge-insert-authored-pullreqs ()
   "Insert a list of open pullreqs that are authored by you."
-  (when forge-display-in-status-buffer
-    (when-let ((repo (forge-get-repository nil)))
-      (unless (oref repo sparse-p)
-        (forge--insert-topics "Authored pullreqs"
-                              (forge--ls-authored-pullreqs repo))))))
+  (forge--insert-pullreqs "Authored pullreqs"
+                          #'forge--ls-authored-pullreqs))
+
+(defun forge--insert-pullreqs (heading getter)
+  (when-let ((repo (forge--assert-insert-topics-get-repository)))
+    (forge--insert-topics 'pullreqs heading (funcall getter repo))))
 
 (defun forge--insert-pullreq-commits (pullreq &optional all)
   (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
