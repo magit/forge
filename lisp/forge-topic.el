@@ -380,17 +380,18 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 (defun forge--insert-topic (topic &optional width)
   (magit-insert-section ((eval (oref topic closql-table)) topic t)
-    (forge--insert-topic-contents topic width)))
-
-(cl-defmethod forge--insert-topic-contents ((topic forge-topic) width)
-  (insert (forge--format-topic-line topic (or width 5)))
-  (forge--insert-topic-marks topic)
-  (forge--insert-topic-labels topic)
-  (insert "\n")
-  (magit-log-format-author-margin
-   (oref topic author)
-   (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
-   t))
+    (insert (forge--format-topic-line topic (or width 5)))
+    (forge--insert-topic-marks topic)
+    (forge--insert-topic-labels topic)
+    (insert "\n")
+    (magit-log-format-author-margin
+     (oref topic author)
+     (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
+     t)
+    (when (and (slot-exists-p topic 'merged)
+               (not (oref topic merged)))
+      (magit-insert-heading)
+      (forge--insert-pullreq-commits topic))))
 
 ;;; Topic Modes
 ;;;; Modes

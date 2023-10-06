@@ -326,11 +326,6 @@ Also see option `forge-topic-list-limit'."
           (magit--insert-log nil range magit-buffer-log-args)
           (magit-make-margin-overlay nil t))))))
 
-(cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq) _)
-  (unless (oref pullreq merged)
-    (magit-insert-heading)
-    (forge--insert-pullreq-commits pullreq)))
-
 ;;; _
 (provide 'forge-pullreq)
 ;;; forge-pullreq.el ends here
