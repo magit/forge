@@ -234,6 +234,32 @@ Also see option `forge-topic-list-limit'."
                              (forge-ls-recent-topics repo 'pullreq)
                              (forge--topic-type-prefix repo 'pullreq))))))
 
+(defun forge-insert-assigned-pullreqs ()
+  "Insert a list of open pull-requests that are assigned to you."
+  (when forge-display-in-status-buffer
+    (when-let ((repo (forge-get-repository nil)))
+      (unless (oref repo sparse-p)
+        (forge-insert-topics "Assigned pull requests"
+                             (forge--ls-assigned-pullreqs repo)
+                             (forge--topic-type-prefix repo 'pullreq))))))
+
+(defun forge-insert-requested-reviews ()
+  "Insert a list of pull-requests that are awaiting your review."
+  (when-let ((repo (forge-get-repository nil)))
+    (unless (oref repo sparse-p)
+      (forge-insert-topics "Pull requests awaiting review"
+                           (forge--ls-requested-reviews repo)
+                           (forge--topic-type-prefix repo 'pullreq)))))
+
+(defun forge-insert-authored-pullreqs ()
+  "Insert a list of open pullreqs that are authored by you."
+  (when forge-display-in-status-buffer
+    (when-let ((repo (forge-get-repository nil)))
+      (unless (oref repo sparse-p)
+        (forge-insert-topics "Authored pullreqs"
+                             (forge--ls-authored-pullreqs repo)
+                             (forge--topic-type-prefix repo 'pullreq))))))
+
 (defun forge--insert-pullreq-commits (pullreq &optional all)
   (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
     (if all
@@ -274,15 +300,6 @@ Also see option `forge-topic-list-limit'."
       "!"
     "#"))
 
-(defun forge-insert-assigned-pullreqs ()
-  "Insert a list of open pull-requests that are assigned to you."
-  (when forge-display-in-status-buffer
-    (when-let ((repo (forge-get-repository nil)))
-      (unless (oref repo sparse-p)
-        (forge-insert-topics "Assigned pull requests"
-                             (forge--ls-assigned-pullreqs repo)
-                             (forge--topic-type-prefix repo 'pullreq))))))
-
 (defun forge--ls-assigned-pullreqs (repo)
   (mapcar (lambda (row)
             (closql--remake-instance 'forge-pullreq (forge-db) row))
@@ -297,14 +314,6 @@ Also see option `forge-topic-list-limit'."
            (vconcat (closql--table-columns (forge-db) 'pullreq t))
            (oref repo id)
            (ghub--username repo))))
-
-(defun forge-insert-requested-reviews ()
-  "Insert a list of pull-requests that are awaiting your review."
-  (when-let ((repo (forge-get-repository nil)))
-    (unless (oref repo sparse-p)
-      (forge-insert-topics "Pull requests awaiting review"
-                           (forge--ls-requested-reviews repo)
-                           (forge--topic-type-prefix repo 'pullreq)))))
 
 (defun forge--ls-requested-reviews (repo)
   (mapcar
@@ -321,15 +330,6 @@ Also see option `forge-topic-list-limit'."
     (vconcat (closql--table-columns (forge-db) 'pullreq t))
     (oref repo id)
     (ghub--username repo))))
-
-(defun forge-insert-authored-pullreqs ()
-  "Insert a list of open pullreqs that are authored by you."
-  (when forge-display-in-status-buffer
-    (when-let ((repo (forge-get-repository nil)))
-      (unless (oref repo sparse-p)
-        (forge-insert-topics "Authored pullreqs"
-                             (forge--ls-authored-pullreqs repo)
-                             (forge--topic-type-prefix repo 'pullreq))))))
 
 (defun forge--ls-authored-pullreqs (repo)
   (mapcar (lambda (row)
