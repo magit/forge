@@ -28,11 +28,13 @@
 (require 'emacsql)
 
 ;; For `closql--db-update-schema':
+(declare-function forge--object-id "forge-core")
 (declare-function forge-get-issue "forge-core")
 (declare-function forge-get-pullreq "forge-core")
-(declare-function forge--object-id "forge-core")
+(declare-function forge-get-repository "forge-core" (demand))
 
 (eval-when-compile
+  (cl-pushnew 'number eieio--known-slot-names)
   (cl-pushnew 'value eieio--known-slot-names))
 
 ;;; Options
@@ -438,12 +440,15 @@
         (emacsql db [:alter-table pullreq :add-column slug :default nil])
         (emacsql db [:alter-table issue   :add-column slug :default nil])
         (dolist (o (closql-entries (forge-db) nil 'forge-pullreq))
-          (oset o slug (format "%s%s"
-                               (if (forge-gitlab-repository--eieio-childp
-                                    (forge-get-repository o))
-                                   "!"
-                                 "#")
-                               (oref o number))))
+          (oset o slug
+                (format
+                 "%s%s"
+                 (if (and (fboundp 'forge-gitlab-repository--eieio-childp)
+                          (forge-gitlab-repository--eieio-childp
+                           (forge-get-repository o)))
+                     "!"
+                   "#")
+                 (oref o number))))
         (dolist (o (closql-entries (forge-db) nil 'forge-issue))
           (oset o slug (format "#%s" (oref o number))))
         (closql--db-set-version db (setq version 10))
