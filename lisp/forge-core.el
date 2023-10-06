@@ -254,6 +254,37 @@ Also see info node `(forge) Repository Detection'.")
            (?P . ,(string-replace "/" "%2F" path)))))
     (user-error "Cannot browse non-forge remote %s" remote)))
 
+(cl-defmethod forge--format-resource ((object forge-object) resource)
+  (save-match-data
+    (setq resource
+          (replace-regexp-in-string
+           ":\\([^/]+\\)"
+           (lambda (str)
+             (let ((slot (intern (substring str 1))))
+               (or (and-let*
+                       ((v (ignore-errors
+                             (cl-case slot
+                               (repo    (oref object name))
+                               (project (concat (string-replace
+                                                 "/" "%2F" (oref object owner))
+                                                "%2F"
+                                                (oref object name)))
+                               (topic   (and (forge--childp object 'forge-topic)
+                                             (oref object number)))
+                               (t       (eieio-oref object slot))))))
+                     (format "%s" v))
+                   str)))
+           resource t t))
+    (if (string-match ":[^/]*" resource)
+        (if-let ((parent (ignore-errors (forge-get-parent object))))
+            (forge--format-resource parent resource)
+          (error "Cannot resolve %s for a %s"
+                 (match-string 0 resource)
+                 (eieio-object-class object)))
+      resource)))
+
+;;; URLs
+
 (defun forge--url-regexp ()
   (concat "\\`\\(?:git://\\|"
           "[^/@]+@\\|"
@@ -314,34 +345,7 @@ Also see info node `(forge) Repository Detection'.")
                (equal (cl-caddr (assoc hostA forge-alist))
                       (cl-caddr (assoc hostB forge-alist))))))))
 
-(cl-defmethod forge--format-resource ((object forge-object) resource)
-  (save-match-data
-    (setq resource
-          (replace-regexp-in-string
-           ":\\([^/]+\\)"
-           (lambda (str)
-             (let ((slot (intern (substring str 1))))
-               (or (and-let*
-                       ((v (ignore-errors
-                             (cl-case slot
-                               (repo    (oref object name))
-                               (project (concat (string-replace
-                                                 "/" "%2F" (oref object owner))
-                                                "%2F"
-                                                (oref object name)))
-                               (topic   (and (forge--childp object 'forge-topic)
-                                             (oref object number)))
-                               (t       (eieio-oref object slot))))))
-                     (format "%s" v))
-                   str)))
-           resource t t))
-    (if (string-match ":[^/]*" resource)
-        (if-let ((parent (ignore-errors (forge-get-parent object))))
-            (forge--format-resource parent resource)
-          (error "Cannot resolve %s for a %s"
-                 (match-string 0 resource)
-                 (eieio-object-class object)))
-      resource)))
+;;; Miscellaneous
 
 (defun forge--sanitize-string (string)
   ;; For Gitlab this may also be nil.
