@@ -405,6 +405,14 @@ List them in a separate buffer."
                  (forge--tablist-columns-vector 'issue)
                  id (ghub--username (forge-get-repository :id id))))))
 
+;;;; Notifications
+
+;;;###autoload
+(defun forge-list-notifications ()
+  "List notifications."
+  (interactive)
+  (forge-notifications-setup-buffer))
+
 ;;;; Repository
 
 ;;;###autoload

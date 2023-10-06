@@ -1187,13 +1187,7 @@ heavy development."
     (delete-file forge-database-file t)
     (magit-refresh)))
 
-;;; Misc
-
-;;;###autoload
-(defun forge-list-notifications ()
-  "List notifications."
-  (interactive)
-  (forge-notifications-setup-buffer))
+;;; Miscellaneous
 
 (defun forge-enable-sql-logging ()
   "Enable logging Forge's SQL queries."
