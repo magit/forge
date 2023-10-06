@@ -24,6 +24,8 @@
 
 (require 'forge)
 
+;;; Classes
+
 (defclass forge-gitweb-repository (forge-noapi-repository)
   ((commit-url-format :initform "https://%h/gitweb/?p=%P.git;a=commitdiff;h=%r")
    (branch-url-format :initform "https://%h/gitweb/?p=%P.git;a=log;h=refs/heads/%r")

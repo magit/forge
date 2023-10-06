@@ -724,7 +724,7 @@
     `((merge_method . ,(symbol-name method))
       ,@(and hash `((sha . ,hash))))))
 
-;;; Utilities
+;;; Wrappers
 
 (cl-defun forge--ghub-get (obj resource
                                &optional params

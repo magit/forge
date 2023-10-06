@@ -434,7 +434,7 @@ Only Github is supported for now."
   (forge-repository-list-setup #'forge-repository-list-owned-refresh
                                "*Forge Owned Repositories*"))
 
-;;; Internal
+;;; Miscellaneous
 
 (defun forge-topic-list-sort-by-number (a b)
   "Sort the `tabulated-list-entries' by topic number.

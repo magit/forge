@@ -137,9 +137,11 @@ If this is nil, then `forge-pull-notifications' has to be used."
   :group 'forge
   :type 'boolean)
 
-;;; Core
+;;; Class
 
 (defclass forge-object (closql-object) () :abstract t)
+
+;;; Query
 
 (cl-defgeneric forge-get-parent (object)
   "Return the parent object of OBJECT.
@@ -205,6 +207,8 @@ Also see info node `(forge) Repository Detection'.")
 
 (cl-defgeneric forge-get-url (obj)
   "Return the URL for a forge object.")
+
+;;; Identity
 
 (cl-defgeneric forge--object-id (class &rest args)
   "Return the database id for the CLASS object specified by ARGS.")

@@ -709,7 +709,7 @@ This mode itself is never used directly."
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
 
-;;; Internal Utilities
+;;; Color Utilities
 
 (defun forge--sanitize-color (color)
   (cond ((color-values color) color)
@@ -737,6 +737,8 @@ Return a value between 0 and 1."
   "Calculate the luminance of color composed of RED, GREEN and BLUE.
 Return a value between 0 and 1."
   (/ (+ (* .2126 red) (* .7152 green) (* .0722 blue)) 256))
+
+;;; Markdown Utilities
 
 (defun forge--fontify-markdown (text)
   (with-temp-buffer
@@ -845,7 +847,7 @@ allow exiting with a number that doesn't match any candidate."
                                     (oref repo id))))
                :annotation-function (lambda (c) (get-text-property 0 :title c))))))
 
-;;; Parse
+;;; Templates
 
 (defun forge--topic-parse-buffer (&optional file)
   (save-match-data
@@ -929,8 +931,6 @@ allow exiting with a number that doesn't match any candidate."
                                  (point-max))
                                 :object-type 'alist
                                 :sequence-type 'list)))
-
-;;; Templates
 
 (cl-defgeneric forge--topic-templates (repo class)
   "Return a list of topic template files for REPO and a topic of CLASS.")

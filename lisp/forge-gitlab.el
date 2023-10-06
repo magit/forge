@@ -598,7 +598,7 @@
     `((squash . ,(eq method 'squash))
       ,@(and hash `((sha . ,hash))))))
 
-;;; Utilities
+;;; Wrappers
 
 (cl-defmethod forge--topic-type-prefix ((_repo forge-gitlab-repository) type)
   (if (eq type 'pullreq) "!" "#"))
