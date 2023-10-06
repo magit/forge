@@ -337,8 +337,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 ;;; Insert
 
-(defun forge-insert-topics (heading topics)
-  "Under a new section with HEADING, insert TOPICS."
+(defun forge--insert-topics (heading topics)
   (when topics
     (let ((width (apply #'max (--map (length (oref it slug)) topics)))
           list-section-type topic-section-type)
@@ -357,15 +356,11 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
         (magit-make-margin-overlay nil t)
         (magit-insert-section-body
           (dolist (topic topics)
-            (forge-insert-topic topic topic-section-type width))
+            (forge--insert-topic topic topic-section-type width))
           (insert ?\n)
           (magit-make-margin-overlay nil t))))))
 
-(defun forge-insert-topic (topic &optional topic-section-type width)
-  "Insert TOPIC as a new section.
-If TOPIC-SECTION-TYPE is provided, it is the section type to use.
-If WIDTH is provided, it is a fixed width to use for the topic
-identifier."
+(defun forge--insert-topic (topic &optional topic-section-type width)
   (unless topic-section-type
     (setq topic-section-type
           (cond ((forge--childp topic 'forge-issue) 'issue)

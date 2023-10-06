@@ -188,7 +188,7 @@
   (with-slots (type title url unread-p) notif
     (pcase type
       ((or 'issue 'pullreq)
-       (forge-insert-topic (forge-get-topic notif)))
+       (forge--insert-topic (forge-get-topic notif)))
       ('commit
        (magit-insert-section (ncommit nil) ; !commit
          (string-match "[^/]*\\'" url)

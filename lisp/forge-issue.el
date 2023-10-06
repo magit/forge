@@ -209,24 +209,24 @@ Also see option `forge-topic-list-limit'."
       (when (and (not (oref repo sparse-p))
                  (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE
                      (oref repo issues-p)))
-        (forge-insert-topics "Issues"
-                             (forge-ls-recent-topics repo 'issue))))))
+        (forge--insert-topics "Issues"
+                              (forge-ls-recent-topics repo 'issue))))))
 
 (defun forge-insert-assigned-issues ()
   "Insert a list of open issues that are assigned to you."
   (when forge-display-in-status-buffer
     (when-let ((repo (forge-get-repository nil)))
       (unless (oref repo sparse-p)
-        (forge-insert-topics "Assigned issues"
-                             (forge--ls-assigned-issues repo))))))
+        (forge--insert-topics "Assigned issues"
+                              (forge--ls-assigned-issues repo))))))
 
 (defun forge-insert-authored-issues ()
   "Insert a list of open issues that are authored by you."
   (when forge-display-in-status-buffer
     (when-let ((repo (forge-get-repository nil)))
       (unless (oref repo sparse-p)
-        (forge-insert-topics "Authored issues"
-                             (forge--ls-authored-issues repo))))))
+        (forge--insert-topics "Authored issues"
+                              (forge--ls-authored-issues repo))))))
 
 ;;; _
 (provide 'forge-issue)
