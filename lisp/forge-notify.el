@@ -44,7 +44,8 @@
    (topic                     :initarg :topic)
    (url                       :initarg :url)))
 
-;;; Core
+;;; Query
+;;;; Get
 
 (cl-defmethod forge-get-repository ((notify forge-notification))
   "Return the object for the repository that NOTIFY belongs to."
@@ -65,6 +66,35 @@
                                   (oref topic repository)
                                   (oref topic number)))))
     (closql--remake-instance 'forge-notification (forge-db) row)))
+
+;;;; List
+
+(defun forge--list-notifications-all ()
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-notification (forge-db) row))
+          (forge-sql [:select * :from notification
+                      :order-by [(desc updated)]])))
+
+(defun forge--list-notifications-recent ()
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-notification (forge-db) row))
+          (forge-sql [:select * :from notification
+                      :order-by [(desc updated)]
+                      :limit 100])))
+
+(defun forge--list-notifications-open ()
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-notification (forge-db) row))
+          (forge-sql [:select * :from notification
+                      :where (isnull done-p)
+                      :order-by [(desc updated)]])))
+
+(defun forge--list-notifications-unread ()
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-notification (forge-db) row))
+          (forge-sql [:select * :from notification
+                      :where (notnull unread-p)
+                      :order-by [(desc id)]])))
 
 ;;; Utilities
 
@@ -92,7 +122,7 @@
 (defun forge-notifications-refresh-buffer ()
   (forge-insert-notifications))
 
-;;; Display options
+;;; Commands
 
 (defvar forge-notifications-display-style 'flat)
 (defvar forge-notifications-display-list-function
@@ -121,33 +151,6 @@
           (?o "[o]pen"   #'forge--list-notifications-open)
           (?u "[u]nread" #'forge--list-notifications-unread)))
   (magit-refresh))
-
-(defun forge--list-notifications-all ()
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select * :from notification
-                      :order-by [(desc updated)]])))
-
-(defun forge--list-notifications-recent ()
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select * :from notification
-                      :order-by [(desc updated)]
-                      :limit 100])))
-
-(defun forge--list-notifications-open ()
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select * :from notification
-                      :where (isnull done-p)
-                      :order-by [(desc updated)]])))
-
-(defun forge--list-notifications-unread ()
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select * :from notification
-                      :where (notnull unread-p)
-                      :order-by [(desc id)]])))
 
 ;;; Sections
 

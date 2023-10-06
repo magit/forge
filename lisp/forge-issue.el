@@ -78,6 +78,7 @@
    ))
 
 ;;; Query
+;;;; Get
 
 (cl-defmethod forge-get-repository ((post forge-issue-post))
   (forge-get-repository (forge-get-issue post)))
@@ -105,43 +106,7 @@
               (oref post issue)
               'forge-issue))
 
-(cl-defmethod forge-ls-issues ((repo forge-repository) &optional type select)
-  (forge-ls-topics repo 'forge-issue type select))
-
-;;; Utilities
-
-(defun forge-read-issue (prompt &optional type)
-  "Read an issue with completion using PROMPT.
-TYPE can be `open', `closed', or nil to select from all issues.
-TYPE can also be t to select from open issues, or all issues if
-a prefix argument is in effect."
-  (when (eq type t)
-    (setq type (if current-prefix-arg nil 'open)))
-  (let* ((default (forge-current-issue))
-         (repo    (forge-get-repository (or default t)))
-         (choices (mapcar
-                   (apply-partially #'forge--topic-format-choice repo)
-                   (forge-ls-issues repo type [number title id class]))))
-    (cdr (assoc (magit-completing-read
-                 prompt choices nil nil nil nil
-                 (and default
-                      (setq default (forge--topic-format-choice default))
-                      (member default choices)
-                      (car default)))
-                choices))))
-
-(cl-defmethod forge-get-url ((issue forge-issue))
-  (forge--format issue 'issue-url-format))
-
-(put 'forge-issue 'thing-at-point #'forge-thingatpt--issue)
-(defun forge-thingatpt--issue ()
-  (and-let* ((repo (forge--repo-for-thingatpt)))
-    (and (thing-at-point-looking-at
-          (format "%s\\([0-9]+\\)\\_>"
-                  (forge--topic-type-prefix repo 'issue)))
-         (forge-get-issue repo (string-to-number (match-string 1))))))
-
-;;; Sections
+;;;; Current
 
 (defun forge-current-issue (&optional demand)
   "Return the issue at point or being visited.
@@ -164,6 +129,76 @@ an error."
              (and (forge-issue-p topic)
                   topic)))
       (and demand (user-error "No issue at point"))))
+
+(put 'forge-issue 'thing-at-point #'forge-thingatpt--issue)
+(defun forge-thingatpt--issue ()
+  (and-let* ((repo (forge--repo-for-thingatpt)))
+    (and (thing-at-point-looking-at
+          (format "%s\\([0-9]+\\)\\_>"
+                  (forge--topic-type-prefix repo 'issue)))
+         (forge-get-issue repo (string-to-number (match-string 1))))))
+
+;;;; List
+
+(cl-defmethod forge-ls-issues ((repo forge-repository) &optional type select)
+  (forge-ls-topics repo 'forge-issue type select))
+
+(defun forge--ls-assigned-issues (repo)
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-issue (forge-db) row))
+          (forge-sql
+           [:select $i1 :from [issue issue_assignee assignee]
+            :where (and (= issue_assignee:issue issue:id)
+                        (= issue_assignee:id    assignee:id)
+                        (= issue:repository     $s2)
+                        (= assignee:login       $s3)
+                        (isnull issue:closed))
+            :order-by [(desc updated)]]
+           (vconcat (closql--table-columns (forge-db) 'issue t))
+           (oref repo id)
+           (ghub--username repo))))
+
+(defun forge--ls-authored-issues (repo)
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-issue (forge-db) row))
+          (forge-sql
+           [:select $i1 :from [issue]
+            :where (and (= issue:repository $s2)
+                        (= issue:author     $s3)
+                        (isnull issue:closed))
+            :order-by [(desc updated)]]
+           (vconcat (closql--table-columns (forge-db) 'issue t))
+           (oref repo id)
+           (ghub--username repo))))
+
+;;; Read
+
+(defun forge-read-issue (prompt &optional type)
+  "Read an issue with completion using PROMPT.
+TYPE can be `open', `closed', or nil to select from all issues.
+TYPE can also be t to select from open issues, or all issues if
+a prefix argument is in effect."
+  (when (eq type t)
+    (setq type (if current-prefix-arg nil 'open)))
+  (let* ((default (forge-current-issue))
+         (repo    (forge-get-repository (or default t)))
+         (choices (mapcar
+                   (apply-partially #'forge--topic-format-choice repo)
+                   (forge-ls-issues repo type [number title id class]))))
+    (cdr (assoc (magit-completing-read
+                 prompt choices nil nil nil nil
+                 (and default
+                      (setq default (forge--topic-format-choice default))
+                      (member default choices)
+                      (car default)))
+                choices))))
+
+;;; Utilities
+
+(cl-defmethod forge-get-url ((issue forge-issue))
+  (forge--format issue 'issue-url-format))
+
+;;; Insert
 
 (defvar-keymap forge-issues-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-issues
@@ -194,21 +229,6 @@ Also see option `forge-topic-list-limit'."
                              (forge--ls-assigned-issues repo)
                              (forge--topic-type-prefix repo 'issue))))))
 
-(defun forge--ls-assigned-issues (repo)
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-issue (forge-db) row))
-          (forge-sql
-           [:select $i1 :from [issue issue_assignee assignee]
-            :where (and (= issue_assignee:issue issue:id)
-                        (= issue_assignee:id    assignee:id)
-                        (= issue:repository     $s2)
-                        (= assignee:login       $s3)
-                        (isnull issue:closed))
-            :order-by [(desc updated)]]
-           (vconcat (closql--table-columns (forge-db) 'issue t))
-           (oref repo id)
-           (ghub--username repo))))
-
 (defun forge-insert-authored-issues ()
   "Insert a list of open issues that are authored by you."
   (when forge-display-in-status-buffer
@@ -217,19 +237,6 @@ Also see option `forge-topic-list-limit'."
         (forge-insert-topics "Authored issues"
                              (forge--ls-authored-issues repo)
                              (forge--topic-type-prefix repo 'issue))))))
-
-(defun forge--ls-authored-issues (repo)
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-issue (forge-db) row))
-          (forge-sql
-           [:select $i1 :from [issue]
-            :where (and (= issue:repository $s2)
-                        (= issue:author     $s3)
-                        (isnull issue:closed))
-            :order-by [(desc updated)]]
-           (vconcat (closql--table-columns (forge-db) 'issue t))
-           (oref repo id)
-           (ghub--username repo))))
 
 ;;; _
 (provide 'forge-issue)

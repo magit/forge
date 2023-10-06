@@ -190,6 +190,7 @@ implement such a function themselves.  See #447.")
            value))
 
 ;;; Query
+;;;; Get
 
 (cl-defmethod forge-get-parent ((topic forge-topic))
   (forge-get-repository topic))
@@ -220,6 +221,73 @@ implement such a function themselves.  See #447.")
 (cl-defmethod forge-get-topic ((id string))
   (or (forge-get-issue id)
       (forge-get-pullreq id)))
+
+;;;; Current
+
+(defun forge-current-topic (&optional demand)
+  "Return the topic at point or being visited.
+If there is no such topic and DEMAND is non-nil, then signal
+an error."
+  (or (forge-topic-at-point)
+      (and (derived-mode-p 'forge-topic-mode)
+           forge-buffer-topic)
+      (and demand (user-error "No current topic"))))
+
+(defun forge-topic-at-point (&optional demand not-thingatpt)
+  "Return the topic at point.
+If there is no such topic and DEMAND is non-nil, then signal
+an error.  If NOT-THINGATPT is non-nil, then don't use
+`thing-at-point'."
+  (or (and (not not-thingatpt)
+           (thing-at-point 'forge-topic))
+      (magit-section-value-if '(issue pullreq))
+      (forge-get-pullreq :branch (magit-branch-at-point))
+      (and (derived-mode-p 'forge-topic-list-mode)
+           (forge-get-topic (tabulated-list-get-id)))
+      (and demand (user-error "No topic at point"))))
+
+(put 'forge-topic 'thing-at-point #'forge-thingatpt--topic)
+(defun forge-thingatpt--topic ()
+  (and-let* ((repo (forge--repo-for-thingatpt)))
+    (and (thing-at-point-looking-at
+          (format "[%s%s]\\([0-9]+\\)\\_>"
+                  (forge--topic-type-prefix repo 'issue)
+                  (forge--topic-type-prefix repo 'pullreq)))
+         (forge-get-topic repo (string-to-number (match-string 1))))))
+
+(defun forge--repo-for-thingatpt ()
+  (or (forge-repository-at-point)
+      (and-let* ((topic (forge-topic-at-point nil 'not-thingatpt)))
+        (forge-get-repository topic))
+      (and (not forge-buffer-unassociated-p)
+           (forge-get-repository nil))))
+
+;;;; List
+
+(cl-defmethod forge-ls-topics ((repo forge-repository)
+                               class &optional type select)
+  (let* ((table (oref-default class closql-table))
+         (id (oref repo id))
+         (rows (pcase-exhaustive type
+                 (`open   (forge-sql [:select $i1 :from $i2
+                                      :where (and (= repository $s3)
+                                                  (isnull closed))
+                                      :order-by [(desc number)]]
+                                     (or select '*) table id))
+                 (`closed (forge-sql [:select $i1 :from $i2
+                                      :where (and (= repository $s3)
+                                                  (notnull closed))
+                                      :order-by [(desc number)]]
+                                     (or select '*) table id))
+                 (`nil    (forge-sql [:select $i1 :from $i2
+                                      :where (= repository $s3)
+                                      :order-by [(desc number)]]
+                                     (or select '*) table id)))))
+    (if select
+        rows
+      (mapcar (lambda (row)
+                (closql--remake-instance class (forge-db) row))
+              rows))))
 
 (cl-defmethod forge-ls-recent-topics ((repo forge-repository) table)
   (magit--with-repository-local-cache (list 'forge-ls-recent-topics table)
@@ -262,36 +330,13 @@ implement such a function themselves.  See #447.")
                (cdr forge-topic-list-order)
                :key (lambda (it) (eieio-oref it (car forge-topic-list-order)))))))
 
-(cl-defmethod forge-ls-topics ((repo forge-repository)
-                               class &optional type select)
-  (let* ((table (oref-default class closql-table))
-         (id (oref repo id))
-         (rows (pcase-exhaustive type
-                 (`open   (forge-sql [:select $i1 :from $i2
-                                      :where (and (= repository $s3)
-                                                  (isnull closed))
-                                      :order-by [(desc number)]]
-                                     (or select '*) table id))
-                 (`closed (forge-sql [:select $i1 :from $i2
-                                      :where (and (= repository $s3)
-                                                  (notnull closed))
-                                      :order-by [(desc number)]]
-                                     (or select '*) table id))
-                 (`nil    (forge-sql [:select $i1 :from $i2
-                                      :where (= repository $s3)
-                                      :order-by [(desc number)]]
-                                     (or select '*) table id)))))
-    (if select
-        rows
-      (mapcar (lambda (row)
-                (closql--remake-instance class (forge-db) row))
-              rows))))
-
-;;; Utilities
+;;; Format
 
 (cl-defmethod forge--format ((topic forge-topic) slot &optional spec)
   (forge--format (forge-get-repository topic) slot
                  `(,@spec (?i . ,(oref topic number)))))
+
+;;; Insert
 
 (defun forge-insert-topics (heading topics prefix)
   "Under a new section with HEADING, insert TOPICS."
@@ -347,46 +392,6 @@ identifier."
      (oref topic author)
      (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
      t)))
-
-(defun forge--repo-for-thingatpt ()
-  (or (forge-repository-at-point)
-      (and-let* ((topic (forge-topic-at-point nil 'not-thingatpt)))
-        (forge-get-repository topic))
-      (and (not forge-buffer-unassociated-p)
-           (forge-get-repository nil))))
-
-(put 'forge-topic 'thing-at-point #'forge-thingatpt--topic)
-(defun forge-thingatpt--topic ()
-  (and-let* ((repo (forge--repo-for-thingatpt)))
-    (and (thing-at-point-looking-at
-          (format "[%s%s]\\([0-9]+\\)\\_>"
-                  (forge--topic-type-prefix repo 'issue)
-                  (forge--topic-type-prefix repo 'pullreq)))
-         (forge-get-topic repo (string-to-number (match-string 1))))))
-
-;;; Sections
-
-(defun forge-current-topic (&optional demand)
-  "Return the topic at point or being visited.
-If there is no such topic and DEMAND is non-nil, then signal
-an error."
-  (or (forge-topic-at-point)
-      (and (derived-mode-p 'forge-topic-mode)
-           forge-buffer-topic)
-      (and demand (user-error "No current topic"))))
-
-(defun forge-topic-at-point (&optional demand not-thingatpt)
-  "Return the topic at point.
-If there is no such topic and DEMAND is non-nil, then signal
-an error.  If NOT-THINGATPT is non-nil, then don't use
-`thing-at-point'."
-  (or (and (not not-thingatpt)
-           (thing-at-point 'forge-topic))
-      (magit-section-value-if '(issue pullreq))
-      (forge-get-pullreq :branch (magit-branch-at-point))
-      (and (derived-mode-p 'forge-topic-list-mode)
-           (forge-get-topic (tabulated-list-get-id)))
-      (and demand (user-error "No topic at point"))))
 
 (cl-defmethod forge--format-topic-id ((topic forge-topic) &optional prefix)
   (propertize (format "%s%s"

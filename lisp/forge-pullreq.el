@@ -92,6 +92,7 @@
    ))
 
 ;;; Query
+;;;; Get
 
 (cl-defmethod forge-get-repository ((post forge-pullreq-post))
   (forge-get-repository (forge-get-pullreq post)))
@@ -125,10 +126,89 @@
                   (number (magit-get "branch" branch "pullRequest")))
          (forge-get-pullreq (string-to-number number)))))
 
+;;;; Current
+
+(defun forge-current-pullreq (&optional demand)
+  "Return the pull-request at point or being visited.
+If there is no such pull-request and DEMAND is non-nil, then signal
+an error."
+  (or (forge-pullreq-at-point)
+      (and (derived-mode-p 'forge-topic-mode)
+           (forge-pullreq-p forge-buffer-topic)
+           forge-buffer-topic)
+      (and demand (user-error "No current pull-request"))))
+
+(defun forge-pullreq-at-point (&optional demand)
+  "Return the pull-request at point.
+If there is no such pull-request and DEMAND is non-nil, then signal
+an error."
+  (or (thing-at-point 'forge-pullreq)
+      (magit-section-value-if 'pullreq)
+      (forge-get-pullreq :branch (magit-branch-at-point))
+      (and (derived-mode-p 'forge-topic-list-mode)
+           (let ((topic (forge-get-topic (tabulated-list-get-id))))
+             (and (forge-pullreq-p topic)
+                  topic)))
+      (and demand (user-error "No pull-request at point"))))
+
+(put 'forge-pullreq 'thing-at-point #'forge-thingatpt--pullreq)
+(defun forge-thingatpt--pullreq ()
+  (and-let* ((repo (forge--repo-for-thingatpt)))
+    (and (thing-at-point-looking-at
+          (format "%s\\([0-9]+\\)\\_>"
+                  (forge--topic-type-prefix repo 'pullreq)))
+         (forge-get-pullreq repo (string-to-number (match-string 1))))))
+
+;;;; List
+
 (cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type select)
   (forge-ls-topics repo 'forge-pullreq type select))
 
-;;; Utilities
+(defun forge--ls-assigned-pullreqs (repo)
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-pullreq (forge-db) row))
+          (forge-sql
+           [:select $i1 :from pullreq
+            :join pullreq_assignee :on (= pullreq_assignee:pullreq pullreq:id)
+            :join assignee         :on (= pullreq_assignee:id      assignee:id)
+            :where (and (= pullreq:repository $s2)
+                        (= assignee:login     $s3)
+                        (isnull pullreq:closed))
+            :order-by [(desc updated)]]
+           (vconcat (closql--table-columns (forge-db) 'pullreq t))
+           (oref repo id)
+           (ghub--username repo))))
+
+(defun forge--ls-requested-reviews (repo)
+  (mapcar
+   (lambda (row)
+     (closql--remake-instance 'forge-pullreq (forge-db) row))
+   (forge-sql
+    [:select $i1 :from pullreq
+     :join pullreq_review_request :on (= pullreq_review_request:pullreq pullreq:id)
+     :join assignee               :on (= pullreq_review_request:id      assignee:id)
+     :where (and (= pullreq:repository $s2)
+                 (= assignee:login     $s3)
+                 (isnull pullreq:closed))
+     :order-by [(desc updated)]]
+    (vconcat (closql--table-columns (forge-db) 'pullreq t))
+    (oref repo id)
+    (ghub--username repo))))
+
+(defun forge--ls-authored-pullreqs (repo)
+  (mapcar (lambda (row)
+            (closql--remake-instance 'forge-pullreq (forge-db) row))
+          (forge-sql
+           [:select $i1 :from [pullreq]
+            :where (and (= pullreq:repository $s2)
+                        (= pullreq:author     $s3)
+                        (isnull pullreq:closed))
+            :order-by [(desc updated)]]
+           (vconcat (closql--table-columns (forge-db) 'pullreq t))
+           (oref repo id)
+           (ghub--username repo))))
+
+;;; Read
 
 (defun forge-read-pullreq (prompt &optional type)
   "Read a pull-request with completion using PROMPT.
@@ -150,6 +230,8 @@ is in effect."
                       (member default choices)
                       (car default)))
                 choices))))
+
+;;; Utilities
 
 (defun forge--pullreq-branch-internal (pullreq)
   (let ((branch (oref pullreq head-ref)))
@@ -183,38 +265,7 @@ is in effect."
 (cl-defmethod forge-get-url ((pullreq forge-pullreq))
   (forge--format pullreq 'pullreq-url-format))
 
-(put 'forge-pullreq 'thing-at-point #'forge-thingatpt--pullreq)
-(defun forge-thingatpt--pullreq ()
-  (and-let* ((repo (forge--repo-for-thingatpt)))
-    (and (thing-at-point-looking-at
-          (format "%s\\([0-9]+\\)\\_>"
-                  (forge--topic-type-prefix repo 'pullreq)))
-         (forge-get-pullreq repo (string-to-number (match-string 1))))))
-
-;;; Sections
-
-(defun forge-current-pullreq (&optional demand)
-  "Return the pull-request at point or being visited.
-If there is no such pull-request and DEMAND is non-nil, then signal
-an error."
-  (or (forge-pullreq-at-point)
-      (and (derived-mode-p 'forge-topic-mode)
-           (forge-pullreq-p forge-buffer-topic)
-           forge-buffer-topic)
-      (and demand (user-error "No current pull-request"))))
-
-(defun forge-pullreq-at-point (&optional demand)
-  "Return the pull-request at point.
-If there is no such pull-request and DEMAND is non-nil, then signal
-an error."
-  (or (thing-at-point 'forge-pullreq)
-      (magit-section-value-if 'pullreq)
-      (forge-get-pullreq :branch (magit-branch-at-point))
-      (and (derived-mode-p 'forge-topic-list-mode)
-           (let ((topic (forge-get-topic (tabulated-list-get-id))))
-             (and (forge-pullreq-p topic)
-                  topic)))
-      (and demand (user-error "No pull-request at point"))))
+;;; Insert
 
 (defvar-keymap forge-pullreqs-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-pullreqs
@@ -299,50 +350,6 @@ Also see option `forge-topic-list-limit'."
   (if (forge--childp (forge-get-repository pullreq) 'forge-gitlab-repository)
       "!"
     "#"))
-
-(defun forge--ls-assigned-pullreqs (repo)
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-pullreq (forge-db) row))
-          (forge-sql
-           [:select $i1 :from pullreq
-            :join pullreq_assignee :on (= pullreq_assignee:pullreq pullreq:id)
-            :join assignee         :on (= pullreq_assignee:id      assignee:id)
-            :where (and (= pullreq:repository $s2)
-                        (= assignee:login     $s3)
-                        (isnull pullreq:closed))
-            :order-by [(desc updated)]]
-           (vconcat (closql--table-columns (forge-db) 'pullreq t))
-           (oref repo id)
-           (ghub--username repo))))
-
-(defun forge--ls-requested-reviews (repo)
-  (mapcar
-   (lambda (row)
-     (closql--remake-instance 'forge-pullreq (forge-db) row))
-   (forge-sql
-    [:select $i1 :from pullreq
-     :join pullreq_review_request :on (= pullreq_review_request:pullreq pullreq:id)
-     :join assignee               :on (= pullreq_review_request:id      assignee:id)
-     :where (and (= pullreq:repository $s2)
-                 (= assignee:login     $s3)
-                 (isnull pullreq:closed))
-     :order-by [(desc updated)]]
-    (vconcat (closql--table-columns (forge-db) 'pullreq t))
-    (oref repo id)
-    (ghub--username repo))))
-
-(defun forge--ls-authored-pullreqs (repo)
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-pullreq (forge-db) row))
-          (forge-sql
-           [:select $i1 :from [pullreq]
-            :where (and (= pullreq:repository $s2)
-                        (= pullreq:author     $s3)
-                        (isnull pullreq:closed))
-            :order-by [(desc updated)]]
-           (vconcat (closql--table-columns (forge-db) 'pullreq t))
-           (oref repo id)
-           (ghub--username repo))))
 
 ;;; _
 (provide 'forge-pullreq)
