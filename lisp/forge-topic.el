@@ -361,15 +361,11 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 (defun forge--insert-topics (heading topics)
   (when topics
-    (let ((width (apply #'max (--map (length (oref it slug)) topics)))
-          list-section-type topic-section-type)
-      (cond ((forge--childp (car topics) 'forge-issue)
-             (setq list-section-type  'issues)
-             (setq topic-section-type 'issue))
-            ((forge--childp (car topics) 'forge-pullreq)
-             (setq list-section-type  'pullreqs)
-             (setq topic-section-type 'pullreq)))
-      (magit-insert-section ((eval list-section-type) nil t)
+    (let ((width (apply #'max (--map (length (oref it slug)) topics))))
+      (magit-insert-section
+        ((eval (cond ((forge--childp (car topics) 'forge-issue)   'issues)
+                     ((forge--childp (car topics) 'forge-pullreq) 'pullreqs)))
+         nil t)
         (magit-insert-heading
           (concat (magit--propertize-face (concat heading " ")
                                           'magit-section-heading)
@@ -378,16 +374,12 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
         (magit-make-margin-overlay nil t)
         (magit-insert-section-body
           (dolist (topic topics)
-            (forge--insert-topic topic topic-section-type width))
+            (forge--insert-topic topic width))
           (insert ?\n)
           (magit-make-margin-overlay nil t))))))
 
-(defun forge--insert-topic (topic &optional topic-section-type width)
-  (unless topic-section-type
-    (setq topic-section-type
-          (cond ((forge--childp topic 'forge-issue) 'issue)
-                ((forge--childp topic 'forge-pullreq) 'pullreq))))
-  (magit-insert-section ((eval topic-section-type) topic t)
+(defun forge--insert-topic (topic &optional width)
+  (magit-insert-section ((eval (oref topic closql-table)) topic t)
     (forge--insert-topic-contents topic width)))
 
 (cl-defmethod forge--insert-topic-contents ((topic forge-topic) width)
