@@ -84,6 +84,14 @@
 
 (defclass forge-noapi-repository (forge-repository) () :abstract t)
 
+(cl-defmethod slot-missing ((object forge-repository)
+                            slot-name operation &optional _new-value)
+  (if (and (eq operation 'oref)
+           (eq slot-name 'slug))
+      (concat (oref object owner) "/"
+              (oref object name))
+    (cl-call-next-method)))
+
 ;;; Query
 ;;;; Get
 

@@ -250,9 +250,9 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 (defun forge-thingatpt--topic ()
   (and-let* ((repo (forge--repo-for-thingatpt)))
     (and (thing-at-point-looking-at
-          (format "[%s%s]\\([0-9]+\\)\\_>"
-                  (forge--topic-type-prefix repo 'issue)
-                  (forge--topic-type-prefix repo 'pullreq)))
+          (if (forge-gitlab-repository--eieio-childp repo)
+              "[#!]\\([0-9]+\\)\\_>"
+            "#\\([0-9]+\\)\\_>"))
          (forge-get-topic repo (string-to-number (match-string 1))))))
 
 (defun forge--repo-for-thingatpt ()
@@ -340,9 +340,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 (defun forge-insert-topics (heading topics)
   "Under a new section with HEADING, insert TOPICS."
   (when topics
-    (let ((width (apply #'max
-                        (--map (length (number-to-string (oref it number)))
-                               topics)))
+    (let ((width (apply #'max (--map (length (oref it slug)) topics)))
           list-section-type topic-section-type)
       (cond ((forge--childp (car topics) 'forge-issue)
              (setq list-section-type  'issues)
@@ -376,8 +374,14 @@ identifier."
     (forge--insert-topic-contents topic width)))
 
 (cl-defmethod forge--insert-topic-contents ((topic forge-topic) width)
-  (with-slots (number title unread-p closed) topic
-    (insert (string-pad (forge--format-topic-id topic) (or width 5)))
+  (with-slots (slug title unread-p closed) topic
+    (insert (string-pad (propertize slug 'font-lock-face
+                                    (cond ((forge-issue-p topic)
+                                           'magit-dimmed)
+                                          ((oref topic merged)
+                                           'forge-topic-merged)
+                                          ('forge-topic-unmerged)))
+                        (or width 5)))
     (insert " ")
     (forge--insert-topic-marks topic t)
     (insert (magit-log-propertize-keywords
@@ -391,19 +395,6 @@ identifier."
      (oref topic author)
      (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
      t)))
-
-(cl-defmethod forge--format-topic-id ((topic forge-topic))
-  (propertize (format "%s%s"
-                      (forge--topic-type-prefix topic)
-                      (oref topic number))
-              'font-lock-face 'magit-dimmed))
-
-(cl-defmethod forge--topic-type-prefix ((_ forge-topic))
-  "Get the identifier prefix specific to the type of TOPIC."
-  (quote "#"))
-
-(cl-defmethod forge--topic-type-prefix ((_repo forge-repository) _type)
-  (quote "#"))
 
 ;;; Topic Modes
 ;;;; Modes
@@ -452,16 +443,10 @@ This mode itself is never used directly."
     forge-insert-topic-review-requests))
 
 (defvar-local forge-buffer-topic nil)
-(defvar-local forge-buffer-topic-ident nil)
 
 (defun forge-topic-setup-buffer (topic)
-  (let* ((repo  (forge-get-repository topic))
-         (ident (concat (forge--topic-type-prefix topic)
-                        (number-to-string (oref topic number))))
-         (name  (format "*forge: %s/%s %s*"
-                        (oref repo owner)
-                        (oref repo name)
-                        ident))
+  (let* ((repo (forge-get-repository topic))
+         (name (format "*forge: %s %s*" (oref repo slug) (oref topic slug)))
          (magit-generate-buffer-name-function (lambda (_mode _value) name))
          (current-repo (forge-get-repository nil))
          (default-directory (if (and current-repo
@@ -472,15 +457,14 @@ This mode itself is never used directly."
                                   default-directory))))
     (magit-setup-buffer
         (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode) t
-      (forge-buffer-topic topic)
-      (forge-buffer-topic-ident ident))
+      (forge-buffer-topic topic))
     (forge-topic-mark-read repo topic)))
 
 (defun forge-topic-refresh-buffer ()
   (let ((topic (closql-reload forge-buffer-topic)))
     (setq forge-buffer-topic topic)
     (magit-set-header-line-format
-     (format "%s: %s" forge-buffer-topic-ident (oref topic title)))
+     (format "%s: %s" (oref topic slug) (oref topic title)))
     (magit-insert-section (topicbuf)
       (magit-insert-headers
        (intern (format "%s-headers-hook"
@@ -524,7 +508,7 @@ This mode itself is never used directly."
   (oset topic unread-p nil))
 
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
-  forge-buffer-topic-ident)
+  (oref forge-buffer-topic slug))
 
 ;;;; Sections
 ;;;;; Title
@@ -776,17 +760,14 @@ allow exiting with a number that doesn't match any candidate."
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-topic))
          (repo    (forge-get-repository (or default t)))
-         (choices (mapcar
-                   (apply-partially #'forge--topic-format-choice repo)
-                   (cl-sort
-                    (nconc
-                     (forge-ls-pullreqs repo type [number title id class])
-                     (forge-ls-issues   repo type [number title id class]))
-                    #'> :key #'car)))
+         (choices (mapcar #'forge--format-topic-choice
+                          (cl-sort (nconc (forge-ls-pullreqs repo type)
+                                          (forge-ls-issues   repo type))
+                                   #'> :key (-cut oref <> number))))
          (choice  (magit-completing-read
                    prompt choices nil nil nil nil
                    (and default
-                        (setq default (forge--topic-format-choice default))
+                        (setq default (forge--format-topic-choice default))
                         (member default choices)
                         (car default)))))
     (or (cdr (assoc choice choices))
@@ -796,20 +777,11 @@ allow exiting with a number that doesn't match any candidate."
                    (user-error "Not an existing topic or number: %s" choice)
                  number))))))
 
-(cl-defmethod forge--topic-format-choice ((topic forge-topic))
-  (cons (format "%s%s  %s"
-                (forge--topic-type-prefix topic)
-                (oref topic number)
+(defun forge--format-topic-choice (topic)
+  (cons (format "%s  %s"
+                (oref topic slug)
                 (oref topic title))
         (oref topic id)))
-
-(cl-defmethod forge--topic-format-choice ((repo forge-repository) args)
-  (pcase-let ((`(,number ,title ,id ,class) args))
-    (cons (format "%s%s  %s"
-                  (forge--topic-type-prefix repo class)
-                  number
-                  title)
-          id)))
 
 (defun forge-topic-completion-at-point ()
   (let ((bol (line-beginning-position))

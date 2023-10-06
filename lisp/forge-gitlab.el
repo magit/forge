@@ -174,6 +174,7 @@
                :id           issue-id
                :their-id     .iid
                :number       .iid
+               :slug         (format "#%s" .iid)
                :repository   (oref repo id)
                :state        (pcase-exhaustive .state
                                ("closed" 'closed)
@@ -292,6 +293,7 @@
                :id           pullreq-id
                :their-id     .iid
                :number       .iid
+               :slug         (format "!%s" .iid)
                :repository   (oref repo id)
                :state        (pcase-exhaustive .state
                                ("merged" 'merged)
@@ -599,9 +601,6 @@
       ,@(and hash `((sha . ,hash))))))
 
 ;;; Wrappers
-
-(cl-defmethod forge--topic-type-prefix ((_repo forge-gitlab-repository) type)
-  (if (eq type 'pullreq) "!" "#"))
 
 (cl-defun forge--glab-get (obj resource
                                &optional params

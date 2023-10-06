@@ -72,6 +72,7 @@
    (head-rev             :initarg :head-rev)
    (draft-p              :initarg :draft-p)
    (their-id             :initarg :their-id)
+   (slug                 :initarg :slug)
    ))
 
 (defclass forge-pullreq-post (forge-post)
@@ -155,8 +156,9 @@ an error."
 (defun forge-thingatpt--pullreq ()
   (and-let* ((repo (forge--repo-for-thingatpt)))
     (and (thing-at-point-looking-at
-          (format "%s\\([0-9]+\\)\\_>"
-                  (forge--topic-type-prefix repo 'pullreq)))
+          (if (forge-gitlab-repository--eieio-childp repo)
+              "[#!]\\([0-9]+\\)\\_>"
+            "#\\([0-9]+\\)\\_>"))
          (forge-get-pullreq repo (string-to-number (match-string 1))))))
 
 ;;;; List
@@ -220,13 +222,12 @@ is in effect."
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-pullreq))
          (repo    (forge-get-repository (or default t)))
-         (choices (mapcar
-                   (apply-partially #'forge--topic-format-choice repo)
-                   (forge-ls-pullreqs repo type [number title id class]))))
+         (choices (mapcar #'forge--format-topic-choice
+                          (forge-ls-pullreqs repo type))))
     (cdr (assoc (magit-completing-read
                  prompt choices nil nil nil nil
                  (and default
-                      (setq default (forge--topic-format-choice default))
+                      (setq default (forge--format-topic-choice default))
                       (member default choices)
                       (car default)))
                 choices))))
@@ -325,24 +326,10 @@ Also see option `forge-topic-list-limit'."
           (magit--insert-log nil range magit-buffer-log-args)
           (magit-make-margin-overlay nil t))))))
 
-(cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq)
-                                                   _width _prefix)
+(cl-defmethod forge--insert-topic-contents :after ((pullreq forge-pullreq) _)
   (unless (oref pullreq merged)
     (magit-insert-heading)
     (forge--insert-pullreq-commits pullreq)))
-
-(cl-defmethod forge--format-topic-id ((pullreq forge-pullreq))
-  (propertize (format "%s%s"
-                      (forge--topic-type-prefix pullreq)
-                      (oref pullreq number))
-              'font-lock-face (if (oref pullreq merged)
-                                  'forge-topic-merged
-                                'forge-topic-unmerged)))
-
-(cl-defmethod forge--topic-type-prefix ((pullreq forge-pullreq))
-  (if (forge--childp (forge-get-repository pullreq) 'forge-gitlab-repository)
-      "!"
-    "#"))
 
 ;;; _
 (provide 'forge-pullreq)

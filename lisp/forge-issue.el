@@ -58,6 +58,7 @@
    (marks                :closql-table (issue-mark mark))
    (note                 :initarg :note :initform nil)
    (their-id             :initarg :their-id)
+   (slug                 :initarg :slug)
    ))
 
 (defclass forge-issue-post (forge-post)
@@ -133,9 +134,7 @@ an error."
 (put 'forge-issue 'thing-at-point #'forge-thingatpt--issue)
 (defun forge-thingatpt--issue ()
   (and-let* ((repo (forge--repo-for-thingatpt)))
-    (and (thing-at-point-looking-at
-          (format "%s\\([0-9]+\\)\\_>"
-                  (forge--topic-type-prefix repo 'issue)))
+    (and (thing-at-point-looking-at "#\\([0-9]+\\)\\_>")
          (forge-get-issue repo (string-to-number (match-string 1))))))
 
 ;;;; List
@@ -182,13 +181,12 @@ a prefix argument is in effect."
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-issue))
          (repo    (forge-get-repository (or default t)))
-         (choices (mapcar
-                   (apply-partially #'forge--topic-format-choice repo)
-                   (forge-ls-issues repo type [number title id class]))))
+         (choices (mapcar #'forge--format-topic-choice
+                          (forge-ls-issues repo type))))
     (cdr (assoc (magit-completing-read
                  prompt choices nil nil nil nil
                  (and default
-                      (setq default (forge--topic-format-choice default))
+                      (setq default (forge--format-topic-choice default))
                       (member default choices)
                       (car default)))
                 choices))))
