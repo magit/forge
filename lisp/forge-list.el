@@ -71,9 +71,6 @@ properties are currently being used:
   :group 'forge
   :type '(repeat (cons (string :tag "Account") plist)))
 
-(define-obsolete-variable-alias 'forge-owned-blacklist
-  'forge-owned-ignored "Forge 3.0.0")
-
 (defcustom forge-owned-ignored nil
   "A list of repositories that are ignored when listing those owned by you.
 This is a list of package names.  Used by the commands
