@@ -212,8 +212,7 @@ Also see option `forge-topic-list-limit'."
                  (or (not (slot-boundp repo 'issues-p)) ; temporary KLUDGE
                      (oref repo issues-p)))
         (forge-insert-topics "Issues"
-                             (forge-ls-recent-topics repo 'issue)
-                             (forge--topic-type-prefix repo 'issue))))))
+                             (forge-ls-recent-topics repo 'issue))))))
 
 (defun forge-insert-assigned-issues ()
   "Insert a list of open issues that are assigned to you."
@@ -221,8 +220,7 @@ Also see option `forge-topic-list-limit'."
     (when-let ((repo (forge-get-repository nil)))
       (unless (oref repo sparse-p)
         (forge-insert-topics "Assigned issues"
-                             (forge--ls-assigned-issues repo)
-                             (forge--topic-type-prefix repo 'issue))))))
+                             (forge--ls-assigned-issues repo))))))
 
 (defun forge-insert-authored-issues ()
   "Insert a list of open issues that are authored by you."
@@ -230,8 +228,7 @@ Also see option `forge-topic-list-limit'."
     (when-let ((repo (forge-get-repository nil)))
       (unless (oref repo sparse-p)
         (forge-insert-topics "Authored issues"
-                             (forge--ls-authored-issues repo)
-                             (forge--topic-type-prefix repo 'issue))))))
+                             (forge--ls-authored-issues repo))))))
 
 ;;; _
 (provide 'forge-issue)

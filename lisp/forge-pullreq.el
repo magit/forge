@@ -279,8 +279,7 @@ Also see option `forge-topic-list-limit'."
     (when-let ((repo (forge-get-repository nil)))
       (unless (oref repo sparse-p)
         (forge-insert-topics "Pull requests"
-                             (forge-ls-recent-topics repo 'pullreq)
-                             (forge--topic-type-prefix repo 'pullreq))))))
+                             (forge-ls-recent-topics repo 'pullreq))))))
 
 (defun forge-insert-assigned-pullreqs ()
   "Insert a list of open pull-requests that are assigned to you."
@@ -288,16 +287,14 @@ Also see option `forge-topic-list-limit'."
     (when-let ((repo (forge-get-repository nil)))
       (unless (oref repo sparse-p)
         (forge-insert-topics "Assigned pull requests"
-                             (forge--ls-assigned-pullreqs repo)
-                             (forge--topic-type-prefix repo 'pullreq))))))
+                             (forge--ls-assigned-pullreqs repo))))))
 
 (defun forge-insert-requested-reviews ()
   "Insert a list of pull-requests that are awaiting your review."
   (when-let ((repo (forge-get-repository nil)))
     (unless (oref repo sparse-p)
       (forge-insert-topics "Pull requests awaiting review"
-                           (forge--ls-requested-reviews repo)
-                           (forge--topic-type-prefix repo 'pullreq)))))
+                           (forge--ls-requested-reviews repo)))))
 
 (defun forge-insert-authored-pullreqs ()
   "Insert a list of open pullreqs that are authored by you."
@@ -305,8 +302,7 @@ Also see option `forge-topic-list-limit'."
     (when-let ((repo (forge-get-repository nil)))
       (unless (oref repo sparse-p)
         (forge-insert-topics "Authored pullreqs"
-                             (forge--ls-authored-pullreqs repo)
-                             (forge--topic-type-prefix repo 'pullreq))))))
+                             (forge--ls-authored-pullreqs repo))))))
 
 (defun forge--insert-pullreq-commits (pullreq &optional all)
   (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
@@ -335,9 +331,9 @@ Also see option `forge-topic-list-limit'."
     (magit-insert-heading)
     (forge--insert-pullreq-commits pullreq)))
 
-(cl-defmethod forge--format-topic-id ((pullreq forge-pullreq) &optional prefix)
+(cl-defmethod forge--format-topic-id ((pullreq forge-pullreq))
   (propertize (format "%s%s"
-                      (or prefix (forge--topic-type-prefix pullreq))
+                      (forge--topic-type-prefix pullreq)
                       (oref pullreq number))
               'font-lock-face (if (oref pullreq merged)
                                   'forge-topic-merged
