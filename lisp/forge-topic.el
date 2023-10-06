@@ -337,8 +337,8 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 (defun forge--format-topic-line (topic &optional width)
   (with-slots (slug title unread-p closed) topic
-    (concat (string-pad (propertize
-                         slug 'font-lock-face
+    (concat (string-pad (magit--propertize-face
+                         slug
                          (cond ((forge-issue-p topic)
                                 'magit-dimmed)
                                ((oref topic merged)
@@ -347,8 +347,8 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
                         (or width 5))
             " "
             (magit-log-propertize-keywords
-             nil (propertize
-                  title 'font-lock-face
+             nil (magit--propertize-face
+                  title
                   (cond (unread-p 'forge-topic-unread)
                         (closed   'forge-topic-closed)
                         (t        'forge-topic-open)))))))
