@@ -264,8 +264,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 ;;;; List
 
-(cl-defmethod forge-ls-topics ((repo forge-repository)
-                               class &optional type select)
+(defun forge-ls-topics (repo class &optional type select)
   (let* ((table (oref-default class closql-table))
          (id (oref repo id))
          (rows (pcase-exhaustive type
@@ -289,7 +288,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
                 (closql--remake-instance class (forge-db) row))
               rows))))
 
-(cl-defmethod forge-ls-recent-topics ((repo forge-repository) table)
+(defun forge-ls-recent-topics (repo table)
   (magit--with-repository-local-cache (list 'forge-ls-recent-topics table)
     (let* ((id (oref repo id))
            (limit forge-topic-list-limit)

@@ -140,7 +140,7 @@ an error."
 
 ;;;; List
 
-(cl-defmethod forge-ls-issues ((repo forge-repository) &optional type select)
+(defun forge-ls-issues (repo &optional type select)
   (forge-ls-topics repo 'forge-issue type select))
 
 (defun forge--ls-assigned-issues (repo)

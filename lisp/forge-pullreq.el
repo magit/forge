@@ -161,7 +161,7 @@ an error."
 
 ;;;; List
 
-(cl-defmethod forge-ls-pullreqs ((repo forge-repository) &optional type select)
+(defun forge-ls-pullreqs (repo &optional type select)
   (forge-ls-topics repo 'forge-pullreq type select))
 
 (defun forge--ls-assigned-pullreqs (repo)
