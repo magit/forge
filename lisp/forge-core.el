@@ -141,6 +141,14 @@ If this is nil, then `forge-pull-notifications' has to be used."
 
 (defclass forge-object (closql-object) () :abstract t)
 
+(defmacro forge--childp (obj type)
+  "Somewhat similar to `cl-typep' but only for (possibly unknown) classes.
+TYPE is evaluated at macro-expansion time but unlike with
+`cl-typep' the respective class does not have to be defined
+at that time."
+  (let ((fn (intern (concat (symbol-name (eval type)) "--eieio-childp"))))
+    `(and (fboundp ',fn) (,fn ,obj))))
+
 ;;; Query
 
 (cl-defgeneric forge-get-parent (object)
@@ -219,16 +227,6 @@ Also see info node `(forge) Repository Detection'.")
 (cl-defmethod magit-section-ident-value ((obj forge-object))
   (oref obj id))
 
-;;; Utilities
-
-(defmacro forge--childp (obj type)
-  "Somewhat similar to `cl-typep' but only for (possibly unknown) classes.
-TYPE is evaluated at macro-expansion time but unlike with
-`cl-typep' the respective class does not have to be defined
-at that time."
-  (let ((fn (intern (concat (symbol-name (eval type)) "--eieio-childp"))))
-    `(and (fboundp ',fn) (,fn ,obj))))
-
 (defun forge--set-id-slot (repo object slot rows)
   (let ((repo-id (oref repo id)))
     (closql-oset
@@ -237,6 +235,8 @@ at that time."
                (forge--object-id repo-id
                                  (if (atom val) val (alist-get 'id val))))
              rows))))
+
+;;; Format
 
 (cl-defgeneric forge--format (object slot &optional spec))
 
