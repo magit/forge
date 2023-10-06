@@ -293,9 +293,6 @@ implement such a function themselves.  See #447.")
   (forge--format (forge-get-repository topic) slot
                  `(,@spec (?i . ,(oref topic number)))))
 
-(cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
-  (oset topic unread-p nil))
-
 (defun forge-insert-topics (heading topics prefix)
   "Under a new section with HEADING, insert TOPICS."
   (when topics
@@ -518,6 +515,9 @@ This mode itself is never used directly."
                  (fboundp 'markdown-display-inline-images))
         (let ((markdown-display-remote-images t))
           (markdown-display-inline-images))))))
+
+(cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
+  (oset topic unread-p nil))
 
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
   forge-buffer-topic-ident)
