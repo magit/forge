@@ -96,11 +96,6 @@
                       :where (notnull unread-p)
                       :order-by [(desc id)]])))
 
-;;; Utilities
-
-(cl-defmethod forge-get-url ((notify forge-notification))
-  (oref notify url))
-
 ;;; Mode
 
 (defvar-keymap forge-notifications-mode-map

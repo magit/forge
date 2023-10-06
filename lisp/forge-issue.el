@@ -193,11 +193,6 @@ a prefix argument is in effect."
                       (car default)))
                 choices))))
 
-;;; Utilities
-
-(cl-defmethod forge-get-url ((issue forge-issue))
-  (forge--format issue 'issue-url-format))
-
 ;;; Insert
 
 (defvar-keymap forge-issues-section-map

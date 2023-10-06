@@ -262,9 +262,6 @@ is in effect."
             (if endpoints "..." "..")
             head)))
 
-(cl-defmethod forge-get-url ((pullreq forge-pullreq))
-  (forge--format pullreq 'pullreq-url-format))
-
 ;;; Insert
 
 (defvar-keymap forge-pullreqs-section-map

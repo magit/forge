@@ -213,9 +213,6 @@ Also see info node `(forge) Repository Detection'.")
 (cl-defgeneric forge-get-pullreq ()
   "Return a forge pullreq object.")
 
-(cl-defgeneric forge-get-url (obj)
-  "Return the URL for a forge object.")
-
 ;;; Identity
 
 (cl-defgeneric forge--object-id (class &rest args)

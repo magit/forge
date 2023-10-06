@@ -376,6 +376,20 @@ argument also offer closed pull-requests."
            (forge-get-url :commit magit-buffer-revision))
       (forge-current-repository)))
 
+;;;; Urls
+
+(cl-defgeneric forge-get-url (obj)
+  "Return the URL for a forge object.")
+
+(cl-defmethod forge-get-url ((issue forge-issue))
+  (forge--format issue 'issue-url-format))
+
+(cl-defmethod forge-get-url ((pullreq forge-pullreq))
+  (forge--format pullreq 'pullreq-url-format))
+
+(cl-defmethod forge-get-url ((repo forge-repository))
+  (forge--format (oref repo remote) 'remote-url-format))
+
 (cl-defmethod forge-get-url ((_(eql :commit)) commit)
   (let ((repo (forge-get-repository 'stub)))
     (unless (magit-list-containing-branches
@@ -402,6 +416,16 @@ argument also offer closed pull-requests."
 
 (cl-defmethod forge-get-url ((_(eql :remote)) remote)
   (forge--format remote 'remote-url-format))
+
+(cl-defmethod forge-get-url ((post forge-post))
+  (forge--format post (let ((topic (forge-get-parent post)))
+                        (cond ((forge--childp topic 'forge-issue)
+                               'issue-post-url-format)
+                              ((forge--childp topic 'forge-pullreq)
+                               'pullreq-post-url-format)))))
+
+(cl-defmethod forge-get-url ((notify forge-notification))
+  (oref notify url))
 
 ;;; Visit
 

@@ -350,9 +350,6 @@ forges and hosts."
          (?p . ,path)
          (?P . ,(string-replace "/" "%2F" path)))))))
 
-(cl-defmethod forge-get-url ((repo forge-repository))
-  (forge--format (oref repo remote) 'remote-url-format))
-
 (defun forge--set-field-callback ()
   (let ((buf (current-buffer)))
     (lambda (&rest _)

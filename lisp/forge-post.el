@@ -60,13 +60,6 @@ of the current pull-request."
 (cl-defmethod forge-get-repository ((post forge-post))
   (forge-get-repository (forge-get-topic post)))
 
-(cl-defmethod forge-get-url ((post forge-post))
-  (forge--format post (let ((topic (forge-get-parent post)))
-                        (cond ((forge--childp topic 'forge-issue)
-                               'issue-post-url-format)
-                              ((forge--childp topic 'forge-pullreq)
-                               'pullreq-post-url-format)))))
-
 ;;;; Current
 
 (defun forge-post-at-point (&optional assert)
