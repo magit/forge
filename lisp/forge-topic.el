@@ -353,6 +353,10 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
                         (closed   'forge-topic-closed)
                         (t        'forge-topic-open)))))))
 
+(defun forge--format-topic-choice (topic)
+  (cons (forge--format-topic-line topic)
+        (oref topic id)))
+
 ;;; Insert
 
 (defun forge--insert-topics (heading topics)
@@ -776,12 +780,6 @@ allow exiting with a number that doesn't match any candidate."
                (if (= number 0)
                    (user-error "Not an existing topic or number: %s" choice)
                  number))))))
-
-(defun forge--format-topic-choice (topic)
-  (cons (format "%s  %s"
-                (oref topic slug)
-                (oref topic title))
-        (oref topic id)))
 
 (defun forge-topic-completion-at-point ()
   (let ((bol (line-beginning-position))
