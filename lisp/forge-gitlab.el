@@ -434,6 +434,14 @@
 
 ;;; Mutations
 
+(cl-defmethod forge--submit-create-issue ((_ forge-gitlab-repository) repo)
+  (let-alist (forge--topic-parse-buffer)
+    (forge--glab-post repo "/projects/:project/issues"
+      `((title       . , .title)
+        (description . , .body))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback))))
+
 (cl-defmethod forge--submit-create-pullreq ((_ forge-gitlab-repository) base-repo)
   (let-alist (forge--topic-parse-buffer)
     (pcase-let* ((`(,base-remote . ,base-branch)
@@ -455,14 +463,6 @@
           (allow_collaboration . t))
         :callback  (forge--post-submit-callback)
         :errorback (forge--post-submit-errorback)))))
-
-(cl-defmethod forge--submit-create-issue ((_ forge-gitlab-repository) repo)
-  (let-alist (forge--topic-parse-buffer)
-    (forge--glab-post repo "/projects/:project/issues"
-      `((title       . , .title)
-        (description . , .body))
-      :callback  (forge--post-submit-callback)
-      :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-post ((_ forge-gitlab-repository) topic)
   (forge--glab-post topic
