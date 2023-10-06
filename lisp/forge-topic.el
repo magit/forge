@@ -388,7 +388,8 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
     (when (and (slot-exists-p topic 'merged)
                (not (oref topic merged)))
       (magit-insert-heading)
-      (forge--insert-pullreq-commits topic))))
+      (forge--insert-pullreq-commits topic))
+    (forge--insert-workflow-status topic)))
 
 (defun forge--assert-insert-topics-get-repository (&optional issues-p)
   (and (forge-db t)
