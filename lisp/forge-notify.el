@@ -142,7 +142,7 @@
   (setq forge-notifications-display-list-function
         (magit-read-char-case "Display " t
           (?a "[a]ll"    #'forge--ls-notifications-all)
-          (?m "[r]ecent" #'forge--ls-notifications-recent)
+          (?r "[r]ecent" #'forge--ls-notifications-recent)
           (?o "[o]pen"   #'forge--ls-notifications-open)
           (?u "[u]nread" #'forge--ls-notifications-unread)))
   (magit-refresh))
