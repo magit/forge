@@ -44,6 +44,8 @@
    (create-pullreq-url-format :initform "https://%h/%o/%n/compare")
    (pullreq-refspec           :initform "+refs/pull/*/head:refs/pullreqs/*")))
 
+;;; Query
+
 (defun forge-get-github-repository-p ()
   (forge-github-repository-p (forge-get-repository nil)))
 
