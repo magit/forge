@@ -1168,18 +1168,16 @@ This may take a while.  Only Github is supported at the moment."
 ;;; Cleanup
 
 ;;;###autoload
-(defun forge-remove-repository (host owner name)
+(defun forge-remove-repository (repository)
   "Remove a repository from the database."
   (interactive
-   (pcase-let ((`(,githost ,owner ,name)
-                (forge-read-repository "Remove repository from db")))
-     (if (yes-or-no-p
-          (format
-           "Do you really want to remove \"%s/%s @%s\" from the database? "
-           owner name githost))
-         (list githost owner name)
+   (pcase-let* ((repo (forge-read-repository "Remove repository from db"))
+                ((eieio githost owner name) repo))
+     (if (yes-or-no-p (format "Do you really want to remove \"%s/%s @%s\" %s? "
+                              owner name githost "from the database"))
+         (list repo)
        (user-error "Abort"))))
-  (closql-delete (forge-get-repository (list host owner name)))
+  (closql-delete (forge-get-repository repo))
   (magit-refresh))
 
 ;;;###autoload
