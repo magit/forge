@@ -1177,7 +1177,7 @@ This may take a while.  Only Github is supported at the moment."
                               owner name githost "from the database"))
          (list repo)
        (user-error "Abort"))))
-  (closql-delete (forge-get-repository repo))
+  (closql-delete repository)
   (magit-refresh))
 
 ;;;###autoload
