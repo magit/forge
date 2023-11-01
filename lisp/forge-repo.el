@@ -240,7 +240,8 @@ an error."
       (and-let* ((topic (forge-topic-at-point nil 'not-thingatpt)))
         (forge-get-repository topic))
       (and (derived-mode-p 'forge-repository-list-mode)
-           (forge-get-repository :id (tabulated-list-get-id)))
+           (and-let* ((id (tabulated-list-get-id)))
+             (forge-get-repository :id id)))
       (and demand (user-error "No repository at point"))))
 
 ;;; Identity
