@@ -394,9 +394,9 @@ argument also offer closed pull-requests."
   (let ((repo (forge-get-repository 'stub)))
     (unless (magit-list-containing-branches
              commit "-r" (concat (oref repo remote) "/*"))
-      (if-let ((branch (car (magit-list-containing-branches commit "-r"))))
-          (setq repo (forge-get-repository
-                      'stub (cdr (magit-split-branch-name branch))))
+      (if-let* ((branch (car (magit-list-containing-branches commit "-r")))
+                (remote (cdr (magit-split-branch-name branch))))
+          (setq repo (forge-get-repository 'stub remote))
         (message "%s does not appear to be available on any remote.  %s"
                  commit "You might have to push it first.")))
     (forge--format repo 'commit-url-format
