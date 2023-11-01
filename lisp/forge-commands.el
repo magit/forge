@@ -388,7 +388,7 @@ argument also offer closed pull-requests."
   (forge--format pullreq 'pullreq-url-format))
 
 (cl-defmethod forge-get-url ((repo forge-repository))
-  (forge--format (oref repo remote) 'remote-url-format))
+  (forge--format repo 'remote-url-format))
 
 (cl-defmethod forge-get-url ((_(eql :commit)) commit)
   (let ((repo (forge-get-repository 'stub)))
@@ -411,11 +411,12 @@ argument also offer closed pull-requests."
       (unless (setq remote (or (magit-get-push-remote branch)
                                (magit-get-upstream-remote branch)))
         (user-error "Cannot determine remote for %s" branch)))
-    (forge--format remote 'branch-url-format
+    (forge--format (forge-get-repository 'stub remote)
+                   'branch-url-format
                    `((?r . ,branch)))))
 
 (cl-defmethod forge-get-url ((_(eql :remote)) remote)
-  (forge--format remote 'remote-url-format))
+  (forge--format (forge-get-repository 'stub remote) 'remote-url-format))
 
 (cl-defmethod forge-get-url ((post forge-post))
   (forge--format post (let ((topic (forge-get-parent post)))

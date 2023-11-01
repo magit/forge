@@ -248,20 +248,6 @@ The latter override the former.  SLOT is expected to be class-
 allocated.  Some methods also accept a format string in place
 of SLOT.")
 
-(cl-defmethod forge--format ((remote string) slot &optional spec)
-  (if-let ((parts (forge--split-remote-url remote)))
-      (forge--format
-       (forge-get-repository 'stub remote) slot
-       (pcase-let* ((`(,host ,owner ,name) parts)
-                    (path (if owner (concat owner "/" name) name)))
-         `(,@spec
-           (?h . ,host)
-           (?o . ,owner)
-           (?n . ,name)
-           (?p . ,path)
-           (?P . ,(string-replace "/" "%2F" path)))))
-    (user-error "Cannot browse non-forge remote %s" remote)))
-
 (cl-defmethod forge--format-resource ((object forge-object) resource)
   "Return an API resource based on RESOURCE and slots of OBJECT.
 For use in `forge--FORGE-METHOD' such as `forge--ghub-get'.
@@ -312,10 +298,6 @@ parent object (determined using `forge-get-parent')."
           "\\(?:/\\|:/?\\)"
           "\\(.+?\\)"
           "\\(?:\\.git\\|/\\)?\\'"))
-
-(defun forge--split-remote-url (remote)
-  (and-let* ((url (magit-git-string "remote" "get-url" remote)))
-    (forge--split-url url)))
 
 (defun forge--split-url (url)
   (and (string-match (forge--url-regexp) url)
