@@ -350,14 +350,14 @@ forges and hosts."
    (if (symbolp format-or-slot)
        (eieio-oref repo format-or-slot)
      format-or-slot)
-   (with-slots (githost owner name) repo
-     (let ((path (if owner (concat owner "/" name) name)))
-       `(,@spec
-         (?h . ,githost)
-         (?o . ,owner)
-         (?n . ,name)
-         (?p . ,path)
-         (?P . ,(string-replace "/" "%2F" path)))))))
+   (pcase-let* (((eieio githost owner name) repo)
+                (path (if owner (concat owner "/" name) name)))
+     `(,@spec
+       (?h . ,githost)
+       (?o . ,owner)
+       (?n . ,name)
+       (?p . ,path)
+       (?P . ,(string-replace "/" "%2F" path))))))
 
 (defun forge--set-field-callback ()
   (let ((buf (current-buffer)))
