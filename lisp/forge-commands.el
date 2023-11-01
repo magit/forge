@@ -325,7 +325,7 @@ argument also offer closed pull-requests."
 (defun forge-browse-repository (repository)
   "Read a REPOSITORY and visit it using a browser."
   (interactive (list (forge-read-repository "Browse repository")))
-  (browse-url (forge-get-url (forge-get-repository repository))))
+  (browse-url (forge-get-url repository)))
 
 ;;;###autoload
 (defun forge-browse-this-topic ()
