@@ -331,13 +331,13 @@ argument also offer closed pull-requests."
 (defun forge-browse-this-topic ()
   "Visit the topic at point using a browser."
   (interactive)
-  (forge-browse-topic (forge-topic-at-point)))
+  (forge-browse-topic (forge-topic-at-point t)))
 
 ;;;###autoload
 (defun forge-browse-this-repository ()
   "Visit the repository at point using a browser."
   (interactive)
-  (forge-browse-repository (forge-repository-at-point)))
+  (forge-browse-repository (forge-repository-at-point t)))
 
 ;;;###autoload
 (defun forge-copy-url-at-point-as-kill ()
