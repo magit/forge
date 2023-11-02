@@ -644,23 +644,23 @@ This mode itself is never used directly."
 
 ;;;;; Refs
 
-(cl-defun forge-insert-topic-refs
-    (&optional (topic forge-buffer-topic))
+(cl-defun forge-insert-topic-refs (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-refs)
-    (with-slots (cross-repo-p base-repo base-ref head-repo head-ref) topic
-      (let ((separator (propertize ":" 'font-lock-face 'magit-dimmed))
-            (deleted (propertize "(deleted)" 'font-lock-face 'magit-dimmed)))
-        (insert (format "%-11s" "Refs: ")
-                (if cross-repo-p
-                    (concat base-repo separator base-ref)
-                  base-ref)
-                (propertize "..." 'font-lock-face 'magit-dimmed)
-                (if cross-repo-p
-                    (if (and head-repo head-ref)
-                        (concat head-repo separator head-ref)
-                      deleted)
-                  (or head-ref deleted))
-                "\n")))))
+    (pcase-let
+        (((eieio cross-repo-p base-repo base-ref head-repo head-ref) topic)
+         (separator (propertize ":" 'font-lock-face 'magit-dimmed))
+         (deleted (propertize "(deleted)" 'font-lock-face 'magit-dimmed)))
+      (insert (format "%-11s" "Refs: ")
+              (if cross-repo-p
+                  (concat base-repo separator base-ref)
+                base-ref)
+              (propertize "..." 'font-lock-face 'magit-dimmed)
+              (if cross-repo-p
+                  (if (and head-repo head-ref)
+                      (concat head-repo separator head-ref)
+                    deleted)
+                (or head-ref deleted))
+              "\n"))))
 
 ;;;;; Assignees
 
