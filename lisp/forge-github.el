@@ -436,13 +436,6 @@
                      repo (cdr (cadr (assq key topics))) nil)
             unread-p (oref obj unread-p)))))
 
-(cl-defmethod forge-topic-mark-read ((_ forge-github-repository) topic)
-  (when (oref topic unread-p)
-    (oset topic unread-p nil)
-    (when-let ((notif (forge-get-notification topic)))
-      (oset notif unread-p nil)
-      (forge--ghub-patch notif "/notifications/threads/:thread-id"))))
-
 ;;;; Miscellaneous
 
 (cl-defmethod forge--add-user-repos
