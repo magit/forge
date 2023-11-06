@@ -82,7 +82,7 @@
                       :order-by [(desc updated)]
                       :limit 100])))
 
-(defun forge--ls-notifications-open ()
+(defun forge--ls-notifications-pending ()
   (mapcar (lambda (row)
             (closql--remake-instance 'forge-notification (forge-db) row))
           (forge-sql [:select * :from notification
@@ -141,10 +141,10 @@
     (user-error "Not in forge-notifications-mode"))
   (setq forge-notifications-display-list-function
         (magit-read-char-case "Display " t
-          (?a "[a]ll"    #'forge--ls-notifications-all)
-          (?r "[r]ecent" #'forge--ls-notifications-recent)
-          (?o "[o]pen"   #'forge--ls-notifications-open)
-          (?u "[u]nread" #'forge--ls-notifications-unread)))
+          (?a "[a]ll"     #'forge--ls-notifications-all)
+          (?r "[r]ecent"  #'forge--ls-notifications-recent)
+          (?p "[p]ending" #'forge--ls-notifications-pending)
+          (?u "[u]nread"  #'forge--ls-notifications-unread)))
   (magit-refresh))
 
 ;;; Sections
@@ -159,10 +159,10 @@
     (magit-insert-section (notifications)
       (magit-insert-heading
         (concat (pcase forge-notifications-display-list-function
-                  ('forge--ls-notifications-all    "All")
-                  ('forge--ls-notifications-recent "Recent")
-                  ('forge--ls-notifications-open   "Open")
-                  ('forge--ls-notifications-unread "Unread"))
+                  ('forge--ls-notifications-all     "All")
+                  ('forge--ls-notifications-recent  "Recent")
+                  ('forge--ls-notifications-pending "Pending")
+                  ('forge--ls-notifications-unread  "Unread"))
                 " notifications:"))
       (if (eq forge-notifications-display-style 'flat)
           (magit-insert-section-body
