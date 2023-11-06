@@ -296,7 +296,7 @@ argument also offer closed pull-requests."
 (defun forge--browse-topic (topic)
   (let ((obj (forge-get-topic topic)))
     (browse-url (forge-get-url obj))
-    (oset obj unread-p nil)))
+    (forge-topic-mark-read topic)))
 
 ;;;###autoload
 (defun forge-browse-commit (commit)
@@ -358,7 +358,7 @@ argument also offer closed pull-requests."
           (browse-url target)
         (browse-url (forge-get-url target))
         (when (cl-typep target 'forge-topic)
-          (oset target unread-p nil)))
+          (forge-topic-mark-read topic)))
     (user-error "Nothing to browse here")))
 
 (defun forge--browse-target ()
