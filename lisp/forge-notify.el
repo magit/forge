@@ -44,6 +44,11 @@
    (topic                     :initarg :topic)
    (url                       :initarg :url)))
 
+;;; Special
+
+(cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
+  (oset topic unread-p nil))
+
 ;;; Query
 ;;;; Get
 

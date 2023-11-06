@@ -181,6 +181,8 @@ implement such a function themselves.  See #447.")
     'utf-8)
    t))
 
+;;; Special
+
 (defun forge--topic-set (slot value &optional topic)
   (unless topic
     (setq topic (forge-current-topic t)))
@@ -508,9 +510,6 @@ This mode itself is never used directly."
                  (fboundp 'markdown-display-inline-images))
         (let ((markdown-display-remote-images t))
           (markdown-display-inline-images))))))
-
-(cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
-  (oset topic unread-p nil))
 
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
   (oref forge-buffer-topic slug))
