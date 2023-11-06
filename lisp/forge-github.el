@@ -411,30 +411,31 @@
 
 (defun forge--ghub-update-notifications (forge topics notifs)
   (closql-with-transaction (forge-db)
-    (forge-sql [:delete-from notification
-                :where (= forge $s1)]
-               forge)
     (pcase-dolist (`(,alias ,id ,_ ,repo ,type ,number ,data) notifs)
       (let-alist data
         (let ((topic (funcall (if (eq type 'issue)
                                   #'forge--update-issue
                                 #'forge--update-pullreq)
-                              repo (cdr (cadr (assq alias topics))) nil))
-              (notif (forge-notification
-                      :id           id
-                      :thread-id    .id
-                      :repository   (oref repo id)
-                      :forge        forge
-                      :reason       (intern (downcase .reason))
-                      :unread-p     .unread
-                      :last-read    .last_read_at
-                      :updated      .updated_at
-                      :title        .subject.title
-                      :type         type
-                      :topic        number
-                      :url          .subject.url)))
-          (closql-insert (forge-db) notif)
-          (oset topic unread-p (oref notif unread-p))))
+                              repo
+                              (cdr (cadr (assq alias topics)))
+                              nil))
+              (notif (or (forge-get-notification id)
+                         (closql-insert
+                          (forge-db)
+                          (forge-notification
+                           :id           id
+                           :thread-id    .id
+                           :repository   (oref repo id)
+                           :forge        forge
+                           :type         type
+                           :topic        number
+                           :url          .subject.url)))))
+          (oset notif title     .subject.title)
+          (oset notif reason    (intern (downcase .reason)))
+          (oset notif last-read .last_read_at)
+          (oset notif updated   .updated_at)
+          (oset notif unread-p  .unread)
+          (oset topic unread-p  .unread)))
       (forge--zap-repository-cache repo))))
 
 ;;;; Miscellaneous
