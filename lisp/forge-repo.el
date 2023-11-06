@@ -394,16 +394,16 @@ forges and hosts."
     (cl-call-next-method (ghub--host sym) sym)))
 
 (defun forge--ghub-type-symbol (class)
-  (cl-ecase class
+  (pcase-exhaustive class
     ;; This package does not define a `forge-gitlab-http-repository'
     ;; class, but we suggest at #9 that users define such a class if
     ;; they must connect to a Gitlab instance that uses http instead
     ;; of https.
-    ((forge-gitlab-repository forge-gitlab-http-repository) 'gitlab)
-    (forge-github-repository    'github)
-    (forge-gitea-repository     'gitea)
-    (forge-gogs-repository      'gogs)
-    (forge-bitbucket-repository 'bitbucket)))
+    ((or 'forge-gitlab-repository 'forge-gitlab-http-repository) 'gitlab)
+    ('forge-github-repository    'github)
+    ('forge-gitea-repository     'gitea)
+    ('forge-gogs-repository      'gogs)
+    ('forge-bitbucket-repository 'bitbucket)))
 
 ;;; _
 (provide 'forge-repo)

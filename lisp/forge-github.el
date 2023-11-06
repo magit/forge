@@ -593,9 +593,9 @@
   ((_repo forge-github-repository) topic value)
   (forge--ghub-patch topic
     "/repos/:owner/:repo/issues/:number"
-    `((state . ,(cl-ecase value
-                  (open   "OPEN")
-                  (closed "CLOSED"))))
+    `((state . ,(pcase-exhaustive value
+                  ('open   "OPEN")
+                  ('closed "CLOSED"))))
     :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--set-topic-draft

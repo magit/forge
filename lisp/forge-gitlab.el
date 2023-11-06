@@ -512,9 +512,9 @@
 (cl-defmethod forge--set-topic-state
   ((repo forge-gitlab-repository) topic)
   (forge--set-topic-field repo topic 'state_event
-                          (cl-ecase (oref topic state)
-                            (closed "reopen")
-                            (open   "close"))))
+                          (pcase-exhaustive (oref topic state)
+                            ('closed "reopen")
+                            ('open   "close"))))
 
 (cl-defmethod forge--set-topic-draft
   ((repo forge-gitlab-repository) topic value)

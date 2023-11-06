@@ -266,15 +266,15 @@ parent object (determined using `forge-get-parent')."
              (let ((slot (intern (substring str 1))))
                (or (and-let*
                        ((v (ignore-errors
-                             (cl-case slot
-                               (repo    (oref object name))
-                               (project (concat (string-replace
-                                                 "/" "%2F" (oref object owner))
-                                                "%2F"
-                                                (oref object name)))
-                               (topic   (and (forge--childp object 'forge-topic)
-                                             (oref object number)))
-                               (t       (eieio-oref object slot))))))
+                             (pcase slot
+                               ('repo    (oref object name))
+                               ('project (concat (string-replace
+                                                  "/" "%2F" (oref object owner))
+                                                 "%2F"
+                                                 (oref object name)))
+                               ('topic   (and (forge--childp object 'forge-topic)
+                                              (oref object number)))
+                               (_        (eieio-oref object slot))))))
                      (format "%s" v))
                    str)))
            resource t t))
