@@ -350,8 +350,7 @@
                       ;; information for such repositories leads to errors,
                       ;; which we suppress.  See #164.
                       (with-demoted-errors "forge--pull-notifications: %S"
-                        (forge--ghub-massage-notification
-                         data forge githost)))
+                        (forge--ghub-massage-notification data githost)))
                     (forge--ghub-get nil "/notifications"
                       '((all . nil))
                       :host apihost :unpaginate t)))
@@ -379,7 +378,7 @@
                  (funcall callback)))))
         (cb)))))
 
-(defun forge--ghub-massage-notification (data forge githost)
+(defun forge--ghub-massage-notification (data githost)
   (let-alist data
     (let* ((type (intern (downcase .subject.type)))
            (type (if (eq type 'pullrequest) 'pullreq type)))
@@ -396,7 +395,7 @@
                   (name   (oref repo name))
                   (id     (forge--object-id repoid (string-to-number .id)))
                   (alias  (intern (concat "_" (string-replace "=" "_" id)))))
-             (list alias repo
+             (list alias id
                    `((,alias repository)
                      [(name ,name)
                       (owner ,owner)]
@@ -408,33 +407,35 @@
                               `(repository issues (issue . ,number))
                             `(repository pullRequest (pullRequest . ,number)))
                           ))))
-                   (forge-notification
-                    :id           id
-                    :thread-id    .id
-                    :repository   repoid
-                    :forge        forge
-                    :reason       (intern (downcase .reason))
-                    :unread-p     .unread
-                    :last-read    .last_read_at
-                    :updated      .updated_at
-                    :title        .subject.title
-                    :type         type
-                    :topic        number
-                    :url          .subject.url)))))))
+                   repo type number data))))))
 
 (defun forge--ghub-update-notifications (forge topics notifs)
   (closql-with-transaction (forge-db)
     (forge-sql [:delete-from notification
                 :where (= forge $s1)]
                forge)
-    (pcase-dolist (`(,key ,repo ,_ ,obj) notifs)
-      (closql-insert (forge-db) obj)
-      (forge--zap-repository-cache (forge-get-repository obj))
-      (oset (funcall (if (eq (oref obj type) 'issue)
-                         #'forge--update-issue
-                       #'forge--update-pullreq)
-                     repo (cdr (cadr (assq key topics))) nil)
-            unread-p (oref obj unread-p)))))
+    (pcase-dolist (`(,alias ,id ,_ ,repo ,type ,number ,data) notifs)
+      (let-alist data
+        (let ((topic (funcall (if (eq type 'issue)
+                                  #'forge--update-issue
+                                #'forge--update-pullreq)
+                              repo (cdr (cadr (assq alias topics))) nil))
+              (notif (forge-notification
+                      :id           id
+                      :thread-id    .id
+                      :repository   (oref repo id)
+                      :forge        forge
+                      :reason       (intern (downcase .reason))
+                      :unread-p     .unread
+                      :last-read    .last_read_at
+                      :updated      .updated_at
+                      :title        .subject.title
+                      :type         type
+                      :topic        number
+                      :url          .subject.url)))
+          (closql-insert (forge-db) notif)
+          (oset topic unread-p (oref notif unread-p))))
+      (forge--zap-repository-cache repo))))
 
 ;;;; Miscellaneous
 
