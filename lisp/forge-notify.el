@@ -67,6 +67,26 @@
                                   (oref topic number)))))
     (closql--remake-instance 'forge-notification (forge-db) row)))
 
+;;;; Current
+
+(defun forge-current-notification (&optional demand)
+  "Return the current notification, casting a topic if necessary.
+If there is no such notification and DEMAND is non-nil, then
+signal an error."
+  (or (magit-section-value-if 'notification)
+      (and-let* ((topic (forge-current-topic)))
+        (forge-get-notification topic))
+      (and demand (user-error "No current notification"))))
+
+(defun forge-notification-at-point (&optional demand)
+  "Return the notification at point, casting a topic if necessary.
+If there is no such notification and DEMAND is non-nil, then
+signal an error."
+  (or (magit-section-value-if 'notification)
+      (and-let* ((topic (forge-topic-at-point)))
+        (forge-get-notification topic))
+      (and demand (user-error "No notication at point"))))
+
 ;;;; List
 
 (defun forge--ls-notifications-all ()
