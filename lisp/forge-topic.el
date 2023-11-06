@@ -976,7 +976,9 @@ If forge data has been fetched for the current repository, then
 enable `bug-reference-mode' or `bug-reference-prog-mode' and
 modify `bug-reference-bug-regexp' if appropriate."
   (unless (or bug-reference-url-format
-              (not (forge-db t)))
+              (not (forge-db t))
+              ;; TODO Allow use in this mode again.
+              (derived-mode-p 'forge-notifications-mode))
     (magit--with-safe-default-directory nil
       (when-let ((repo (forge-get-repository 'full)))
         (if (>= emacs-major-version 28)
