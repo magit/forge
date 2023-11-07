@@ -358,7 +358,7 @@ argument also offer closed pull-requests."
           (browse-url target)
         (browse-url (forge-get-url target))
         (when (cl-typep target 'forge-topic)
-          (forge-topic-mark-read topic)))
+          (forge-topic-mark-read target)))
     (user-error "Nothing to browse here")))
 
 (defun forge--browse-target ()
