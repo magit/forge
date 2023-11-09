@@ -383,6 +383,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
     (insert (forge--format-topic-line topic (or width 5)))
     (forge--insert-topic-marks topic)
     (forge--insert-topic-labels topic)
+    (forge--insert-workflow-status topic)
     (insert "\n")
     (magit-log-format-author-margin
      (oref topic author)
@@ -480,6 +481,9 @@ This mode itself is never used directly."
         (magit-insert-section (pullreq topic)
           (magit-insert-heading "Commits")
           (forge--insert-pullreq-commits topic t)))
+      (when (forge-pullreq-p topic)
+        (magit-insert-section (pullreq topic)
+          (forge--insert-workflow topic)))
       (when-let ((note (oref topic note)))
         (magit-insert-section (note)
           (magit-insert-heading "Note")
