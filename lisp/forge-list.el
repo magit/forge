@@ -184,9 +184,16 @@ forges web interface."
 (defvar-local forge--tabulated-list-query nil)
 (put 'forge--tabulated-list-query 'permanent-local t)
 
-(defvar-local forge--buffer-list-type nil)
-(defvar-local forge--buffer-list-filter nil)
-(defvar-local forge--buffer-list-global nil)
+(defvar-local forge-topic-list-state nil)
+
+;; (defvar-local forge--buffer-list-type nil)
+;; (defvar-local forge--buffer-list-filter nil)
+;; (defvar-local forge--buffer-list-global nil)
+;; (defvar-local forge--buffer-list-state nil)
+;; (defvar-local forge--buffer-list-status nil)
+;; (defvar-local forge--buffer-list-assignee nil)
+;; (defvar-local forge--buffer-list-authored nil)
+;; (defvar-local forge--buffer-list-label nil)
 
 ;;; Modes
 ;;;; Common
@@ -257,9 +264,10 @@ Must be set before `forge-list' is loaded.")
         (get-buffer-create name)
       (get-buffer name))))
 
-(defun forge-topic-list-setup (type filter fn &optional repo global columns)
-  (let* ((repo (or repo
-                   (and (not global)
+(defun forge-topic-list-setup (object &optional repo)
+  (let* ((global (oref object global))
+         (repo   (or repo
+                     (and (not global)
                         (if-let* ((topic (forge-topic-at-point))
                                   (repo (forge-get-repository topic)))
                             repo
@@ -271,19 +279,11 @@ Must be set before `forge-list' is loaded.")
     (with-current-buffer (setq buffer (forge-topic-get-buffer repo t))
       (setq default-directory (or topdir "/"))
       (setq forge-buffer-repository repo)
-      (setq forge--tabulated-list-columns (or columns forge-topic-list-columns))
-      (setq forge--tabulated-list-query
-            (cond ((not (functionp fn))
-                   (lambda ()
-                     (cl-sort (mapcan (-cut funcall <> repo) fn)
-                              #'> :key (-cut oref <> number))))
-                  (repo (apply-partially fn repo))
-                  (fn)))
+      (setq forge--tabulated-list-columns (oref object columns))
+      (setq forge--tabulated-list-query #'forge--list-topics)
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
         (forge-topic-list-mode))
-      (setq forge--buffer-list-type type)
-      (setq forge--buffer-list-filter filter)
-      (setq forge--buffer-list-global global)
+      (setq forge-topic-list-state object)
       (forge--tablist-refresh)
       (add-hook 'tabulated-list-revert-hook #'forge--tablist-refresh nil t)
       (tabulated-list-print)
@@ -368,7 +368,7 @@ Must be set before `forge-list' is loaded.")
     ("t" "topics"           forge-list-topics)
     ("i" "issues"           forge-list-issues)
     ("p" "pull-requests"    forge-list-pullreqs)
-    ""]
+    ("z" "issues next"      forge-list-issues-next)]
    ["Filter"
     :if (lambda () (and (not forge--buffer-list-global)
                    (eq forge--buffer-list-type 'topic)))
@@ -472,25 +472,91 @@ menu."
 ;;;; Suffix Class
 
 (defclass forge--topic-list-command (transient-suffix)
-  ((type       :initarg :type   :initform nil)
-   (filter     :initarg :filter :initform nil)
-   (global     :initarg :global :initform nil)
-   (inapt-if                    :initform 'forge--topic-list-inapt)
-   (inapt-face                  :initform nil)))
+  ((type       :initarg :type)
+   (label      :initarg :label)
+   (assignee   :initarg :assignee)
+   (author     :initarg :author)
+   (global     :initarg :global)
+   (columns    :initarg :columns :initform 'forge-topic-list-columns)
+   (inapt-if                     :initform 'forge--topic-list-inapt)
+   (inapt-face                   :initform nil)))
 
-(defun forge--topic-list-inapt ()
-  (with-slots (type filter global) transient--pending-suffix
-    (and (eq type   forge--buffer-list-type)
-         (eq filter forge--buffer-list-filter)
-         (eq global forge--buffer-list-global))))
+(defvar forge--topic-list-command-defaults
+  '((type     issue)
+    (label    nil)
+    (assignee nil)
+    (author   nil)
+    (global   nil)))
 
-(cl-defmethod transient-format-description ((obj forge--topic-list-command))
-  (with-slots (description type filter global) obj
-    (if (and (eq   type   forge--buffer-list-type)
-             (memq filter (list nil forge--buffer-list-filter))
-             (eq   global forge--buffer-list-global))
-        (propertize description 'face 'forge-active-suffix)
-      description)))
+(cl-defmethod initialize-instance :after ((obj transient-suffix)
+                                          &optional _slots)
+  (pcase-dolist (`(,slot ,default) forge--topic-list-command-defaults)
+    (unless (slot-boundp obj slot)
+      (eieio-oset obj slot
+                  (if forge-topic-list-state
+                      (eieio-oref forge-topic-list-state slot)
+                    default)))))
+
+;; (defun forge--topic-list-inapt ()
+;;   (transient-with-shadowed-buffer
+;;     (with-slots (type filter global) transient--pending-suffix
+;;       (and (eq type   forge--buffer-list-type)
+;;            (eq filter forge--buffer-list-filter)
+;;            (eq global forge--buffer-list-global)))))
+
+;; (cl-defmethod transient-format-description ((obj forge--topic-list-command))
+;;   (transient-with-shadowed-buffer
+;;     (with-slots (description type filter global) obj
+;;       (if (and (eq   type   forge--buffer-list-type)
+;;                (memq filter (list nil forge--buffer-list-filter))
+;;                (eq   global forge--buffer-list-global))
+;;           (propertize description 'face 'forge-active-suffix)
+;;         description))))
+
+;;;; List functions
+
+(cl-defun forge--list-topics (&optional repo)
+  (with-slots (type) forge-topic-list-state
+    (mapcar (apply-partially #'closql--remake-instance
+                             (if (eq type 'issue) 'forge-issue 'forge-pullreq)
+                             (forge-db))
+            (forge-sql (forge--list-topics-1)
+                       (oref (or repo (forge-get-repository t)) id)))))
+
+(defun forge--list-topics-1 ()
+  (with-slots (type state status label assignee author) forge-topic-list-state
+    `[:select
+      ,(vconcat (closql--table-columns (forge-db) type "topic"))
+      :from [(as ,type topic)]
+      ,@(cond
+         ((not assignee) nil)
+         ((eq type 'issue)
+          [:join   issue-assignee :on (= issue-assignee:issue issue:id)
+           :join         assignee :on (= assignee:id issue-assignee:id)])
+         ([:join pullreq-assignee :on (= pullreq-assignee:pullreq pullreq:id)
+           :join         assignee :on (= assignee:id pullreq-assignee:id)]))
+      ,@(cond
+         ((not label) nil)
+         ((eq type 'issue)
+          [:join   issue-label :on (= issue-label:issue issue:id)
+           :join         label :on (= label:id issue-label:id)])
+         ([:join pullreq-label :on (= pullreq-label:pullreq pullreq:id)
+           :join         label :on (= label:id pullreq-label:id)]))
+      :where
+      (and
+       (= topic:repository $s1)
+       ,@(and state `((in topic:state ,(vconcat (ensure-list state)))))
+       ,@(let ((status (ensure-list status)))
+           (pcase (list (memq nil status)
+                        (delq nil status))
+             (`(t nil) '((isnull topic:status)))
+             (`(nil t) `((in topic:status ,(vconcat status))))
+             (`(t   t) `((or (in topic:status ,(vconcat status))
+                             (isnull topic:status))))))
+       ,@(and assignee `((= assignee:login ,assignee)))
+       ,@(and author   `((= topic:author   ,author)))
+       ,@(and label    `((= label:name     ,label))))
+      :order-by [(desc topic:number)]]))
 
 ;;;; Topic
 
@@ -553,36 +619,41 @@ Only Github is supported for now."
 
 ;;;; Issue
 
-(defun forge--issue-list-setup (filter fn &optional repo global columns)
-  (forge-topic-list-setup 'issue filter fn repo global columns))
-
 ;;;###autoload (autoload 'forge-list-issues "forge-list" nil t)
 (transient-define-suffix forge-list-issues ()
   "List issues of the current repository."
   :class 'forge--topic-list-command :type 'issue
   (interactive)
-  (forge--issue-list-setup nil #'forge--ls-issues))
+  (forge-topic-list-setup (transient-suffix-object)))
 
 ;;;###autoload (autoload 'forge-list-labeled-issues "forge-list" nil t)
 (transient-define-suffix forge-list-labeled-issues (label)
   "List issues of the current repository that have LABEL."
-  :class 'forge--topic-list-command :type 'issue :filter 'labeled
+  :class 'forge--topic-list-command
   (interactive (list (forge-read-topic-label)))
-  (forge--issue-list-setup 'labeled (-cut forge--ls-labeled-issues <> label)))
+  (let ((obj (transient-suffix-object)))
+    (oset obj labeled label)
+    (forge-topic-list-setup obj)))
 
 ;;;###autoload (autoload 'forge-list-assigned-issues "forge-list" nil t)
 (transient-define-suffix forge-list-assigned-issues ()
   "List issues of the current repository that are assigned to you."
-  :class 'forge--topic-list-command :type 'issue :filter 'assigned
+  :class 'forge--topic-list-command
   (interactive)
-  (forge--issue-list-setup 'assigned #'forge--ls-assigned-issues))
+  (let ((obj (transient-suffix-object)))
+    (oset obj assignee (and (not (oref obj assignee))
+                            (ghub--username (forge-get-repository t))))
+    (forge-topic-list-setup obj)))
 
 ;;;###autoload (autoload 'forge-list-authored-issues "forge-list" nil t)
 (transient-define-suffix forge-list-authored-issues ()
   "List open issues from the current repository that are authored by you."
-  :class 'forge--topic-list-command :type 'issue :filter 'authored
+  :class 'forge--topic-list-command
   (interactive)
-  (forge--issue-list-setup 'authored #'forge--ls-authored-issues))
+  (let ((obj (transient-suffix-object)))
+    (oset obj author (and (not (oref obj author))
+                          (ghub--username (forge-get-repository t))))
+    (forge-topic-list-setup obj)))
 
 ;;;###autoload (autoload 'forge-list-owned-issues "forge-list" nil t)
 (transient-define-suffix forge-list-owned-issues ()
@@ -590,10 +661,11 @@ Only Github is supported for now."
 Options `forge-owned-accounts' and `forge-owned-ignored'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
-  :class 'forge--topic-list-command :type 'issue :filter 'owned :global t
+  :class 'forge--topic-list-command :global t
   (interactive)
-  (forge--issue-list-setup 'owned #'forge--ls-owned-issues
-                           nil t forge-global-topic-list-columns))
+  (let ((obj (transient-suffix-object)))
+    (oset obj author (ghub--username (forge-get-repository t)))
+    (forge-topic-list-setup obj)))
 
 ;;;; Pullreq
 
