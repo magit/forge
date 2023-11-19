@@ -150,15 +150,13 @@ signal an error."
   (hack-dir-local-variables-non-file-buffer))
 
 (defun forge-notifications-setup-buffer (&optional create)
-  (let ((name "*forge-notifications*"))
+  (let* ((name "*forge-notifications*")
+         (magit-generate-buffer-name-function (lambda (_mode _value) name))
+         (default-directory "/"))
     (if create
-        ;; There should only ever be one such buffer.
-        (cl-letf (((symbol-function 'magit-get-mode-buffer)
-                   (lambda (&rest _)
-                     (get-buffer-create name))))
-          (magit-setup-buffer #'forge-notifications-mode nil
-            (default-directory "/")
-            (forge-buffer-unassociated-p t)))
+        (magit-setup-buffer-internal #'forge-notifications-mode t
+                                     '((forge-buffer-unassociated-p t))
+                                     name)
       (get-buffer name))))
 
 (defun forge-notifications-refresh-buffer ()
