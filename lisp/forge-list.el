@@ -192,22 +192,26 @@ This is a list of package names.  Used by the commands
     (switch-to-buffer (current-buffer))))
 
 (defun forge-repository-list-refresh ()
-  (setq tabulated-list-entries
-        (mapcar #'forge--tablist-format-entry
-                (forge-sql [:select $i1 :from repository
-                            :order-by [(asc owner) (asc name)]]
-                           (forge--tablist-columns-vector)))))
+  (forge-repository--tabulate-entries))
 
 (defun forge-repository-list-owned-refresh ()
+  (forge-repository--tabulate-entries
+   [:where (and (in owner $v2) (not (in name $v3)))]
+   (vconcat (mapcar #'car forge-owned-accounts))
+   (vconcat forge-owned-ignored)))
+
+(defun forge-repository--tabulate-entries (&optional where &rest args)
   (setq tabulated-list-entries
-        (mapcar #'forge--tablist-format-entry
-                (forge-sql [:select $i1 :from repository
-                            :where (and (in owner $v2)
-                                        (not (in name $v3)))
-                            :order-by [(asc owner) (asc name)]]
-                           (forge--tablist-columns-vector)
-                           (vconcat (mapcar #'car forge-owned-accounts))
-                           (vconcat forge-owned-ignored)))))
+        (mapcar
+         (pcase-lambda (`(,id . ,row))
+           (list id (vconcat (mapcar (lambda (v) (if v (format "%s" v) "")) row))))
+         (apply #'forge-sql
+                (vconcat [:select $i1 :from repository]
+                         where
+                         [:order-by [(asc owner) (asc name)]])
+                (vconcat [id] (mapcar (apply-partially #'nth 4)
+                                      forge--tabulated-list-columns))
+                args))))
 
 ;;; Commands
 ;;;; Topic
@@ -450,16 +454,6 @@ it silently fails."
                               (intern (concat table ":" col))))
                           columns))
                columns))))
-
-(defun forge--tablist-format-entry (row)
-  (list (car row)
-        (vconcat
-         (cl-mapcar (lambda (val col)
-                      (if-let ((pp (nth 5 col)))
-                          (funcall pp val)
-                        (if val (format "%s" val) "")))
-                    (cdr row)
-                    forge--tabulated-list-columns))))
 
 ;;; _
 (provide 'forge-list)
