@@ -150,7 +150,8 @@ signal an error."
 
 (defvar-keymap forge-notifications-mode-map
   :doc "Keymap for `forge-notifications-mode'."
-  :parent magit-mode-map)
+  :parent magit-mode-map
+  "L" #'forge-notification-menu)
 
 (define-derived-mode forge-notifications-mode magit-mode "Forge Notifications"
   "Mode for looking at forge notifications."
@@ -175,6 +176,21 @@ signal an error."
   #'forge--ls-notifications-all)
 
 ;;; Commands
+
+(transient-define-prefix forge-notification-menu ()
+  "Control list of notifications and notification at point."
+  :transient-suffix t
+  [["List"
+    ("l" "notifications" forge-list-notification)]
+   ["Buffer style"
+    :if-mode forge-notifications-mode
+    ("n w" "set style and refresh"     forge-set-notifications-display-style)
+    ("n h" "set selection and refresh" forge-set-notifications-display-selection)]
+   ["Margin"
+    :if-mode forge-notifications-mode
+    (magit-toggle-margin)
+    (magit-cycle-margin-style)
+    ("e" magit-toggle-margin-details)]])
 
 ;;;###autoload
 (defun forge-list-notifications ()

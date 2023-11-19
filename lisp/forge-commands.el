@@ -55,34 +55,26 @@ Takes the pull-request as only argument and must return a directory."
 ;;;###autoload (autoload 'forge-dispatch "forge-commands" nil t)
 (transient-define-prefix forge-dispatch ()
   "Dispatch a forge command."
-  [["Fetch"
-    :if forge--get-full-repository
-    ("f f" "all topics"    forge-pull)
-    ("f t" "one topic"     forge-pull-topic)
-    ("f n" "notifications" forge-pull-notifications)
-    """Create"
-    ("c i" "issue"         forge-create-issue)
-    ("c p" "pull-request"  forge-create-pullreq)
-    ("c u" "pull-request from issue" forge-create-pullreq-from-issue
+  [:if forge--get-full-repository
+   ["Create"
+    ("c i" "issue"             forge-create-issue)
+    ("c p" "pull-request"      forge-create-pullreq)
+    ("c u" "pull-request from issue"
+     forge-create-pullreq-from-issue
      :if forge--get-github-repository)
-    ("c f" "fork or remote" forge-fork)
-    """Merge"
-    (7 "M  " "merge using API" forge-merge)]
+    ("c f" "fork or remote"    forge-fork)]]
+  [:if forge--get-full-repository
    ["List"
+    ("t" "topics...         "  forge-topics-menu)
+    ("n" "notifications...  "  forge-notification-menu)
+    ("r" "repositories...   "  forge-repository-menu)]
+   ["Fetch"
+    ("f f" "all topics       " forge-pull)
+    ("f t" "one topic        " forge-pull-topic)
+    ("f n" "notifications    " forge-pull-notifications)]
+   ["API Commands"
     :if forge--get-full-repository
-    ("l t" "topics"        forge-list-topics)
-    ("l i" "issues"        forge-list-issues)
-    ("l p" "pull-requests" forge-list-pullreqs)
-    ("l n" "notifications" forge-list-notifications)
-    ("l r" "repositories"  forge-list-repositories)
-    (7 "l a" "awaiting review"        forge-list-requested-reviews)
-    (7 "n i" "labeled issues"         forge-list-labeled-issues)
-    (7 "n p" "labeled pull-requests"  forge-list-labeled-pullreqs)
-    (7 "m i" "authored issues"        forge-list-authored-issues)
-    (7 "m p" "authored pull-requests" forge-list-authored-pullreqs)
-    (7 "o i" "owned issues"           forge-list-owned-issues)
-    (7 "o p" "owned pull-requests"    forge-list-owned-pullreqs)
-    (7 "o r" "owned repositories"     forge-list-owned-repositories)]]
+    (7 "M" "merge" forge-merge)]]
   [:if forge--get-full-repository
    [:description (lambda () (forge-dispatch--format-description "Visit"))
     ("v t" "topic"         forge-visit-topic)
@@ -104,10 +96,6 @@ Takes the pull-request as only argument and must return a directory."
     ("s l" forge-forge.graphqlItemLimit)
     ("s s" forge-toggle-display-in-status-buffer)
     ("s c" forge-toggle-closed-visibility)]]
-  [["Configure notifications display"
-    :if-mode forge-notifications-mode
-    ("n w" "set style and refresh"     forge-set-notifications-display-style)
-    ("n h" "set selection and refresh" forge-set-notifications-display-selection)]]
   [[:description (lambda ()
                    (if (magit-gitdir)
                        "Forge doesn't know about this Git repository yet"

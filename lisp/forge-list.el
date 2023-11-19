@@ -182,6 +182,7 @@ forges web interface."
   "RET"      #'forge-visit-this-topic
   "<return>" #'forge-visit-this-topic
   "o"        #'forge-browse-this-topic
+  "L"        #'forge-topics-menu
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
 
@@ -256,6 +257,7 @@ forges web interface."
   "RET"      #'forge-visit-this-repository
   "<return>" #'forge-visit-this-repository
   "o"        #'forge-browse-this-repository
+  "L"        #'forge-repository-menu
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
 
@@ -303,6 +305,30 @@ forges web interface."
                 args))))
 
 ;;; Commands
+;;;; Menus
+
+;;;###autoload (autoload 'forge-topics-menu "forge-list" nil t)
+(transient-define-prefix forge-topics-menu ()
+  "Control list of topics and topic at point."
+  [["List"
+    ("t" "topics"        forge-list-topics)
+    ("i" "issues"        forge-list-issues)
+    ("p" "pull-requests" forge-list-pullreqs)
+    ("l a" "awaiting review"        forge-list-requested-reviews)
+    ("n i" "labeled issues"         forge-list-labeled-issues)
+    ("n p" "labeled pull-requests"  forge-list-labeled-pullreqs)
+    ("m i" "authored issues"        forge-list-authored-issues)
+    ("m p" "authored pull-requests" forge-list-authored-pullreqs)
+    ("o i" "owned issues"           forge-list-owned-issues)
+    ("o p" "owned pull-requests"    forge-list-owned-pullreqs)]])
+
+;;;###autoload (autoload 'forge-repository-menu "forge-list" nil t)
+(transient-define-prefix forge-repository-menu ()
+  "Control list of repositories and repository at point."
+  [["List"
+    ("r" "repositories"       forge-list-repositories)
+    ("o" "owned repositories" forge-list-owned-repositories)]])
+
 ;;;; Topic
 
 (defun forge--topic-list-setup (fn &optional repo buffer-name columns)
