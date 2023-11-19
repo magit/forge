@@ -205,7 +205,13 @@ forges web interface."
                      (oref repo owner)
                      (oref repo name))))
       (setq forge--tabulated-list-columns (or columns forge-topic-list-columns))
-      (setq forge--tabulated-list-query (if repo (apply-partially fn repo) fn))
+      (setq forge--tabulated-list-query
+            (cond ((not (functionp fn))
+                   (lambda ()
+                     (cl-sort (mapcan (-cut funcall <> repo) fn)
+                              #'> :key (-cut oref <> number))))
+                  (repo (apply-partially fn repo))
+                  (fn)))
       (setq forge-buffer-repository repo)
       (when topdir
         (setq default-directory topdir))
@@ -299,19 +305,49 @@ forges web interface."
 ;;; Commands
 ;;;; Topic
 
+(defun forge--topic-list-setup (fn &optional repo buffer-name columns)
+  (forge-topic-list-setup fn repo buffer-name columns))
+
 ;;;###autoload
 (defun forge-list-topics (&optional repository)
   "List topics of the current repository.
 Non-interactively if optional REPOSITORY is non-nil, then list
 topics for that instead."
   (interactive)
-  (let ((repo (or repository (forge-get-repository t))))
-    (forge-topic-list-setup
-     (lambda (repo)
-       (cl-sort (nconc (forge-ls-issues repo)
-                       (forge-ls-pullreqs repo))
-                #'> :key (-cut oref <> number)))
-     repo)))
+  (forge--topic-list-setup (list #'forge-ls-issues #'forge-ls-pullreqs)
+                           repository))
+
+;;;###autoload
+(defun forge-list-labeled-topics (label)
+  "List topics of the current repository that have LABEL."
+  (interactive (list (forge-read-topic-label)))
+  (forge--topic-list-setup (list (-cut forge--ls-labeled-issues   <> label)
+                                 (-cut forge--ls-labeled-pullreqs <> label))))
+
+;;;###autoload
+(defun forge-list-assigned-topics ()
+  "List topics of the current repository that are assigned to you."
+  (interactive)
+  (forge--topic-list-setup (list #'forge--ls-assigned-issues
+                                 #'forge--ls-assigned-pullreqs)))
+
+;;;###autoload
+(defun forge-list-authored-topics ()
+  "List open topics from the current repository that are authored by you."
+  (interactive)
+  (forge--topic-list-setup (list #'forge--ls-authored-issues
+                                 #'forge--ls-authored-pullreqs)))
+
+;;;###autoload
+(defun forge-list-owned-topics ()
+  "List open pull-requests from all your Github repositories.
+Options `forge-owned-accounts' and `forge-owned-ignored'
+controls which repositories are considered to be owned by you.
+Only Github is supported for now."
+  (interactive)
+  (forge--topic-list-setup (list (lambda (_) (forge--ls-owned-issues))
+                                 (lambda (_) (forge--ls-owned-pullreqs)))
+                           nil "My topics" forge-global-topic-list-columns))
 
 ;;;; Issue
 
