@@ -205,7 +205,7 @@ This is a list of package names.  Used by the commands
 
 ;;;###autoload
 (defun forge-list-topics (id)
-  "List topics of the current repository in a separate buffer."
+  "List topics of the current repository."
   (interactive (list (oref (forge-get-repository t) id)))
   (forge-topic-list-setup #'forge-topic-list-mode id nil nil
     (lambda ()
@@ -218,7 +218,7 @@ This is a list of package names.  Used by the commands
 
 ;;;###autoload
 (defun forge-list-issues (id)
-  "List issues of the current repository in a separate buffer."
+  "List issues of the current repository."
   (interactive (list (oref (forge-get-repository t) id)))
   (forge-topic-list-setup #'forge-issue-list-mode id nil nil
     (lambda ()
@@ -228,8 +228,7 @@ This is a list of package names.  Used by the commands
 
 ;;;###autoload
 (defun forge-list-labeled-issues (id label)
-  "List issues of the current repository that have LABEL.
-List them in a separate buffer."
+  "List issues of the current repository that have LABEL."
   (interactive (list (oref (forge-get-repository t) id)
                      (forge-read-topic-label)))
   (forge-topic-list-setup #'forge-issue-list-mode id nil nil
@@ -246,8 +245,7 @@ List them in a separate buffer."
 
 ;;;###autoload
 (defun forge-list-assigned-issues (id)
-  "List issues of the current repository that are assigned to you.
-List them in a separate buffer."
+  "List issues of the current repository that are assigned to you."
   (interactive (list (oref (forge-get-repository t) id)))
   (forge-topic-list-setup #'forge-issue-list-mode id nil nil
     (lambda ()
@@ -263,8 +261,7 @@ List them in a separate buffer."
 
 ;;;###autoload
 (defun forge-list-authored-issues (id)
-  "List open issues from the current repository that are authored by you.
-List them in a separate buffer."
+  "List open issues from the current repository that are authored by you."
   (interactive (list (oref (forge-get-repository t) id)))
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
     (lambda ()
@@ -302,7 +299,7 @@ Only Github is supported for now."
 
 ;;;###autoload
 (defun forge-list-pullreqs (id)
-  "List pull-requests of the current repository in a separate buffer."
+  "List pull-requests of the current repository."
   (interactive (list (oref (forge-get-repository t) id)))
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
     (lambda ()
@@ -312,8 +309,7 @@ Only Github is supported for now."
 
 ;;;###autoload
 (defun forge-list-labeled-pullreqs (id label)
-  "List pull-requests of the current repository that have LABEL.
-List them in a separate buffer."
+  "List pull-requests of the current repository that have LABEL."
   (interactive (list (oref (forge-get-repository t) id)
                      (forge-read-topic-label)))
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
@@ -330,8 +326,7 @@ List them in a separate buffer."
 
 ;;;###autoload
 (defun forge-list-assigned-pullreqs (id)
-  "List pull-requests of the current repository that are assigned to you.
-List them in a separate buffer."
+  "List pull-requests of the current repository that are assigned to you."
   (interactive (list (oref (forge-get-repository t) id)))
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
     (lambda ()
@@ -347,8 +342,7 @@ List them in a separate buffer."
 
 ;;;###autoload
 (defun forge-list-requested-reviews (id)
-  "List pull-requests of the current repository that are awaiting your review.
-List them in a separate buffer."
+  "List pull-requests of the current repository that are awaiting your review."
   (interactive (list (oref (forge-get-repository t) id)))
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
     (lambda ()
@@ -364,8 +358,7 @@ List them in a separate buffer."
 
 ;;;###autoload
 (defun forge-list-authored-pullreqs (id)
-  "List open pull-requests of the current repository that are authored by you.
-List them in a separate buffer."
+  "List open pull-requests of the current repository that are authored by you."
   (interactive (list (oref (forge-get-repository t) id)))
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
     (lambda ()
