@@ -24,6 +24,22 @@
 
 (require 'forge)
 
+;;; Options
+
+(defcustom forge-notifications-github-kludge 'pending-again
+  "The kludge used to work around Github's abysmal notification API."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type '(choice
+          (const :tag "Abort pulling because not yet configured" nil)
+          (const :tag "Every updated notification becomes unread"
+                 always-unread)
+          (const :tag "Unless unread, updated notifications become pending"
+                 pending-again)
+          (const :tag (concat "Unless unread or non-nil local status, "
+                              "updated notifications become pending")
+                 pending-if-unset)))
+
 ;;; Class
 
 (defclass forge-notification (forge-object)
