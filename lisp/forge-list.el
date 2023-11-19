@@ -36,23 +36,23 @@
   :options '(hl-line-mode))
 
 (defvar forge-topic-list-columns
-  '(("#"         5 nil nil number)
-    ("Title"    35 nil nil title)
+  '(("#"     number            5 nil nil)
+    ("Title" title            35 nil nil)
     ))
 
 (defvar forge-global-topic-list-columns
-  '(("Owner"    15 nil nil repository:owner)
-    ("Name"     20 nil nil repository:name)
-    ("#"         5 nil nil number)
-    ("Title"    35 nil nil title)
+  '(("Owner" repository:owner 15 nil nil)
+    ("Name"  repository:name  20 nil nil)
+    ("#"     number            5 nil nil)
+    ("Title" title            35 nil nil)
     ))
 
 (defvar forge-repository-list-columns
-  '(("Owner"    20 t   nil owner)
-    ("Name"     20 t   nil name)
-    ("N"         1 t   nil sparse-p)
-    ("S"         1 t   nil selective-p)
-    ("Worktree" 99 t   nil worktree)
+  '(("Owner"    owner         20   t nil)
+    ("Name"     name          20   t nil)
+    ("N"        sparse-p       1   t nil)
+    ("S"        selective-p    1   t nil)
+    ("Worktree" worktree      99   t nil)
     ))
 
 (defcustom forge-owned-accounts nil
@@ -141,9 +141,9 @@ This is a list of package names.  Used by the commands
 
 (defun forge-topic-list-refresh ()
   (setq tabulated-list-format
-        (vconcat (--map `(,@(-take 3 it)
-                          ,@(-flatten (nth 3 it)))
-                        forge--tabulated-list-columns)))
+        (vconcat (mapcar (pcase-lambda (`(,name ,_get ,width ,sort ,props))
+                           `(,name ,width ,sort . ,props))
+                         forge--tabulated-list-columns)))
   (tabulated-list-init-header)
   (setq tabulated-list-entries
         (mapcar
@@ -173,9 +173,9 @@ This is a list of package names.  Used by the commands
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "Owner" nil))
   (setq tabulated-list-format
-        (vconcat (--map `(,@(-take 3 it)
-                          ,@(-flatten (nth 3 it)))
-                        forge-repository-list-columns)))
+        (vconcat (mapcar (pcase-lambda (`(,name ,_get ,width ,sort ,props))
+                           `(,name ,width ,sort . ,props))
+                         forge--tabulated-list-columns)))
   (tabulated-list-init-header))
 
 (defun forge-repository-list-setup (fn buf)
@@ -205,8 +205,7 @@ This is a list of package names.  Used by the commands
                 (vconcat [:select $i1 :from repository]
                          where
                          [:order-by [(asc owner) (asc name)]])
-                (vconcat [id] (mapcar (apply-partially #'nth 4)
-                                      forge--tabulated-list-columns))
+                (vconcat [id] (mapcar #'cadr forge--tabulated-list-columns))
                 args))))
 
 ;;; Commands
