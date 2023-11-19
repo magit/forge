@@ -100,13 +100,6 @@ signal an error."
           (forge-sql [:select * :from notification
                       :order-by [(desc updated)]])))
 
-(defun forge--ls-notifications-recent ()
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select * :from notification
-                      :order-by [(desc updated)]
-                      :limit 100])))
-
 (defun forge--ls-notifications-pending ()
   (mapcar (lambda (row)
             (closql--remake-instance 'forge-notification (forge-db) row))
@@ -167,7 +160,6 @@ signal an error."
   (setq forge-notifications-display-list-function
         (magit-read-char-case "Display " t
           (?a "[a]ll"     #'forge--ls-notifications-all)
-          (?r "[r]ecent"  #'forge--ls-notifications-recent)
           (?p "[p]ending" #'forge--ls-notifications-pending)
           (?u "[u]nread"  #'forge--ls-notifications-unread)))
   (forge-refresh-buffer))
@@ -185,7 +177,6 @@ signal an error."
       (magit-insert-heading
         (concat (pcase forge-notifications-display-list-function
                   ('forge--ls-notifications-all     "All")
-                  ('forge--ls-notifications-recent  "Recent")
                   ('forge--ls-notifications-pending "Pending")
                   ('forge--ls-notifications-unread  "Unread"))
                 " notifications:"))
