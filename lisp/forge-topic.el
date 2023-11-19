@@ -1018,6 +1018,24 @@ This mode itself is never used directly."
   (oset (forge-current-topic t) status 'done)
   (forge-refresh-buffer))
 
+(transient-define-suffix forge-topic-toggle-saved ()
+  "Toggle whether this topic is marked as saved."
+  :inapt-if-not #'forge-current-topic
+  :description
+  (lambda ()
+    (if-let ((topic (transient-with-shadowed-buffer (forge-current-topic))))
+        (concat "toggle "
+                (format (propertize "[%s]" 'face 'transient-delimiter)
+                        (propertize "saved" 'face
+                                    (if (oref topic saved-p)
+                                        'transient-value
+                                      'transient-inactive-value))))
+      "toggle [saved]"))
+  (interactive)
+  (let ((topic (forge-current-topic t)))
+    (oset topic saved-p (not (oref topic saved-p))))
+  (forge-refresh-buffer))
+
 ;;; Color Utilities
 
 (defun forge--sanitize-color (color)

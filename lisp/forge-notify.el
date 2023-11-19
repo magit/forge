@@ -190,7 +190,8 @@ signal an error."
   [["Set status"
     ("u" forge-topic-status-set-unread)
     ("x" forge-topic-status-set-pending)
-    ("d" forge-topic-status-set-done)]
+    ("d" forge-topic-status-set-done)
+    ("s" forge-topic-toggle-saved)]
    ["Group"
     ("g" "by repository" forge-set-notifications-display-style)
     ("f" "flat list"     forge-set-notifications-display-style)]

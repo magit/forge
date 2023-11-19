@@ -324,7 +324,8 @@ forges web interface."
   [["Set status"
     ("u" forge-topic-status-set-unread)
     ("x" forge-topic-status-set-pending)
-    ("d" forge-topic-status-set-done)]])
+    ("d" forge-topic-status-set-done)
+    ("s" forge-topic-toggle-saved)]])
 
 ;;;###autoload (autoload 'forge-repository-menu "forge-list" nil t)
 (transient-define-prefix forge-repository-menu ()
