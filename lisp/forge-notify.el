@@ -182,17 +182,6 @@ signal an error."
   (interactive)
   (forge-notifications-setup-buffer t))
 
-(defun forge-set-notifications-display-style ()
-  "Set the value of `forge-notifications-display-style' and refresh."
-  (interactive)
-  (unless (eq major-mode 'forge-notifications-mode)
-    (user-error "Not in forge-notifications-mode"))
-  (setq forge-notifications-display-style
-        (magit-read-char-case "Display notifications " t
-          (?g "[g]rouped by repository" 'nested)
-          (?f "as a [f]lat list"        'flat)))
-  (forge-refresh-buffer))
-
 (defun forge-set-notifications-display-selection ()
   "Set the value of `forge-notifications-display-list-function' and refresh."
   (interactive)
@@ -203,6 +192,17 @@ signal an error."
           (?a "[a]ll"     #'forge--ls-notifications-all)
           (?p "[p]ending" #'forge--ls-notifications-pending)
           (?u "[u]nread"  #'forge--ls-notifications-unread)))
+  (forge-refresh-buffer))
+
+(defun forge-set-notifications-display-style ()
+  "Set the value of `forge-notifications-display-style' and refresh."
+  (interactive)
+  (unless (eq major-mode 'forge-notifications-mode)
+    (user-error "Not in forge-notifications-mode"))
+  (setq forge-notifications-display-style
+        (magit-read-char-case "Display notifications " t
+          (?g "[g]rouped by repository" 'nested)
+          (?f "as a [f]lat list"        'flat)))
   (forge-refresh-buffer))
 
 ;;; Sections
