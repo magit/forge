@@ -201,11 +201,11 @@ an error."
 
 (defun forge--ls-labeled-pullreqs (repo label)
   (forge--select-pullreqs repo
-    [:from [pullreq pullreq_label label]
-     :where (and (= pullreq_label:pullreq pullreq:id)
-                 (= pullreq_label:id    label:id)
-                 (= pullreq:repository  $s2)
-                 (= label:name          $s3)
+    [:from pullreq
+     :join pullreq_label :on (= pullreq_label:pullreq pullreq:id)
+     :join label         :on (= pullreq_label:id      label:id)
+     :where (and (= pullreq:repository  $s2)
+                 (= label:name        $s3)
                  (isnull pullreq:closed))]
     label))
 

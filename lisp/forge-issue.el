@@ -149,11 +149,11 @@ an error."
 
 (defun forge--ls-assigned-issues (repo)
   (forge--select-issues repo
-    [:from [issue issue_assignee assignee]
-     :where (and (= issue_assignee:issue issue:id)
-                 (= issue_assignee:id    assignee:id)
-                 (= issue:repository     $s2)
-                 (= assignee:login       $s3)
+    [:from issue
+     :join issue_assignee :on (= issue_assignee:issue issue:id)
+     :join assignee       :on (= issue_assignee:id    assignee:id)
+     :where (and (= issue:repository $s2)
+                 (= assignee:login   $s3)
                  (isnull issue:closed))]
     (ghub--username repo)))
 
@@ -167,11 +167,11 @@ an error."
 
 (defun forge--ls-labeled-issues (repo label)
   (forge--select-issues repo
-    [:from [issue issue_label label]
-     :where (and (= issue_label:issue issue:id)
-                 (= issue_label:id    label:id)
-                 (= issue:repository  $s2)
-                 (= label:name        $s3)
+    [:from issue
+     :join issue_label :on (= issue_label:issue issue:id)
+     :join label       :on (= issue_label:id    label:id)
+     :where (and (= issue:repository $s2)
+                 (= label:name       $s3)
                  (isnull issue:closed))]
     label))
 
