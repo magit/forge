@@ -146,8 +146,17 @@ This is a list of package names.  Used by the commands
                         forge--tabulated-list-columns)))
   (tabulated-list-init-header)
   (setq tabulated-list-entries
-        (mapcar #'forge--tablist-format-entry
-                (funcall forge--tabulated-list-query))))
+        (mapcar
+         (lambda (row)
+           (list (car row)
+                 (vconcat
+                  (cl-mapcar (lambda (val col)
+                               (if-let ((pp (nth 5 col)))
+                                   (funcall pp val)
+                                 (if val (format "%s" val) "")))
+                             (cdr row)
+                             forge--tabulated-list-columns))))
+         (funcall forge--tabulated-list-query))))
 
 ;;;; Repository
 
