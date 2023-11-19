@@ -127,6 +127,8 @@ This is a list of package names.  Used by the commands
                 #'forge-topic-list-refresh nil t)
       (tabulated-list-init-header)
       (tabulated-list-print)
+      (when hl-line-mode
+        (hl-line-highlight))
       (switch-to-buffer (current-buffer)))))
 
 (defun forge-topic-list-refresh ()
