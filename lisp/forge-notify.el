@@ -281,8 +281,8 @@ signal an error."
   "<remap> <magit-visit-thing>"  #'forge-visit-this-repository)
 
 (defun forge-insert-notifications ()
-  (when-let* ((notifs (forge--ls-notifications forge-notifications-selection))
-              (status forge-notifications-selection))
+  (let* ((notifs (forge--ls-notifications forge-notifications-selection))
+         (status forge-notifications-selection))
     (magit-insert-section (notifications)
       (magit-insert-heading
         (cond
@@ -296,9 +296,11 @@ signal an error."
          ((format "Notifications %s" status))))
       (if (eq forge-notifications-display-style 'flat)
           (magit-insert-section-body
-            (dolist (notif notifs)
-              (forge-insert-notification notif))
-            (insert ?\n))
+            (if (not notifs)
+                (insert "(empty)\n")
+              (dolist (notif notifs)
+                (forge-insert-notification notif))
+              (insert ?\n)))
         (pcase-dolist (`(,_ . ,notifs)
                        (--group-by (oref it repository) notifs))
           (let ((repo (forge-get-repository (car notifs))))
