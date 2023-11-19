@@ -100,10 +100,10 @@ Takes the pull-request as only argument and must return a directory."
     :if forge--get-full-repository
     ("a  " forge-add-repository)
     ("R  " forge-add-pullreq-refspec)
-    ("r  " forge-forge.remote)
-    ("t l" forge-forge.graphqlItemLimit)
-    ("t t" forge-toggle-display-in-status-buffer)
-    ("t c" forge-toggle-closed-visibility)]]
+    ("s r" forge-forge.remote)
+    ("s l" forge-forge.graphqlItemLimit)
+    ("s s" forge-toggle-display-in-status-buffer)
+    ("s c" forge-toggle-closed-visibility)]]
   [["Configure notifications display"
     :if-mode forge-notifications-mode
     ("n w" "set style and refresh"     forge-set-notifications-display-style)
