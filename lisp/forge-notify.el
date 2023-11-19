@@ -165,6 +165,7 @@ signal an error."
                    (lambda (&rest _)
                      (get-buffer-create name))))
           (magit-setup-buffer #'forge-notifications-mode nil
+            (default-directory "/")
             (forge-buffer-unassociated-p t)))
       (get-buffer name))))
 
