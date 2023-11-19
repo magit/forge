@@ -191,8 +191,8 @@ signal an error."
     ("d" forge-topic-status-set-done)
     ("s" forge-topic-toggle-saved)]
    ["Group"
-    ("g" "by repository" forge-set-notifications-display-style)
-    ("f" "flat list"     forge-set-notifications-display-style)]
+    ("f" forge-notifications-style-flat)
+    ("g" forge-notifications-style-nested)]
    ["Margin"
     (magit-toggle-margin)
     (magit-cycle-margin-style)
@@ -251,13 +251,26 @@ signal an error."
   (setq forge-notifications-selection '(unread pending done))
   (forge-refresh-buffer))
 
-(transient-define-suffix forge-set-notifications-display-style ()
-  "Set the value of `forge-notifications-display-style' and refresh."
+(transient-define-suffix forge-notifications-style-flat ()
+  "Show a flat notification list."
+  :description "flat list"
+  :inapt-if (lambda () (eq forge-notifications-display-style 'flat))
+  :inapt-face 'forge-active-suffix
   (interactive)
-  (setq forge-notifications-display-style
-        (pcase-exhaustive (oref (transient-suffix-object) description)
-          ("flat list"     'flat)
-          ("by repository" 'nested)))
+  (unless (derived-mode-p 'forge-notifications-mode)
+    (user-error "Not in notification buffer"))
+  (setq forge-notifications-display-style 'flat)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-notifications-style-nested ()
+  "Group notifications by repository."
+  :description "by repository"
+  :inapt-if (lambda () (eq forge-notifications-display-style 'nested))
+  :inapt-face 'forge-active-suffix
+  (interactive)
+  (unless (derived-mode-p 'forge-notifications-mode)
+    (user-error "Not in notification buffer"))
+  (setq forge-notifications-display-style 'nested)
   (forge-refresh-buffer))
 
 ;;; Sections
