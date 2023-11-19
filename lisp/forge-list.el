@@ -22,6 +22,9 @@
 
 ;;; Code:
 
+(require 'hl-line)
+(require 'tabulated-list)
+
 (require 'forge)
 
 (defvar x-stretch-cursor)
@@ -36,15 +39,15 @@
   :options '(hl-line-mode))
 
 (defvar forge-topic-list-columns
-  '(("#"     forge--format-topic-slug   5 nil nil)
-    ("Title" forge--format-topic-title 35 nil nil)
+  '(("#"     forge--format-topic-slug          5 nil nil)
+    ("Title" forge--format-topic-title+labels 35 nil nil)
     ))
 
 (defvar forge-global-topic-list-columns
-  '(("Owner" (repository owner)        15 nil nil)
-    ("Name"  (repository name)         20 nil nil)
-    ("#"     forge--format-topic-slug   5 nil nil)
-    ("Title" forge--format-topic-title 35 nil nil)
+  '(("Owner" (repository owner)               15 nil nil)
+    ("Name"  (repository name)                20 nil nil)
+    ("#"     forge--format-topic-slug          5 nil nil)
+    ("Title" forge--format-topic-title+labels 35 nil nil)
     ))
 
 (defvar forge-repository-list-columns
@@ -79,6 +82,34 @@ This is a list of package names.  Used by the commands
   :group 'forge
   :type '(repeat (string :tag "Name")))
 
+;;; Faces
+
+(defface forge-tablist-hl-line
+  `((((class color) (background light))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
+     :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
+            :color "grey25"
+            :style nil))
+    (((class color) (background dark))
+     ,@(and (>= emacs-major-version 27) '(:extend t))
+     :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
+            :color "grey75"
+            :style nil)))
+  "Face uses instead of `hl-line' in Forge's `tabulated-list-mode' buffers.
+It is recommended that you stick to using a box for this purpose,
+as using the background color would shadow the background colors
+used for labels."
+  :group 'forge-faces)
+
+(defface forge-tablist-topic-label
+  `((t :inherit forge-topic-label))
+  "Face used for topic labels in Forge's `tabulated-list-mode' buffers.
+This face can be used to control whether a box is added to labels
+and how that is styled.  The background colors used for any given
+label, cannot be changed independently of the color used in the
+forges web interface."
+  :group 'forge-faces)
+
 ;;; Variables
 
 (defvar-local forge--tabulated-list-columns nil)
@@ -103,6 +134,7 @@ This is a list of package names.  Used by the commands
   "Forge Topics"
   "Major mode for browsing a list of topics."
   (setq-local x-stretch-cursor  nil)
+  (setq-local hl-line-face 'forge-tablist-hl-line)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "#" nil)))
 

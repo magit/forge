@@ -608,6 +608,21 @@ allow exiting with a number that doesn't match any candidate."
                        'forge-fancy-pullreq-rejected)
                       ('forge-pullreq-rejected)))))))))
 
+(defun forge--format-topic-title+labels (topic)
+  (concat (forge--format-topic-title  topic) " "
+          (forge--format-topic-labels topic)))
+
+(defun forge--format-topic-labels (topic)
+  (mapconcat (pcase-lambda (`(,name ,color ,_description))
+               (let* ((background (forge--sanitize-color color))
+                      (foreground (forge--contrast-color background)))
+                 (magit--propertize-face
+                  name `(forge-tablist-topic-label
+                         ( :background ,background
+                           :foreground ,foreground)))))
+             (closql--iref topic 'labels)
+             " "))
+
 (defun forge--format-topic-label-choices (repo)
   (mapcar (pcase-lambda (`(,_id ,name ,color ,_description))
             (let* ((background (forge--sanitize-color color))
@@ -847,12 +862,6 @@ This mode itself is never used directly."
         (forge--insert-topic-labels topic t labels)
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
-
-(defun forge--format-topic-labels (topic)
-  (and-let* ((labels (closql--iref topic 'labels)))
-    (mapconcat (pcase-lambda (`(,name ,color ,_desc))
-                 (propertize name 'font-lock-face (list :box color)))
-               labels " ")))
 
 (defun forge--insert-topic-labels (topic &optional skip-separator labels)
   (pcase-dolist (`(,name ,color ,description)
