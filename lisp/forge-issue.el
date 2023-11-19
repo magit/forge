@@ -165,6 +165,29 @@ an error."
                  (isnull issue:closed))]
     (ghub--username repo)))
 
+(defun forge--ls-labeled-issues (repo label)
+  (forge--select-issues repo
+    [:from [issue issue_label label]
+     :where (and (= issue_label:issue issue:id)
+                 (= issue_label:id    label:id)
+                 (= issue:repository  $s2)
+                 (= label:name        $s3)
+                 (isnull issue:closed))]
+    label))
+
+(defun forge--ls-owned-issues ()
+  (forge--select-issues nil
+    [:from [issue repository]
+     :where (and (= issue:repository repository:id)
+                 (in repository:owner $v2)
+                 (not (in repository:name $v3))
+                 (isnull issue:closed))
+     :order-by [(asc repository:owner)
+                (asc repository:name)
+                (desc issue:number)]]
+    (vconcat (mapcar #'car forge-owned-accounts))
+    (vconcat forge-owned-ignored)))
+
 (defun forge--select-issues (repo query &rest args)
   (declare (indent 1))
   (let ((db (forge-db)))

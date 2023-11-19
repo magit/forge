@@ -199,6 +199,29 @@ an error."
                  (isnull pullreq:closed))]
     (ghub--username repo)))
 
+(defun forge--ls-labeled-pullreqs (repo label)
+  (forge--select-pullreqs repo
+    [:from [pullreq pullreq_label label]
+     :where (and (= pullreq_label:pullreq pullreq:id)
+                 (= pullreq_label:id    label:id)
+                 (= pullreq:repository  $s2)
+                 (= label:name          $s3)
+                 (isnull pullreq:closed))]
+    label))
+
+(defun forge--ls-owned-pullreqs ()
+  (forge--select-pullreqs nil
+    [:from [pullreq repository]
+     :where (and (= pullreq:repository repository:id)
+                 (in repository:owner $v2)
+                 (not (in repository:name $v3))
+                 (isnull pullreq:closed))
+     :order-by [(asc repository:owner)
+                (asc repository:name)
+                (desc pullreq:number)]]
+    (vconcat (mapcar #'car forge-owned-accounts))
+    (vconcat forge-owned-ignored)))
+
 (defun forge--select-pullreqs (repo query &rest args)
   (declare (indent 1))
   (let ((db (forge-db)))
