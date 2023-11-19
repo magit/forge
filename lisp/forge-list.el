@@ -276,6 +276,7 @@ forges web interface."
 (defun forge-repository-list-setup (fn buf)
   (let ((buffer (get-buffer-create buf)))
     (with-current-buffer buffer
+      (setq default-directory "/")
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
         (forge-repository-list-mode))
       (funcall fn)
