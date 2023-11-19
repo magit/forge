@@ -155,9 +155,12 @@
         (oset issue id         issue-id)
         (oset issue their-id   .id)
         (oset issue slug       (format "#%s" .number))
-        (oset issue state      (pcase-exhaustive .state
-                                 ("CLOSED" 'closed)
-                                 ("OPEN"   'open)))
+        (oset issue state
+              (pcase-exhaustive (list .stateReason .state)
+                (`("COMPLETED"   ,_) 'completed)
+                (`("NOT_PLANNED" ,_) 'unplanned)
+                (`(,_      "CLOSED") 'completed)
+                (`(,_        "OPEN") 'open)))
         (oset issue author     .author.login)
         (oset issue title      .title)
         (oset issue created    .createdAt)

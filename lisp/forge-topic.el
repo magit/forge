@@ -603,11 +603,14 @@ This mode itself is never used directly."
              (let ((state (oref topic state)))
                (magit--propertize-face
                 (symbol-name state)
-                (pcase (list state (forge-pullreq-p (forge-topic-at-point)))
-                  ('(merged) 'forge-topic-merged)
-                  ('(closed) 'forge-topic-closed)
-                  ('(open t) 'forge-topic-unmerged)
-                  ('(open)   'forge-topic-open))))))))
+                (pcase (list (if (forge-issue-p topic) 'issue 'pullreq) state)
+                  ('(issue   open)      'forge-issue-open)
+                  ('(issue   closed)    'forge-issue-completed)
+                  ('(issue   completed) 'forge-issue-completed)
+                  ('(issue   unplanned) 'forge-issue-unplanned)
+                  ('(pullreq open)      'forge-fancy-pullreq-open)
+                  ('(pullreq merged)    'forge-fancy-pullreq-merged)
+                  ('(pullreq closed)    'forge-fancy-pullreq-rejected))))))))
 
 ;;;;; Draft
 

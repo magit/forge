@@ -609,10 +609,10 @@ point is currently on."
     (when (eq state 'merged)
       (user-error "Merged pull-requests cannot be reopened"))
     (if (magit-y-or-n-p (format "%s %s %s"
-                                (if (eq state 'closed) "Reopen" "Close")
+                                (if (eq state 'open) "Close" "Reopen")
                                 (oref topic slug)
                                 (oref topic title)))
-        (forge--topic-set 'state (if (eq state 'closed) 'open 'closed))
+        (forge--topic-set 'state (if (eq state 'open) 'closed 'open))
       (user-error "Abort"))))
 
 (defun forge-edit-topic-draft ()
