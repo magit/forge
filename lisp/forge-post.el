@@ -250,8 +250,7 @@ an error."
       (delete-directory dir)))
   (let ((prevbuf forge--pre-post-buffer))
     (magit-mode-bury-buffer 'kill)
-    (when (buffer-live-p prevbuf)
-      (magit-refresh))))
+    (forge-refresh-buffer prevbuf)))
 
 ;;; _
 (provide 'forge-post)

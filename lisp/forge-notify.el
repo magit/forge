@@ -157,7 +157,7 @@ signal an error."
         (magit-read-char-case "Display notifications " t
           (?g "[g]rouped by repository" 'nested)
           (?f "as a [f]lat list"        'flat)))
-  (magit-refresh))
+  (forge-refresh-buffer))
 
 (defun forge-set-notifications-display-selection ()
   "Set the value of `forge-notifications-display-list-function' and refresh."
@@ -170,7 +170,7 @@ signal an error."
           (?r "[r]ecent"  #'forge--ls-notifications-recent)
           (?p "[p]ending" #'forge--ls-notifications-pending)
           (?u "[u]nread"  #'forge--ls-notifications-unread)))
-  (magit-refresh))
+  (forge-refresh-buffer))
 
 ;;; Sections
 

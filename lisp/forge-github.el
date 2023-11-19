@@ -113,9 +113,7 @@
      (oref topic number)
      (lambda (data)
        (funcall update repo data nil)
-       (with-current-buffer
-           (if (buffer-live-p buffer) buffer (current-buffer))
-         (magit-refresh)))
+       (forge-refresh-buffer (and (buffer-live-p buffer) buffer)))
      nil
      :errorback errorback
      :host (oref repo apihost)
@@ -611,9 +609,7 @@
                  (if (assq 'error data)
                      (ghub--graphql-pp-response data)
                    (oset topic draft-p value)
-                   (when (buffer-live-p buffer)
-                     (with-current-buffer buffer
-                       (magit-refresh-buffer))))))))
+                   (forge-refresh-buffer buffer))))))
 
 (cl-defmethod forge--set-topic-milestone
   ((repo forge-github-repository) topic milestone)
@@ -662,7 +658,7 @@
   ((_repo forge-github-repository) post)
   (forge--ghub-delete post "/repos/:owner/:repo/issues/comments/:number")
   (closql-delete post)
-  (magit-refresh))
+  (forge-refresh-buffer))
 
 (cl-defmethod forge--topic-templates ((repo forge-github-repository)
                                       (_ (subclass forge-issue)))

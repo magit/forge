@@ -534,9 +534,7 @@
                  (if (assq 'error data)
                      (ghub--graphql-pp-response data)
                    (oset topic draft-p value)
-                   (when (buffer-live-p buffer)
-                     (with-current-buffer buffer
-                       (magit-refresh-buffer))))))))
+                   (forge-refresh-buffer buffer))))))
 
 (cl-defmethod forge--set-topic-labels
   ((repo forge-gitlab-repository) topic labels)
@@ -572,7 +570,7 @@
       (forge-issue-post
        "/projects/:project/issues/:topic/notes/:number")))
   (closql-delete post)
-  (magit-refresh))
+  (forge-refresh-buffer))
 
 (cl-defmethod forge--topic-templates ((repo forge-gitlab-repository)
                                       (_ (subclass forge-issue)))

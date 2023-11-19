@@ -647,7 +647,7 @@ point is currently on."
   "Edit the MARKS of the current topic."
   (interactive (list (forge-read-marks "Marks: " (forge-current-topic t))))
   (oset (forge-current-topic t) marks marks)
-  (magit-refresh))
+  (forge-refresh-buffer))
 
 (defun forge-edit-topic-assignees (assignees)
   "Edit the ASSIGNEES of the current topic."
@@ -715,7 +715,7 @@ Please see the manual for more information."
         (progn (message "Branch %S already exists and is configured" branch)
                branch)
       (forge--branch-pullreq (forge-get-repository pullreq) pullreq)
-      (magit-refresh))))
+      (forge-refresh-buffer))))
 
 (cl-defmethod forge--branch-pullreq ((pullreq forge-pullreq))
   (forge--branch-pullreq (forge-get-repository pullreq) pullreq))
@@ -843,7 +843,7 @@ Please see the manual for more information."
 Please see the manual for more information."
   (interactive (list (forge-read-pullreq "Checkout pull request" t)))
   (magit--checkout (forge--branch-pullreq (forge-get-pullreq pullreq)))
-  (magit-refresh))
+  (forge-refresh-buffer))
 
 ;;;###autoload
 (defun forge-checkout-worktree (path pullreq)
@@ -947,7 +947,7 @@ information."
                   (cons mark value)))
          (marks (forge-sql [:select [name id] :from mark])))
     (oset topic marks (--map (cadr (assoc it marks)) value))
-    (magit-refresh)))
+    (forge-refresh-buffer)))
 
 ;;; Remotely
 
@@ -1033,7 +1033,7 @@ the upstream remotes of local branches accordingly."
                    nil nil default)))
     (message "Renaming default branch...")
     (forge--set-default-branch repo newname oldname)
-    (magit-refresh)
+    (forge-refresh-buffer)
     (message "Renaming default branch...done")))
 
 ;;; Configuration
@@ -1065,7 +1065,7 @@ the upstream remotes of local branches accordingly."
   :transient t
   (interactive)
   (setq forge-display-in-status-buffer (not forge-display-in-status-buffer))
-  (magit-refresh))
+  (forge-refresh-buffer))
 
 (transient-define-suffix forge-toggle-closed-visibility ()
   "Toggle whether to display recently closed topics.
@@ -1087,7 +1087,7 @@ This only affect the current status buffer."
   (if (atom forge-topic-list-limit)
       (setq forge-topic-list-limit (cons forge-topic-list-limit 5))
     (setcdr forge-topic-list-limit (* -1 (cdr forge-topic-list-limit))))
-  (magit-refresh))
+  (forge-refresh-buffer))
 
 ;;;###autoload (autoload 'forge-add-pullreq-refspec "forge-commands" nil t)
 (transient-define-suffix forge-add-pullreq-refspec ()
@@ -1179,7 +1179,7 @@ This may take a while.  Only Github is supported at the moment."
          (list repo)
        (user-error "Abort"))))
   (closql-delete repository)
-  (magit-refresh))
+  (forge-refresh-buffer))
 
 ;;;###autoload
 (defun forge-remove-topic-locally (topic)
@@ -1195,7 +1195,7 @@ you to manually clean up the local database."
            (eq (oref topic id)
                (oref forge-buffer-topic id)))
       (kill-buffer (current-buffer))
-    (magit-refresh)))
+    (forge-refresh-buffer)))
 
 ;;;###autoload
 (defun forge-reset-database ()
@@ -1209,7 +1209,7 @@ heavy development."
     (when-let ((db (forge-db t)))
       (emacsql-close db))
     (delete-file forge-database-file t)
-    (magit-refresh)))
+    (forge-refresh-buffer)))
 
 ;;; Miscellaneous
 

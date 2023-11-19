@@ -346,6 +346,20 @@ parent object (determined using `forge-get-parent')."
 
 ;;; Miscellaneous
 
+(defun forge-refresh-buffer (&optional buffer)
+  "Refresh the current buffer, if it is a Magit buffer.
+If optional BUFFER is non-nil, then refresh that instead,
+provided it is an alive Magit buffer (but if it is not, don't
+fall back to the current buffer).  In the future, this might
+learn to refresh other kinds of buffers as well."
+  (cond (buffer
+         (when (buffer-live-p buffer)
+           (with-current-buffer buffer
+             (when (derived-mode-p 'magit-mode)
+               (magit-refresh-buffer)))))
+        ((derived-mode-p 'magit-mode)
+         (magit-refresh-buffer))))
+
 (defun forge--sanitize-string (string)
   ;; For Gitlab this may also be nil.
   (if string (string-replace "\r\n" "\n" string) ""))
