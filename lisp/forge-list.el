@@ -38,25 +38,80 @@
   :type 'hook
   :options '(hl-line-mode))
 
-(defvar forge-topic-list-columns
-  '(("#"     forge--format-topic-slug          5 nil nil)
-    ("Title" forge--format-topic-title+labels 35 nil nil)
-    ))
+(defconst forge--tablist-columns-type
+  '(repeat
+    (list :tag "Column"
+          (string  :tag "Header Label")
+          (choice  :tag "Value source"
+                   (function)
+                   (symbol :tag "Object slot"))
+          (integer :tag "Column Width")
+          (choice  :tag "Sort predicate"
+                   (const :tag "Don't sort" nil)
+                   (const :tag "Default" t)
+                   (function))
+          (repeat  :tag "Properties"
+                   (list (choice :tag "Property"
+                                 (const :right-align)
+                                 (const :pad-right)
+                                 (symbol))
+                         (sexp :tag "Value"))))))
 
-(defvar forge-global-topic-list-columns
+(defcustom forge-topic-list-columns
+  '(("#"     forge--format-topic-slug          5 nil nil)
+    ("Title" forge--format-topic-title+labels 35 nil nil))
+  "List of columns displayed when listing topics for a single repository.
+
+Each element has the form (HEADER SOURCE WIDTH SORT PROPS).
+
+HEADER is the string displayed in the header.  WIDTH is the width
+of the column.  SOURCE is used to get the value, it has to be the
+name of a slot of `forge-topic' or a function that takes such an
+object as argument.  SORT is a boolean or a function used to sort
+by this column.  Supported PROPS include `:right-align' and
+`:pad-right'."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type forge--tablist-columns-type)
+
+(defcustom forge-global-topic-list-columns
   '(("Owner" (repository owner)               15 nil nil)
     ("Name"  (repository name)                20 nil nil)
     ("#"     forge--format-topic-slug          5 nil nil)
-    ("Title" forge--format-topic-title+labels 35 nil nil)
-    ))
+    ("Title" forge--format-topic-title+labels 35 nil nil))
+  "List of columns displayed when listing topics for all repositories.
 
-(defvar forge-repository-list-columns
+Each element has the form (HEADER SOURCE WIDTH SORT PROPS).
+
+HEADER is the string displayed in the header.  WIDTH is the width
+of the column.  SOURCE is used to get the value, it has to be the
+name of a slot of `forge-topic' or a function that takes such an
+object as argument.  SORT is a boolean or a function used to sort
+by this column.  Supported PROPS include `:right-align' and
+`:pad-right'."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type forge--tablist-columns-type)
+
+(defcustom forge-repository-list-columns
   '(("Owner"    owner         20   t nil)
     ("Name"     name          20   t nil)
     ("N"        sparse-p       1   t nil)
     ("S"        selective-p    1   t nil)
-    ("Worktree" worktree      99   t nil)
-    ))
+    ("Worktree" worktree      99   t nil))
+  "List of columns displayed when listing repositories.
+
+Each element has the form (HEADER SOURCE WIDTH SORT PROPS).
+
+HEADER is the string displayed in the header.  WIDTH is the width
+of the column.  SOURCE is used to get the value, it has to be the
+name of a slot of `forge-repository' or a function that takes
+such an object as argument.  SORT is a boolean or a function used
+to sort by this column.  Supported PROPS include `:right-align'
+and `:pad-right'."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type forge--tablist-columns-type)
 
 (defcustom forge-owned-accounts nil
   "An alist of accounts that are owned by you.
