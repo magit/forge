@@ -148,12 +148,12 @@ If pulling is too slow, then also consider setting the Git variable
   (interactive
    (list nil
          (and current-prefix-arg
-              (not (forge-get-repository 'full))
+              (not (forge-current-repository 'full))
               (forge-read-date "Limit pulling to topics updates since: "))
          t))
   (let (create)
     (unless repo
-      (setq repo (forge-get-repository 'full))
+      (setq repo (forge-current-repository 'full))
       (unless repo
         (setq repo (forge-get-repository 'create))
         (setq create t)))
@@ -178,7 +178,9 @@ If pulling is too slow, then also consider setting the Git variable
                           (format "remote.%s.fetch" remote)
                           refspec)))
       (forge--msg repo t nil "Pulling REPO")
-      (forge--pull repo until))))
+      (when-let ((worktree (oref repo worktree)))
+        (let ((default-directory worktree))
+          (forge--pull repo until))))))
 
 (defun forge-read-date (prompt)
   (cl-block nil
