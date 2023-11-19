@@ -173,6 +173,12 @@ signal an error."
 
 ;;; Commands
 
+;;;###autoload
+(defun forge-list-notifications ()
+  "List notifications."
+  (interactive)
+  (forge-notifications-setup-buffer))
+
 (defun forge-set-notifications-display-style ()
   "Set the value of `forge-notifications-display-style' and refresh."
   (interactive)

@@ -433,14 +433,6 @@ Only Github is supported for now."
   (forge--pullreq-list-setup #'forge--ls-owned-pullreqs nil "My pullreqs"
                              forge-global-topic-list-columns))
 
-;;;; Notifications
-
-;;;###autoload
-(defun forge-list-notifications ()
-  "List notifications."
-  (interactive)
-  (forge-notifications-setup-buffer))
-
 ;;;; Repository
 
 ;;;###autoload
