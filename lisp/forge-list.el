@@ -36,15 +36,15 @@
   :options '(hl-line-mode))
 
 (defvar forge-topic-list-columns
-  '(("#" 5 forge-topic-list-sort-by-number nil number nil)
-    ("Title" 35 t nil title  nil)
+  '(("#"         5 nil nil number nil)
+    ("Title"    35 nil nil title  nil)
     ))
 
 (defvar forge-global-topic-list-columns
-  '(("Owner"    15 t   nil repository:owner nil)
-    ("Name"     20 t   nil repository:name  nil)
-    ("#"         5 forge-topic-list-sort-by-number nil number nil)
-    ("Title"    35 t   nil title nil)
+  '(("Owner"    15 nil nil repository:owner nil)
+    ("Name"     20 nil nil repository:name  nil)
+    ("#"         5 nil nil number nil)
+    ("Title"    35 nil nil title nil)
     ))
 
 (defvar forge-repository-list-columns
@@ -435,14 +435,6 @@ Only Github is supported for now."
                                "*Forge Owned Repositories*"))
 
 ;;; Miscellaneous
-
-(defun forge-topic-list-sort-by-number (a b)
-  "Sort the `tabulated-list-entries' by topic number.
-This assumes that `number' is the first column, otherwise
-it silently fails."
-  (ignore-errors
-    (> (read (aref (cadr a) 0))
-       (read (aref (cadr b) 0)))))
 
 (defun forge--tablist-columns-vector (&optional table)
   (let ((columns (cons 'id (--map (nth 4 it) forge--tabulated-list-columns))))
