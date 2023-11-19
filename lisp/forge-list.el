@@ -173,6 +173,10 @@ forges web interface."
 (defvar-local forge--tabulated-list-query nil)
 (put 'forge--tabulated-list-query 'permanent-local t)
 
+(defvar-local forge--buffer-list-type nil)
+(defvar-local forge--buffer-list-filter nil)
+(defvar-local forge--buffer-list-global nil)
+
 ;;; Modes
 ;;;; Topics
 
@@ -202,7 +206,7 @@ forges web interface."
         (get-buffer-create name)
       (get-buffer name))))
 
-(defun forge-topic-list-setup (fn &optional repo global columns)
+(defun forge-topic-list-setup (type filter fn &optional repo global columns)
   (let* ((repo (or repo
                    (and (not global)
                         (forge-get-repository t))))
@@ -221,6 +225,9 @@ forges web interface."
                   (fn)))
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
         (forge-topic-list-mode))
+      (setq forge--buffer-list-type type)
+      (setq forge--buffer-list-filter filter)
+      (setq forge--buffer-list-global global)
       (forge-topic-list-refresh)
       (add-hook 'tabulated-list-revert-hook
                 #'forge-topic-list-refresh nil t)
@@ -280,13 +287,16 @@ forges web interface."
                          forge--tabulated-list-columns)))
   (tabulated-list-init-header))
 
-(defun forge-repository-list-setup (fn)
+(defun forge-repository-list-setup (filter fn)
   (let ((buffer (get-buffer-create forge-repository-list-buffer-name)))
     (with-current-buffer buffer
       (setq default-directory "/")
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
         (forge-repository-list-mode))
       (funcall fn)
+      (setq forge--buffer-list-type 'repo)
+      (setq forge--buffer-list-filter filter)
+      (setq forge--buffer-list-global t)
       (add-hook 'tabulated-list-revert-hook fn nil t)
       (tabulated-list-print))
     (switch-to-buffer buffer)))
@@ -344,8 +354,8 @@ forges web interface."
 
 ;;;; Topic
 
-(defun forge--topic-list-setup (fn &optional repo global columns)
-  (forge-topic-list-setup fn repo global columns))
+(defun forge--topic-list-setup (filter fn &optional repo global columns)
+  (forge-topic-list-setup 'topic filter fn repo global columns))
 
 ;;;###autoload
 (defun forge-list-topics (&optional repository)
@@ -353,28 +363,31 @@ forges web interface."
 Non-interactively if optional REPOSITORY is non-nil, then list
 topics for that instead."
   (interactive)
-  (forge--topic-list-setup (list #'forge-ls-issues #'forge-ls-pullreqs)
+  (forge--topic-list-setup nil (list #'forge-ls-issues #'forge-ls-pullreqs)
                            repository))
 
 ;;;###autoload
 (defun forge-list-labeled-topics (label)
   "List topics of the current repository that have LABEL."
   (interactive (list (forge-read-topic-label)))
-  (forge--topic-list-setup (list (-cut forge--ls-labeled-issues   <> label)
+  (forge--topic-list-setup 'labeled
+                           (list (-cut forge--ls-labeled-issues   <> label)
                                  (-cut forge--ls-labeled-pullreqs <> label))))
 
 ;;;###autoload
 (defun forge-list-assigned-topics ()
   "List topics of the current repository that are assigned to you."
   (interactive)
-  (forge--topic-list-setup (list #'forge--ls-assigned-issues
+  (forge--topic-list-setup 'assigned
+                           (list #'forge--ls-assigned-issues
                                  #'forge--ls-assigned-pullreqs)))
 
 ;;;###autoload
 (defun forge-list-authored-topics ()
   "List open topics from the current repository that are authored by you."
   (interactive)
-  (forge--topic-list-setup (list #'forge--ls-authored-issues
+  (forge--topic-list-setup 'authored
+                           (list #'forge--ls-authored-issues
                                  #'forge--ls-authored-pullreqs)))
 
 ;;;###autoload
@@ -384,38 +397,39 @@ Options `forge-owned-accounts' and `forge-owned-ignored'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (forge--topic-list-setup (list (lambda (_) (forge--ls-owned-issues))
+  (forge--topic-list-setup 'owned
+                           (list (lambda (_) (forge--ls-owned-issues))
                                  (lambda (_) (forge--ls-owned-pullreqs)))
                            nil t forge-global-topic-list-columns))
 
 ;;;; Issue
 
-(defun forge--issue-list-setup (fn &optional repo global columns)
-  (forge-topic-list-setup fn repo global columns))
+(defun forge--issue-list-setup (filter fn &optional repo global columns)
+  (forge-topic-list-setup 'issue filter fn repo global columns))
 
 ;;;###autoload
 (defun forge-list-issues ()
   "List issues of the current repository."
   (interactive)
-  (forge--issue-list-setup #'forge-ls-issues))
+  (forge--issue-list-setup nil #'forge-ls-issues))
 
 ;;;###autoload
 (defun forge-list-labeled-issues (label)
   "List issues of the current repository that have LABEL."
   (interactive (list (forge-read-topic-label)))
-  (forge--issue-list-setup (-cut forge--ls-labeled-issues <> label)))
+  (forge--issue-list-setup 'labeled (-cut forge--ls-labeled-issues <> label)))
 
 ;;;###autoload
 (defun forge-list-assigned-issues ()
   "List issues of the current repository that are assigned to you."
   (interactive)
-  (forge--issue-list-setup #'forge--ls-assigned-issues))
+  (forge--issue-list-setup 'assigned #'forge--ls-assigned-issues))
 
 ;;;###autoload
 (defun forge-list-authored-issues ()
   "List open issues from the current repository that are authored by you."
   (interactive)
-  (forge--issue-list-setup #'forge--ls-authored-issues))
+  (forge--issue-list-setup 'authored #'forge--ls-authored-issues))
 
 ;;;###autoload
 (defun forge-list-owned-issues ()
@@ -424,43 +438,43 @@ Options `forge-owned-accounts' and `forge-owned-ignored'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (forge--issue-list-setup #'forge--ls-owned-issues
+  (forge--issue-list-setup 'owned #'forge--ls-owned-issues
                            nil t forge-global-topic-list-columns))
 
 ;;;; Pullreq
 
-(defun forge--pullreq-list-setup (fn &optional repo global columns)
-  (forge-topic-list-setup fn repo global columns))
+(defun forge--pullreq-list-setup (filter fn &optional repo global columns)
+  (forge-topic-list-setup 'pullreq filter fn repo global columns))
 
 ;;;###autoload
 (defun forge-list-pullreqs ()
   "List pull-requests of the current repository."
   (interactive)
-  (forge--pullreq-list-setup #'forge-ls-pullreqs))
+  (forge--pullreq-list-setup nil #'forge-ls-pullreqs))
 
 ;;;###autoload
 (defun forge-list-labeled-pullreqs (label)
   "List pull-requests of the current repository that have LABEL."
   (interactive (list (forge-read-topic-label)))
-  (forge--pullreq-list-setup (-cut forge--ls-labeled-pullreqs <> label)))
+  (forge--pullreq-list-setup 'labeled (-cut forge--ls-labeled-pullreqs <> label)))
 
 ;;;###autoload
 (defun forge-list-assigned-pullreqs ()
   "List pull-requests of the current repository that are assigned to you."
   (interactive)
-  (forge--pullreq-list-setup #'forge--ls-assigned-pullreqs))
+  (forge--pullreq-list-setup 'assigned #'forge--ls-assigned-pullreqs))
 
 ;;;###autoload
 (defun forge-list-requested-reviews ()
   "List pull-requests of the current repository that are awaiting your review."
   (interactive)
-  (forge--pullreq-list-setup #'forge--ls-requested-reviews))
+  (forge--pullreq-list-setup 'review #'forge--ls-requested-reviews))
 
 ;;;###autoload
 (defun forge-list-authored-pullreqs ()
   "List open pull-requests of the current repository that are authored by you."
   (interactive)
-  (forge--pullreq-list-setup #'forge--ls-authored-pullreqs))
+  (forge--pullreq-list-setup 'authored #'forge--ls-authored-pullreqs))
 
 ;;;###autoload
 (defun forge-list-owned-pullreqs ()
@@ -469,7 +483,7 @@ Options `forge-owned-accounts' and `forge-owned-ignored'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (forge--pullreq-list-setup #'forge--ls-owned-pullreqs
+  (forge--pullreq-list-setup 'owned #'forge--ls-owned-pullreqs
                              nil t forge-global-topic-list-columns))
 
 ;;;; Repository
@@ -479,7 +493,7 @@ Only Github is supported for now."
   "List known repositories in a separate buffer.
 Here \"known\" means that an entry exists in the local database."
   (interactive)
-  (forge-repository-list-setup #'forge-repository-list-refresh))
+  (forge-repository-list-setup nil #'forge-repository-list-refresh))
 
 ;;;###autoload
 (defun forge-list-owned-repositories ()
@@ -489,7 +503,7 @@ and options `forge-owned-accounts' and `forge-owned-ignored'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (forge-repository-list-setup #'forge-repository-list-owned-refresh))
+  (forge-repository-list-setup 'owned #'forge-repository-list-owned-refresh))
 
 ;;; _
 (provide 'forge-list)
