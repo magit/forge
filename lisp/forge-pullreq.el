@@ -44,7 +44,7 @@
    (updated              :initarg :updated)
    (closed               :initarg :closed)
    (merged               :initarg :merged)
-   (unread-p             :initarg :unread-p :initform nil)
+   (status               :initarg :status :initform nil)
    (locked-p             :initarg :locked-p)
    (editable-p           :initarg :editable-p)
    (cross-repo-p         :initarg :cross-repo-p)
@@ -73,6 +73,7 @@
    (draft-p              :initarg :draft-p)
    (their-id             :initarg :their-id)
    (slug                 :initarg :slug)
+   (saved-p              :initarg :saved-p :initform nil)
    ))
 
 (defclass forge-pullreq-post (forge-post)

@@ -372,7 +372,7 @@
                          nil #'cb nil :auth 'forge :host apihost))
                (forge--msg nil t t   "Pulling notifications")
                (forge--msg nil t nil "Storing notifications")
-               (forge--ghub-update-notifications forge topics notifs)
+               (forge--ghub-update-notifications notifs topics)
                (forge--msg nil t t "Storing notifications")
                (when callback
                  (funcall callback)))))
@@ -415,35 +415,32 @@
                               `(repository issues (issue . ,number))
                             `(repository pullRequest (pullRequest . ,number)))
                           ))))
-                   repo type number data))))))
+                   repo type data))))))
 
-(defun forge--ghub-update-notifications (forge topics notifs)
+(defun forge--ghub-update-notifications (notifs topics)
   (closql-with-transaction (forge-db)
-    (pcase-dolist (`(,alias ,id ,_ ,repo ,type ,number ,data) notifs)
+    (pcase-dolist (`(,alias ,id ,_ ,repo ,type ,data) notifs)
       (let-alist data
-        (let ((topic (funcall (if (eq type 'issue)
-                                  #'forge--update-issue
-                                #'forge--update-pullreq)
-                              repo
-                              (cdr (cadr (assq alias topics)))
-                              nil))
-              (notif (or (forge-get-notification id)
-                         (closql-insert
-                          (forge-db)
-                          (forge-notification
-                           :id           id
-                           :thread-id    .id
-                           :repository   (oref repo id)
-                           :forge        forge
-                           :type         type
-                           :topic        number
-                           :url          .subject.url)))))
+        (let* ((topic (funcall (if (eq type 'issue)
+                                   #'forge--update-issue
+                                 #'forge--update-pullreq)
+                               repo
+                               (cdr (cadr (assq alias topics)))
+                               nil))
+               (notif (or (forge-get-notification id)
+                          (closql-insert (forge-db)
+                                         (forge-notification
+                                          :id           id
+                                          :thread-id    .id
+                                          :repository   (oref repo id)
+                                          :type         type
+                                          :topic        (oref topic id)
+                                          :url          .subject.url)))))
           (oset notif title     .subject.title)
           (oset notif reason    (intern (downcase .reason)))
           (oset notif last-read .last_read_at)
           (oset notif updated   .updated_at)
-          (oset notif unread-p  .unread)
-          (oset topic unread-p  .unread)))
+          (oset topic status    (if .unread 'unread 'done))))
       (forge--zap-repository-cache repo))))
 
 ;;;; Miscellaneous

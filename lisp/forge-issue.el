@@ -43,7 +43,7 @@
    (created              :initarg :created)
    (updated              :initarg :updated)
    (closed               :initarg :closed)
-   (unread-p             :initarg :unread-p :initform nil)
+   (status               :initarg :status :initform nil)
    (locked-p             :initarg :locked-p)
    (milestone            :initarg :milestone)
    (body                 :initarg :body)
@@ -59,6 +59,7 @@
    (note                 :initarg :note :initform nil)
    (their-id             :initarg :their-id)
    (slug                 :initarg :slug)
+   (saved-p              :initarg :saved-p :initform nil)
    ))
 
 (defclass forge-issue-post (forge-post)

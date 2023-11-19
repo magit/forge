@@ -34,20 +34,18 @@
    (id                        :initarg :id)
    (thread-id                 :initarg :thread-id)
    (repository                :initarg :repository)
-   (forge                     :initarg :forge)
-   (reason                    :initarg :reason)
-   (unread-p                  :initarg :unread-p)
-   (last-read                 :initarg :last-read)
-   (updated                   :initarg :updated)
-   (title                     :initarg :title)
    (type                      :initarg :type)
    (topic                     :initarg :topic)
-   (url                       :initarg :url)))
+   (url                       :initarg :url)
+   (title                     :initarg :title)
+   (reason                    :initarg :reason)
+   (last-read                 :initarg :last-read)
+   (updated                   :initarg :updated)))
 
 ;;; Special
 
 (cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
-  (oset topic unread-p nil))
+  (oset topic status 'done))
 
 ;;; Query
 ;;;; Get
@@ -103,16 +101,28 @@ signal an error."
 (defun forge--ls-notifications-pending ()
   (mapcar (lambda (row)
             (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select * :from notification
-                      :where (isnull done-p)
-                      :order-by [(desc updated)]])))
+          (forge-sql [:select :distinct n:*
+                      :from [(as notification n)
+                             (as issue        i)
+                             (as pullreq      p)]
+                      :where (or (and (= n:topic i:id)
+                                      (= i:status 'pending))
+                                 (and (= n:topic i:id)
+                                      (= p:status 'pending)))
+                      :order-by [(desc n:updated)]])))
 
 (defun forge--ls-notifications-unread ()
   (mapcar (lambda (row)
             (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select * :from notification
-                      :where (notnull unread-p)
-                      :order-by [(desc id)]])))
+          (forge-sql [:select :distinct n:*
+                      :from [(as notification n)
+                             (as issue        i)
+                             (as pullreq      p)]
+                      :where (or (and (= n:topic i:id)
+                                      (= i:status 'unread))
+                                 (and (= n:topic i:id)
+                                      (= p:status 'unread)))
+                      :order-by [(desc n:updated)]])))
 
 ;;; Mode
 
@@ -201,7 +211,7 @@ signal an error."
                 (insert ?\n)))))))))
 
 (defun forge-insert-notification (notif)
-  (with-slots (type title url unread-p) notif
+  (with-slots (type title url) notif
     (pcase type
       ((or 'issue 'pullreq)
        (forge--insert-topic (forge-get-topic notif)))
@@ -214,10 +224,12 @@ signal an error."
                                          0 (magit-abbrev-length))
                               'font-lock-face 'magit-hash)
                   (magit-log-propertize-keywords
-                   nil (propertize title 'font-lock-face
-                                   (if unread-p
-                                       'forge-topic-unread
-                                     'forge-topic-open)))))))
+                   nil
+                   (propertize title 'font-lock-face
+                               (if-let ((topic (oref notif topic))
+                                        (! (eq (oref topic status) 'unread)))
+                                   'forge-topic-unread
+                                 'forge-topic-open)))))))
       (_
        ;; The documentation does not mention what "types"
        ;; exist.  Make it obvious that this is something

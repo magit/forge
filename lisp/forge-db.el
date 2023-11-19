@@ -53,7 +53,7 @@
    (object-class :initform 'forge-repository)
    (file         :initform 'forge-database-file)
    (schemata     :initform 'forge--db-table-schemata)
-   (version      :initform 10)))
+   (version      :initform 11)))
 
 (defvar forge--override-connection-class nil)
 
@@ -141,7 +141,7 @@
       created
       updated
       closed
-      unread-p
+      status
       locked-p
       milestone
       body
@@ -156,7 +156,8 @@
       (marks        :default eieio-unbound)
       note
       their-id
-      slug]
+      slug
+      saved-p]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
@@ -243,15 +244,13 @@
       (id :not-null :primary-key)
       thread-id
       repository
-      forge
-      reason
-      unread-p
-      last-read
-      updated
-      title
       type
       topic
-      url]
+      url
+      title
+      reason
+      last-read
+      updated]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
@@ -268,7 +267,7 @@
       updated
       closed
       merged
-      unread-p
+      status
       locked-p
       editable-p
       cross-repo-p
@@ -296,7 +295,8 @@
       head-rev
       draft-p
       their-id
-      slug]
+      slug
+      saved-p]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
@@ -451,6 +451,17 @@
           (oset o slug (format "#%s" (oref o number))))
         (closql--db-set-version db (setq version 10))
         (message "Upgrading Forge database from version 9 to 10...done"))
+      (when (= version 10)
+        (message "Upgrading Forge database from version 10 to 11...")
+        (emacsql db [:drop-table notification])
+        (emacsql db [:create-table notifications $S1]
+                 (cdr (assq 'notifications forge--db-table-schemata)))
+        (emacsql db [:alter-table pullreq :rename-column unread-p :to status])
+        (emacsql db [:alter-table issue   :rename-column unread-p :to status])
+        (emacsql db [:alter-table pullreq :add-column saved-p :default nil])
+        (emacsql db [:alter-table issue   :add-column saved-p :default nil])
+        (closql--db-set-version db (setq version 11))
+        (message "Upgrading Forge database from version 10 to 11...done"))
       )
     (cl-call-next-method)))
 

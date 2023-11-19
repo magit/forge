@@ -299,7 +299,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
            (closed-limit (if (consp limit) (cdr limit) limit))
            (topics (forge-sql [:select * :from $i1
                                :where (and (= repository $s2)
-                                           (notnull unread-p))]
+                                           (= status 'unread))]
                               table id)))
       (mapc (lambda (row)
               (cl-pushnew row topics :test #'equal))
@@ -404,7 +404,7 @@ allow exiting with a number that doesn't match any candidate."
                  `(,@spec (?i . ,(oref topic number)))))
 
 (defun forge--format-topic-line (topic &optional width)
-  (with-slots (slug title unread-p closed) topic
+  (with-slots (slug title closed) topic
     (concat (string-pad (magit--propertize-face
                          slug
                          (cond ((forge-issue-p topic)
@@ -417,9 +417,9 @@ allow exiting with a number that doesn't match any candidate."
             (magit-log-propertize-keywords
              nil (magit--propertize-face
                   title
-                  (cond (unread-p 'forge-topic-unread)
-                        (closed   'forge-topic-closed)
-                        (t        'forge-topic-open)))))))
+                  (cond ((eq status 'unread) 'forge-topic-unread)
+                        (closed              'forge-topic-closed)
+                        (t                   'forge-topic-open)))))))
 
 (defun forge--format-topic-choice (topic)
   (cons (forge--format-topic-line topic)
