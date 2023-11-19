@@ -966,6 +966,58 @@ This mode itself is never used directly."
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
 
+;;; Commands
+
+(transient-define-suffix forge-topic-status-set-unread ()
+  "Set the notification status of the current topic to `unread'."
+  :description "unread"
+  :inapt-if (lambda ()
+              (if-let ((topic (forge-current-topic)))
+                  (eq (oref topic status) 'unread)
+                t))
+  :inapt-face (lambda ()
+                (if (forge-current-topic)
+                    'forge-active-suffix
+                  'transient-inapt-suffix))
+  (interactive)
+  (oset (forge-current-topic t) status 'unread)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-topic-status-set-pending ()
+  "Set the notification status of the current topic to `pending'."
+  :description (lambda ()
+                 (if-let ((topic (forge-current-topic)))
+                     (let ((status (oref topic status)))
+                       (concat
+                        (if (memq status '(nil pending))
+                            (propertize "pending" 'face 'forge-active-suffix)
+                          "pending")
+                        (and (not status) " (assumed)")))
+                   (propertize "pending" 'face 'transient-inapt-suffix)))
+  :inapt-if (lambda ()
+              (if-let ((topic (forge-current-topic)))
+                  (eq (oref topic status) 'pending)
+                t))
+  :inapt-face nil
+  (interactive)
+  (oset (forge-current-topic t) status 'pending)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-topic-status-set-done ()
+  "Set the notification status of the current topic to `done'."
+  :description "done"
+  :inapt-if (lambda ()
+              (if-let ((topic (forge-current-topic)))
+                  (eq (oref topic status) 'done)
+                t))
+  :inapt-face (lambda ()
+                (if (forge-current-topic)
+                    'forge-active-suffix
+                  'transient-inapt-suffix))
+  (interactive)
+  (oset (forge-current-topic t) status 'done)
+  (forge-refresh-buffer))
+
 ;;; Color Utilities
 
 (defun forge--sanitize-color (color)

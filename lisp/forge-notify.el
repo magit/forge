@@ -180,13 +180,18 @@ signal an error."
 (transient-define-prefix forge-notification-menu ()
   "Control list of notifications and notification at point."
   :transient-suffix t
+  :transient-non-suffix t
   [["List"
     ("l" "notifications" forge-list-notification)]
    ["Filter"
     ("U" "unread"  forge-set-notifications-display-selection)
     ("P" "pending" forge-set-notifications-display-selection)
     ("A" "all"     forge-set-notifications-display-selection)]]
-  [["Group"
+  [["Set status"
+    ("u" forge-topic-status-set-unread)
+    ("x" forge-topic-status-set-pending)
+    ("d" forge-topic-status-set-done)]
+   ["Group"
     ("g" "by repository" forge-set-notifications-display-style)
     ("f" "flat list"     forge-set-notifications-display-style)]
    ["Margin"

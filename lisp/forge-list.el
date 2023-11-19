@@ -320,7 +320,11 @@ forges web interface."
     ("m i" "authored issues"        forge-list-authored-issues)
     ("m p" "authored pull-requests" forge-list-authored-pullreqs)
     ("o i" "owned issues"           forge-list-owned-issues)
-    ("o p" "owned pull-requests"    forge-list-owned-pullreqs)]])
+    ("o p" "owned pull-requests"    forge-list-owned-pullreqs)]]
+  [["Set status"
+    ("u" forge-topic-status-set-unread)
+    ("x" forge-topic-status-set-pending)
+    ("d" forge-topic-status-set-done)]])
 
 ;;;###autoload (autoload 'forge-repository-menu "forge-list" nil t)
 (transient-define-prefix forge-repository-menu ()
