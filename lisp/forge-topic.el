@@ -332,6 +332,71 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
                (cdr forge-topic-list-order)
                :key (lambda (it) (eieio-oref it (car forge-topic-list-order)))))))
 
+;;; Read
+
+(defun forge-read-topic (prompt &optional type allow-number)
+  "Read a topic with completion using PROMPT.
+TYPE can be `open', `closed', or nil to select from all topics.
+TYPE can also be t to select from open topics, or all topics if
+a prefix argument is in effect.  If ALLOW-NUMBER is non-nil, then
+allow exiting with a number that doesn't match any candidate."
+  (when (eq type t)
+    (setq type (if current-prefix-arg nil 'open)))
+  (let* ((default (forge-current-topic))
+         (repo    (forge-get-repository (or default t)))
+         (choices (mapcar #'forge--format-topic-choice
+                          (cl-sort (nconc (forge-ls-pullreqs repo type)
+                                          (forge-ls-issues   repo type))
+                                   #'> :key (-cut oref <> number))))
+         (choice  (magit-completing-read
+                   prompt choices nil nil nil nil
+                   (and default
+                        (setq default (forge--format-topic-choice default))
+                        (member default choices)
+                        (car default)))))
+    (or (cdr (assoc choice choices))
+        (and allow-number
+             (let ((number (string-to-number choice)))
+               (if (= number 0)
+                   (user-error "Not an existing topic or number: %s" choice)
+                 number))))))
+
+(defun forge-topic-completion-at-point ()
+  (let ((bol (line-beginning-position))
+        repo)
+    (and (looking-back "[!#][0-9]*" bol)
+         (or (not bug-reference-prog-mode)
+             (nth 8 (syntax-ppss))) ; inside comment or string
+         (setq repo (forge-get-repository t))
+         (looking-back (if (forge--childp repo 'forge-gitlab-repository)
+                           "\\(?3:[!#]\\)\\(?2:[0-9]*\\)"
+                         "#\\(?2:[0-9]*\\)")
+                       bol)
+         (list (match-beginning 2)
+               (match-end 0)
+               (mapcar (lambda (row)
+                         (propertize (number-to-string (car row))
+                                     :title (format " %s" (cadr row))))
+                       (if (forge--childp repo 'forge-gitlab-repository)
+                           (forge-sql [:select [number title]
+                                       :from $i1
+                                       :where (= repository $s2)
+                                       :order-by [(desc updated)]]
+                                      (if (equal (match-string 3) "#")
+                                          'issue
+                                        'pullreq)
+                                      (oref repo id))
+                         (forge-sql [:select [number title updated]
+                                     :from pullreq
+                                     :where (= repository $s1)
+                                     :union
+                                     :select [number title updated]
+                                     :from issue
+                                     :where (= repository $s1)
+                                     :order-by [(desc updated)]]
+                                    (oref repo id))))
+               :annotation-function (lambda (c) (get-text-property 0 :title c))))))
+
 ;;; Format
 
 (cl-defmethod forge--format ((topic forge-topic) slot &optional spec)
@@ -751,71 +816,6 @@ Return a value between 0 and 1."
   (if forge-format-avatar-function
       (funcall forge-format-avatar-function author)
     ""))
-
-;;; Completion
-
-(defun forge-read-topic (prompt &optional type allow-number)
-  "Read a topic with completion using PROMPT.
-TYPE can be `open', `closed', or nil to select from all topics.
-TYPE can also be t to select from open topics, or all topics if
-a prefix argument is in effect.  If ALLOW-NUMBER is non-nil, then
-allow exiting with a number that doesn't match any candidate."
-  (when (eq type t)
-    (setq type (if current-prefix-arg nil 'open)))
-  (let* ((default (forge-current-topic))
-         (repo    (forge-get-repository (or default t)))
-         (choices (mapcar #'forge--format-topic-choice
-                          (cl-sort (nconc (forge-ls-pullreqs repo type)
-                                          (forge-ls-issues   repo type))
-                                   #'> :key (-cut oref <> number))))
-         (choice  (magit-completing-read
-                   prompt choices nil nil nil nil
-                   (and default
-                        (setq default (forge--format-topic-choice default))
-                        (member default choices)
-                        (car default)))))
-    (or (cdr (assoc choice choices))
-        (and allow-number
-             (let ((number (string-to-number choice)))
-               (if (= number 0)
-                   (user-error "Not an existing topic or number: %s" choice)
-                 number))))))
-
-(defun forge-topic-completion-at-point ()
-  (let ((bol (line-beginning-position))
-        repo)
-    (and (looking-back "[!#][0-9]*" bol)
-         (or (not bug-reference-prog-mode)
-             (nth 8 (syntax-ppss))) ; inside comment or string
-         (setq repo (forge-get-repository t))
-         (looking-back (if (forge--childp repo 'forge-gitlab-repository)
-                           "\\(?3:[!#]\\)\\(?2:[0-9]*\\)"
-                         "#\\(?2:[0-9]*\\)")
-                       bol)
-         (list (match-beginning 2)
-               (match-end 0)
-               (mapcar (lambda (row)
-                         (propertize (number-to-string (car row))
-                                     :title (format " %s" (cadr row))))
-                       (if (forge--childp repo 'forge-gitlab-repository)
-                           (forge-sql [:select [number title]
-                                       :from $i1
-                                       :where (= repository $s2)
-                                       :order-by [(desc updated)]]
-                                      (if (equal (match-string 3) "#")
-                                          'issue
-                                        'pullreq)
-                                      (oref repo id))
-                         (forge-sql [:select [number title updated]
-                                     :from pullreq
-                                     :where (= repository $s1)
-                                     :union
-                                     :select [number title updated]
-                                     :from issue
-                                     :where (= repository $s1)
-                                     :order-by [(desc updated)]]
-                                    (oref repo id))))
-               :annotation-function (lambda (c) (get-text-property 0 :title c))))))
 
 ;;; Templates
 
