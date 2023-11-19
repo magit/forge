@@ -142,6 +142,7 @@ signal an error."
 (defvar-keymap forge-notifications-mode-map
   :doc "Keymap for `forge-notifications-mode'."
   :parent magit-mode-map
+  "<remap> <magit-refresh>" #'magit-refresh-buffer
   "L" #'forge-notification-menu)
 
 (define-derived-mode forge-notifications-mode magit-mode "Forge Notifications"
