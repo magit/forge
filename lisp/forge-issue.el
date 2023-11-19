@@ -148,32 +148,36 @@ an error."
   (forge-ls-recent-topics repo 'issue))
 
 (defun forge--ls-assigned-issues (repo)
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-issue (forge-db) row))
-          (forge-sql
-           [:select $i1 :from [issue issue_assignee assignee]
-            :where (and (= issue_assignee:issue issue:id)
-                        (= issue_assignee:id    assignee:id)
-                        (= issue:repository     $s2)
-                        (= assignee:login       $s3)
-                        (isnull issue:closed))
-            :order-by [(desc updated)]]
-           (vconcat (closql--table-columns (forge-db) 'issue t))
-           (oref repo id)
-           (ghub--username repo))))
+  (forge--select-issues repo
+    [:from [issue issue_assignee assignee]
+     :where (and (= issue_assignee:issue issue:id)
+                 (= issue_assignee:id    assignee:id)
+                 (= issue:repository     $s2)
+                 (= assignee:login       $s3)
+                 (isnull issue:closed))
+     :order-by [(desc updated)]]
+    (ghub--username repo)))
 
 (defun forge--ls-authored-issues (repo)
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-issue (forge-db) row))
-          (forge-sql
-           [:select $i1 :from [issue]
-            :where (and (= issue:repository $s2)
-                        (= issue:author     $s3)
-                        (isnull issue:closed))
-            :order-by [(desc updated)]]
-           (vconcat (closql--table-columns (forge-db) 'issue t))
-           (oref repo id)
-           (ghub--username repo))))
+  (forge--select-issues repo
+    [:from [issue]
+     :where (and (= issue:repository $s2)
+                 (= issue:author     $s3)
+                 (isnull issue:closed))
+     :order-by [(desc updated)]]
+    (ghub--username repo)))
+
+(defun forge--select-issues (repo query &rest args)
+  (declare (indent 1))
+  (let ((db (forge-db)))
+    (mapcar (lambda (row)
+              (closql--remake-instance 'forge-issue db row))
+            (apply #'forge-sql
+                   (vconcat [:select $i1] query)
+                   (vconcat (closql--table-columns db 'issue t))
+                   (if repo
+                       (cons (oref repo id) args)
+                     args)))))
 
 ;;; Read
 

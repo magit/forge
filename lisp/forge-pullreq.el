@@ -172,48 +172,47 @@ an error."
   (forge-ls-recent-topics repo 'pullreq))
 
 (defun forge--ls-assigned-pullreqs (repo)
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-pullreq (forge-db) row))
-          (forge-sql
-           [:select $i1 :from pullreq
-            :join pullreq_assignee :on (= pullreq_assignee:pullreq pullreq:id)
-            :join assignee         :on (= pullreq_assignee:id      assignee:id)
-            :where (and (= pullreq:repository $s2)
-                        (= assignee:login     $s3)
-                        (isnull pullreq:closed))
-            :order-by [(desc updated)]]
-           (vconcat (closql--table-columns (forge-db) 'pullreq t))
-           (oref repo id)
-           (ghub--username repo))))
+  (forge--select-pullreqs repo
+    [:from pullreq
+     :join pullreq_assignee :on (= pullreq_assignee:pullreq pullreq:id)
+     :join assignee         :on (= pullreq_assignee:id      assignee:id)
+     :where (and (= pullreq:repository $s2)
+                 (= assignee:login     $s3)
+                 (isnull pullreq:closed))
+     :order-by [(desc updated)]]
+    (ghub--username repo)))
 
 (defun forge--ls-requested-reviews (repo)
-  (mapcar
-   (lambda (row)
-     (closql--remake-instance 'forge-pullreq (forge-db) row))
-   (forge-sql
-    [:select $i1 :from pullreq
+  (forge--select-pullreqs repo
+    [:from pullreq
      :join pullreq_review_request :on (= pullreq_review_request:pullreq pullreq:id)
      :join assignee               :on (= pullreq_review_request:id      assignee:id)
      :where (and (= pullreq:repository $s2)
                  (= assignee:login     $s3)
                  (isnull pullreq:closed))
      :order-by [(desc updated)]]
-    (vconcat (closql--table-columns (forge-db) 'pullreq t))
-    (oref repo id)
-    (ghub--username repo))))
+    (ghub--username repo)))
 
 (defun forge--ls-authored-pullreqs (repo)
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-pullreq (forge-db) row))
-          (forge-sql
-           [:select $i1 :from [pullreq]
-            :where (and (= pullreq:repository $s2)
-                        (= pullreq:author     $s3)
-                        (isnull pullreq:closed))
-            :order-by [(desc updated)]]
-           (vconcat (closql--table-columns (forge-db) 'pullreq t))
-           (oref repo id)
-           (ghub--username repo))))
+  (forge--select-pullreqs repo
+    [:from [pullreq]
+     :where (and (= pullreq:repository $s2)
+                 (= pullreq:author     $s3)
+                 (isnull pullreq:closed))
+     :order-by [(desc updated)]]
+    (ghub--username repo)))
+
+(defun forge--select-pullreqs (repo query &rest args)
+  (declare (indent 1))
+  (let ((db (forge-db)))
+    (mapcar (lambda (row)
+              (closql--remake-instance 'forge-pullreq db row))
+            (apply #'forge-sql
+                   (vconcat [:select $i1] query)
+                   (vconcat (closql--table-columns db 'pullreq t))
+                   (if repo
+                       (cons (oref repo id) args)
+                     args)))))
 
 ;;; Read
 
