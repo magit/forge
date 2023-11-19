@@ -156,13 +156,16 @@ signal an error."
   "Mode for looking at forge notifications."
   (hack-dir-local-variables-non-file-buffer))
 
-(defun forge-notifications-setup-buffer ()
-  ;; There should only ever be one such buffer.
-  (cl-letf (((symbol-function 'magit-get-mode-buffer)
-             (lambda (&rest _)
-               (get-buffer-create "*forge-notifications*"))))
-    (magit-setup-buffer #'forge-notifications-mode nil
-      (forge-buffer-unassociated-p t))))
+(defun forge-notifications-setup-buffer (&optional create)
+  (let ((name "*forge-notifications*"))
+    (if create
+        ;; There should only ever be one such buffer.
+        (cl-letf (((symbol-function 'magit-get-mode-buffer)
+                   (lambda (&rest _)
+                     (get-buffer-create name))))
+          (magit-setup-buffer #'forge-notifications-mode nil
+            (forge-buffer-unassociated-p t)))
+      (get-buffer name))))
 
 (defun forge-notifications-refresh-buffer ()
   (forge-insert-notifications))
@@ -177,7 +180,7 @@ signal an error."
 (defun forge-list-notifications ()
   "List notifications."
   (interactive)
-  (forge-notifications-setup-buffer))
+  (forge-notifications-setup-buffer t))
 
 (defun forge-set-notifications-display-style ()
   "Set the value of `forge-notifications-display-style' and refresh."
