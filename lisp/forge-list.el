@@ -36,23 +36,23 @@
   :options '(hl-line-mode))
 
 (defvar forge-topic-list-columns
-  '(("#"         5 nil nil number nil)
-    ("Title"    35 nil nil title  nil)
+  '(("#"         5 nil nil number)
+    ("Title"    35 nil nil title)
     ))
 
 (defvar forge-global-topic-list-columns
-  '(("Owner"    15 nil nil repository:owner nil)
-    ("Name"     20 nil nil repository:name  nil)
-    ("#"         5 nil nil number nil)
-    ("Title"    35 nil nil title nil)
+  '(("Owner"    15 nil nil repository:owner)
+    ("Name"     20 nil nil repository:name)
+    ("#"         5 nil nil number)
+    ("Title"    35 nil nil title)
     ))
 
 (defvar forge-repository-list-columns
-  '(("Owner"    20 t   nil owner nil)
-    ("Name"     20 t   nil name  nil)
-    ("N"         1 t   nil sparse-p nil)
-    ("S"         1 t   nil selective-p nil)
-    ("Worktree" 99 t   nil worktree nil)
+  '(("Owner"    20 t   nil owner)
+    ("Name"     20 t   nil name)
+    ("N"         1 t   nil sparse-p)
+    ("S"         1 t   nil selective-p)
+    ("Worktree" 99 t   nil worktree)
     ))
 
 (defcustom forge-owned-accounts nil
@@ -150,12 +150,8 @@ This is a list of package names.  Used by the commands
          (lambda (row)
            (list (car row)
                  (vconcat
-                  (cl-mapcar (lambda (val col)
-                               (if-let ((pp (nth 5 col)))
-                                   (funcall pp val)
-                                 (if val (format "%s" val) "")))
-                             (cdr row)
-                             forge--tabulated-list-columns))))
+                  (mapcar (lambda (v) (if v (format "%s" v) ""))
+                          (cdr row)))))
          (funcall forge--tabulated-list-query))))
 
 ;;;; Repository
