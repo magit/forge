@@ -181,10 +181,10 @@ signal an error."
     ("r"   "repositories...  " forge-repository-menu :transient replace)
     ""]
    ["Selection"
-    ("I" "inbox" forge-set-notifications-display-selection)
-    ("S" "saved" forge-set-notifications-display-selection)
-    ("D" "done"  forge-set-notifications-display-selection)
-    ("A" "all"   forge-set-notifications-display-selection)]]
+    ("I" forge-notifications-display-inbox)
+    ("S" forge-notifications-display-saved)
+    ("D" forge-notifications-display-done)
+    ("A" forge-notifications-display-all)]]
   [["Set status"
     ("u" forge-topic-status-set-unread)
     ("x" forge-topic-status-set-pending)
@@ -207,15 +207,48 @@ signal an error."
   (interactive)
   (forge-notifications-setup-buffer t))
 
-(transient-define-suffix forge-set-notifications-display-selection ()
-  "Set the value of `forge-notifications-selection' and refresh."
+(transient-define-suffix forge-notifications-display-inbox ()
+  "List unread and pending notifications."
+  :description "inbox"
+  :inapt-if (lambda () (equal forge-notifications-selection '(unread pending)))
+  :inapt-face 'forge-active-suffix
   (interactive)
-  (setq forge-notifications-selection
-        (pcase-exhaustive (oref (transient-suffix-object) description)
-          ("inbox"  '(unread pending))
-          ("saved"  'saved)
-          ("done"   'done)
-          ("all"    '(unread pending done))))
+  (unless (derived-mode-p 'forge-notifications-mode)
+    (user-error "Not in notification buffer"))
+  (setq forge-notifications-selection '(unread pending))
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-notifications-display-saved ()
+  "List saved notifications."
+  :description "saved"
+  :inapt-if (lambda () (eq forge-notifications-selection 'saved))
+  :inapt-face 'forge-active-suffix
+  (interactive)
+  (unless (derived-mode-p 'forge-notifications-mode)
+    (user-error "Not in notification buffer"))
+  (setq forge-notifications-selection 'saved)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-notifications-display-done ()
+  "List done notifications."
+  :description "done"
+  :inapt-if (lambda () (eq forge-notifications-selection 'done))
+  :inapt-face 'forge-active-suffix
+  (interactive)
+  (unless (derived-mode-p 'forge-notifications-mode)
+    (user-error "Not in notification buffer"))
+  (setq forge-notifications-selection 'done)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-notifications-display-all ()
+  "List all notifications."
+  :description "all"
+  :inapt-if (lambda () (equal forge-notifications-selection '(unread pending done)))
+  :inapt-face 'forge-active-suffix
+  (interactive)
+  (unless (derived-mode-p 'forge-notifications-mode)
+    (user-error "Not in notification buffer"))
+  (setq forge-notifications-selection '(unread pending done))
   (forge-refresh-buffer))
 
 (transient-define-suffix forge-set-notifications-display-style ()
