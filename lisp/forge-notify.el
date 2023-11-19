@@ -182,12 +182,14 @@ signal an error."
   :transient-suffix t
   [["List"
     ("l" "notifications" forge-list-notification)]
-   ["Buffer style"
-    :if-mode forge-notifications-mode
-    ("n w" "set style and refresh"     forge-set-notifications-display-style)
-    ("n h" "set selection and refresh" forge-set-notifications-display-selection)]
+   ["Filter"
+    ("U" "unread"  forge-set-notifications-display-selection)
+    ("P" "pending" forge-set-notifications-display-selection)
+    ("A" "all"     forge-set-notifications-display-selection)]]
+  [["Group"
+    ("g" "by repository" forge-set-notifications-display-style)
+    ("f" "flat list"     forge-set-notifications-display-style)]
    ["Margin"
-    :if-mode forge-notifications-mode
     (magit-toggle-margin)
     (magit-cycle-margin-style)
     ("e" magit-toggle-margin-details)]])
@@ -198,27 +200,23 @@ signal an error."
   (interactive)
   (forge-notifications-setup-buffer t))
 
-(defun forge-set-notifications-display-selection ()
+(transient-define-suffix forge-set-notifications-display-selection ()
   "Set the value of `forge-notifications-display-list-function' and refresh."
   (interactive)
-  (unless (eq major-mode 'forge-notifications-mode)
-    (user-error "Not in forge-notifications-mode"))
   (setq forge-notifications-display-list-function
-        (magit-read-char-case "Display " t
-          (?a "[a]ll"     #'forge--ls-notifications-all)
-          (?p "[p]ending" #'forge--ls-notifications-pending)
-          (?u "[u]nread"  #'forge--ls-notifications-unread)))
+        (pcase-exhaustive (oref (transient-suffix-object) description)
+          ("unread"  #'forge--ls-notifications-unread)
+          ("pending" #'forge--ls-notifications-pending)
+          ("all"     #'forge--ls-notifications-all)))
   (forge-refresh-buffer))
 
-(defun forge-set-notifications-display-style ()
+(transient-define-suffix forge-set-notifications-display-style ()
   "Set the value of `forge-notifications-display-style' and refresh."
   (interactive)
-  (unless (eq major-mode 'forge-notifications-mode)
-    (user-error "Not in forge-notifications-mode"))
   (setq forge-notifications-display-style
-        (magit-read-char-case "Display notifications " t
-          (?g "[g]rouped by repository" 'nested)
-          (?f "as a [f]lat list"        'flat)))
+        (pcase-exhaustive (oref (transient-suffix-object) description)
+          ("flat list"     'flat)
+          ("by repository" 'nested)))
   (forge-refresh-buffer))
 
 ;;; Sections
