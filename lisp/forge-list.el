@@ -356,29 +356,121 @@ Must be set before `forge-list' is loaded.")
 ;;;###autoload (autoload 'forge-topics-menu "forge-list" nil t)
 (transient-define-prefix forge-topics-menu ()
   "Control list of topics and topic at point."
-  [["List"
-    ("t" "topics"        forge-list-topics)
-    ("i" "issues"        forge-list-issues)
-    ("p" "pull-requests" forge-list-pullreqs)
-    ("l a" "awaiting review"        forge-list-requested-reviews)
-    ("n i" "labeled issues"         forge-list-labeled-issues)
-    ("n p" "labeled pull-requests"  forge-list-labeled-pullreqs)
-    ("m i" "authored issues"        forge-list-authored-issues)
-    ("m p" "authored pull-requests" forge-list-authored-pullreqs)
-    ("o i" "owned issues"           forge-list-owned-issues)
-    ("o p" "owned pull-requests"    forge-list-owned-pullreqs)]]
+  :transient-suffix t
+  :transient-non-suffix t
+  :transient-switch-frame nil
+  :refresh-suffixes t
+  [:hide always ("q" forge-menu-quit-list)]
+  [["Type"
+    (:info "topics           " :face forge-active-suffix)
+    ("n"   "notifications... " forge-notification-menu :transient replace)
+    ("r"   "repositories...  " forge-repository-menu   :transient replace)]
+   [:description (lambda ()
+                   (if forge--buffer-list-global
+                       "Per-repository lists"
+                     "Subtype"))
+    ("t" "topics"           forge-list-topics)
+    ("i" "issues"           forge-list-issues)
+    ("p" "pull-requests"    forge-list-pullreqs)
+    ""]
+   ["Filter"
+    :if (lambda () (and (not forge--buffer-list-global)
+                   (eq forge--buffer-list-type 'topic)))
+    ("l" "labeled"          forge-list-labeled-topics)
+    ("c" "created"          forge-list-authored-topics)
+    ("a" "assigned"         forge-list-assigned-topics)]
+   ["Filter"
+    :if (lambda () (and (not forge--buffer-list-global)
+                   (eq forge--buffer-list-type 'issue)))
+    ("l" "labeled"          forge-list-labeled-issues)
+    ("c" "created"          forge-list-authored-issues)
+    ("a" "assigned"         forge-list-assigned-issues)]
+   ["Filter"
+    :if (lambda () (and (not forge--buffer-list-global)
+                   (eq forge--buffer-list-type 'pullreq)))
+    ("l" "labeled"          forge-list-labeled-pullreqs)
+    ("c" "created"          forge-list-authored-pullreqs)
+    ("a" "assigned"         forge-list-assigned-pullreqs)
+    ("w" "awaiting review"  forge-list-requested-reviews)]]
   [["Set status"
     ("u" forge-topic-status-set-unread)
     ("x" forge-topic-status-set-pending)
     ("d" forge-topic-status-set-done)
-    ("s" forge-topic-toggle-saved)]])
+    ("s" forge-topic-toggle-saved)]
+   ["Global lists"
+    ("o t" "owned topics"        forge-list-owned-topics)
+    ("o i" "owned issues"        forge-list-owned-issues)
+    ("o p" "owned pull-requests" forge-list-owned-pullreqs)]
+   ["Actions"
+    ("f" "fetch all topics"  forge-pull)
+    ("m" "show more actions" forge-dispatch)]]
+  (interactive)
+  (catch 'add-instead
+    (unless (derived-mode-p 'forge-topic-list-mode)
+      (let ((repo (forge-current-repository nil)))
+        (cond
+         ((or (not repo) (not (oref repo sparse-p))))
+         ((yes-or-no-p
+           (format "Add %s to database, so its topics can be listed?"
+                   (oref repo slug)))
+          (oset repo sparse-p nil)
+          (forge--pull repo nil #'ignore)
+          (throw 'add-instead t))
+         ((setq repo nil)))
+        (if-let ((buffer (forge-topic-get-buffer repo)))
+            (switch-to-buffer buffer)
+          (if repo
+              (forge-list-topics repo)
+            (forge-list-owned-topics)))))
+    (transient-setup 'forge-topics-menu)))
 
 ;;;###autoload (autoload 'forge-repository-menu "forge-list" nil t)
 (transient-define-prefix forge-repository-menu ()
   "Control list of repositories and repository at point."
-  [["List"
-    ("r" "repositories"       forge-list-repositories)
-    ("o" "owned repositories" forge-list-owned-repositories)]])
+  :transient-suffix t
+  :transient-non-suffix t
+  :transient-switch-frame nil
+  :refresh-suffixes t
+  [:hide always ("q" forge-menu-quit-list)]
+  [["Type"
+    ("t" "topics..."        forge-topics-menu       :transient replace)
+    ("n" "notifications..." forge-notification-menu :transient replace)
+    ("r" "repositories"     forge-list-repositories)]
+   ["Filter"
+    ("o" "owned" forge-list-owned-repositories)]]
+  (interactive)
+  (unless (derived-mode-p 'forge-repository-list-mode)
+    (if-let ((buffer (get-buffer forge-repository-list-buffer-name)))
+        (switch-to-buffer buffer)
+      (with-no-warnings ; "interactive use only"
+        (forge-list-repositories))))
+  (transient-setup 'forge-repository-menu))
+
+(defun forge-menu-quit-list ()
+  "From a transient menu, quit the list buffer and the menu.
+
+If quitting the list buffer causes another topic, repository
+or notification list buffer to becomes current in the selected
+window, then display the respective menu, otherwise display no
+menu."
+  (interactive)
+  (when (derived-mode-p 'forge-topic-list-mode
+                        'forge-repository-list-mode
+                        'forge-notifications-mode)
+    (quit-window))
+  (cond ((derived-mode-p 'forge-topic-list-mode)
+         (setq transient--exitp 'replace)
+         (transient-setup (setq this-command 'forge-topics-menu)))
+        ((derived-mode-p 'forge-repository-list-mode)
+         (setq transient--exitp 'replace)
+         (transient-setup (setq this-command 'forge-repository-menu)))
+        ((derived-mode-p 'forge-notifications-mode)
+         (setq transient--exitp 'replace)
+         (transient-setup (setq this-command 'forge-notification-menu)))
+        (t
+         (setq transient--exitp t)
+         (transient--pre-exit)
+         (transient--stack-zap))))
 
 ;;;; Suffix Class
 

@@ -970,7 +970,7 @@ This mode itself is never used directly."
 
 (transient-define-suffix forge-topic-status-set-unread ()
   "Set the notification status of the current topic to `unread'."
-  :description "unread"
+  :description "unread           "
   :inapt-if (lambda ()
               (if-let ((topic (forge-current-topic)))
                   (eq (oref topic status) 'unread)

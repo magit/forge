@@ -182,8 +182,14 @@ signal an error."
   "Control list of notifications and notification at point."
   :transient-suffix t
   :transient-non-suffix t
-  [["List"
-    ("l" "notifications" forge-list-notification)]
+  :transient-switch-frame nil
+  :refresh-suffixes t
+  [:hide always ("q" forge-menu-quit-list)]
+  [["Type"
+    ("t"   "topics...        " forge-topics-menu     :transient replace)
+    (:info "notifications    " :face forge-active-suffix)
+    ("r"   "repositories...  " forge-repository-menu :transient replace)
+    ""]
    ["Filter"
     ("U" "unread"  forge-set-notifications-display-selection)
     ("P" "pending" forge-set-notifications-display-selection)
@@ -199,7 +205,10 @@ signal an error."
    ["Margin"
     (magit-toggle-margin)
     (magit-cycle-margin-style)
-    ("e" magit-toggle-margin-details)]])
+    ("e" magit-toggle-margin-details)]]
+  (interactive)
+  (forge-list-notifications)
+  (transient-setup 'forge-notification-menu))
 
 ;;;###autoload
 (defun forge-list-notifications ()
