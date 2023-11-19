@@ -178,8 +178,7 @@ an error."
      :join assignee         :on (= pullreq_assignee:id      assignee:id)
      :where (and (= pullreq:repository $s2)
                  (= assignee:login     $s3)
-                 (isnull pullreq:closed))
-     :order-by [(desc updated)]]
+                 (isnull pullreq:closed))]
     (ghub--username repo)))
 
 (defun forge--ls-requested-reviews (repo)
@@ -189,8 +188,7 @@ an error."
      :join assignee               :on (= pullreq_review_request:id      assignee:id)
      :where (and (= pullreq:repository $s2)
                  (= assignee:login     $s3)
-                 (isnull pullreq:closed))
-     :order-by [(desc updated)]]
+                 (isnull pullreq:closed))]
     (ghub--username repo)))
 
 (defun forge--ls-authored-pullreqs (repo)
@@ -198,8 +196,7 @@ an error."
     [:from [pullreq]
      :where (and (= pullreq:repository $s2)
                  (= pullreq:author     $s3)
-                 (isnull pullreq:closed))
-     :order-by [(desc updated)]]
+                 (isnull pullreq:closed))]
     (ghub--username repo)))
 
 (defun forge--select-pullreqs (repo query &rest args)
@@ -208,7 +205,10 @@ an error."
     (mapcar (lambda (row)
               (closql--remake-instance 'forge-pullreq db row))
             (apply #'forge-sql
-                   (vconcat [:select $i1] query)
+                   (vconcat [:select $i1]
+                            query
+                            (and (not (cl-find :order-by query))
+                                 [:order-by [(desc updated)]]))
                    (vconcat (closql--table-columns db 'pullreq t))
                    (if repo
                        (cons (oref repo id) args)

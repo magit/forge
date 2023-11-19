@@ -154,8 +154,7 @@ an error."
                  (= issue_assignee:id    assignee:id)
                  (= issue:repository     $s2)
                  (= assignee:login       $s3)
-                 (isnull issue:closed))
-     :order-by [(desc updated)]]
+                 (isnull issue:closed))]
     (ghub--username repo)))
 
 (defun forge--ls-authored-issues (repo)
@@ -163,8 +162,7 @@ an error."
     [:from [issue]
      :where (and (= issue:repository $s2)
                  (= issue:author     $s3)
-                 (isnull issue:closed))
-     :order-by [(desc updated)]]
+                 (isnull issue:closed))]
     (ghub--username repo)))
 
 (defun forge--select-issues (repo query &rest args)
@@ -173,7 +171,10 @@ an error."
     (mapcar (lambda (row)
               (closql--remake-instance 'forge-issue db row))
             (apply #'forge-sql
-                   (vconcat [:select $i1] query)
+                   (vconcat [:select $i1]
+                            query
+                            (and (not (cl-find :order-by query))
+                                 [:order-by [(desc updated)]]))
                    (vconcat (closql--table-columns db 'issue t))
                    (if repo
                        (cons (oref repo id) args)
