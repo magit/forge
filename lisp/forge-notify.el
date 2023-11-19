@@ -142,11 +142,11 @@ signal an error."
 (defun forge-notifications-refresh-buffer ()
   (forge-insert-notifications))
 
-;;; Commands
-
 (defvar forge-notifications-display-style 'flat)
 (defvar forge-notifications-display-list-function
   #'forge--ls-notifications-all)
+
+;;; Commands
 
 (defun forge-set-notifications-display-style ()
   "Set the value of `forge-notifications-display-style' and refresh."
