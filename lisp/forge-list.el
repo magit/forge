@@ -194,16 +194,20 @@ forges web interface."
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "#" nil)))
 
-(defun forge-topic-list-setup (fn &optional repo global-name columns)
+(defun forge-topic-get-buffer (&optional repo create)
+  (let ((name (if repo
+                  (format "*forge-topics: %s*" (oref repo slug))
+                "*forge-topics*")))
+    (if create
+        (get-buffer-create name)
+      (get-buffer name))))
+
+(defun forge-topic-list-setup (fn &optional repo global columns)
   (let* ((repo (or repo
-                   (and (not global-name)
+                   (and (not global)
                         (forge-get-repository t))))
          (topdir (and repo (oref repo worktree)))
-         (buffer (get-buffer-create
-                  (or global-name
-                      (format "*forge-topic-list: %s/%s*"
-                              (oref repo owner)
-                              (oref repo name))))))
+         (buffer (forge-topic-get-buffer repo t)))
     (with-current-buffer buffer
       (setq default-directory (or topdir "/"))
       (setq forge-buffer-repository repo)
@@ -337,8 +341,8 @@ forges web interface."
 
 ;;;; Topic
 
-(defun forge--topic-list-setup (fn &optional repo buffer-name columns)
-  (forge-topic-list-setup fn repo buffer-name columns))
+(defun forge--topic-list-setup (fn &optional repo global columns)
+  (forge-topic-list-setup fn repo global columns))
 
 ;;;###autoload
 (defun forge-list-topics (&optional repository)
@@ -379,12 +383,12 @@ Only Github is supported for now."
   (interactive)
   (forge--topic-list-setup (list (lambda (_) (forge--ls-owned-issues))
                                  (lambda (_) (forge--ls-owned-pullreqs)))
-                           nil "My topics" forge-global-topic-list-columns))
+                           nil t forge-global-topic-list-columns))
 
 ;;;; Issue
 
-(defun forge--issue-list-setup (fn &optional repo buffer-name columns)
-  (forge-topic-list-setup fn repo buffer-name columns))
+(defun forge--issue-list-setup (fn &optional repo global columns)
+  (forge-topic-list-setup fn repo global columns))
 
 ;;;###autoload
 (defun forge-list-issues ()
@@ -417,13 +421,13 @@ Options `forge-owned-accounts' and `forge-owned-ignored'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (forge--issue-list-setup #'forge--ls-owned-issues nil "My issues"
-                           forge-global-topic-list-columns))
+  (forge--issue-list-setup #'forge--ls-owned-issues
+                           nil t forge-global-topic-list-columns))
 
 ;;;; Pullreq
 
-(defun forge--pullreq-list-setup (fn &optional repo buffer-name columns)
-  (forge-topic-list-setup fn repo buffer-name columns))
+(defun forge--pullreq-list-setup (fn &optional repo global columns)
+  (forge-topic-list-setup fn repo global columns))
 
 ;;;###autoload
 (defun forge-list-pullreqs ()
@@ -462,8 +466,8 @@ Options `forge-owned-accounts' and `forge-owned-ignored'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (forge--pullreq-list-setup #'forge--ls-owned-pullreqs nil "My pullreqs"
-                             forge-global-topic-list-columns))
+  (forge--pullreq-list-setup #'forge--ls-owned-pullreqs
+                             nil t forge-global-topic-list-columns))
 
 ;;;; Repository
 
