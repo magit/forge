@@ -193,12 +193,14 @@ forges web interface."
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "#" nil)))
 
-(defun forge-topic-list-setup (fn &optional repo buffer-name columns)
-  (let ((repo (if (eq repo t) (forge-get-repository t) repo))
+(defun forge-topic-list-setup (fn &optional repo global-name columns)
+  (let ((repo (or repo
+                  (and (not global-name)
+                       (forge-get-repository t))))
         (topdir (magit-toplevel)))
     (with-current-buffer
         (get-buffer-create
-         (or buffer-name
+         (or global-name
              (format "*forge-topic-list: %s/%s*"
                      (oref repo owner)
                      (oref repo name))))
@@ -313,32 +315,32 @@ topics for that instead."
 
 ;;;; Issue
 
-(defun forge--issue-list-setup (fn repo &optional buffer-name columns)
+(defun forge--issue-list-setup (fn &optional repo buffer-name columns)
   (forge-topic-list-setup fn repo buffer-name columns))
 
 ;;;###autoload
 (defun forge-list-issues ()
   "List issues of the current repository."
   (interactive)
-  (forge--issue-list-setup #'forge-ls-issues t))
+  (forge--issue-list-setup #'forge-ls-issues))
 
 ;;;###autoload
 (defun forge-list-labeled-issues (label)
   "List issues of the current repository that have LABEL."
   (interactive (list (forge-read-topic-label)))
-  (forge--issue-list-setup (-cut forge--ls-labeled-issues <> label) t))
+  (forge--issue-list-setup (-cut forge--ls-labeled-issues <> label)))
 
 ;;;###autoload
 (defun forge-list-assigned-issues ()
   "List issues of the current repository that are assigned to you."
   (interactive)
-  (forge--issue-list-setup #'forge--ls-assigned-issues t))
+  (forge--issue-list-setup #'forge--ls-assigned-issues))
 
 ;;;###autoload
 (defun forge-list-authored-issues ()
   "List open issues from the current repository that are authored by you."
   (interactive)
-  (forge--issue-list-setup #'forge--ls-authored-issues t))
+  (forge--issue-list-setup #'forge--ls-authored-issues))
 
 ;;;###autoload
 (defun forge-list-owned-issues ()
@@ -352,38 +354,38 @@ Only Github is supported for now."
 
 ;;;; Pullreq
 
-(defun forge--pullreq-list-setup (fn repo &optional buffer-name columns)
+(defun forge--pullreq-list-setup (fn &optional repo buffer-name columns)
   (forge-topic-list-setup fn repo buffer-name columns))
 
 ;;;###autoload
 (defun forge-list-pullreqs ()
   "List pull-requests of the current repository."
   (interactive)
-  (forge--pullreq-list-setup #'forge-ls-pullreqs t))
+  (forge--pullreq-list-setup #'forge-ls-pullreqs))
 
 ;;;###autoload
 (defun forge-list-labeled-pullreqs (label)
   "List pull-requests of the current repository that have LABEL."
   (interactive (list (forge-read-topic-label)))
-  (forge--pullreq-list-setup (-cut forge--ls-labeled-pullreqs <> label) t))
+  (forge--pullreq-list-setup (-cut forge--ls-labeled-pullreqs <> label)))
 
 ;;;###autoload
 (defun forge-list-assigned-pullreqs ()
   "List pull-requests of the current repository that are assigned to you."
   (interactive)
-  (forge--pullreq-list-setup #'forge--ls-assigned-pullreqs t))
+  (forge--pullreq-list-setup #'forge--ls-assigned-pullreqs))
 
 ;;;###autoload
 (defun forge-list-requested-reviews ()
   "List pull-requests of the current repository that are awaiting your review."
   (interactive)
-  (forge--pullreq-list-setup #'forge--ls-requested-reviews t))
+  (forge--pullreq-list-setup #'forge--ls-requested-reviews))
 
 ;;;###autoload
 (defun forge-list-authored-pullreqs ()
   "List open pull-requests of the current repository that are authored by you."
   (interactive)
-  (forge--pullreq-list-setup #'forge--ls-authored-pullreqs t))
+  (forge--pullreq-list-setup #'forge--ls-authored-pullreqs))
 
 ;;;###autoload
 (defun forge-list-owned-pullreqs ()
