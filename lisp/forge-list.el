@@ -100,28 +100,19 @@ This is a list of package names.  Used by the commands
   "?"        #'magit-dispatch)
 
 (define-derived-mode forge-topic-list-mode tabulated-list-mode
-  "Topics"
+  "Forge Topics"
   "Major mode for browsing a list of topics."
   (setq-local x-stretch-cursor  nil)
   (setq tabulated-list-padding  0)
   (setq tabulated-list-sort-key (cons "#" nil)))
 
-(define-derived-mode forge-issue-list-mode forge-topic-list-mode
-  "Issues"
-  "Major mode for browsing a list of issues.")
-
-(define-derived-mode forge-pullreq-list-mode forge-topic-list-mode
-  "Pull-Requests"
-  "Major mode for browsing a list of pull-requests.")
-
-(defun forge-topic-list-setup (mode fn &optional repo buffer-name columns)
+(defun forge-topic-list-setup (fn &optional repo buffer-name columns)
   (let ((repo (if (eq repo t) (forge-get-repository t) repo))
         (topdir (magit-toplevel)))
     (with-current-buffer
         (get-buffer-create
          (or buffer-name
-             (format "*%s: %s/%s*"
-                     (substring (symbol-name mode) 0 -5)
+             (format "*forge-topic-list: %s/%s*"
                      (oref repo owner)
                      (oref repo name))))
       (setq forge--tabulated-list-columns (or columns forge-topic-list-columns))
@@ -130,7 +121,7 @@ This is a list of package names.  Used by the commands
       (when topdir
         (setq default-directory topdir))
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
-        (funcall mode))
+        (forge-topic-list-mode))
       (forge-topic-list-refresh)
       (add-hook 'tabulated-list-revert-hook
                 #'forge-topic-list-refresh nil t)
@@ -225,7 +216,6 @@ topics for that instead."
   (interactive)
   (let ((repo (or repository (forge-get-repository t))))
     (forge-topic-list-setup
-     #'forge-topic-list-mode
      (lambda (repo)
        (cl-sort (nconc (forge-ls-issues repo)
                        (forge-ls-pullreqs repo))
@@ -235,7 +225,7 @@ topics for that instead."
 ;;;; Issue
 
 (defun forge--issue-list-setup (fn repo &optional buffer-name columns)
-  (forge-topic-list-setup #'forge-issue-list-mode fn repo buffer-name columns))
+  (forge-topic-list-setup fn repo buffer-name columns))
 
 ;;;###autoload
 (defun forge-list-issues ()
@@ -274,7 +264,7 @@ Only Github is supported for now."
 ;;;; Pullreq
 
 (defun forge--pullreq-list-setup (fn repo &optional buffer-name columns)
-  (forge-topic-list-setup #'forge-pullreq-list-mode fn repo buffer-name columns))
+  (forge-topic-list-setup fn repo buffer-name columns))
 
 ;;;###autoload
 (defun forge-list-pullreqs ()
