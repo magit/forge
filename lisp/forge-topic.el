@@ -107,37 +107,173 @@ This is experimental and intended for users who wish to
 implement such a function themselves.  See #447.")
 
 ;;; Faces
+;;;; Common
 
-(defface forge-topic-unread
-  '((t :inherit bold))
-  "Face used for title of unread topics."
+(defcustom forge-fancy-topic-summaries nil
+  "Whether and where to use fancy topic faces.
+
+When listing different types of topics in a single list, then it
+is desirable to be able to easily tell the types apart, which can
+be done using fancy (by default more colorful) faces.
+
+If the value of this option nil, then never use fancy faces.  If
+it is `notifications', then only do so when listing notifications.
+If `mixed', then only in lists that contain topics of different
+types.  If `always', then go full-on fruit salad."
+  :package-version '(forge . "0.4.0")
+  :group 'forge-faces
+  :type '(choice (const :tag "Never" nil)
+                 (const :tag "Only in notifications buffer" notifications)
+                 (const :tag "Only when listing mixed-type topics" mixed)
+                 (const :tag "Always" always)))
+
+(defface forge-dimmed '((t :foreground "#93a1a1"))
+  "Parent face or faces used for text that shouldn't stand out.
+
+This face is not directly, instead several faces inherit from it
+either directly or via an intermediate face.  This face should
+only specify the `:foreground' attribute, which is why this face
+does not inherit from `magit-dimmed'."
+  :group 'magit-faces)
+
+;;;; Topic and Notification Slugs
+
+(defface forge-topic-slug-open
+  '((t :inherit forge-dimmed))
+  "Face uses for slugs of open topics."
   :group 'forge-faces)
 
-(defface forge-topic-closed
-  '((t :inherit magit-dimmed))
-  "Face used for title of closed topics."
+(defface forge-topic-slug-completed
+  '((t :inherit forge-dimmed))
+  "Face used for slugs of completed topics."
   :group 'forge-faces)
 
-(defface forge-topic-open
-  '((t :inherit default))
-  "Face used for title of open topics."
+(defface forge-topic-slug-unplanned
+  '((t :inherit forge-dimmed :strike-through t))
+  "Face used for slugs of unplanned topics.
+E.g., for issues closes as \"unplanned\" and pull-requests that
+were closed without being merged."
   :group 'forge-faces)
 
-(defface forge-topic-merged
-  '((t :inherit magit-dimmed))
-  "Face used for number of merged pull-requests."
+(defface forge-topic-slug-saved
+  '((t :foreground "orange"))
+  "Face used for slugs of topics with saved notifications.
+This is used in combination with one of the other slug faces."
   :group 'forge-faces)
 
-(defface forge-topic-unmerged
-  '((t :inherit magit-dimmed :slant italic))
-  "Face used for number of unmerged pull-requests."
+;;;; Topic and Notification Summaries
+;;;;; Notifications
+
+(defface forge-notification-unread
+  '((t :weight bold))
+  "Face used for summaries of entities with unread notifications.
+This face is always used together with, and takes preference
+over, a `forge[-fancy]-{issue,pullreq}-STATE' face and should not
+specify any attribute that is specified by any of those faces.
+Likewise those faces should not set `:weight' or `:slant'."
   :group 'forge-faces)
+
+(defface forge-notification-pending
+  '((t))
+  "Face used for summaries of entities with open notifications.
+This face is always used together with, and takes preference
+over, a `forge[-fancy]-{issue,pullreq}-STATE' face and should not
+specify any attribute that is specified by any of those faces.
+Likewise those faces should not set `:weight' or `:slant'."
+  :group 'forge-faces)
+
+(defface forge-notification-pending-spotlight
+  '((t :box t))
+  "Additional face used for summaries of entities with open notifications.
+
+This face is used in addition to `forge-notification-pending' in
+the buffer listing notifications, making it easier to synchronize
+the state between Forge and Github.
+
+See info node `(forge) Dealing with Github's abysmal notification API'."
+  :group 'forge-faces)
+
+(defface forge-notification-done
+  '((t :slant italic))
+  "Face used for summaries of entities with no unread or open notification.
+This face is always used together with, and takes preference
+over, a `forge[-fancy]-{issue,pullreq}-STATE' face and should not
+specify any attribute that is specified by any of those faces.
+Likewise those faces should not set `:weight' or `:slant'."
+  :group 'forge-faces)
+
+;;;;; Issues
+
+(defface forge-issue-open
+  '((t))
+  "Face used for summaries of open issues."
+  :group 'forge-faces)
+
+(defface forge-issue-completed
+  '((t :inherit forge-dimmed))
+  "Face used for summaries of issues closed as completed."
+  :group 'forge-faces)
+
+(defface forge-issue-unplanned
+  '((t :inherit forge-dimmed :strike-through t))
+  "Face used for summaries of issues closed as unplanned."
+  :group 'forge-faces)
+
+;;;;; Pull-Requests
+
+(defface forge-pullreq-open
+  '((t :inherit forge-issue-open))
+  "Face used for summaries of open pull-requests.
+Whether this face or `forge-fancy-pullreq-open' is used,
+depends on option `forge-fancy-topic-summaries'."
+  :group 'forge-faces)
+
+(defface forge-pullreq-merged
+  '((t :inherit forge-issue-completed))
+  "Face used for summaries of merged pull-requests.
+Whether this face or `forge-fancy-pullreq-merged' is used,
+depends on option `forge-fancy-topic-summaries'."
+  :group 'forge-faces)
+
+(defface forge-pullreq-rejected
+  '((t :inherit forge-issue-unplanned))
+  "Face used for summaries of closed pull-requests, that weren't merged.
+Whether this face or `forge-fancy-pullreq-rejected' is used,
+depends on option `forge-fancy-topic-summaries'."
+  :group 'forge-faces)
+
+;;;;; Fancy Pull-Requests
+
+(defface forge-fancy-pullreq-open
+  '((t :foreground "LimeGreen"))
+  "Face used for summaries of open pull-requests.
+Whether this face or `forge-pullreq-open' is used,
+depends on option `forge-fancy-topic-summaries'."
+  :group 'forge-faces)
+
+(defface forge-fancy-pullreq-merged
+  '((t :foreground "MediumPurple"))
+  "Face used for summaries of merged pull-requests.
+Whether this face or `forge-pullreq-merged' is used,
+depends on option `forge-fancy-topic-summaries'."
+  :group 'forge-faces)
+
+(defface forge-fancy-pullreq-rejected
+  '((t :foreground "MediumPurple" :strike-through t))
+  "Face used for summaries of closed pull-requests, that weren't merged.
+Whether this face or `forge-pullreq-rejected' is used,
+depends on option `forge-fancy-topic-summaries'."
+  :group 'forge-faces)
+
+;;;; Labels
 
 (defface forge-topic-label
   `((t :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
               :style released-button)))
   "Face used for topic labels."
   :group 'forge-faces)
+
+;;;; Post Details
 
 (defface forge-post-author
   '((t :inherit bold))
@@ -403,27 +539,68 @@ allow exiting with a number that doesn't match any candidate."
   (forge--format (forge-get-repository topic) slot
                  `(,@spec (?i . ,(oref topic number)))))
 
-(defun forge--format-topic-line (topic &optional width)
-  (with-slots (slug title closed) topic
-    (concat (string-pad (magit--propertize-face
-                         slug
-                         (cond ((forge-issue-p topic)
-                                'magit-dimmed)
-                               ((oref topic merged)
-                                'forge-topic-merged)
-                               ('forge-topic-unmerged)))
-                        (or width 5))
-            " "
-            (magit-log-propertize-keywords
-             nil (magit--propertize-face
-                  title
-                  (cond ((eq status 'unread) 'forge-topic-unread)
-                        (closed              'forge-topic-closed)
-                        (t                   'forge-topic-open)))))))
+(defun forge--format-topic-line (topic &optional width mixed)
+  (let ((fancy (pcase forge-fancy-topic-summaries
+                 ('always t)
+                 ('notifications (derived-mode-p 'forge-notifications-mode))
+                 ('mixed mixed)))) ;TODO actually pass
+    (concat
+     (and (derived-mode-p 'forge-notifications-mode)
+          (eq forge-notifications-display-style 'flat)
+          (concat (truncate-string-to-width
+                   (oref (forge-get-repository topic) slug)
+                   forge-notifications-repo-slug-width
+                   nil ?\s t t)
+                  " "))
+     (cond ((or fancy (not (derived-mode-p 'forge-notifications-mode))) nil)
+           ((forge-issue-p   topic) (magit--propertize-face "i " 'magit-dimmed))
+           ((forge-pullreq-p topic) (magit--propertize-face "p " 'magit-dimmed))
+           (t                       (magit--propertize-face "* " 'error)))
+     (string-pad (forge--format-topic-slug topic) (or width 5))
+     " "
+     (forge--format-topic-title topic fancy))))
 
 (defun forge--format-topic-choice (topic)
   (cons (forge--format-topic-line topic)
         (oref topic id)))
+
+(defun forge--format-topic-slug (topic)
+  (magit--propertize-face
+   (oref topic slug)
+   `(,@(and (oref topic saved-p)
+            '(forge-topic-slug-saved))
+     ,(cond ((eq (oref topic state) 'open)
+             'forge-topic-slug-open)
+            ('forge-topic-slug-completed)))))
+
+(defun forge--format-topic-title (topic &optional fancy)
+  (with-slots (title status closed) topic
+    (magit-log-propertize-keywords
+     nil
+     (magit--propertize-face
+      title
+      `(,@(and (eq status 'unread) '(forge-notification-unread))
+        ,@(cond ((eq status 'done) '(forge-notification-done))
+                ((derived-mode-p 'forge-notifications-mode)
+                 '(forge-notification-pending-spotlight
+                   forge-notification-pending))
+                ('(forge-notification-pending)))
+        ,(cond ((forge-issue-p topic)
+                (cond ((not closed) ; TODO use state
+                       'forge-issue-open)
+                      ('forge-issue-completed)))
+               ((forge-pullreq-p topic)
+                (cond ((not closed)
+                       (if fancy
+                           'forge-fancy-pullreq-open
+                         'forge-pullreq-open))
+                      ((oref topic merged)
+                       (if fancy
+                           'forge-fancy-pullreq-merged
+                         'forge-pullreq-merged))
+                      (fancy
+                       'forge-fancy-pullreq-rejected)
+                      ('forge-pullreq-rejected)))))))))
 
 ;;; Insert
 
