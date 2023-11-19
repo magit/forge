@@ -36,14 +36,14 @@
   :options '(hl-line-mode))
 
 (defvar forge-topic-list-columns
-  '(("#" 5 forge-topic-list-sort-by-number (:right-align t) number nil)
+  '(("#" 5 forge-topic-list-sort-by-number nil number nil)
     ("Title" 35 t nil title  nil)
     ))
 
 (defvar forge-global-topic-list-columns
   '(("Owner"    15 t   nil repository:owner nil)
     ("Name"     20 t   nil repository:name  nil)
-    ("#"         5 forge-topic-list-sort-by-number (:right-align t) number nil)
+    ("#"         5 forge-topic-list-sort-by-number nil number nil)
     ("Title"    35 t   nil title nil)
     ))
 
