@@ -468,7 +468,7 @@ with a prefix argument also closed topics."
          (worktree (oref repo worktree)))
     (if (and worktree (file-directory-p worktree))
         (magit-status-setup-buffer worktree)
-      (forge-list-topics (oref repo id)))))
+      (forge-list-topics repo))))
 
 ;;; Create
 
