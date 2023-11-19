@@ -264,6 +264,9 @@ forges web interface."
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
 
+(defvar forge-repository-list-buffer-name "*forge-repositories*"
+  "Buffer name to use for displaying lists of repositories.")
+
 (define-derived-mode forge-repository-list-mode tabulated-list-mode
   "Repositories"
   "Major mode for browsing a list of repositories."
@@ -277,8 +280,8 @@ forges web interface."
                          forge--tabulated-list-columns)))
   (tabulated-list-init-header))
 
-(defun forge-repository-list-setup (fn buf)
-  (let ((buffer (get-buffer-create buf)))
+(defun forge-repository-list-setup (fn)
+  (let ((buffer (get-buffer-create forge-repository-list-buffer-name)))
     (with-current-buffer buffer
       (setq default-directory "/")
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
@@ -476,8 +479,7 @@ Only Github is supported for now."
   "List known repositories in a separate buffer.
 Here \"known\" means that an entry exists in the local database."
   (interactive)
-  (forge-repository-list-setup #'forge-repository-list-refresh
-                               "*Forge Repositories*"))
+  (forge-repository-list-setup #'forge-repository-list-refresh))
 
 ;;;###autoload
 (defun forge-list-owned-repositories ()
@@ -487,8 +489,7 @@ and options `forge-owned-accounts' and `forge-owned-ignored'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   (interactive)
-  (forge-repository-list-setup #'forge-repository-list-owned-refresh
-                               "*Forge Owned Repositories*"))
+  (forge-repository-list-setup #'forge-repository-list-owned-refresh))
 
 ;;; _
 (provide 'forge-list)
