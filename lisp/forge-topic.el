@@ -533,6 +533,12 @@ allow exiting with a number that doesn't match any candidate."
                                     (oref repo id))))
                :annotation-function (lambda (c) (get-text-property 0 :title c))))))
 
+(defun forge-read-topic-label (&optional prompt repository)
+  (magit-completing-read (or prompt "Label")
+                         (forge--format-topic-label-choices
+                          (or repository (forge-get-repository t)))
+                         nil t))
+
 ;;; Format
 
 (cl-defmethod forge--format ((topic forge-topic) slot &optional spec)
@@ -601,6 +607,15 @@ allow exiting with a number that doesn't match any candidate."
                       (fancy
                        'forge-fancy-pullreq-rejected)
                       ('forge-pullreq-rejected)))))))))
+
+(defun forge--format-topic-label-choices (repo)
+  (mapcar (pcase-lambda (`(,_id ,name ,color ,_description))
+            (let* ((background (forge--sanitize-color color))
+                   (foreground (forge--contrast-color background)))
+              (magit--propertize-face
+               name `( :background ,background
+                       :foreground ,foreground))))
+          (oref repo labels)))
 
 ;;; Insert
 

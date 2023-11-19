@@ -231,10 +231,7 @@ This is a list of package names.  Used by the commands
   "List issues of the current repository that have LABEL.
 List them in a separate buffer."
   (interactive (list (oref (forge-get-repository t) id)
-                     (magit-completing-read
-                      "Label"
-                      (mapcar #'cadr (oref (forge-get-repository t) labels))
-                      nil t)))
+                     (forge-read-topic-label)))
   (forge-topic-list-setup #'forge-issue-list-mode id nil nil
     (lambda ()
       (forge-sql [:select $i1 :from [issue issue_label label]
@@ -318,10 +315,7 @@ Only Github is supported for now."
   "List pull-requests of the current repository that have LABEL.
 List them in a separate buffer."
   (interactive (list (oref (forge-get-repository t) id)
-                     (magit-completing-read
-                      "Label"
-                      (mapcar #'cadr (oref (forge-get-repository t) labels))
-                      nil t)))
+                     (forge-read-topic-label)))
   (forge-topic-list-setup #'forge-pullreq-list-mode id nil nil
     (lambda ()
       (forge-sql [:select $i1 :from [pullreq pullreq_label label]
