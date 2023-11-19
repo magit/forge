@@ -350,7 +350,9 @@
                       (with-demoted-errors "forge--pull-notifications: %S"
                         (forge--ghub-massage-notification data githost)))
                     (forge--ghub-get nil "/notifications"
-                      '((all . nil))
+                      (if-let ((since (forge--ghub-notifications-since forge)))
+                          `((all . t) (since . ,since))
+                        '((all . t)))
                       :host apihost :unpaginate t)))
          (groups (-partition-all 50 notifs))
          (pages  (length groups))
@@ -375,6 +377,14 @@
                (when callback
                  (funcall callback)))))
         (cb)))))
+
+(defun forge--ghub-notifications-since (forge)
+  (caar (forge-sql [:select :distinct [notification:updated]
+                    :from [notification repository]
+                    :where (and (= repository:forge $s1)
+                                (= repository:id notification:repository))
+                    :order-by [(desc notification:updated)]]
+                   forge)))
 
 (defun forge--ghub-massage-notification (data githost)
   (let-alist data
