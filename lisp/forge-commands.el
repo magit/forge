@@ -454,9 +454,15 @@ with a prefix argument also closed topics."
   (interactive)
   (let* ((repo (forge-repository-at-point))
          (worktree (oref repo worktree)))
-    (if (and worktree (file-directory-p worktree))
-        (magit-status-setup-buffer worktree)
-      (forge-list-topics repo))))
+    (cond
+     ((eq transient-current-command 'forge-repository-menu)
+      (if-let ((buffer (forge-topic-get-buffer repo)))
+          (switch-to-buffer buffer)
+        (forge-list-topics repo))
+      (transient-setup 'forge-topics-menu))
+     ((and worktree (file-directory-p worktree))
+      (magit-status-setup-buffer worktree))
+     ((forge-list-topics repo)))))
 
 ;;; Create
 
