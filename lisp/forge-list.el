@@ -190,8 +190,21 @@ forges web interface."
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
 
+(defvar forge-topic-list-mode-name
+  '((:eval
+     (let ((info (capitalize
+                  (concat (if forge--buffer-list-filter
+                              (format "%s " forge--buffer-list-filter)
+                            "")
+                          (if forge--buffer-list-type
+                              (format "%ss" forge--buffer-list-type)
+                            "topics")))))
+       (if (fboundp 'moody-tab) (moody-tab info) info))))
+  "Information shown in the mode-line for `forge-topic-list-mode'.
+Must be set before `forge-list' is loaded.")
+
 (define-derived-mode forge-topic-list-mode tabulated-list-mode
-  "Forge Topics"
+  forge-topic-list-mode-name
   "Major mode for browsing a list of topics."
   (setq-local x-stretch-cursor  nil)
   (setq-local hl-line-face 'forge-tablist-hl-line)
@@ -274,8 +287,19 @@ forges web interface."
 (defvar forge-repository-list-buffer-name "*forge-repositories*"
   "Buffer name to use for displaying lists of repositories.")
 
+(defvar forge-repository-list-mode-name
+  '((:eval
+     (let ((info (capitalize
+                  (concat (if forge--buffer-list-filter
+                              (format "%s " forge--buffer-list-filter)
+                            "")
+                          "repositories"))))
+       (if (fboundp 'moody-tab) (moody-tab info) info))))
+  "Information shown in the mode-line for `forge-repository-list-mode'.
+Must be set before `forge-list' is loaded.")
+
 (define-derived-mode forge-repository-list-mode tabulated-list-mode
-  "Repositories"
+  forge-repository-list-mode-name
   "Major mode for browsing a list of repositories."
   (setq-local x-stretch-cursor  nil)
   (setq forge--tabulated-list-columns forge-repository-list-columns)
