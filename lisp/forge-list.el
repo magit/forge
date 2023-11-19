@@ -198,13 +198,13 @@ forges web interface."
   (let ((repo (or repo
                   (and (not global-name)
                        (forge-get-repository t))))
-        (topdir (magit-toplevel)))
-    (with-current-buffer
-        (get-buffer-create
-         (or global-name
-             (format "*forge-topic-list: %s/%s*"
-                     (oref repo owner)
-                     (oref repo name))))
+        (topdir (magit-toplevel))
+        (buffer (get-buffer-create
+                 (or global-name
+                     (format "*forge-topic-list: %s/%s*"
+                             (oref repo owner)
+                             (oref repo name))))))
+    (with-current-buffer buffer
       (setq forge--tabulated-list-columns (or columns forge-topic-list-columns))
       (setq forge--tabulated-list-query
             (cond ((not (functionp fn))
@@ -224,8 +224,8 @@ forges web interface."
       (tabulated-list-init-header)
       (tabulated-list-print)
       (when hl-line-mode
-        (hl-line-highlight))
-      (switch-to-buffer (current-buffer)))))
+        (hl-line-highlight)))
+    (switch-to-buffer buffer)))
 
 (defun forge-topic-list-refresh ()
   (setq tabulated-list-format
@@ -275,13 +275,14 @@ forges web interface."
   (tabulated-list-init-header))
 
 (defun forge-repository-list-setup (fn buf)
-  (with-current-buffer (get-buffer-create buf)
-    (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
-      (forge-repository-list-mode))
-    (funcall fn)
-    (add-hook 'tabulated-list-revert-hook fn nil t)
-    (tabulated-list-print)
-    (switch-to-buffer (current-buffer))))
+  (let ((buffer (get-buffer-create buf)))
+    (with-current-buffer buffer
+      (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
+        (forge-repository-list-mode))
+      (funcall fn)
+      (add-hook 'tabulated-list-revert-hook fn nil t)
+      (tabulated-list-print))
+    (switch-to-buffer buffer)))
 
 (defun forge-repository-list-refresh ()
   (forge-repository--tabulate-entries))
