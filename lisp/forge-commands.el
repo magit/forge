@@ -56,7 +56,7 @@ Takes the pull-request as only argument and must return a directory."
 (transient-define-prefix forge-dispatch ()
   "Dispatch a forge command."
   [["Fetch"
-    :if forge-get-repository-p
+    :if forge--get-full-repository
     ("f f" "all topics"    forge-pull)
     ("f t" "one topic"     forge-pull-topic)
     ("f n" "notifications" forge-pull-notifications)
@@ -64,12 +64,12 @@ Takes the pull-request as only argument and must return a directory."
     ("c i" "issue"         forge-create-issue)
     ("c p" "pull-request"  forge-create-pullreq)
     ("c u" "pull-request from issue" forge-create-pullreq-from-issue
-     :if forge-get-github-repository-p)
+     :if forge--get-github-repository)
     ("c f" "fork or remote" forge-fork)
     """Merge"
     (7 "M  " "merge using API" forge-merge)]
    ["List"
-    :if forge-get-repository-p
+    :if forge--get-full-repository
     ("l t" "topics"        forge-list-topics)
     ("l i" "issues"        forge-list-issues)
     ("l p" "pull-requests" forge-list-pullreqs)
@@ -83,7 +83,7 @@ Takes the pull-request as only argument and must return a directory."
     (7 "o i" "owned issues"           forge-list-owned-issues)
     (7 "o p" "owned pull-requests"    forge-list-owned-pullreqs)
     (7 "o r" "owned repositories"     forge-list-owned-repositories)]]
-  [:if forge-get-repository-p
+  [:if forge--get-full-repository
    [:description (lambda () (forge-dispatch--format-description "Visit"))
     ("v t" "topic"         forge-visit-topic)
     ("v i" "issue"         forge-visit-issue)
@@ -97,7 +97,7 @@ Takes the pull-request as only argument and must return a directory."
     ("b I" "issues"        forge-browse-issues)
     ("b P" "pull-requests" forge-browse-pullreqs)]]
   [["Configure"
-    :if forge-get-repository-p
+    :if forge--get-full-repository
     ("a  " forge-add-repository)
     ("R  " forge-add-pullreq-refspec)
     ("r  " forge-forge.remote)
@@ -112,7 +112,7 @@ Takes the pull-request as only argument and must return a directory."
                    (if (magit-gitdir)
                        "Forge doesn't know about this Git repository yet"
                      "Not inside a Git repository"))
-    :if-not forge-get-repository-p
+    :if-not forge--get-full-repository
     ("a" "add repository to database" forge-add-repository)
     ("f" "fetch notifications"        forge-pull-notifications)
     ("l" "list notifications"         forge-list-notifications)]])
@@ -1047,7 +1047,7 @@ the upstream remotes of local branches accordingly."
 
 (transient-define-infix forge-forge.graphqlItemLimit ()
   "Change the maximum number of GraphQL entities to pull at once."
-  :if #'forge-get-github-repository-p
+  :if #'forge--get-github-repository
   :class 'magit--git-variable
   :variable "forge.graphqlItemLimit"
   :reader #'read-string

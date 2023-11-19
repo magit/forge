@@ -46,8 +46,8 @@
 
 ;;; Query
 
-(defun forge-get-github-repository-p ()
-  (forge-github-repository-p (forge-get-repository nil)))
+(defun forge--get-github-repository ()
+  (forge-github-repository-p (forge-get-repository 'maybe)))
 
 ;;; Pull
 ;;;; Repository
