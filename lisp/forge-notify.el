@@ -114,37 +114,28 @@ signal an error."
 
 ;;;; List
 
-(defun forge--ls-notifications-all ()
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select * :from notification
-                      :order-by [(desc updated)]])))
-
-(defun forge--ls-notifications-pending ()
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select :distinct n:*
-                      :from [(as notification n)
-                             (as issue        i)
-                             (as pullreq      p)]
-                      :where (or (and (= n:topic i:id)
-                                      (= i:status 'pending))
-                                 (and (= n:topic i:id)
-                                      (= p:status 'pending)))
-                      :order-by [(desc n:updated)]])))
-
-(defun forge--ls-notifications-unread ()
-  (mapcar (lambda (row)
-            (closql--remake-instance 'forge-notification (forge-db) row))
-          (forge-sql [:select :distinct n:*
-                      :from [(as notification n)
-                             (as issue        i)
-                             (as pullreq      p)]
-                      :where (or (and (= n:topic i:id)
-                                      (= i:status 'unread))
-                                 (and (= n:topic i:id)
-                                      (= p:status 'unread)))
-                      :order-by [(desc n:updated)]])))
+(defun forge--ls-notifications (status)
+  (let* ((status (ensure-list status))
+         (savedp (memq 'saved status))
+         (status (remq 'saved status)))
+    (mapcar
+     (lambda (row) (closql--remake-instance 'forge-notification (forge-db) row))
+     (if (seq-set-equal-p status '(unread pending done) #'eq)
+         (forge-sql [:select * :from notification :order-by [(desc updated)]])
+       (forge-sql
+        `[:select :distinct notification:*
+          :from [notification (as issue topic)]
+          :where (and (= notification:topic topic:id)
+                      ,@(and status '((in topic:status $v1)))
+                      ,@(and savedp '((= topic:saved-p 't))))
+          :union
+          :select :distinct notification:*
+          :from [notification (as pullreq topic)]
+          :where (and (= notification:topic topic:id)
+                      ,@(and status '((in topic:status $v1)))
+                      ,@(and savedp '((= topic:saved-p 't))))
+          :order-by [(desc notification:updated)]]
+        (vconcat status))))))
 
 ;;; Mode
 
@@ -173,8 +164,7 @@ signal an error."
   (forge-insert-notifications))
 
 (defvar forge-notifications-display-style 'flat)
-(defvar forge-notifications-display-list-function
-  #'forge--ls-notifications-all)
+(defvar forge-notifications-selection '(unread pending))
 
 ;;; Commands
 
@@ -190,10 +180,11 @@ signal an error."
     (:info "notifications    " :face forge-active-suffix)
     ("r"   "repositories...  " forge-repository-menu :transient replace)
     ""]
-   ["Filter"
-    ("U" "unread"  forge-set-notifications-display-selection)
-    ("P" "pending" forge-set-notifications-display-selection)
-    ("A" "all"     forge-set-notifications-display-selection)]]
+   ["Selection"
+    ("I" "inbox" forge-set-notifications-display-selection)
+    ("S" "saved" forge-set-notifications-display-selection)
+    ("D" "done"  forge-set-notifications-display-selection)
+    ("A" "all"   forge-set-notifications-display-selection)]]
   [["Set status"
     ("u" forge-topic-status-set-unread)
     ("x" forge-topic-status-set-pending)
@@ -217,13 +208,14 @@ signal an error."
   (forge-notifications-setup-buffer t))
 
 (transient-define-suffix forge-set-notifications-display-selection ()
-  "Set the value of `forge-notifications-display-list-function' and refresh."
+  "Set the value of `forge-notifications-selection' and refresh."
   (interactive)
-  (setq forge-notifications-display-list-function
+  (setq forge-notifications-selection
         (pcase-exhaustive (oref (transient-suffix-object) description)
-          ("unread"  #'forge--ls-notifications-unread)
-          ("pending" #'forge--ls-notifications-pending)
-          ("all"     #'forge--ls-notifications-all)))
+          ("inbox"  '(unread pending))
+          ("saved"  'saved)
+          ("done"   'done)
+          ("all"    '(unread pending done))))
   (forge-refresh-buffer))
 
 (transient-define-suffix forge-set-notifications-display-style ()
@@ -243,14 +235,19 @@ signal an error."
   "<remap> <magit-visit-thing>"  #'forge-visit-this-repository)
 
 (defun forge-insert-notifications ()
-  (when-let ((notifs (funcall forge-notifications-display-list-function)))
+  (when-let* ((notifs (forge--ls-notifications forge-notifications-selection))
+              (status forge-notifications-selection))
     (magit-insert-section (notifications)
       (magit-insert-heading
-        (concat (pcase forge-notifications-display-list-function
-                  ('forge--ls-notifications-all     "All")
-                  ('forge--ls-notifications-pending "Pending")
-                  ('forge--ls-notifications-unread  "Unread"))
-                " notifications:"))
+        (cond
+         ((eq status 'unread) "Unread notifications")
+         ((eq status 'saved) "Saved notifications")
+         ((eq status 'done) "Done notifications")
+         ((not (listp status))
+          (format "Notifications %s" status))
+         ((seq-set-equal-p status '(unread pending)) "Inbox")
+         ((seq-set-equal-p status '(unread pending done)) "Notifications")
+         ((format "Notifications %s" status))))
       (if (eq forge-notifications-display-style 'flat)
           (magit-insert-section-body
             (dolist (notif notifs)
