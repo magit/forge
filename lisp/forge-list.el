@@ -195,16 +195,18 @@ forges web interface."
   (setq tabulated-list-sort-key (cons "#" nil)))
 
 (defun forge-topic-list-setup (fn &optional repo global-name columns)
-  (let ((repo (or repo
-                  (and (not global-name)
-                       (forge-get-repository t))))
-        (topdir (magit-toplevel))
-        (buffer (get-buffer-create
-                 (or global-name
-                     (format "*forge-topic-list: %s/%s*"
-                             (oref repo owner)
-                             (oref repo name))))))
+  (let* ((repo (or repo
+                   (and (not global-name)
+                        (forge-get-repository t))))
+         (topdir (and repo (oref repo worktree)))
+         (buffer (get-buffer-create
+                  (or global-name
+                      (format "*forge-topic-list: %s/%s*"
+                              (oref repo owner)
+                              (oref repo name))))))
     (with-current-buffer buffer
+      (setq default-directory (or topdir "/"))
+      (setq forge-buffer-repository repo)
       (setq forge--tabulated-list-columns (or columns forge-topic-list-columns))
       (setq forge--tabulated-list-query
             (cond ((not (functionp fn))
@@ -213,9 +215,6 @@ forges web interface."
                               #'> :key (-cut oref <> number))))
                   (repo (apply-partially fn repo))
                   (fn)))
-      (setq forge-buffer-repository repo)
-      (when topdir
-        (setq default-directory topdir))
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
         (forge-topic-list-mode))
       (forge-topic-list-refresh)
