@@ -559,7 +559,7 @@ allow exiting with a number that doesn't match any candidate."
           (concat (truncate-string-to-width
                    (oref (forge-get-repository topic) slug)
                    forge-notifications-repo-slug-width
-                   nil ?\s t t)
+                   nil ?\s t)
                   " "))
      (cond ((or fancy (not (derived-mode-p 'forge-notifications-mode))) nil)
            ((forge-issue-p   topic) (magit--propertize-face "i " 'magit-dimmed))
