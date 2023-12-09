@@ -184,11 +184,17 @@ signal an error."
     ("S" forge-notifications-display-saved)
     ("D" forge-notifications-display-done)
     ("A" forge-notifications-display-all)]]
-  [["Set status"
-    ("u" forge-topic-status-set-unread)
-    ("x" forge-topic-status-set-pending)
-    ("d" forge-topic-status-set-done)
-    ("s" forge-topic-toggle-saved)]
+  [["Set state"
+    ("s o" forge-topic-state-set-open)
+    ("s c" forge-issue-state-set-completed)
+    ("s u" forge-issue-state-set-unplanned)
+    ("s m" forge-pullreq-state-set-merged)
+    ("s x" forge-pullreq-state-set-closed)
+    """Set status"
+    ("s i" forge-topic-status-set-unread)
+    ("s p" forge-topic-status-set-pending)
+    ("s d" forge-topic-status-set-done)
+    ("s s" forge-topic-toggle-saved)]
    ["Group"
     ("f" forge-notifications-style-flat)
     ("g" forge-notifications-style-nested)]

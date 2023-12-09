@@ -392,11 +392,17 @@ Must be set before `forge-list' is loaded.")
     ("c" "created"          forge-list-authored-pullreqs)
     ("a" "assigned"         forge-list-assigned-pullreqs)
     ("w" "awaiting review"  forge-list-requested-reviews)]]
-  [["Set status"
-    ("u" forge-topic-status-set-unread)
-    ("x" forge-topic-status-set-pending)
-    ("d" forge-topic-status-set-done)
-    ("s" forge-topic-toggle-saved)]
+  [["Set state"
+    ("s o" forge-topic-state-set-open)
+    ("s c" forge-issue-state-set-completed)
+    ("s u" forge-issue-state-set-unplanned)
+    ("s m" forge-pullreq-state-set-merged)
+    ("s x" forge-pullreq-state-set-closed)
+    """Set status"
+    ("s i" forge-topic-status-set-unread)
+    ("s p" forge-topic-status-set-pending)
+    ("s d" forge-topic-status-set-done)
+    ("s s" forge-topic-toggle-saved)]
    ["Global lists"
     ("o t" "owned topics"        forge-list-owned-topics)
     ("o i" "owned issues"        forge-list-owned-issues)

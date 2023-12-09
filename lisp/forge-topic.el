@@ -967,6 +967,83 @@ This mode itself is never used directly."
     (insert ?\n)))
 
 ;;; Commands
+;;;; State
+
+(transient-define-suffix forge-topic-state-set-open ()
+  "Set the state of the current topic to `open'."
+  :description "open"
+  :inapt-if (lambda ()
+              (if-let ((topic (forge-current-topic)))
+                  (eq (oref topic state) 'open)
+                t))
+  :inapt-face (lambda ()
+                (if (forge-current-topic)
+                    'forge-active-suffix
+                  'transient-inapt-suffix))
+  (interactive)
+  (oset (forge-current-topic t) state 'open)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-issue-state-set-completed ()
+  "Set the state of the current issue to `completed'."
+  :description "completed"
+  :inapt-if (lambda ()
+              (if-let ((topic (forge-current-issue)))
+                  (eq (oref topic state) 'completed)
+                t))
+  :inapt-face (lambda ()
+                (if (forge-current-issue)
+                    'forge-active-suffix
+                  'transient-inapt-suffix))
+  (interactive)
+  (oset (forge-current-issue t) state 'completed)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-issue-state-set-unplanned ()
+  "Set the state of the current issue to `unplanned'."
+  :description "unplanned"
+  :inapt-if (lambda ()
+              (if-let ((topic (forge-current-issue)))
+                  (eq (oref topic state) 'unplanned)
+                t))
+  :inapt-face (lambda ()
+                (if (forge-current-issue)
+                    'forge-active-suffix
+                  'transient-inapt-suffix))
+  (interactive)
+  (oset (forge-current-issue t) state 'unplanned)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-pullreq-state-set-merged ()
+  "If the current pull-request is merged, then visualize that."
+  :description "merged"
+  :inapt-if (lambda ()
+              (if-let ((topic (forge-current-pullreq)))
+                  (eq (oref topic state) 'merged)
+                t))
+  :inapt-face (lambda ()
+                (if (forge-current-pullreq)
+                    'forge-active-suffix
+                  'transient-inapt-suffix))
+  (interactive)
+  (message "Please use a merge command for this"))
+
+(transient-define-suffix forge-pullreq-state-set-closed ()
+  "Set the state of the current pull-request to `closed'."
+  :description "closed"
+  :inapt-if (lambda ()
+              (if-let ((topic (forge-current-pullreq)))
+                  (eq (oref topic state) 'closed)
+                t))
+  :inapt-face (lambda ()
+                (if (forge-current-pullreq)
+                    'forge-active-suffix
+                  'transient-inapt-suffix))
+  (interactive)
+  (oset (forge-current-pullreq t) state 'closed)
+  (forge-refresh-buffer))
+
+;;;; Status
 
 (transient-define-suffix forge-topic-status-set-unread ()
   "Set the notification status of the current topic to `unread'."
