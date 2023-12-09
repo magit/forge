@@ -454,8 +454,8 @@
       (when (= version 10)
         (message "Upgrading Forge database from version 10 to 11...")
         (emacsql db [:drop-table notification])
-        (emacsql db [:create-table notifications $S1]
-                 (cdr (assq 'notifications forge--db-table-schemata)))
+        (emacsql db [:create-table notification $S1]
+                 (cdr (assq 'notification forge--db-table-schemata)))
         (emacsql db [:alter-table pullreq :rename-column unread-p :to status])
         (emacsql db [:alter-table issue   :rename-column unread-p :to status])
         (emacsql db [:alter-table pullreq :add-column saved-p :default nil])
