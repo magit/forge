@@ -26,7 +26,7 @@
 
 ;;; Options
 
-(defcustom forge-notifications-github-kludge 'pending-again
+(defcustom forge-notifications-github-kludge nil
   "The kludge used to work around Github's abysmal notification API."
   :package-version '(forge . "0.4.0")
   :group 'forge
