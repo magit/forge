@@ -148,12 +148,13 @@ If pulling is too slow, then also consider setting the Git variable
   (interactive
    (list nil
          (and current-prefix-arg
-              (not (forge-current-repository 'full))
+              (let ((repo (forge-current-repository)))
+                (or (not repo) (oref repo sparse-p)))
               (forge-read-date "Limit pulling to topics updates since: "))
          t))
   (let (create)
-    (unless repo
-      (setq repo (forge-current-repository 'full))
+    (when (or (not repo) (oref repo sparse-p))
+      (setq repo (forge-current-repository))
       (unless repo
         (setq repo (forge-get-repository 'create))
         (setq create t)))

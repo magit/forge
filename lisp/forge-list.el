@@ -413,7 +413,7 @@ Must be set before `forge-list' is loaded.")
   (interactive)
   (catch 'add-instead
     (unless (derived-mode-p 'forge-topic-list-mode)
-      (let ((repo (forge-current-repository nil)))
+      (let ((repo (forge-current-repository)))
         (cond
          ((or (not repo) (not (oref repo sparse-p))))
          ((yes-or-no-p

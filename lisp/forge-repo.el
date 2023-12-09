@@ -221,13 +221,10 @@ See `forge-alist' for valid Git hosts."
 
 ;;;; Current
 
-(defun forge-current-repository (&optional demand)
-  "Return the repository at point or being visited.
-If there is no such repository and DEMAND is non-nil, then signal
-an error."
+(defun forge-current-repository ()
+  "Return the repository at point or being visited."
   (or (forge-repository-at-point)
-      (forge-get-repository nil)
-      (and demand (user-error "No current repository"))))
+      (forge-get-repository nil)))
 
 (defun forge-repository-at-point (&optional demand)
   "Return the repository at point.
