@@ -336,7 +336,7 @@ argument also offer closed pull-requests."
   (if-let ((target (forge--browse-target)))
       (let ((url (if (stringp target) target (forge-get-url target))))
         (kill-new url)
-        (message "Copied %S" url))
+        (message "Copied \"%s\"" url))
     (user-error "Nothing at point with a URL")))
 
 ;;;###autoload
