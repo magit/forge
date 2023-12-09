@@ -64,11 +64,6 @@
    (last-read                 :initarg :last-read)
    (updated                   :initarg :updated)))
 
-;;; Special
-
-(cl-defmethod forge-topic-mark-read ((_ forge-repository) topic)
-  (oset topic status 'done))
-
 ;;; Query
 ;;;; Get
 

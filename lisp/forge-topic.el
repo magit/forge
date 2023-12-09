@@ -327,6 +327,9 @@ depends on option `forge-fancy-topic-summaries'."
            topic
            value))
 
+(cl-defmethod forge-topic-mark-read ((topic forge-topic))
+  (oset topic status 'done))
+
 ;;; Query
 ;;;; Get
 
@@ -737,7 +740,7 @@ This mode itself is never used directly."
     (magit-setup-buffer-internal
      (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode)
      t `((forge-buffer-topic ,topic)) name)
-    (forge-topic-mark-read repo topic)))
+    (forge-topic-mark-read topic)))
 
 (defun forge-topic-refresh-buffer ()
   (let ((topic (closql-reload forge-buffer-topic)))
