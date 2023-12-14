@@ -356,8 +356,7 @@ forges and hosts."
 (defun forge--set-field-callback ()
   (let ((buf (current-buffer)))
     (lambda (&rest _)
-      (with-current-buffer
-          (or buf (current-buffer))
+      (with-current-buffer (or buf (current-buffer))
         (forge-pull)))))
 
 (defvar forge--mode-line-buffer nil)
