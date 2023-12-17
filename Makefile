@@ -8,6 +8,7 @@ all: lisp docs
 help:
 	$(info make all          - generate lisp and manual)
 	$(info make lisp         - generate byte-code and autoloads)
+	$(info make redo         - re-generate byte-code and autoloads)
 	$(info make docs         - generate most manual formats)
 	$(info make texi         - generate texi manual (see comments))
 	$(info make info         - generate info manual)
@@ -21,6 +22,8 @@ help:
 	$(info make clean        - remove most generated files)
 	@printf "\n"
 
+redo:
+	@$(MAKE) -C lisp clean lisp
 lisp:
 	@$(MAKE) -C lisp lisp
 
