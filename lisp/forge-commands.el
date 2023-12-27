@@ -309,7 +309,7 @@ argument also offer closed pull-requests."
 ;;;###autoload
 (defun forge-browse-remote (remote)
   "Read a REMOTE and visit it using a browser."
-  (interactive (list (magit-read-remote "Browse remote")))
+  (interactive (list (magit-read-remote "Browse remote" nil t)))
   (browse-url (forge-get-url :remote remote)))
 
 ;;;###autoload
