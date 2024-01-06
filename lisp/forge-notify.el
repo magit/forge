@@ -104,7 +104,7 @@ signal an error."
   (or (magit-section-value-if 'notification)
       (and-let* ((topic (forge-topic-at-point)))
         (forge-get-notification topic))
-      (and demand (user-error "No notication at point"))))
+      (and demand (user-error "No notification at point"))))
 
 ;;;; List
 
