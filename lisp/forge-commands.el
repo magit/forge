@@ -1071,8 +1071,7 @@ This only affect the current status buffer."
                    "display recently closed topics"))
   :transient t
   (interactive)
-  (magit-repository-local-delete (list 'forge-ls-recent-topics 'issue))
-  (magit-repository-local-delete (list 'forge-ls-recent-topics 'pullreq))
+  (forge--zap-repository-cache)
   (make-local-variable 'forge-topic-list-limit)
   (if (atom forge-topic-list-limit)
       (setq forge-topic-list-limit (cons forge-topic-list-limit 5))
