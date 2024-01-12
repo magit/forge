@@ -362,9 +362,9 @@ learn to refresh other kinds of buffers as well."
          (magit-refresh-buffer))))
 
 (defun forge--zap-repository-cache (&optional repo)
-  (when-let ((r (if repo
-                    (oref repo worktree)
-                  (magit-repository-local-repository))))
+  (when-let ((r (cond ((eq repo 'all) repo)
+                      (repo (oref repo worktree))
+                      ((magit-repository-local-repository)))))
     (magit-repository-local-delete (list 'forge-ls-recent-topics 'issue) r)
     (magit-repository-local-delete (list 'forge-ls-recent-topics 'pullreq) r)))
 
