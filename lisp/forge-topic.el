@@ -43,6 +43,9 @@ used to order the topics by that slot.  Reasonable values
 include (number . >) and (updated . string>)."
   :package-version '(forge . "0.1.0")
   :group 'forge
+  :set (lambda (symbol value)
+         (set-default-toplevel-value symbol value)
+         (forge--zap-repository-cache 'all))
   :type '(cons (symbol   :tag "Slot")
                (function :tag "Predicate")))
 
