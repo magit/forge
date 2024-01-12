@@ -237,13 +237,6 @@ If pulling is too slow, then also consider setting the Git variable
   (error "Fetching an individual topic not implemented for %s"
          (eieio-object-class repo)))
 
-(defun forge--zap-repository-cache (&optional repo)
-  (when-let ((r (if repo
-                    (oref repo worktree)
-                  (magit-repository-local-repository))))
-    (magit-repository-local-delete (list 'forge-ls-recent-topics 'issue) r)
-    (magit-repository-local-delete (list 'forge-ls-recent-topics 'pullreq) r)))
-
 ;;; Browse
 
 ;;;###autoload

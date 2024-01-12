@@ -36,10 +36,11 @@
 (require 'forge-db)
 
 (eval-when-compile
-  (cl-pushnew 'id     eieio--known-slot-names)
-  (cl-pushnew 'name   eieio--known-slot-names)
-  (cl-pushnew 'owner  eieio--known-slot-names)
-  (cl-pushnew 'number eieio--known-slot-names))
+  (cl-pushnew 'id       eieio--known-slot-names)
+  (cl-pushnew 'name     eieio--known-slot-names)
+  (cl-pushnew 'number   eieio--known-slot-names)
+  (cl-pushnew 'owner    eieio--known-slot-names)
+  (cl-pushnew 'worktree eieio--known-slot-names))
 
 ;;; Options
 
@@ -359,6 +360,13 @@ learn to refresh other kinds of buffers as well."
                (magit-refresh-buffer)))))
         ((derived-mode-p 'magit-mode)
          (magit-refresh-buffer))))
+
+(defun forge--zap-repository-cache (&optional repo)
+  (when-let ((r (if repo
+                    (oref repo worktree)
+                  (magit-repository-local-repository))))
+    (magit-repository-local-delete (list 'forge-ls-recent-topics 'issue) r)
+    (magit-repository-local-delete (list 'forge-ls-recent-topics 'pullreq) r)))
 
 (defun forge--sanitize-string (string)
   ;; For Gitlab this may also be nil.
