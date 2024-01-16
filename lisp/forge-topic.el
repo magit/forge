@@ -434,7 +434,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
               rows))))
 
 (defun forge-ls-recent-topics (repo table)
-  (magit--with-repository-local-cache (list 'forge-ls-recent-topics table)
+  (progn ; MAYBE resume caching this
     (let* ((id (oref repo id))
            (limit forge-topic-list-limit)
            (open-limit   (if (consp limit) (car limit) limit))
