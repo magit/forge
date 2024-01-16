@@ -43,19 +43,19 @@
     (list :tag "Column"
           (string  :tag "Header Label")
           (choice  :tag "Value source"
-                   (function)
+                   function
                    (symbol :tag "Object slot"))
           (integer :tag "Column Width")
           (choice  :tag "Sort predicate"
                    (const :tag "Don't sort" nil)
                    (const :tag "Default" t)
-                   (function))
-          (repeat  :tag "Properties"
-                   (list (choice :tag "Property"
-                                 (const :right-align)
-                                 (const :pad-right)
-                                 (symbol))
-                         (sexp :tag "Value"))))))
+                   function)
+          (plist   :tag "Properties"
+                   :key-type (choice :tag "Property"
+                                     (const :right-align)
+                                     (const :pad-right)
+                                     symbol)
+                   :value-type (sexp :tag "Value")))))
 
 (defcustom forge-topic-list-columns
   '(("#"     forge--format-topic-slug          5 nil nil)
