@@ -1106,7 +1106,7 @@ This mode itself is never used directly."
   :inapt-if-not #'forge-current-topic
   :description
   (lambda ()
-    (if-let ((topic (transient-with-shadowed-buffer (forge-current-topic))))
+    (if-let ((topic (forge-current-topic)))
         (concat "toggle "
                 (format (propertize "[%s]" 'face 'transient-delimiter)
                         (propertize "saved" 'face

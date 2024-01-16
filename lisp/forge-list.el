@@ -488,20 +488,18 @@ menu."
    (inapt-face                  :initform nil)))
 
 (defun forge--topic-list-inapt ()
-  (transient-with-shadowed-buffer
-    (with-slots (type filter global) transient--pending-suffix
-      (and (eq type   forge--buffer-list-type)
-           (eq filter forge--buffer-list-filter)
-           (eq global forge--buffer-list-global)))))
+  (with-slots (type filter global) transient--pending-suffix
+    (and (eq type   forge--buffer-list-type)
+         (eq filter forge--buffer-list-filter)
+         (eq global forge--buffer-list-global))))
 
 (cl-defmethod transient-format-description ((obj forge--topic-list-command))
-  (transient-with-shadowed-buffer
-    (with-slots (description type filter global) obj
-      (if (and (eq   type   forge--buffer-list-type)
-               (memq filter (list nil forge--buffer-list-filter))
-               (eq   global forge--buffer-list-global))
-          (propertize description 'face 'forge-active-suffix)
-        description))))
+  (with-slots (description type filter global) obj
+    (if (and (eq   type   forge--buffer-list-type)
+             (memq filter (list nil forge--buffer-list-filter))
+             (eq   global forge--buffer-list-global))
+        (propertize description 'face 'forge-active-suffix)
+      description)))
 
 ;;;; Topic
 
