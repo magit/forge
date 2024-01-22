@@ -71,6 +71,13 @@
   (forge-db))
 (add-hook 'magit-status-mode-hook #'forge-connect-database-once)
 
+(defun forge-enable-sql-logging ()
+  "Enable logging Forge's SQL queries."
+  (interactive)
+  (let ((conn (oref (forge-db) connection)))
+    (emacsql-enable-debugging conn)
+    (switch-to-buffer-other-window (oref conn log-buffer))))
+
 ;;; Schemata
 
 (defconst forge--db-table-schemata

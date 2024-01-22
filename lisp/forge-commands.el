@@ -1202,13 +1202,6 @@ heavy development."
 
 ;;; Miscellaneous
 
-(defun forge-enable-sql-logging ()
-  "Enable logging Forge's SQL queries."
-  (interactive)
-  (let ((conn (oref (forge-db) connection)))
-    (emacsql-enable-debugging conn)
-    (switch-to-buffer-other-window (oref conn log-buffer))))
-
 (magit-define-section-jumper forge-jump-to-pullreqs "Pull requests" pullreqs)
 (magit-define-section-jumper forge-jump-to-issues "Issues" issues)
 
