@@ -196,7 +196,8 @@ signal an error."
     (magit-cycle-margin-style)
     ("e" magit-toggle-margin-details)]]
   (interactive)
-  (forge-list-notifications)
+  (unless (derived-mode-p 'forge-notifications-mode)
+    (forge-list-notifications))
   (transient-setup 'forge-notification-menu))
 
 ;;;###autoload
