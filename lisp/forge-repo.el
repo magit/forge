@@ -121,14 +121,19 @@
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
   "Return the current forge repository.
 
-If the `forge-buffer-repository' is non-nil, then return that.
-Otherwise if `forge-buffer-topic' is non-nil, then return the
-repository for that.  Finally if both variables are nil, then
-return the forge repository corresponding to the current Git
-repository, if any."
-  (or forge-buffer-repository
-      (and forge-buffer-topic
-           (forge-get-repository forge-buffer-topic))
+First check if `forge-buffer-repository', or if that is nil, then
+the repository for `forge-buffer-topic', satisfies DEMAND.  If so,
+then return that repository.
+
+Otherwise return the repository for `default-directory', if that
+exists and satisfies DEMAND.  If that fails too, then return nil
+or signal an error, depending on DEMAND."
+  (or (and-let* ((repo (or forge-buffer-repository
+                           (and forge-buffer-topic
+                                (forge-get-repository forge-buffer-topic)))))
+        (and (not (and (memq demand forge--signal-no-entry)
+                       (oref repo sparse-p)))
+             repo))
       (magit--with-refresh-cache
           (list default-directory 'forge-get-repository demand)
         (if (not (magit-gitdir))
