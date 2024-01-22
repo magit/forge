@@ -226,7 +226,10 @@ Must be set before `forge-list' is loaded.")
 (defun forge-topic-list-setup (type filter fn &optional repo global columns)
   (let* ((repo (or repo
                    (and (not global)
-                        (forge-get-repository nil))))
+                        (if-let* ((topic (forge-topic-at-point))
+                                  (repo (forge-get-repository topic)))
+                            repo
+                          (forge-get-repository nil)))))
          (topdir (and repo (oref repo worktree)))
          (buffer nil))
     (unless (or repo global)
