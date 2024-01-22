@@ -35,9 +35,8 @@
                  always-unread)
           (const :tag "Unless unread, updated notifications become pending"
                  pending-again)
-          (const :tag (concat "Unless unread or non-nil local status, "
-                              "updated notifications become pending")
-                 pending-if-unset)))
+          (const :tag "Unless unread or fetched before, updated become pending")
+                 pending-if-unset))
 
 (defcustom forge-notifications-repo-slug-width 28
   "Width of repository slugs in `forge-notifications-mode' buffers."
