@@ -168,9 +168,9 @@ signal an error."
   :refresh-suffixes t
   [:hide always ("q" forge-menu-quit-list)]
   [["Type"
-    ("t"   "topics...        " forge-topics-menu     :transient replace)
-    (:info "notifications    " :face forge-active-suffix)
-    ("r"   "repositories...  " forge-repository-menu :transient replace)
+    ("t"   "topics...       " forge-topics-menu     :transient replace)
+    (:info "notifications   " :face forge-active-suffix)
+    ("r"   "repositories... " forge-repository-menu :transient replace)
     ""]
    ["Selection"
     ("I" forge-notifications-display-inbox)

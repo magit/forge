@@ -367,9 +367,9 @@ Must be set before `forge-list' is loaded.")
   :refresh-suffixes t
   [:hide always ("q" forge-menu-quit-list)]
   [["Type"
-    (:info "topics           " :face forge-active-suffix)
-    ("n"   "notifications... " forge-notification-menu :transient replace)
-    ("r"   "repositories...  " forge-repository-menu   :transient replace)]
+    (:info "topics"           :face forge-active-suffix)
+    ("n"   "notifications..." forge-notification-menu :transient replace)
+    ("r"   "repositories..."  forge-repository-menu   :transient replace)]
    [:description (lambda ()
                    (if forge--buffer-list-global
                        "Per-repository lists"
