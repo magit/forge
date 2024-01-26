@@ -100,6 +100,23 @@ This variable has to be customized before `forge' is loaded."
              magit-mode-hook)
   :type '(list :convert-widget custom-hook-convert-widget))
 
+(defcustom forge-colorful-topic-summaries t
+  "Whether to use colorful faces for summaries of pull-requests.
+
+If t, colorful faces are used for summaries of pull-requests,
+while summaries of issues use grayscale faces.
+
+If nil, then both issue and pull-request summaries use grayscale
+faces.  Instead the topic slug is prefixed with a character
+indicating the type.
+
+Pull-request sections in Magit's status ignore this option and
+always use grayscale faces to avoid fruit-salad, and because the
+type is never ambigious here, also do not use type characters."
+  :package-version '(forge . "0.4.0")
+  :group 'forge-faces
+  :type 'boolean)
+
 (defvar-local forge-display-in-status-buffer t
   "Whether to display topics in the current Magit status buffer.")
 (put 'forge-display-in-status-buffer 'permanent-local t)
@@ -111,24 +128,6 @@ implement such a function themselves.  See #447.")
 
 ;;; Faces
 ;;;; Common
-
-(defcustom forge-fancy-topic-summaries nil
-  "Whether and where to use fancy topic faces.
-
-When listing different types of topics in a single list, then it
-is desirable to be able to easily tell the types apart, which can
-be done using fancy (by default more colorful) faces.
-
-If the value of this option nil, then never use fancy faces.  If
-it is `notifications', then only do so when listing notifications.
-If `mixed', then only in lists that contain topics of different
-types.  If `always', then go full-on fruit salad."
-  :package-version '(forge . "0.4.0")
-  :group 'forge-faces
-  :type '(choice (const :tag "Never" nil)
-                 (const :tag "Only in notifications buffer" notifications)
-                 (const :tag "Only when listing mixed-type topics" mixed)
-                 (const :tag "Always" always)))
 
 (defface forge-dimmed '((t :foreground "#93a1a1"))
   "Parent face or faces used for text that shouldn't stand out.
@@ -222,45 +221,45 @@ Likewise those faces should not set `:weight' or `:slant'."
 (defface forge-pullreq-open
   '((t :inherit forge-issue-open))
   "Face used for summaries of open pull-requests.
-Whether this face or `forge-fancy-pullreq-open' is used,
-depends on option `forge-fancy-topic-summaries'."
+Whether this face or `forge-pullreq-open-colored' is
+used, depends on option `forge-colorful-topic-summaries'."
   :group 'forge-faces)
 
 (defface forge-pullreq-merged
   '((t :inherit forge-issue-completed))
   "Face used for summaries of merged pull-requests.
-Whether this face or `forge-fancy-pullreq-merged' is used,
-depends on option `forge-fancy-topic-summaries'."
+Whether this face or `forge-pullreq-merged-colored' is
+used, depends on option `forge-colorful-topic-summaries'."
   :group 'forge-faces)
 
 (defface forge-pullreq-rejected
   '((t :inherit forge-issue-unplanned))
   "Face used for summaries of closed pull-requests, that weren't merged.
-Whether this face or `forge-fancy-pullreq-rejected' is used,
-depends on option `forge-fancy-topic-summaries'."
+Whether this face or `forge-pullreq-rejected-colored' is
+used, depends on option `forge-colorful-topic-summaries'."
   :group 'forge-faces)
 
-;;;;; Fancy Pull-Requests
+;;;;; Colorful Pull-Requests
 
-(defface forge-fancy-pullreq-open
+(defface forge-pullreq-open-colored
   '((t :foreground "LimeGreen"))
   "Face used for summaries of open pull-requests.
 Whether this face or `forge-pullreq-open' is used,
-depends on option `forge-fancy-topic-summaries'."
+depends on option `forge-colorful-topic-summaries'."
   :group 'forge-faces)
 
-(defface forge-fancy-pullreq-merged
+(defface forge-pullreq-merged-colored
   '((t :foreground "MediumPurple"))
   "Face used for summaries of merged pull-requests.
 Whether this face or `forge-pullreq-merged' is used,
-depends on option `forge-fancy-topic-summaries'."
+depends on option `forge-colorful-topic-summaries'."
   :group 'forge-faces)
 
-(defface forge-fancy-pullreq-rejected
+(defface forge-pullreq-rejected-colored
   '((t :foreground "MediumPurple" :strike-through t))
   "Face used for summaries of closed pull-requests, that weren't merged.
 Whether this face or `forge-pullreq-rejected' is used,
-depends on option `forge-fancy-topic-summaries'."
+depends on option `forge-colorful-topic-summaries'."
   :group 'forge-faces)
 
 ;;;; Labels
@@ -563,26 +562,22 @@ allow exiting with a number that doesn't match any candidate."
   (forge--format (forge-get-repository topic) slot
                  `(,@spec (?i . ,(oref topic number)))))
 
-(defun forge--format-topic-line (topic &optional width mixed)
-  (let ((fancy (pcase forge-fancy-topic-summaries
-                 ('always t)
-                 ('notifications (derived-mode-p 'forge-notifications-mode))
-                 ('mixed mixed)))) ;TODO actually pass
-    (concat
-     (and (derived-mode-p 'forge-notifications-mode)
-          (eq forge-notifications-display-style 'flat)
-          (concat (truncate-string-to-width
-                   (oref (forge-get-repository topic) slug)
-                   forge-notifications-repo-slug-width
-                   nil ?\s t)
-                  " "))
-     (cond ((or fancy (not (derived-mode-p 'forge-notifications-mode))) nil)
-           ((forge-issue-p   topic) (magit--propertize-face "I " 'magit-dimmed))
-           ((forge-pullreq-p topic) (magit--propertize-face "P " 'magit-dimmed))
-           (t                       (magit--propertize-face "* " 'error)))
-     (string-pad (forge--format-topic-slug topic) (or width 5))
-     " "
-     (forge--format-topic-title topic fancy))))
+(defun forge--format-topic-line (topic &optional width no-indicator)
+  (concat
+   (and (derived-mode-p 'forge-notifications-mode)
+        (eq forge-notifications-display-style 'flat)
+        (concat (truncate-string-to-width
+                 (oref (forge-get-repository topic) slug)
+                 forge-notifications-repo-slug-width
+                 nil ?\s t)
+                " "))
+   (cond ((or forge-colorful-topic-summaries no-indicator) nil)
+         ((forge-issue-p   topic) (magit--propertize-face "I " 'magit-dimmed))
+         ((forge-pullreq-p topic) (magit--propertize-face "P " 'magit-dimmed))
+         (t                       (magit--propertize-face "* " 'error)))
+   (string-pad (forge--format-topic-slug topic) (or width 5))
+   " "
+   (forge--format-topic-title topic)))
 
 (defun forge--format-topic-choice (topic)
   (cons (forge--format-topic-line topic)
@@ -599,7 +594,7 @@ allow exiting with a number that doesn't match any candidate."
           ((or 'completed 'merged)   'forge-topic-slug-completed)
           ((or 'unplanned 'rejected) 'forge-topic-slug-unplanned))))))
 
-(defun forge--format-topic-title (topic &optional fancy)
+(defun forge--format-topic-title (topic)
   (with-slots (title status state) topic
     (magit-log-propertize-keywords
      nil
@@ -609,16 +604,18 @@ allow exiting with a number that doesn't match any candidate."
            ('unread  'forge-notification-unread)
            ('pending 'forge-notification-pending)
            ('done    'forge-notification-done))
-        ,(pcase (list (eieio-object-class topic) state fancy)
+        ,(pcase (list (eieio-object-class topic)
+                      state
+                      forge-colorful-topic-summaries)
            (`(forge-issue   open       ,_) 'forge-issue-open)
            (`(forge-issue   completed  ,_) 'forge-issue-completed)
            (`(forge-issue   unplanned  ,_) 'forge-issue-unplanned)
            (`(forge-pullreq open      nil) 'forge-pullreq-open)
            (`(forge-pullreq merged    nil) 'forge-pullreq-merged)
            (`(forge-pullreq rejected  nil) 'forge-pullreq-rejected)
-           (`(forge-pullreq open       ,_) 'forge-fancy-pullreq-open)
-           (`(forge-pullreq merged     ,_) 'forge-fancy-pullreq-merged)
-           (`(forge-pullreq rejected   ,_) 'forge-fancy-pullreq-rejected)))))))
+           (`(forge-pullreq open       ,_) 'forge-pullreq-open-colored)
+           (`(forge-pullreq merged     ,_) 'forge-pullreq-merged-colored)
+           (`(forge-pullreq rejected   ,_) 'forge-pullreq-rejected-colored)))))))
 
 (defun forge--format-topic-title+labels (topic)
   (concat (forge--format-topic-title  topic) " "
@@ -657,14 +654,15 @@ allow exiting with a number that doesn't match any candidate."
                                           'magit-section-child-count)))
         (magit-make-margin-overlay nil t)
         (magit-insert-section-body
-          (dolist (topic topics)
-            (forge--insert-topic topic width))
+          (let ((forge-colorful-topic-summaries nil))
+            (dolist (topic topics)
+              (forge--insert-topic topic width)))
           (insert ?\n)
           (magit-make-margin-overlay nil t))))))
 
 (defun forge--insert-topic (topic &optional width)
   (magit-insert-section ((eval (oref topic closql-table)) topic t)
-    (insert (forge--format-topic-line topic (or width 5)))
+    (insert (forge--format-topic-line topic (or width 5) t))
     (forge--insert-topic-marks topic)
     (forge--insert-topic-labels topic)
     (insert "\n")
@@ -827,9 +825,9 @@ This mode itself is never used directly."
                   ('(issue   closed)    'forge-issue-completed)
                   ('(issue   completed) 'forge-issue-completed)
                   ('(issue   unplanned) 'forge-issue-unplanned)
-                  ('(pullreq open)      'forge-fancy-pullreq-open)
-                  ('(pullreq merged)    'forge-fancy-pullreq-merged)
-                  ('(pullreq closed)    'forge-fancy-pullreq-rejected))))))))
+                  ('(pullreq open)      'forge-pullreq-open-colored)
+                  ('(pullreq merged)    'forge-pullreq-merged-colored)
+                  ('(pullreq closed)    'forge-pullreq-rejected-colored))))))))
 
 ;;;;; Draft
 
