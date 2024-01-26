@@ -443,14 +443,18 @@
           (oset notif reason    (intern (downcase .reason)))
           (oset notif last-read .last_read_at)
           (oset notif updated   .updated_at)
-          (pcase-exhaustive (list (and .unread 'unread)
-                                  (and (not (oref topic state)) 'unset)
-                                  forge-notifications-github-kludge)
-            (`(unread ,_    ,_)               (oset topic state 'unread))
-            (`(nil    ,_    always-unread)    (oset topic state 'unread))
-            (`(nil    ,_    pending-again)    (oset topic state 'pending))
-            ('(nil    unset pending-if-unset) (oset topic state 'pending))
-            ('(nil    nil   pending-if-unset)))))
+          ;; Github represents the three possible states using a boolean,
+          ;; which of course means that we cannot do the right thing here.
+          (oset topic status
+                (pcase-exhaustive
+                    (list (and .unread 'unread)
+                          (and (not (oref topic status)) 'unset)
+                          forge-notifications-github-kludge)
+                  (`(unread ,_    ,_)               'unread)
+                  (`(nil    ,_    always-unread)    'unread)
+                  (`(nil    ,_    pending-again)    'pending)
+                  ('(nil    unset pending-if-unset) 'pending)
+                  ('(nil    ,_    ,_                'done))))))
       (forge--zap-repository-cache repo))))
 
 ;;;; Miscellaneous

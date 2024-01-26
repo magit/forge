@@ -1068,20 +1068,15 @@ This mode itself is never used directly."
 
 (transient-define-suffix forge-topic-status-set-pending ()
   "Set the notification status of the current topic to `pending'."
-  :description (lambda ()
-                 (if-let ((topic (forge-current-topic)))
-                     (let ((status (oref topic status)))
-                       (concat
-                        (if (memq status '(nil pending))
-                            (propertize "pending" 'face 'forge-active-suffix)
-                          "pending")
-                        (and (not status) " (assumed)")))
-                   (propertize "pending" 'face 'transient-inapt-suffix)))
+  :description "pending"
   :inapt-if (lambda ()
               (if-let ((topic (forge-current-topic)))
                   (eq (oref topic status) 'pending)
                 t))
-  :inapt-face nil
+  :inapt-face (lambda ()
+                (if (forge-current-topic)
+                    'forge-active-suffix
+                  'transient-inapt-suffix))
   (interactive)
   (oset (forge-current-topic t) status 'pending)
   (forge-refresh-buffer))
