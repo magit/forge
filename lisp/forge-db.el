@@ -53,7 +53,7 @@
    (object-class :initform 'forge-repository)
    (file         :initform 'forge-database-file)
    (schemata     :initform 'forge--db-table-schemata)
-   (version      :initform 11)))
+   (version      :initform 12)))
 
 (defvar forge--override-connection-class nil)
 
@@ -472,6 +472,23 @@
         (emacsql db [:alter-table issue   :add-column saved-p :default nil])
         (closql--db-set-version db (setq version 11))
         (message "Upgrading Forge database from version 10 to 11...done"))
+      (when (= version 11)
+        (message "Upgrading Forge database from version 11 to 12...")
+        (emacsql db [:drop-table notification])
+        (emacsql db [:create-table notification $S1]
+                 (cdr (assq 'notification forge--db-table-schemata)))
+        (dolist (id (emacsql db [:select id :from issue :where (= state 'closed)]))
+          (oset (closql-get db (car id) 'forge-issue) state 'completed))
+        (dolist (id (emacsql db [:select id :from issue :where (isnull status)]))
+          (oset (closql-get db (car id) 'forge-issue) status 'done))
+        (dolist (id (emacsql db [:select id :from pullreq :where (= state 'closed)]))
+          (oset (closql-get db (car id) 'forge-pullreq) state 'rejected))
+        (dolist (id (emacsql db [:select id :from pullreq :where (isnull status)]))
+          (oset (closql-get db (car id) 'forge-pullreq) status 'done))
+        (emacsql db [:alter-table repository :add-column issues-until :default nil])
+        (emacsql db [:alter-table repository :add-column pullreqs-until :default nil])
+        (closql--db-set-version db (setq version 12))
+        (message "Upgrading Forge database from version 11 to 12...done"))
       )
     (cl-call-next-method)))
 
