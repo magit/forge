@@ -160,15 +160,21 @@ were closed without being merged."
 
 (defface forge-topic-slug-saved
   '((t :foreground "orange"))
-  "Face used for slugs of topics with saved notifications.
-This is used in combination with one of the other slug faces."
+  "Face used for slugs of topics with saved notifications."
+  :group 'forge-faces)
+
+(defface forge-topic-slug-unread
+  '((t :weight bold))
+  "Face used for slugs of topics with unread notifications."
   :group 'forge-faces)
 
 ;;;; Topic and Notification Summaries
 ;;;;; Notifications
 
 (defface forge-notification-unread
-  '((t :weight bold))
+  `((t :weight bold
+       :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
+              :style nil)))
   "Face used for summaries of entities with unread notifications.
 This face is always used together with, and takes preference
 over, a `forge[-fancy]-{issue,pullreq}-STATE' face and should not
@@ -177,23 +183,12 @@ Likewise those faces should not set `:weight' or `:slant'."
   :group 'forge-faces)
 
 (defface forge-notification-pending
-  '((t))
+  '((t :weight bold))
   "Face used for summaries of entities with open notifications.
 This face is always used together with, and takes preference
 over, a `forge[-fancy]-{issue,pullreq}-STATE' face and should not
 specify any attribute that is specified by any of those faces.
 Likewise those faces should not set `:weight' or `:slant'."
-  :group 'forge-faces)
-
-(defface forge-notification-pending-spotlight
-  '((t :box t))
-  "Additional face used for summaries of entities with open notifications.
-
-This face is used in addition to `forge-notification-pending' in
-the buffer listing notifications, making it easier to synchronize
-the state between Forge and Github.
-
-See info node `(forge) Dealing with Github's abysmal notification API'."
   :group 'forge-faces)
 
 (defface forge-notification-done
@@ -582,8 +577,8 @@ allow exiting with a number that doesn't match any candidate."
                    nil ?\s t)
                   " "))
      (cond ((or fancy (not (derived-mode-p 'forge-notifications-mode))) nil)
-           ((forge-issue-p   topic) (magit--propertize-face "i " 'magit-dimmed))
-           ((forge-pullreq-p topic) (magit--propertize-face "p " 'magit-dimmed))
+           ((forge-issue-p   topic) (magit--propertize-face "I " 'magit-dimmed))
+           ((forge-pullreq-p topic) (magit--propertize-face "P " 'magit-dimmed))
            (t                       (magit--propertize-face "* " 'error)))
      (string-pad (forge--format-topic-slug topic) (or width 5))
      " "
@@ -594,42 +589,36 @@ allow exiting with a number that doesn't match any candidate."
         (oref topic id)))
 
 (defun forge--format-topic-slug (topic)
-  (magit--propertize-face
-   (oref topic slug)
-   `(,@(and (oref topic saved-p)
-            '(forge-topic-slug-saved))
-     ,(cond ((eq (oref topic state) 'open)
-             'forge-topic-slug-open)
-            ('forge-topic-slug-completed)))))
+  (with-slots (slug state status saved-p) topic
+    (magit--propertize-face
+     slug
+     `(,@(and saved-p               '(forge-topic-slug-saved))
+       ,@(and (eq status 'unread)   '(forge-topic-slug-unread))
+       ,(pcase state
+          ('open                     'forge-topic-slug-open)
+          ((or 'completed 'merged)   'forge-topic-slug-completed)
+          ((or 'unplanned 'rejected) 'forge-topic-slug-unplanned))))))
 
 (defun forge--format-topic-title (topic &optional fancy)
-  (with-slots (title status closed) topic
+  (with-slots (title status state) topic
     (magit-log-propertize-keywords
      nil
      (magit--propertize-face
       title
-      `(,@(and (eq status 'unread) '(forge-notification-unread))
-        ,@(cond ((eq status 'done) '(forge-notification-done))
-                ((derived-mode-p 'forge-notifications-mode)
-                 '(forge-notification-pending-spotlight
-                   forge-notification-pending))
-                ('(forge-notification-pending)))
-        ,(cond ((forge-issue-p topic)
-                (cond ((not closed) ; TODO use state
-                       'forge-issue-open)
-                      ('forge-issue-completed)))
-               ((forge-pullreq-p topic)
-                (cond ((not closed)
-                       (if fancy
-                           'forge-fancy-pullreq-open
-                         'forge-pullreq-open))
-                      ((oref topic merged)
-                       (if fancy
-                           'forge-fancy-pullreq-merged
-                         'forge-pullreq-merged))
-                      (fancy
-                       'forge-fancy-pullreq-rejected)
-                      ('forge-pullreq-rejected)))))))))
+      `(,(pcase status
+           ('unread  'forge-notification-unread)
+           ('pending 'forge-notification-pending)
+           ('done    'forge-notification-done))
+        ,(pcase (list (eieio-object-class topic) state fancy)
+           (`(forge-issue   open       ,_) 'forge-issue-open)
+           (`(forge-issue   completed  ,_) 'forge-issue-completed)
+           (`(forge-issue   unplanned  ,_) 'forge-issue-unplanned)
+           (`(forge-pullreq open      nil) 'forge-pullreq-open)
+           (`(forge-pullreq merged    nil) 'forge-pullreq-merged)
+           (`(forge-pullreq rejected  nil) 'forge-pullreq-rejected)
+           (`(forge-pullreq open       ,_) 'forge-fancy-pullreq-open)
+           (`(forge-pullreq merged     ,_) 'forge-fancy-pullreq-merged)
+           (`(forge-pullreq rejected   ,_) 'forge-fancy-pullreq-rejected)))))))
 
 (defun forge--format-topic-title+labels (topic)
   (concat (forge--format-topic-title  topic) " "
