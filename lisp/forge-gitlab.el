@@ -176,8 +176,10 @@
                :number       .iid
                :slug         (format "#%s" .iid)
                :repository   (oref repo id)
+               ;; Gitlab doesn't make a distinction between completed
+               ;; and unplanned issues.  Treat them all as completed.
                :state        (pcase-exhaustive .state
-                               ("closed" 'closed)
+                               ("closed" 'completed)
                                ("opened" 'open))
                :author       .author.username
                :title        .title
@@ -300,7 +302,7 @@
                :repository   (oref repo id)
                :state        (pcase-exhaustive .state
                                ("merged" 'merged)
-                               ("closed" 'closed)
+                               ("closed" 'rejected)
                                ("opened" 'open))
                :author       .author.username
                :title        .title
@@ -519,8 +521,11 @@
   ((repo forge-gitlab-repository) topic state)
   (forge--set-topic-field repo topic 'state_event
                           (pcase-exhaustive state
-                            ('open   "reopen")
-                            ('closed "close"))))
+                            ;; Merging isn't done through here.
+                            ('completed "close")
+                            ('unplanned "close")
+                            ('rejected  "close")
+                            ('open      "reopen"))))
 
 (cl-defmethod forge--set-topic-draft
   ((repo forge-gitlab-repository) topic value)

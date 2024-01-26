@@ -217,7 +217,7 @@
         (oset pullreq slug         (format "#%s" .number))
         (oset pullreq state        (pcase-exhaustive .state
                                      ("MERGED" 'merged)
-                                     ("CLOSED" 'closed)
+                                     ("CLOSED" 'rejected)
                                      ("OPEN"   'open)))
         (oset pullreq author       .author.login)
         (oset pullreq title        .title)
@@ -614,12 +614,15 @@
     :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--set-topic-state
-  ((_repo forge-github-repository) topic value)
+  ((_repo forge-github-repository) topic state)
   (forge--ghub-patch topic
     "/repos/:owner/:repo/issues/:number"
-    `((state . ,(pcase-exhaustive value
-                  ('open   "OPEN")
-                  ('closed "CLOSED"))))
+    (pcase-exhaustive state
+      ;; Merging isn't done through here.
+      ('completed '((state . "closed") (state_reason . "completed")))
+      ('unplanned '((state . "closed") (state_reason . "not_planned")))
+      ('rejected  '((state . "closed")))
+      ('open      '((state . "open"))))
     :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--set-topic-draft

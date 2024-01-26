@@ -182,7 +182,7 @@ signal an error."
     ("s c" forge-issue-state-set-completed)
     ("s u" forge-issue-state-set-unplanned)
     ("s m" forge-pullreq-state-set-merged)
-    ("s x" forge-pullreq-state-set-closed)
+    ("s r" forge-pullreq-state-set-rejected)
     """Set status"
     ("s i" forge-topic-status-set-unread)
     ("s p" forge-topic-status-set-pending)

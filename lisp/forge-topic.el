@@ -986,8 +986,7 @@ This mode itself is never used directly."
     :initform (lambda ()
                 (interactive)
                 (with-slots (getter state) (transient-suffix-object)
-                  (oset (funcall getter t) state state))
-                (forge-refresh-buffer)))
+                  (forge--topic-set 'state state (funcall getter t)))))
    (description
     :initform (lambda (obj)
                 (symbol-name (oref obj state))))
@@ -1035,10 +1034,10 @@ This mode itself is never used directly."
   (interactive)
   (message "Please use a merge command for this"))
 
-(transient-define-suffix forge-pullreq-state-set-closed ()
-  "Set the state of the current pull-request to `closed'."
+(transient-define-suffix forge-pullreq-state-set-rejected ()
+  "Set the state of the current pull-request to `rejected'."
   :class 'forge--topic-set-state-command
-  :state 'closed
+  :state 'rejected
   :getter #'forge-current-pullreq)
 
 ;;;; Status

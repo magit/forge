@@ -591,19 +591,14 @@ point is currently on."
                                   (oref (forge-current-topic t) title))))
   (forge--topic-set 'title title))
 
-(defun forge-edit-topic-state ()
-  "Close or reopen the current topic."
-  (interactive)
-  (let* ((topic (forge-current-topic t))
-         (state (oref topic state)))
-    (when (eq state 'merged)
-      (user-error "Merged pull-requests cannot be reopened"))
-    (if (magit-y-or-n-p (format "%s %s %s"
-                                (if (eq state 'open) "Close" "Reopen")
-                                (oref topic slug)
-                                (oref topic title)))
-        (forge--topic-set 'state (if (eq state 'open) 'closed 'open))
-      (user-error "Abort"))))
+;;;###autoload (autoload 'forge-edit-topic-state "forge-commands" nil t)
+(transient-define-prefix forge-edit-topic-state ()
+  "Set state of the current topic."
+  [("o" forge-topic-state-set-open)
+   ("c" forge-issue-state-set-completed)
+   ("u" forge-issue-state-set-unplanned)
+   ("m" forge-pullreq-state-set-merged)
+   ("r" forge-pullreq-state-set-rejected)])
 
 (defun forge-edit-topic-draft ()
   "Toggle whether the current pull-request is a draft."
