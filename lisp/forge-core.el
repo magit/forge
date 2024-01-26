@@ -348,18 +348,20 @@ parent object (determined using `forge-get-parent')."
 ;;; Miscellaneous
 
 (defun forge-refresh-buffer (&optional buffer)
-  "Refresh the current buffer, if it is a Magit buffer.
-If optional BUFFER is non-nil, then refresh that instead,
-provided it is an alive Magit buffer (but if it is not, don't
-fall back to the current buffer).  In the future, this might
-learn to refresh other kinds of buffers as well."
+  "Refresh the current buffer, if it is a Magit or Forge buffer.
+Refresh the buffer if its major-mode derives from `magit-mode',
+`forge-topic-list-mode' or `forge-repository-list-mode'.  If
+optional BUFFER is non-nil, then refresh that buffer, provided
+it is alive and satisfies the mode requirement."
   (cond (buffer
          (when (buffer-live-p buffer)
            (with-current-buffer buffer
-             (when (derived-mode-p 'magit-mode)
-               (magit-refresh-buffer)))))
+             (forge-refresh-buffer))))
         ((derived-mode-p 'magit-mode)
-         (magit-refresh-buffer))))
+         (magit-refresh-buffer))
+        ((derived-mode-p 'forge-topic-list-mode
+                         'forge-repository-list-mode)
+         (revert-buffer))))
 
 (defun forge--zap-repository-cache (&optional repo)
   (when-let ((r (cond ((eq repo 'all) repo)
