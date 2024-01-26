@@ -135,7 +135,7 @@ Takes the pull-request as only argument and must return a directory."
 ;;; Pull
 
 ;;;###autoload
-(defun forge-pull (&optional repo until interactive)
+(defun forge-pull (&optional repo until interactive callback)
   "Pull topics from the forge repository.
 
 With a prefix argument and if the repository has not been fetched
@@ -181,7 +181,7 @@ If pulling is too slow, then also consider setting the Git variable
       (forge--msg repo t nil "Pulling REPO")
       (when-let ((worktree (oref repo worktree)))
         (let ((default-directory worktree))
-          (forge--pull repo until))))))
+          (forge--pull repo until callback))))))
 
 (defun forge-read-date (prompt)
   (cl-block nil

@@ -366,9 +366,16 @@ forges and hosts."
 (defun forge--set-field-callback ()
   (let ((buf (current-buffer)))
     (lambda (&rest _)
-      (with-current-buffer
-          (or buf (current-buffer))
-        (forge-pull)))))
+      (with-current-buffer buf
+        (forge-pull nil nil nil
+                    (lambda ()
+                      (with-current-buffer buf
+                        (forge-refresh-buffer)
+                        (when (and transient--showp
+                                   (memq transient-current-command
+                                         '(forge-topics-menu
+                                           forge-notification-menu)))
+                          (transient--refresh-transient)))))))))
 
 (defvar forge--mode-line-buffer nil)
 
