@@ -407,6 +407,23 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
       (and (not forge-buffer-unassociated-p)
            (forge-get-repository nil))))
 
+(defun forge-region-topics ()
+  (cond
+   ((derived-mode-p 'forge-notifications-mode)
+    (magit-region-values '(issue pullreq)))
+   ((and (derived-mode-p 'forge-topic-list-mode)
+         (region-active-p))
+    (let ((beg (region-beginning))
+          (end (region-end))
+          (topics nil))
+      (save-excursion
+        (goto-char beg)
+        (while (< (point) end)
+          (when-let* ((id (tabulated-list-get-id)))
+            (push (forge-get-topic id) topics))
+          (forward-line 1))
+        (nreverse topics))))))
+
 ;;;; List
 
 (defun forge-ls-topics (repo class &optional type select)
