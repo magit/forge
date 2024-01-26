@@ -1068,50 +1068,41 @@ This mode itself is never used directly."
 
 ;;;; Status
 
-(transient-define-suffix forge-topic-status-set-unread ()
-  "Set the notification status of the current topic to `unread'."
-  :description "unread           "
-  :inapt-if (lambda ()
-              (if-let ((topic (forge-current-topic)))
-                  (eq (oref topic status) 'unread)
-                t))
-  :inapt-face (lambda ()
+(defclass forge--topic-set-status-command (transient-suffix)
+  ((status :initarg :status)
+   (definition
+    :initform (lambda ()
+                (interactive)
+                (with-slots (status) (transient-suffix-object)
+                  (oset (forge-current-topic t) status status))
+                (forge-refresh-buffer)))
+   (description
+    :initform (lambda (obj)
+                (symbol-name (oref obj status))))
+   (inapt-if
+    :initform (lambda ()
+                (and (not (forge-region-topics))
+                     (if-let ((topic (forge-current-topic)))
+                         (eq (oref topic status)
+                             (oref (transient-suffix-object) status))
+                       t))))
+   (inapt-face
+    :initform (lambda ()
                 (if (forge-current-topic)
                     'forge-active-suffix
-                  'transient-inapt-suffix))
-  (interactive)
-  (oset (forge-current-topic t) status 'unread)
-  (forge-refresh-buffer))
+                  'transient-inapt-suffix)))))
+
+(transient-define-suffix forge-topic-status-set-unread ()
+  "Set the notification status of the current topic to `unread'."
+  :class 'forge--topic-set-status-command :status 'unread)
 
 (transient-define-suffix forge-topic-status-set-pending ()
   "Set the notification status of the current topic to `pending'."
-  :description "pending"
-  :inapt-if (lambda ()
-              (if-let ((topic (forge-current-topic)))
-                  (eq (oref topic status) 'pending)
-                t))
-  :inapt-face (lambda ()
-                (if (forge-current-topic)
-                    'forge-active-suffix
-                  'transient-inapt-suffix))
-  (interactive)
-  (oset (forge-current-topic t) status 'pending)
-  (forge-refresh-buffer))
+  :class 'forge--topic-set-status-command :status 'pending)
 
 (transient-define-suffix forge-topic-status-set-done ()
   "Set the notification status of the current topic to `done'."
-  :description "done"
-  :inapt-if (lambda ()
-              (if-let ((topic (forge-current-topic)))
-                  (eq (oref topic status) 'done)
-                t))
-  :inapt-face (lambda ()
-                (if (forge-current-topic)
-                    'forge-active-suffix
-                  'transient-inapt-suffix))
-  (interactive)
-  (oset (forge-current-topic t) status 'done)
-  (forge-refresh-buffer))
+  :class 'forge--topic-set-status-command :status 'done)
 
 (transient-define-suffix forge-topic-toggle-saved ()
   "Toggle whether this topic is marked as saved."
