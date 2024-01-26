@@ -442,7 +442,9 @@
           (oset notif title     .subject.title)
           (oset notif reason    (intern (downcase .reason)))
           (oset notif last-read .last_read_at)
-          (oset notif updated   .updated_at)
+          ;; The `updated_at' returned for notifications is often
+          ;; incorrect, so use the value from the topic instead.
+          (oset notif updated   (oref topic updated))
           ;; Github represents the three possible states using a boolean,
           ;; which of course means that we cannot do the right thing here.
           (oset topic status
