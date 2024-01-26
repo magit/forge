@@ -1074,7 +1074,10 @@ This mode itself is never used directly."
     :initform (lambda ()
                 (interactive)
                 (with-slots (status) (transient-suffix-object)
-                  (oset (forge-current-topic t) status status))
+                  (if-let ((topics (forge-region-topics)))
+                      (dolist (topic topics)
+                        (oset topic status status))
+                    (oset (forge-current-topic t) status status)))
                 (forge-refresh-buffer)))
    (description
     :initform (lambda (obj)
