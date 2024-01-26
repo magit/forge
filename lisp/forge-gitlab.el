@@ -206,7 +206,10 @@
                     :created .created_at
                     :updated .updated_at
                     :body    (forge--sanitize-string .body))))
-              (closql-insert (forge-db) post t))))))))
+              (closql-insert (forge-db) post t))))
+        (when (string> .updated_at (forge--topics-until repo nil 'issue))
+          (oset repo issues-until .updated_at))
+        issue))))
 
 ;;;; Pullreqs
 
@@ -342,7 +345,10 @@
                     :created .created_at
                     :updated .updated_at
                     :body    (forge--sanitize-string .body))))
-              (closql-insert (forge-db) post t))))))))
+              (closql-insert (forge-db) post t))))
+        (when (string> .updated_at (forge--topics-until repo nil 'pullreq))
+          (oset repo pullreqs-until .updated_at))
+        pullreq))))
 
 ;;;; Other
 

@@ -77,7 +77,9 @@
    (revnotes                  :closql-class forge-revnote)
    (selective-p               :initform nil)
    (worktree                  :initform nil)
-   (milestones                :closql-table milestone))
+   (milestones                :closql-table milestone)
+   (issues-until              :initform nil)
+   (pullreqs-until            :initform nil))
   :abstract t)
 
 (defclass forge-unusedapi-repository (forge-repository) () :abstract t)
@@ -335,14 +337,17 @@ forges and hosts."
       (cadr (car (cl-member host forge-alist :test #'equal :key #'caddr)))
       (user-error "Cannot determine githost for %S" host)))
 
-(cl-defmethod forge--topics-until ((repo forge-repository) until table)
+(cl-defmethod forge--topics-until ((repo forge-repository) until type)
   (if (oref repo sparse-p)
       until
-    (caar (forge-sql [:select [updated] :from $i1
-                      :where (= repository $s2)
-                      :order-by [(desc updated)]
-                      :limit 1]
-                     table (oref repo id)))))
+    (let ((slot (intern (format "%ss-until" type))))
+      (or (eieio-oref repo slot)
+          (eieio-oset repo slot
+                      (caar (forge-sql [:select [updated] :from $i1
+                                        :where (= repository $s2)
+                                        :order-by [(desc updated)]
+                                        :limit 1]
+                                       type (oref repo id))))))))
 
 (cl-defmethod forge--format ((repo forge-repository) format-or-slot &optional spec)
   (format-spec

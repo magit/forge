@@ -145,7 +145,8 @@
 (cl-defmethod forge--update-issue ((repo forge-github-repository) data bump)
   (closql-with-transaction (forge-db)
     (let-alist data
-      (let* ((issue-id (forge--object-id 'forge-issue repo .number))
+      (let* ((updated (or .updatedAt .createdAt))
+             (issue-id (forge--object-id 'forge-issue repo .number))
              (issue (or (forge-get-issue repo .number)
                         (closql-insert
                          (forge-db)
@@ -164,10 +165,10 @@
         (oset issue author     .author.login)
         (oset issue title      .title)
         (oset issue created    .createdAt)
-        (oset issue updated    (cond (bump (or .updatedAt .createdAt))
-                                     ((slot-boundp issue 'updated)
-                                      (oref issue updated))
-                                     (t "0")))
+        (cond (updated
+               (oset issue updated updated))
+              ((not (slot-boundp issue 'updated))
+               (oset issue updated "0")))
         (oset issue closed     .closedAt)
         (oset issue locked-p   .locked)
         (oset issue milestone  (and .milestone.id
@@ -189,6 +190,9 @@
               :body    (forge--sanitize-string .body))
              t)))
         (when bump
+          (when (and updated
+                     (string> updated (forge--topics-until repo nil 'issue)))
+            (oset repo issues-until updated))
           (forge--set-id-slot repo issue 'assignees .assignees)
           (unless (magit-get-boolean "forge.kludge-for-issue-294")
             (forge--set-id-slot repo issue 'labels .labels)))
@@ -201,7 +205,8 @@
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data bump)
   (closql-with-transaction (forge-db)
     (let-alist data
-      (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .number))
+      (let* ((updated (or .updatedAt .createdAt))
+             (pullreq-id (forge--object-id 'forge-pullreq repo .number))
              (pullreq (or (forge-get-pullreq repo .number)
                           (closql-insert
                            (forge-db)
@@ -217,10 +222,10 @@
         (oset pullreq author       .author.login)
         (oset pullreq title        .title)
         (oset pullreq created      .createdAt)
-        (oset pullreq updated      (cond (bump (or .updatedAt .createdAt))
-                                         ((slot-boundp pullreq 'updated)
-                                          (oref pullreq updated))
-                                         (t "0")))
+        (cond (updated
+               (oset pullreq updated updated))
+              ((not (slot-boundp pullreq 'updated))
+               (oset pullreq updated "0")))
         (oset pullreq closed       .closedAt)
         (oset pullreq merged       .mergedAt)
         (oset pullreq draft-p      .isDraft)
@@ -253,6 +258,9 @@
               :body    (forge--sanitize-string .body))
              t)))
         (when bump
+          (when (and updated
+                     (string> updated (forge--topics-until repo nil 'pullreq)))
+            (oset repo pullreqs-until updated))
           (forge--set-id-slot repo pullreq 'assignees .assignees)
           (forge--set-id-slot repo pullreq 'review-requests
                               (--map (cdr (cadr (car it)))

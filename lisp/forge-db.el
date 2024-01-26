@@ -116,7 +116,10 @@
       (pullreqs  :default eieio-unbound)
       selective-p
       worktree
-      (milestones :default eieio-unbound)])
+      (milestones :default eieio-unbound)
+      issues-until
+      pullreqs-until
+      ])
 
     (assignee
      [(repository :not-null)
