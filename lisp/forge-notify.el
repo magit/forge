@@ -280,18 +280,15 @@ signal an error."
   "<remap> <magit-visit-thing>"  #'forge-visit-this-repository)
 
 (defun forge-insert-notifications ()
-  (let* ((notifs (forge--ls-notifications forge-notifications-selection))
-         (status forge-notifications-selection))
+  (let* ((status forge-notifications-selection)
+         (notifs (forge--ls-notifications status)))
     (magit-insert-section (notifications)
       (magit-insert-heading
         (cond
-         ((eq status 'unread) "Unread notifications")
-         ((eq status 'saved) "Saved notifications")
-         ((eq status 'done) "Done notifications")
          ((not (listp status))
-          (format "Notifications %s" status))
+          (format "%s notifications" (capitalize (symbol-name status))))
          ((seq-set-equal-p status '(unread pending)) "Inbox")
-         ((seq-set-equal-p status '(unread pending done)) "Notifications")
+         ((seq-set-equal-p status '(unread pending done)) "All notifications")
          ((format "Notifications %s" status))))
       (if (eq forge-notifications-display-style 'flat)
           (magit-insert-section-body
