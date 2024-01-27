@@ -373,7 +373,8 @@ forges and hosts."
                         (forge-refresh-buffer)
                         (when (and transient--showp
                                    (memq transient-current-command
-                                         '(forge-topics-menu
+                                         '(forge-topic-menu
+                                           forge-topics-menu
                                            forge-notification-menu)))
                           (transient--refresh-transient)))))))))
 

@@ -695,6 +695,7 @@ allow exiting with a number that doesn't match any candidate."
 (defvar-keymap forge-topic-mode-map
   "C-c C-n"                      #'forge-create-post
   "C-c C-r"                      #'forge-create-post
+  "L"                            #'forge-topic-menu
   "<remap> <magit-visit-thing>"  #'markdown-follow-link-at-point
   "<mouse-2>"                    #'markdown-follow-link-at-point)
 
@@ -977,6 +978,41 @@ This mode itself is never used directly."
     (insert ?\n)))
 
 ;;; Commands
+;;;; Menu
+
+;;;###autoload (autoload 'forge-topic-menu "forge-topic" nil t)
+(transient-define-prefix forge-topic-menu ()
+  "Edit the topic at point."
+  :transient-suffix t
+  :transient-non-suffix t
+  :transient-switch-frame nil
+  :refresh-suffixes t
+  [:hide always
+   ("q"    forge-menu-quit-list)]
+  [["Set state"
+    ("s o" forge-topic-state-set-open)
+    ("s c" forge-issue-state-set-completed)
+    ("s u" forge-issue-state-set-unplanned)
+    ("s m" forge-pullreq-state-set-merged)
+    ("s r" forge-pullreq-state-set-rejected)
+    """Set status"
+    ("s i" forge-topic-status-set-unread)
+    ("s p" forge-topic-status-set-pending)
+    ("s d" forge-topic-status-set-done)
+    ("s s" forge-topic-toggle-saved)]
+   ["Actions"
+    ("f" forge-pull-this-topic)
+    ("b" forge-browse-this-topic)
+    ("k" forge-delete-comment)
+    ("p" forge-create-pullreq-from-issue)
+    ("m" "show more actions" forge-dispatch)]]
+  (interactive)
+  (unless (derived-mode-p 'forge-topic-mode)
+    (if-let ((topic (forge-topic-at-point)))
+        (forge-topic-setup-buffer topic)
+      (user-error "No current topic")))
+  (transient-setup 'forge-topic-menu))
+
 ;;;; State
 
 (defclass forge--topic-set-state-command (transient-suffix)

@@ -360,12 +360,15 @@ Must be set before `forge-list' is loaded.")
 
 ;;;###autoload (autoload 'forge-topics-menu "forge-list" nil t)
 (transient-define-prefix forge-topics-menu ()
-  "Control list of topics and topic at point."
+  "Control list of topics and the topic at point."
   :transient-suffix t
   :transient-non-suffix t
   :transient-switch-frame nil
   :refresh-suffixes t
-  [:hide always ("q" forge-menu-quit-list)]
+  [:hide always
+   ("q"        forge-menu-quit-list)
+   ("RET"      forge-topic-menu)
+   ("<return>" forge-topic-menu)]
   [["Type"
     (:info "topics"           :face forge-active-suffix)
     ("n"   "notifications..." forge-notification-menu :transient replace)
@@ -465,11 +468,15 @@ or notification list buffer to becomes current in the selected
 window, then display the respective menu, otherwise display no
 menu."
   (interactive)
-  (when (derived-mode-p 'forge-topic-list-mode
+  (when (derived-mode-p 'forge-topic-mode
+                        'forge-topic-list-mode
                         'forge-repository-list-mode
                         'forge-notifications-mode)
     (quit-window))
-  (cond ((derived-mode-p 'forge-topic-list-mode)
+  (cond ((derived-mode-p 'forge-topic-mode)
+         (setq transient--exitp 'replace)
+         (transient-setup (setq this-command 'forge-topic-menu)))
+        ((derived-mode-p 'forge-topic-list-mode)
          (setq transient--exitp 'replace)
          (transient-setup (setq this-command 'forge-topics-menu)))
         ((derived-mode-p 'forge-repository-list-mode)
