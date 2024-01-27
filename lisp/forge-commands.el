@@ -604,15 +604,6 @@ point is currently on."
                                   (oref (forge-current-topic t) title))))
   (forge--topic-set 'title title))
 
-;;;###autoload (autoload 'forge-edit-topic-state "forge-commands" nil t)
-(transient-define-prefix forge-edit-topic-state ()
-  "Set state of the current topic."
-  [("o" forge-topic-state-set-open)
-   ("c" forge-issue-state-set-completed)
-   ("u" forge-issue-state-set-unplanned)
-   ("m" forge-pullreq-state-set-merged)
-   ("r" forge-pullreq-state-set-rejected)])
-
 (defun forge-edit-topic-draft ()
   "Toggle whether the current pull-request is a draft."
   (interactive)

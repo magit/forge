@@ -811,7 +811,7 @@ This mode itself is never used directly."
 ;;;;; State
 
 (defvar-keymap forge-topic-state-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-state)
+  "<remap> <magit-edit-thing>" #'forge-topic-state-menu)
 
 (cl-defun forge-insert-topic-state
     (&optional (topic forge-buffer-topic))
@@ -978,7 +978,7 @@ This mode itself is never used directly."
     (insert ?\n)))
 
 ;;; Commands
-;;;; Menu
+;;;; Menus
 
 ;;;###autoload (autoload 'forge-topic-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-menu ()
@@ -1012,6 +1012,15 @@ This mode itself is never used directly."
         (forge-topic-setup-buffer topic)
       (user-error "No current topic")))
   (transient-setup 'forge-topic-menu))
+
+;;;###autoload (autoload 'forge-topic-state-menu "forge-topic" nil t)
+(transient-define-prefix forge-topic-state-menu ()
+  "Set state of the current topic."
+  [("o" forge-topic-state-set-open)
+   ("c" forge-issue-state-set-completed)
+   ("u" forge-issue-state-set-unplanned)
+   ("m" forge-pullreq-state-set-merged)
+   ("r" forge-pullreq-state-set-rejected)])
 
 ;;;; State
 
