@@ -233,6 +233,13 @@ If pulling is too slow, then also consider setting the Git variable
                                         :number topic)
                          (forge-get-topic topic)))))
 
+;;;###autoload (autoload 'forge-pull-this-topic "forge-commands" nil t)
+(transient-define-suffix forge-pull-this-topic ()
+  "Pull data about the topic at point from its forge."
+  :description "fetch"
+  (interactive)
+  (forge-pull-topic (forge-current-topic t)))
+
 (cl-defmethod forge--pull-topic ((repo forge-repository) _topic)
   (error "Fetching an individual topic not implemented for %s"
          (eieio-object-class repo)))
