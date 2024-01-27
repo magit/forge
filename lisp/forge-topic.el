@@ -711,6 +711,7 @@ This mode itself is never used directly."
 (defalias 'forge-issue-refresh-buffer #'forge-topic-refresh-buffer)
 (defvar forge-issue-headers-hook
   '(forge-insert-topic-state
+    forge-insert-topic-status
     forge-insert-topic-milestone
     forge-insert-topic-labels
     forge-insert-topic-marks
@@ -722,6 +723,7 @@ This mode itself is never used directly."
 (defalias 'forge-pullreq-refresh-buffer #'forge-topic-refresh-buffer)
 (defvar forge-pullreq-headers-hook
   '(forge-insert-topic-state
+    forge-insert-topic-status
     forge-insert-topic-draft
     forge-insert-topic-refs
     forge-insert-topic-milestone
@@ -827,6 +829,24 @@ This mode itself is never used directly."
                   ('(pullreq open)      'forge-pullreq-open-colored)
                   ('(pullreq merged)    'forge-pullreq-merged-colored)
                   ('(pullreq closed)    'forge-pullreq-rejected-colored))))))))
+
+;;;;; Status
+
+(defvar-keymap forge-topic-status-section-map
+  "<remap> <magit-edit-thing>" #'forge-topic-status-menu)
+
+(cl-defun forge-insert-topic-status
+    (&optional (topic forge-buffer-topic))
+  (magit-insert-section (topic-status)
+    (insert (format
+             "%-11s%s\n" "Status: "
+             (let ((status (oref topic status)))
+               (magit--propertize-face
+                (symbol-name status)
+                (pcase status
+                  ('unread  'forge-notification-unread)
+                  ('pending 'forge-notification-pending)
+                  ('done    'forge-notification-done))))))))
 
 ;;;;; Draft
 
@@ -1019,6 +1039,13 @@ This mode itself is never used directly."
    ("u" forge-issue-state-set-unplanned)
    ("m" forge-pullreq-state-set-merged)
    ("r" forge-pullreq-state-set-rejected)])
+
+;;;###autoload (autoload 'forge-topic-status-menu "forge-topic" nil t)
+(transient-define-prefix forge-topic-status-menu ()
+  "Set status of the current topic."
+  [("i" forge-topic-status-set-unread)
+   ("p" forge-topic-status-set-pending)
+   ("d" forge-topic-status-set-done)])
 
 ;;;; State
 
