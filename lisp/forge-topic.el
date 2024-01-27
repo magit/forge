@@ -710,8 +710,7 @@ This mode itself is never used directly."
 (defalias 'forge-issue-setup-buffer   #'forge-topic-setup-buffer)
 (defalias 'forge-issue-refresh-buffer #'forge-topic-refresh-buffer)
 (defvar forge-issue-headers-hook
-  '(forge-insert-topic-title
-    forge-insert-topic-state
+  '(forge-insert-topic-state
     forge-insert-topic-milestone
     forge-insert-topic-labels
     forge-insert-topic-marks
@@ -722,8 +721,7 @@ This mode itself is never used directly."
 (defalias 'forge-pullreq-setup-buffer   #'forge-topic-setup-buffer)
 (defalias 'forge-pullreq-refresh-buffer #'forge-topic-refresh-buffer)
 (defvar forge-pullreq-headers-hook
-  '(forge-insert-topic-title
-    forge-insert-topic-state
+  '(forge-insert-topic-state
     forge-insert-topic-draft
     forge-insert-topic-refs
     forge-insert-topic-milestone
