@@ -316,7 +316,7 @@ argument also offer closed pull-requests."
   "Visit the topic at point using a browser."
   :description "browse"
   (interactive)
-  (forge-browse-topic (forge-topic-at-point t)))
+  (forge-browse-topic (forge-current-topic t)))
 
 ;;;###autoload
 (defun forge-browse-this-repository ()
