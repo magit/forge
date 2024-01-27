@@ -311,9 +311,10 @@ argument also offer closed pull-requests."
   (interactive (list (forge-read-repository "Browse repository")))
   (browse-url (forge-get-url repository)))
 
-;;;###autoload
-(defun forge-browse-this-topic ()
+;;;###autoload (autoload 'forge-browse-this-topic "forge-commands" nil t)
+(transient-define-suffix forge-browse-this-topic ()
   "Visit the topic at point using a browser."
+  :description "browse"
   (interactive)
   (forge-browse-topic (forge-topic-at-point t)))
 
@@ -491,8 +492,13 @@ with a prefix argument also closed topics."
       (run-hooks 'forge-create-pullreq-hook))
     (forge--display-post-buffer buf)))
 
-(defun forge-create-pullreq-from-issue (issue source target)
+(transient-define-suffix forge-create-pullreq-from-issue (issue source target)
   "Convert an existing ISSUE into a pull-request."
+  :description "convert to pull-request"
+  :if (lambda ()
+        (let ((issue (forge-current-issue)))
+          (and issue (eq (oref issue state) 'open)
+               issue)))
   (interactive (cons (forge-read-issue "Convert issue")
                      (forge-create-pullreq--read-args)))
   (setq issue (forge-get-issue issue))
@@ -681,8 +687,10 @@ point is currently on."
 
 ;;; Delete
 
-(defun forge-delete-comment ()
+(transient-define-suffix forge-delete-comment ()
   "Delete the comment at point."
+  :description "delete comment"
+  :inapt-if-not #'forge-comment-at-point
   (interactive)
   (let ((comment (forge-comment-at-point t)))
     (when (yes-or-no-p "Do you really want to delete the selected comment? ")
