@@ -1056,7 +1056,9 @@ This mode itself is never used directly."
     :initform (lambda ()
                 (interactive)
                 (with-slots (getter state) (transient-suffix-object)
-                  (forge--topic-set 'state state (funcall getter t)))))
+                  (let ((topic (funcall getter t)))
+                    (forge--set-topic-state (forge-get-repository topic)
+                                            topic state)))))
    (description
     :initform (lambda (obj)
                 (symbol-name (oref obj state))))
