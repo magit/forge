@@ -669,26 +669,30 @@
 (cl-defmethod forge--set-topic-assignees
   ((_repo forge-github-repository) topic assignees)
   (let ((value (mapcar #'car (closql--iref topic 'assignees))))
+    ;; FIXME Only refresh once.
     (when-let ((add (cl-set-difference assignees value :test #'equal)))
       (forge--ghub-post topic "/repos/:owner/:repo/issues/:number/assignees"
-        `((assignees . ,add))))
+        `((assignees . ,add))
+        :callback (forge--set-field-callback)))
     (when-let ((remove (cl-set-difference value assignees :test #'equal)))
       (forge--ghub-delete topic "/repos/:owner/:repo/issues/:number/assignees"
-        `((assignees . ,remove)))))
-  (forge-pull))
+        `((assignees . ,remove))
+        :callback (forge--set-field-callback)))))
 
 (cl-defmethod forge--set-topic-review-requests
   ((_repo forge-github-repository) topic reviewers)
   (let ((value (mapcar #'car (closql--iref topic 'review-requests))))
+    ;; FIXME Only refresh once.
     (when-let ((add (cl-set-difference reviewers value :test #'equal)))
       (forge--ghub-post topic
         "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-        `((reviewers . ,add))))
+        `((reviewers . ,add))
+        :callback (forge--set-field-callback)))
     (when-let ((remove (cl-set-difference value reviewers :test #'equal)))
       (forge--ghub-delete topic
         "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-        `((reviewers . ,remove)))))
-  (forge-pull))
+        `((reviewers . ,remove))
+        :callback (forge--set-field-callback)))))
 
 (cl-defmethod forge--delete-comment
   ((_repo forge-github-repository) post)
