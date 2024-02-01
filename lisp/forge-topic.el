@@ -550,11 +550,57 @@ allow exiting with a number that doesn't match any candidate."
                                     (oref repo id))))
                :annotation-function (lambda (c) (get-text-property 0 :title c))))))
 
+(defun forge-read-topic-draft (topic)
+  (not (oref topic draft-p)))
+
+(defun forge-read-topic-title (topic)
+  (read-string "Title: " (oref topic title)))
+
+(defun forge-read-topic-milestone (topic)
+  (magit-completing-read
+   "Milestone"
+   (mapcar #'caddr (oref (forge-get-repository topic) milestones))
+   nil t (forge--format-topic-milestone topic)))
+
 (defun forge-read-topic-label (&optional prompt repository)
   (magit-completing-read (or prompt "Label")
                          (forge--format-topic-label-choices
                           (or repository (forge-get-repository t)))
                          nil t))
+
+(defun forge-read-topic-labels (topic)
+  (let* ((repo (forge-get-repository topic))
+         (crm-separator ","))
+    (magit-completing-read-multiple
+     "Labels: "
+     (mapcar #'cadr (oref repo labels))
+     nil t
+     (mapconcat #'car (closql--iref topic 'labels) ","))))
+
+(defun forge-read-topic-marks (topic)
+  (forge-read-marks "Marks: " topic))
+
+(defun forge-read-topic-assignees (topic)
+  (let* ((repo (forge-get-repository topic))
+         (value (closql--iref topic 'assignees))
+         (choices (mapcar #'cadr (oref repo assignees)))
+         (crm-separator ","))
+    (magit-completing-read-multiple
+     "Assignees: " choices nil
+     (if (forge--childp repo 'forge-gitlab-repository)
+         t ; Selecting something else would fail later on.
+       'confirm)
+     (mapconcat #'car value ","))))
+
+(defun forge-read-topic-review-requests (topic)
+  (let* ((repo (forge-get-repository topic))
+         (value (closql--iref topic 'review-requests))
+         (choices (mapcar #'cadr (oref repo assignees)))
+         (crm-separator ","))
+    (magit-completing-read-multiple
+     "Request review from: " choices nil
+     'confirm
+     (mapconcat #'car value ","))))
 
 ;;; Format
 
@@ -1235,73 +1281,39 @@ This mode itself is never used directly."
 
 (defun forge-edit-topic-title (title)
   "Edit the TITLE of the current topic."
-  (interactive (list (read-string "Title: "
-                                  (oref (forge-current-topic t) title))))
+  (interactive (list (forge-read-topic-title (forge-current-topic t))))
   (forge--topic-set 'title title))
 
 (defun forge-edit-topic-milestone (milestone)
   "Edit what MILESTONE the current topic belongs to."
-  (interactive
-   (let ((topic (forge-current-topic t)))
-     (list (magit-completing-read
-            "Milestone"
-            (mapcar #'caddr (oref (forge-get-repository topic) milestones))
-            nil t (forge--get-topic-milestone topic)))))
+  (interactive (list (forge-read-topic-milestone (forge-current-topic t))))
   (forge--topic-set 'milestone milestone))
 
 (defun forge-edit-topic-labels (labels)
   "Edit the LABELS of the current topic."
-  (interactive
-   (let* ((topic (forge-current-topic t))
-          (repo  (forge-get-repository topic))
-          (crm-separator ","))
-     (list (magit-completing-read-multiple
-            "Labels: "
-            (mapcar #'cadr (oref repo labels))
-            nil t
-            (mapconcat #'car (closql--iref topic 'labels) ",")))))
+  (interactive (list (forge-read-topic-labels (forge-current-topic t))))
   (forge--topic-set 'labels labels))
 
 (defun forge-edit-topic-marks (marks)
   "Edit the MARKS of the current topic."
-  (interactive (list (forge-read-marks "Marks: " (forge-current-topic t))))
+  (interactive (list (forge-read-topic-marks (forge-current-topic t))))
   (oset (forge-current-topic t) marks marks)
   (forge-refresh-buffer))
 
 (defun forge-edit-topic-assignees (assignees)
   "Edit the ASSIGNEES of the current topic."
-  (interactive
-   (let* ((topic (forge-current-topic t))
-          (repo  (forge-get-repository topic))
-          (value (closql--iref topic 'assignees))
-          (choices (mapcar #'cadr (oref repo assignees)))
-          (crm-separator ","))
-     (list (magit-completing-read-multiple
-            "Assignees: " choices nil
-            (if (forge--childp repo 'forge-gitlab-repository)
-                t ; Selecting something else would fail later on.
-              'confirm)
-            (mapconcat #'car value ",")))))
+  (interactive (list (forge-read-topic-assignees (forge-current-topic t))))
   (forge--topic-set 'assignees assignees))
 
 (defun forge-edit-topic-review-requests (review-requests)
   "Edit the REVIEW-REQUESTS of the current pull-request."
-  (interactive
-   (let* ((topic (forge-current-topic t))
-          (repo  (forge-get-repository topic))
-          (value (closql--iref topic 'review-requests))
-          (choices (mapcar #'cadr (oref repo assignees)))
-          (crm-separator ","))
-     (list (magit-completing-read-multiple
-            "Request review from: " choices nil
-            'confirm
-            (mapconcat #'car value ",")))))
+  (interactive (list (forge-read-topic-review-requests (forge-current-topic t))))
   (forge--topic-set 'review-requests review-requests))
 
-(defun forge-edit-topic-draft ()
+(defun forge-edit-topic-draft (draft-p)
   "Toggle whether the current pull-request is a draft."
-  (interactive)
-  (forge--topic-set 'draft (not (oref (forge-current-pullreq t) draft-p))))
+  (interactive (list (forge-read-topic-draft (forge-current-topic t))))
+  (forge--topic-set 'draft draft-p))
 
 (transient-define-suffix forge-topic-toggle-saved ()
   "Toggle whether this topic is marked as saved."
