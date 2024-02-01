@@ -168,7 +168,10 @@ signal an error."
   :transient-switch-frame nil
   :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
-  [:hide always ("q" forge-menu-quit-list)]
+  [:hide always
+   ("q"        forge-menu-quit-list)
+   ("RET"      forge-topic-menu)
+   ("<return>" forge-topic-menu)]
   [["Type"
     ("t"   "topics..."       forge-topics-menu     :transient replace)
     (:info "notifications"   :face forge-active-suffix)
