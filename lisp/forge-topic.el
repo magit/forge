@@ -1213,13 +1213,12 @@ This mode itself is never used directly."
   :description
   (lambda ()
     (if-let ((topic (forge-current-topic)))
-        (concat "toggle "
-                (format (propertize "[%s]" 'face 'transient-delimiter)
-                        (propertize "saved" 'face
-                                    (if (oref topic saved-p)
-                                        'transient-value
-                                      'transient-inactive-value))))
-      "toggle [saved]"))
+        (format (propertize "[%s]" 'face 'transient-delimiter)
+                (propertize "saved" 'face
+                            (if (oref topic saved-p)
+                                'transient-value
+                              'transient-inactive-value)))
+      "[saved]"))
   (interactive)
   (let ((topic (forge-current-topic t)))
     (oset topic saved-p (not (oref topic saved-p))))
