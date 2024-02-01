@@ -835,8 +835,7 @@ allow exiting with a number that doesn't match any candidate."
                   (oref repo issues-p))
               repo))))
 
-;;; Topic Modes
-;;;; Modes
+;;; Modes
 
 (defvar-keymap forge-post-section-map
   "<remap> <magit-edit-thing>"   #'forge-edit-post
@@ -947,168 +946,61 @@ This mode itself is never used directly."
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
   (oref forge-buffer-topic slug))
 
-;;;; Sections
-;;;;; Title
+;;; Headers
 
-(defvar-keymap forge-topic-title-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-title)
+(cl-defmacro forge--define-topic-header
+    (name &key insert format (command nil command?))
+  (declare (indent defun))
+  (let ((fun (intern (format "forge-insert-topic-%s" name)))
+        (map (intern (format "forge-topic-%s-section-map" name)))
+        (cmd (intern (format "forge-edit-topic-%s" name))))
+    `(progn
+       (cl-defun ,fun (&optional (topic forge-buffer-topic))
+         (magit-insert-section (,(intern (format "topic-%s" name)))
+           (insert ,(capitalize (string-pad (format "%s: " name) 11)))
+           ,(cond
+             (insert
+              `(unless (funcall ,insert topic)
+                 (insert (magit--propertize-face "none" 'magit-dimmed))))
+             (format
+              `(insert (or (funcall ,format topic)
+                           (magit--propertize-face "none" 'magit-dimmed)))))
+           (insert ?\n)))
+       ,@(and (if command? command t)
+              `((defvar-keymap ,map "<remap> <magit-edit-thing>"
+                               ,(or command `(function ,cmd)))
+                (put ',fun 'definition-name ',name)))
+       (put ',map 'definition-name ',name))))
 
-(cl-defun forge-insert-topic-title
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-title)
-    (insert (format "%-11s" "Title: ") (oref topic title) "\n")))
+(forge--define-topic-header refs
+  :command nil
+  :format #'forge--format-topic-refs)
 
-;;;;; State
+(forge--define-topic-header draft
+  :format #'forge--format-topic-draft)
 
-(defvar-keymap forge-topic-state-section-map
-  "<remap> <magit-edit-thing>" #'forge-topic-state-menu)
+(forge--define-topic-header state
+  :command #'forge-topic-state-menu
+  :format #'forge--format-topic-state)
 
-(cl-defun forge-insert-topic-state
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-state)
-    (insert (format
-             "%-11s%s\n" "State: "
-             (let ((state (oref topic state)))
-               (magit--propertize-face
-                (symbol-name state)
-                (pcase (list (if (forge-issue-p topic) 'issue 'pullreq) state)
-                  ('(issue   open)      'forge-issue-open)
-                  ('(issue   closed)    'forge-issue-completed)
-                  ('(issue   completed) 'forge-issue-completed)
-                  ('(issue   unplanned) 'forge-issue-unplanned)
-                  ('(pullreq open)      'forge-pullreq-open-colored)
-                  ('(pullreq merged)    'forge-pullreq-merged-colored)
-                  ('(pullreq closed)    'forge-pullreq-rejected-colored))))))))
+(forge--define-topic-header status
+  :command #'forge-topic-status-menu
+  :format #'forge--format-topic-status)
 
-;;;;; Status
+(forge--define-topic-header milestone
+  :format #'forge--format-topic-milestone)
 
-(defvar-keymap forge-topic-status-section-map
-  "<remap> <magit-edit-thing>" #'forge-topic-status-menu)
+(forge--define-topic-header labels
+  :insert #'forge--insert-topic-labels)
 
-(cl-defun forge-insert-topic-status
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-status)
-    (insert (format
-             "%-11s%s\n" "Status: "
-             (let ((status (oref topic status)))
-               (magit--propertize-face
-                (symbol-name status)
-                (pcase status
-                  ('unread  'forge-notification-unread)
-                  ('pending 'forge-notification-pending)
-                  ('done    'forge-notification-done))))))))
+(forge--define-topic-header marks
+  :insert #'forge--insert-topic-marks)
 
-;;;;; Draft
+(forge--define-topic-header assignees
+  :format #'forge--format-topic-assignees)
 
-(defvar-keymap forge-topic-draft-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-draft)
-
-(cl-defun forge-insert-topic-draft
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-draft)
-    (insert (format "%-11s%s\n" "Draft: " (oref topic draft-p)))))
-
-;;;;; Milestone
-
-(defvar-keymap forge-topic-milestone-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-milestone)
-
-(cl-defun forge-insert-topic-milestone
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-milestone)
-    (insert (format "%-11s" "Milestone: ")
-            (or (forge--get-topic-milestone topic)
-                ;; If the user hasn't pulled this repository yet after
-                ;; updating to db v7, then only the id is available.
-                (oref topic milestone)
-                (propertize "none" 'font-lock-face 'magit-dimmed))
-            "\n")))
-
-(defun forge--get-topic-milestone (topic)
-  (and-let* ((id (oref topic milestone)))
-    (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))))
-
-;;;;; Labels
-
-(defvar-keymap forge-topic-labels-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-labels)
-
-(cl-defun forge-insert-topic-labels
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-labels)
-    (insert (format "%-11s" "Labels: "))
-    (unless (forge--insert-topic-labels topic)
-      (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
-    (insert ?\n)))
-
-;;;;; Marks
-
-(defvar-keymap forge-topic-marks-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-marks)
-
-(cl-defun forge-insert-topic-marks
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-marks)
-    (insert (format "%-11s" "Marks: "))
-    (unless (forge--insert-topic-marks topic)
-      (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
-    (insert ?\n)))
-
-;;;;; Refs
-
-(cl-defun forge-insert-topic-refs (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-refs)
-    (pcase-let
-        (((eieio cross-repo-p base-repo base-ref head-repo head-ref) topic)
-         (separator (propertize ":" 'font-lock-face 'magit-dimmed))
-         (deleted (propertize "(deleted)" 'font-lock-face 'magit-dimmed)))
-      (insert (format "%-11s" "Refs: ")
-              (if cross-repo-p
-                  (concat base-repo separator base-ref)
-                base-ref)
-              (propertize "..." 'font-lock-face 'magit-dimmed)
-              (if cross-repo-p
-                  (if (and head-repo head-ref)
-                      (concat head-repo separator head-ref)
-                    deleted)
-                (or head-ref deleted))
-              "\n"))))
-
-;;;;; Assignees
-
-(defvar-keymap forge-topic-assignees-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-assignees)
-
-(cl-defun forge-insert-topic-assignees
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-assignees)
-    (insert (format "%-11s" "Assignees: "))
-    (if-let ((assignees (closql--iref topic 'assignees)))
-        (insert (mapconcat (pcase-lambda (`(,login ,name))
-                             (format "%s%s (@%s)"
-                                     (forge--format-avatar login)
-                                     name login))
-                           assignees ", "))
-      (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
-    (insert ?\n)))
-
-;;;;; Review-Requests
-
-(defvar-keymap forge-topic-review-requests-section-map
-  "<remap> <magit-edit-thing>" #'forge-edit-topic-review-requests)
-
-(cl-defun forge-insert-topic-review-requests
-    (&optional (topic forge-buffer-topic))
-  (magit-insert-section (topic-review-requests)
-    (insert (format "%-11s" "Review-Requests: "))
-    (if-let ((review-requests (closql--iref topic 'review-requests)))
-        (insert (mapconcat (pcase-lambda (`(,login ,name))
-                             (format "%s%s (@%s)"
-                                     (forge--format-avatar login)
-                                     name login))
-                           review-requests ", "))
-      (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
-    (insert ?\n)))
+(forge--define-topic-header review-requests
+  :format #'forge--format-topic-review-requests)
 
 ;;; Commands
 ;;;; Menus
