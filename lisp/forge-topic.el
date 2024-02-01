@@ -663,8 +663,8 @@ allow exiting with a number that doesn't match any candidate."
 (defun forge--insert-topic (topic &optional width)
   (magit-insert-section ((eval (oref topic closql-table)) topic t)
     (insert (forge--format-topic-line topic (or width 5) t))
-    (forge--insert-topic-marks topic)
-    (forge--insert-topic-labels topic)
+    (forge--insert-topic-marks topic t)
+    (forge--insert-topic-labels topic t)
     (insert "\n")
     (magit-log-format-author-margin
      (oref topic author)
@@ -675,15 +675,13 @@ allow exiting with a number that doesn't match any candidate."
       (magit-insert-heading)
       (forge--insert-pullreq-commits topic))))
 
-(defun forge--insert-topic-labels (topic &optional skip-separator)
+(defun forge--insert-topic-labels (topic &optional separate)
   (and-let* ((labels (closql--iref topic 'labels)))
     (prog1 t
       (pcase-dolist (`(,name ,color ,description) labels)
         (let* ((background (forge--sanitize-color color))
                (foreground (forge--contrast-color background)))
-          (if skip-separator
-              (setq skip-separator nil)
-            (insert " "))
+          (if separate (insert " ") (setq separate t))
           (insert name)
           (let ((o (make-overlay (- (point) (length name)) (point))))
             (overlay-put o 'priority 2)
@@ -695,13 +693,11 @@ allow exiting with a number that doesn't match any candidate."
             (when description
               (overlay-put o 'help-echo description))))))))
 
-(defun forge--insert-topic-marks (topic &optional skip-separator)
+(defun forge--insert-topic-marks (topic &optional separate)
   (and-let* ((marks (closql--iref topic 'marks)))
     (prog1 t
       (pcase-dolist (`(,name ,face ,description) marks)
-        (if skip-separator
-            (setq skip-separator nil)
-          (insert " "))
+        (if separate (insert " ") (setq separate t))
         (insert name)
         (let ((o (make-overlay (- (point) (length name)) (point))))
           (overlay-put o 'priority 2)
@@ -922,7 +918,7 @@ This mode itself is never used directly."
     (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-labels)
     (insert (format "%-11s" "Labels: "))
-    (unless (forge--insert-topic-labels topic t)
+    (unless (forge--insert-topic-labels topic)
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
 
@@ -935,7 +931,7 @@ This mode itself is never used directly."
     (&optional (topic forge-buffer-topic))
   (magit-insert-section (topic-marks)
     (insert (format "%-11s" "Marks: "))
-    (unless (forge--insert-topic-marks topic t)
+    (unless (forge--insert-topic-marks topic)
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
 
