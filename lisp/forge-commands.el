@@ -598,8 +598,18 @@ point is currently on."
       (insert (oref post body)))
     (forge--display-post-buffer buf)))
 
-(defun forge-edit-topic-note ()
+(transient-define-suffix forge-edit-topic-note ()
   "Edit your private note about the current topic."
+  :transient #'transient--do-quit-all
+  :description
+  (lambda ()
+    (if-let ((topic (forge-current-topic)))
+        (concat "note "
+                (if-let ((note (oref topic note)))
+                    (propertize (substring note 0 (string-match-p "$" note))
+                                'face 'font-lock-string-face)
+                  (propertize "none" 'face 'magit-dimmed)))
+      "note"))
   (interactive)
   (let* ((topic (forge-current-topic t))
          (buf (forge--prepare-post-buffer
