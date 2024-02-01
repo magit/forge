@@ -977,6 +977,7 @@ This mode itself is never used directly."
   :format #'forge--format-topic-refs)
 
 (forge--define-topic-header draft
+  :command #'forge-topic-toggle-draft
   :format #'forge--format-topic-draft)
 
 (forge--define-topic-header state
@@ -1202,10 +1203,22 @@ This mode itself is never used directly."
   (interactive (list (forge-read-topic-review-requests (forge-current-topic t))))
   (forge--topic-set 'review-requests review-requests))
 
-(defun forge-edit-topic-draft (draft-p)
+(transient-define-suffix forge-topic-toggle-draft ()
   "Toggle whether the current pull-request is a draft."
-  (interactive (list (forge-read-topic-draft (forge-current-topic t))))
-  (forge--topic-set 'draft draft-p))
+  :inapt-if-not #'forge-current-pullreq
+  :description
+  (lambda ()
+    (if-let ((pullreq (forge-current-pullreq)))
+        (format (propertize "[%s]" 'face 'transient-delimiter)
+                (propertize "draft" 'face
+                            (if (oref pullreq draft-p)
+                                'transient-value
+                              'transient-inactive-value)))
+      "[draft]"))
+  (interactive)
+  (let ((pullreq (forge-current-pullreq t)))
+    (oset pullreq draft-p (not (oref pullreq draft-p))))
+  (forge-refresh-buffer))
 
 (transient-define-suffix forge-topic-toggle-saved ()
   "Toggle whether this topic is marked as saved."
