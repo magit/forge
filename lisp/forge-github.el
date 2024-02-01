@@ -661,9 +661,10 @@
 
 (cl-defmethod forge--set-topic-labels
   ((_repo forge-github-repository) topic labels)
-  (forge--ghub-put topic "/repos/:owner/:repo/issues/:number/labels" nil
-    :payload labels
-    :callback (forge--set-field-callback)))
+  (funcall (if labels #'forge--ghub-put #'forge--ghub-delete)
+           topic "/repos/:owner/:repo/issues/:number/labels" nil
+           :payload labels
+           :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--set-topic-assignees
   ((_repo forge-github-repository) topic assignees)
