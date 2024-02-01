@@ -691,7 +691,7 @@ point is currently on."
   :inapt-if-not #'forge-comment-at-point
   (interactive)
   (let ((comment (forge-comment-at-point t)))
-    (when (yes-or-no-p "Do you really want to delete the selected comment? ")
+    (when (yes-or-no-p "Really delete the current comment? ")
       (forge--delete-comment (forge-get-repository t) comment))))
 
 ;;; Branch
