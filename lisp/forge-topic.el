@@ -675,6 +675,39 @@ allow exiting with a number that doesn't match any candidate."
       (magit-insert-heading)
       (forge--insert-pullreq-commits topic))))
 
+(defun forge--insert-topic-labels (topic &optional skip-separator labels)
+  (pcase-dolist (`(,name ,color ,description)
+                 (or labels (closql--iref topic 'labels)))
+    (if skip-separator
+        (setq skip-separator nil)
+      (insert " "))
+    (let* ((background (forge--sanitize-color color))
+           (foreground (forge--contrast-color background)))
+      (insert name)
+      (let ((o (make-overlay (- (point) (length name)) (point))))
+        (overlay-put o 'priority 2)
+        (overlay-put o 'evaporate t)
+        (overlay-put o 'font-lock-face
+                     `(( :background ,background
+                         :foreground ,foreground)
+                       forge-topic-label))
+        (when description
+          (overlay-put o 'help-echo description))))))
+
+(defun forge--insert-topic-marks (topic &optional skip-separator marks)
+  (pcase-dolist (`(,name ,face ,description)
+                 (or marks (closql--iref topic 'marks)))
+    (if skip-separator
+        (setq skip-separator nil)
+      (insert " "))
+    (insert name)
+    (let ((o (make-overlay (- (point) (length name)) (point))))
+      (overlay-put o 'priority 2)
+      (overlay-put o 'evaporate t)
+      (overlay-put o 'font-lock-face (list face 'forge-topic-label))
+      (when description
+        (overlay-put o 'help-echo description)))))
+
 (defun forge--assert-insert-topics-get-repository (&optional issues-p)
   (and (forge-db t)
        (or forge-display-in-status-buffer
@@ -892,25 +925,6 @@ This mode itself is never used directly."
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
 
-(defun forge--insert-topic-labels (topic &optional skip-separator labels)
-  (pcase-dolist (`(,name ,color ,description)
-                 (or labels (closql--iref topic 'labels)))
-    (if skip-separator
-        (setq skip-separator nil)
-      (insert " "))
-    (let* ((background (forge--sanitize-color color))
-           (foreground (forge--contrast-color background)))
-      (insert name)
-      (let ((o (make-overlay (- (point) (length name)) (point))))
-        (overlay-put o 'priority 2)
-        (overlay-put o 'evaporate t)
-        (overlay-put o 'font-lock-face
-                     `(( :background ,background
-                         :foreground ,foreground)
-                       forge-topic-label))
-        (when description
-          (overlay-put o 'help-echo description))))))
-
 ;;;;; Marks
 
 (defvar-keymap forge-topic-marks-section-map
@@ -924,20 +938,6 @@ This mode itself is never used directly."
         (forge--insert-topic-marks topic t marks)
       (insert (propertize "none" 'font-lock-face 'magit-dimmed)))
     (insert ?\n)))
-
-(defun forge--insert-topic-marks (topic &optional skip-separator marks)
-  (pcase-dolist (`(,name ,face ,description)
-                 (or marks (closql--iref topic 'marks)))
-    (if skip-separator
-        (setq skip-separator nil)
-      (insert " "))
-    (insert name)
-    (let ((o (make-overlay (- (point) (length name)) (point))))
-      (overlay-put o 'priority 2)
-      (overlay-put o 'evaporate t)
-      (overlay-put o 'font-lock-face (list face 'forge-topic-label))
-      (when description
-        (overlay-put o 'help-echo description)))))
 
 ;;;;; Refs
 
