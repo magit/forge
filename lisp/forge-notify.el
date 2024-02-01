@@ -23,6 +23,7 @@
 ;;; Code:
 
 (require 'forge)
+(require 'forge-topic)
 
 ;;; Options
 
@@ -177,17 +178,7 @@ signal an error."
     ("S" forge-notifications-display-saved)
     ("D" forge-notifications-display-done)
     ("A" forge-notifications-display-all)]]
-  [["Set state"
-    ("s o" forge-topic-state-set-open)
-    ("s c" forge-issue-state-set-completed)
-    ("s u" forge-issue-state-set-unplanned)
-    ("s m" forge-pullreq-state-set-merged)
-    ("s r" forge-pullreq-state-set-rejected)
-    """Set status"
-    ("s i" forge-topic-status-set-unread)
-    ("s p" forge-topic-status-set-pending)
-    ("s d" forge-topic-status-set-done)
-    ("s s" forge-topic-toggle-saved)]
+  [forge--topic-set-state-group
    ["Group"
     ("f" forge-notifications-style-flat)
     ("g" forge-notifications-style-nested)]
@@ -195,6 +186,7 @@ signal an error."
     (magit-toggle-margin)
     (magit-cycle-margin-style)
     ("e" magit-toggle-margin-details)]]
+  [forge--topic-set-status-group]
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (forge-list-notifications))

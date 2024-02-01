@@ -26,6 +26,7 @@
 (require 'tabulated-list)
 
 (require 'forge)
+(require 'forge-topic)
 
 (defvar x-stretch-cursor)
 
@@ -400,17 +401,7 @@ Must be set before `forge-list' is loaded.")
     ("c" "created"          forge-list-authored-pullreqs)
     ("a" "assigned"         forge-list-assigned-pullreqs)
     ("w" "awaiting review"  forge-list-requested-reviews)]]
-  [["Set state"
-    ("s o" forge-topic-state-set-open)
-    ("s c" forge-issue-state-set-completed)
-    ("s u" forge-issue-state-set-unplanned)
-    ("s m" forge-pullreq-state-set-merged)
-    ("s r" forge-pullreq-state-set-rejected)
-    """Set status"
-    ("s i" forge-topic-status-set-unread)
-    ("s p" forge-topic-status-set-pending)
-    ("s d" forge-topic-status-set-done)
-    ("s s" forge-topic-toggle-saved)]
+  [forge--topic-set-state-group
    ["Global lists"
     ("o t" "owned topics"        forge-list-owned-topics)
     ("o i" "owned issues"        forge-list-owned-issues)
@@ -418,6 +409,7 @@ Must be set before `forge-list' is loaded.")
    ["Actions"
     ("f" "fetch all topics"  forge-pull)
     ("m" "show more actions" forge-dispatch)]]
+  [forge--topic-set-status-group]
   (interactive)
   (catch 'add-instead
     (unless (derived-mode-p 'forge-topic-list-mode)

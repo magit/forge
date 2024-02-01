@@ -998,6 +998,21 @@ This mode itself is never used directly."
 ;;; Commands
 ;;;; Menus
 
+(defconst forge--topic-set-state-group
+  ["Set state"
+   ("s o" forge-topic-state-set-open)
+   ("s c" forge-issue-state-set-completed)
+   ("s u" forge-issue-state-set-unplanned)
+   ("s m" forge-pullreq-state-set-merged)
+   ("s r" forge-pullreq-state-set-rejected)])
+
+(defconst forge--topic-set-status-group
+  ["Set status"
+   ("s i" forge-topic-status-set-unread)
+   ("s p" forge-topic-status-set-pending)
+   ("s d" forge-topic-status-set-done)
+   ("s s" forge-topic-toggle-saved)])
+
 ;;;###autoload (autoload 'forge-topic-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-menu ()
   "Edit the topic at point."
@@ -1006,24 +1021,15 @@ This mode itself is never used directly."
   :transient-switch-frame nil
   :refresh-suffixes t
   [:hide always
-   ("q"    forge-menu-quit-list)]
-  [["Set state"
-    ("s o" forge-topic-state-set-open)
-    ("s c" forge-issue-state-set-completed)
-    ("s u" forge-issue-state-set-unplanned)
-    ("s m" forge-pullreq-state-set-merged)
-    ("s r" forge-pullreq-state-set-rejected)
-    """Set status"
-    ("s i" forge-topic-status-set-unread)
-    ("s p" forge-topic-status-set-pending)
-    ("s d" forge-topic-status-set-done)
-    ("s s" forge-topic-toggle-saved)]
-   ["Actions"
+   ("q" forge-menu-quit-list)]
+  [["Actions"
     ("f" forge-pull-this-topic)
     ("b" forge-browse-this-topic)
     ("k" forge-delete-comment)
     ("p" forge-create-pullreq-from-issue)
     ("m" "show more actions" forge-dispatch)]]
+  [forge--topic-set-state-group]
+  [forge--topic-set-status-group]
   (interactive)
   (unless (derived-mode-p 'forge-topic-mode)
     (if-let ((topic (forge-topic-at-point)))
