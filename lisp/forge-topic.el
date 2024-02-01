@@ -1013,6 +1013,8 @@ This mode itself is never used directly."
    ("s d" forge-topic-status-set-done)
    ("s s" forge-topic-toggle-saved)])
 
+(defconst forge--topic-menus-column-widths '(19))
+
 ;;;###autoload (autoload 'forge-topic-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-menu ()
   "Edit the topic at point."
@@ -1020,6 +1022,7 @@ This mode itself is never used directly."
   :transient-non-suffix t
   :transient-switch-frame nil
   :refresh-suffixes t
+  :column-widths forge--topic-menus-column-widths
   [:hide always
    ("q" forge-menu-quit-list)]
   [["Actions"

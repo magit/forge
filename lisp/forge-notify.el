@@ -167,11 +167,12 @@ signal an error."
   :transient-non-suffix t
   :transient-switch-frame nil
   :refresh-suffixes t
+  :column-widths forge--topic-menus-column-widths
   [:hide always ("q" forge-menu-quit-list)]
   [["Type"
-    ("t"   "topics...       " forge-topics-menu     :transient replace)
-    (:info "notifications   " :face forge-active-suffix)
-    ("r"   "repositories... " forge-repository-menu :transient replace)
+    ("t"   "topics..."       forge-topics-menu     :transient replace)
+    (:info "notifications"   :face forge-active-suffix)
+    ("r"   "repositories..." forge-repository-menu :transient replace)
     ""]
    ["Selection"
     ("I" forge-notifications-display-inbox)
