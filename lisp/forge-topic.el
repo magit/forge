@@ -622,15 +622,15 @@ allow exiting with a number that doesn't match any candidate."
           (forge--format-topic-labels topic)))
 
 (defun forge--format-topic-labels (topic)
-  (mapconcat (pcase-lambda (`(,name ,color ,_description))
-               (let* ((background (forge--sanitize-color color))
-                      (foreground (forge--contrast-color background)))
-                 (magit--propertize-face
-                  name `(forge-tablist-topic-label
-                         ( :background ,background
-                           :foreground ,foreground)))))
-             (closql--iref topic 'labels)
-             " "))
+  (and-let* ((labels (closql--iref topic 'labels)))
+    (mapconcat (pcase-lambda (`(,name ,color ,_description))
+                 (let* ((background (forge--sanitize-color color))
+                        (foreground (forge--contrast-color background)))
+                   (magit--propertize-face
+                    name `(forge-tablist-topic-label
+                           ( :background ,background
+                             :foreground ,foreground)))))
+               labels " ")))
 
 (defun forge--format-topic-label-choices (repo)
   (mapcar (pcase-lambda (`(,_id ,name ,color ,_description))
