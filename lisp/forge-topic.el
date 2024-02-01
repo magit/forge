@@ -594,6 +594,26 @@ allow exiting with a number that doesn't match any candidate."
           ((or 'completed 'merged)   'forge-topic-slug-completed)
           ((or 'unplanned 'rejected) 'forge-topic-slug-unplanned))))))
 
+(defun forge--format-topic-refs (topic)
+  (pcase-let
+      (((eieio cross-repo-p base-repo base-ref head-repo head-ref) topic)
+       (separator (magit--propertize-face ":" 'magit-dimmed))
+       (deleted (magit--propertize-face "(deleted)" 'magit-dimmed)))
+    (concat (if cross-repo-p
+                (concat base-repo separator base-ref)
+              base-ref)
+            (magit--propertize-face "..." 'magit-dimmed)
+            (if cross-repo-p
+                (if (and head-repo head-ref)
+                    (concat head-repo separator head-ref)
+                  deleted)
+              (or head-ref deleted)))))
+
+(defun forge--format-topic-draft (topic)
+  (if (oref topic draft-p)
+      (magit--propertize-face "yes" 'bold)
+    (magit--propertize-face "no" 'magit-dimmed)))
+
 (defun forge--format-topic-title (topic)
   (with-slots (title status state) topic
     (magit-log-propertize-keywords
@@ -621,6 +641,14 @@ allow exiting with a number that doesn't match any candidate."
   (concat (forge--format-topic-title  topic) " "
           (forge--format-topic-labels topic)))
 
+(defun forge--format-topic-milestone (topic)
+  (or (and-let* ((id (oref topic milestone)))
+        (caar (forge-sql [:select [title] :from milestone :where (= id $s1)]
+                         id)))
+      ;; If the user hasn't pulled this repository yet after
+      ;; updating to db v7, then only the id is available.
+      (oref topic milestone)))
+
 (defun forge--format-topic-labels (topic)
   (and-let* ((labels (closql--iref topic 'labels)))
     (mapconcat (pcase-lambda (`(,name ,color ,_description))
@@ -640,6 +668,51 @@ allow exiting with a number that doesn't match any candidate."
                name `( :background ,background
                        :foreground ,foreground))))
           (oref repo labels)))
+
+(defun forge--format-topic-marks (topic)
+  (and-let* ((marks (closql--iref topic 'marks)))
+    (mapconcat (pcase-lambda (`(,name ,face ,_description))
+                 (magit--propertize-face
+                  name (list 'forge-tablist-topic-label face)))
+               marks " ")))
+
+(defun forge--format-topic-state (topic)
+  (with-slots (state) topic
+    (magit--propertize-face
+     (symbol-name state)
+     (pcase (list (if (forge-issue-p topic) 'issue 'pullreq) state)
+       ('(issue   open)      'forge-issue-open)
+       ('(issue   closed)    'forge-issue-completed)
+       ('(issue   completed) 'forge-issue-completed)
+       ('(issue   unplanned) 'forge-issue-unplanned)
+       ('(pullreq open)      'forge-pullreq-open-colored)
+       ('(pullreq merged)    'forge-pullreq-merged-colored)
+       ('(pullreq closed)    'forge-pullreq-rejected-colored)))))
+
+(defun forge--format-topic-status (topic)
+  (with-slots (status) topic
+    (magit--propertize-face
+     (symbol-name status)
+     (pcase status
+       ('unread  'forge-notification-unread)
+       ('pending 'forge-notification-pending)
+       ('done    'forge-notification-done)))))
+
+(defun forge--format-topic-assignees (topic)
+  (and-let* ((assignees (closql--iref topic 'assignees)))
+    (mapconcat (pcase-lambda (`(,login ,name))
+                 (format "%s%s (@%s)"
+                         (forge--format-avatar login)
+                         name login))
+               assignees ", ")))
+
+(defun forge--format-topic-review-requests (topic)
+  (and-let* ((review-requests (closql--iref topic 'review-requests)))
+    (mapconcat (pcase-lambda (`(,login ,name))
+                 (format "%s%s (@%s)"
+                         (forge--format-avatar login)
+                         name login))
+               review-requests ", ")))
 
 ;;; Insert
 
