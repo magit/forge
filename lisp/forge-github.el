@@ -649,13 +649,14 @@
   ((repo forge-github-repository) topic milestone)
   (forge--ghub-patch topic
     "/repos/:owner/:repo/issues/:number"
-    `((milestone
-       . ,(caar (forge-sql [:select [number]
-                            :from milestone
-                            :where (and (= repository $s1)
-                                        (= title $s2))]
-                           (oref repo id)
-                           milestone))))
+    (if milestone
+        `((milestone . ,(caar (forge-sql [:select [number]
+                                          :from milestone
+                                          :where (and (= repository $s1)
+                                                      (= title $s2))]
+                                         (oref repo id)
+                                         milestone))))
+      `((milestone . :null)))
     :callback (forge--set-field-callback)))
 
 (cl-defmethod forge--set-topic-labels
