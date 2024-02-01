@@ -314,18 +314,12 @@ depends on option `forge-colorful-topic-summaries'."
     'utf-8)
    t))
 
-;;; Special
-
-(defun forge--topic-set (slot value &optional topic)
-  (unless topic
-    (setq topic (forge-current-topic t)))
-  (funcall (intern (format "forge--set-topic-%s" slot))
-           (forge-get-repository topic)
-           topic
-           value))
-
 (cl-defmethod forge-topic-mark-read ((topic forge-topic))
   (oset topic status 'done))
+
+(cl-defmethod forge--set-topic-marks ((_repo forge-repository) topic marks)
+  (oset topic marks marks)
+  (forge-refresh-buffer))
 
 ;;; Query
 ;;;; Get
@@ -971,7 +965,7 @@ This mode itself is never used directly."
   (declare (indent defun))
   (let ((fun (intern (format "forge-insert-topic-%s" name)))
         (map (intern (format "forge-topic-%s-section-map" name)))
-        (cmd (intern (format "forge-edit-topic-%s" name))))
+        (cmd (intern (format "forge-topic-set-%s" name))))
     `(progn
        (cl-defun ,fun (&optional (topic forge-buffer-topic))
          (magit-insert-section (,(intern (format "topic-%s" name)))
@@ -1190,36 +1184,66 @@ This mode itself is never used directly."
 
 ;;;; Set
 
-(defun forge-edit-topic-title (title)
+(defclass forge--topic-set-slot-command (transient-suffix)
+  ((slot :initarg :slot)
+   (setter)
+   (reader)
+   (formatter :initarg :formatter)
+   (definition
+    :initform (lambda (value)
+                (interactive
+                 (list (funcall (oref (transient-suffix-object) reader)
+                                (forge-current-topic t))))
+                (let ((topic (forge-current-topic t)))
+                  (funcall (oref (transient-suffix-object) setter)
+                           (forge-get-repository topic)
+                           topic value))))
+   (description
+    :initform (lambda (obj)
+                (with-slots (slot inapt-if-not) obj
+                  (if-let* ((topic (if inapt-if-not
+                                       (funcall inapt-if-not)
+                                     (forge-current-topic))))
+                      (format "%s %s" slot
+                              (or (funcall (oref obj formatter) topic)
+                                  (propertize "none" 'face 'magit-dimmed)))
+                    (format "%s" slot)))))))
+
+(cl-defmethod initialize-instance :after
+  ((obj forge--topic-set-slot-command) &optional _slots)
+  (with-slots (slot) obj
+    (oset obj reader (intern (format "forge-read-topic-%s" slot)))
+    (oset obj setter (intern (format "forge--set-topic-%s" slot)))
+    (unless (slot-boundp obj 'formatter)
+      (oset obj formatter (intern (format "forge--format-topic-%s" slot))))))
+
+(transient-define-suffix forge-topic-set-title (title)
   "Edit the TITLE of the current topic."
-  (interactive (list (forge-read-topic-title (forge-current-topic t))))
-  (forge--topic-set 'title title))
+  :class 'forge--topic-set-slot-command :slot 'title
+  :formatter (lambda (topic)
+               (propertize (forge--format-topic-title topic)
+                           'face 'font-lock-string-face)))
 
-(defun forge-edit-topic-milestone (milestone)
+(transient-define-suffix forge-topic-set-milestone (milestone)
   "Edit what MILESTONE the current topic belongs to."
-  (interactive (list (forge-read-topic-milestone (forge-current-topic t))))
-  (forge--topic-set 'milestone milestone))
+  :class 'forge--topic-set-slot-command :slot 'milestone)
 
-(defun forge-edit-topic-labels (labels)
+(transient-define-suffix forge-topic-set-labels (labels)
   "Edit the LABELS of the current topic."
-  (interactive (list (forge-read-topic-labels (forge-current-topic t))))
-  (forge--topic-set 'labels labels))
+  :class 'forge--topic-set-slot-command :slot 'labels)
 
-(defun forge-edit-topic-marks (marks)
+(transient-define-suffix forge-topic-set-marks (marks)
   "Edit the MARKS of the current topic."
-  (interactive (list (forge-read-topic-marks (forge-current-topic t))))
-  (oset (forge-current-topic t) marks marks)
-  (forge-refresh-buffer))
+  :class 'forge--topic-set-slot-command :slot 'marks)
 
-(defun forge-edit-topic-assignees (assignees)
+(transient-define-suffix forge-topic-set-assignees (assignees)
   "Edit the ASSIGNEES of the current topic."
-  (interactive (list (forge-read-topic-assignees (forge-current-topic t))))
-  (forge--topic-set 'assignees assignees))
+  :class 'forge--topic-set-slot-command :slot 'assignees)
 
-(defun forge-edit-topic-review-requests (review-requests)
+(transient-define-suffix forge-topic-set-review-requests (review-requests)
   "Edit the REVIEW-REQUESTS of the current pull-request."
-  (interactive (list (forge-read-topic-review-requests (forge-current-topic t))))
-  (forge--topic-set 'review-requests review-requests))
+  :class 'forge--topic-set-slot-command :slot 'review-requests
+  :inapt-if-not #'forge-current-pullreq)
 
 (transient-define-suffix forge-topic-toggle-draft ()
   "Toggle whether the current pull-request is a draft."
