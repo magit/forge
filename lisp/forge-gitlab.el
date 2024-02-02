@@ -47,7 +47,8 @@
 ;;; Pull
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-gitlab-repository) until)
+(cl-defmethod forge--pull ((repo forge-gitlab-repository) until
+                           &optional callback)
   (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
                             (current-buffer)))
                   (dir default-directory)
@@ -81,8 +82,10 @@
                       (dolist (v .pullreqs) (forge--update-pullreq repo v))
                       (oset repo sparse-p nil))
                     (forge--msg repo t t "Storing REPO")
-                    (unless (oref repo selective-p)
-                      (forge--git-fetch buf dir repo)))))))))
+                    (cond
+                     ((oref repo selective-p))
+                     (callback (funcall callback))
+                     ((forge--git-fetch buf dir repo))))))))))
     (funcall cb cb)))
 
 (cl-defmethod forge--fetch-repository ((repo forge-gitlab-repository) callback)
