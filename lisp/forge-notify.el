@@ -270,8 +270,14 @@ signal an error."
 
 ;;; Sections
 
-;; The double-prefix is necessary due to a limitation of magit-insert-section.
-(defvar-keymap forge-forge-repo-section-map
+(defclass forge-repository-section (magit-section)
+  ((type   :initform 'forge-repo)
+   (keymap :initform 'forge-repository-section-map)))
+
+(define-obsolete-variable-alias 'forge-forge-repo-section-map
+  'forge-repository-section-map "Forge 0.4.0")
+
+(defvar-keymap forge-repository-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-this-repository
   "<remap> <magit-visit-thing>"  #'forge-visit-this-repository)
 
