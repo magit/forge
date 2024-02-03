@@ -357,6 +357,8 @@ it is alive and satisfies the mode requirement."
          (when (buffer-live-p buffer)
            (with-current-buffer buffer
              (forge-refresh-buffer))))
+        ((derived-mode-p 'forge-topic-mode)
+         (magit-refresh-buffer))
         ((derived-mode-p 'magit-mode)
          (magit-refresh-buffer))
         ((derived-mode-p 'forge-topic-list-mode
