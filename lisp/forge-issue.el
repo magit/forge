@@ -229,10 +229,12 @@ a prefix argument is in effect."
 (defvar-keymap forge-issues-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-issues
   "<remap> <magit-visit-thing>"  #'forge-list-issues
+  "C-c C-m"                      #'forge-topics-menu
   "C-c C-n"                      #'forge-create-issue)
 
 (defvar-keymap forge-issue-section-map
-  "<remap> <magit-visit-thing>"  #'forge-visit-this-topic)
+  "<remap> <magit-visit-thing>"  #'forge-visit-this-topic
+  "C-c C-m"                      #'forge-topic-menu)
 
 (defun forge-insert-issues ()
   "Insert a list of mostly recent and/or open issues.

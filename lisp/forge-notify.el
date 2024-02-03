@@ -137,7 +137,7 @@ signal an error."
   :doc "Keymap for `forge-notifications-mode'."
   :parent magit-mode-map
   "<remap> <magit-refresh>" #'magit-refresh-buffer
-  "L" #'forge-notification-menu)
+  "C-c C-m"                 #'forge-notification-menu)
 
 (define-derived-mode forge-notifications-mode magit-mode "Forge Notifications"
   "Mode for looking at forge notifications."
@@ -185,11 +185,7 @@ signal an error."
   [forge--topic-set-state-group
    ["Group"
     ("f" forge-notifications-style-flat)
-    ("g" forge-notifications-style-nested)]
-   ["Margin"
-    (magit-toggle-margin)
-    (magit-cycle-margin-style)
-    ("e" magit-toggle-margin-details)]]
+    ("g" forge-notifications-style-nested)]]
   [forge--topic-set-status-group]
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)

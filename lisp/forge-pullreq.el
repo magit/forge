@@ -295,10 +295,12 @@ is in effect."
 (defvar-keymap forge-pullreqs-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-pullreqs
   "<remap> <magit-visit-thing>"  #'forge-list-pullreqs
+  "C-c C-m"                      #'forge-topics-menu
   "C-c C-n"                      #'forge-create-pullreq)
 
 (defvar-keymap forge-pullreq-section-map
-  "<remap> <magit-visit-thing>"  #'forge-visit-this-topic)
+  "<remap> <magit-visit-thing>"  #'forge-visit-this-topic
+  "C-c C-m"                      #'forge-topic-menu)
 
 (defun forge-insert-pullreqs ()
   "Insert a list of mostly recent and/or open pull-requests.

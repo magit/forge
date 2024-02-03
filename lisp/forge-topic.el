@@ -854,11 +854,11 @@ allow exiting with a number that doesn't match any candidate."
   "C-c C-k"                      #'forge-delete-comment)
 
 (defvar-keymap forge-topic-mode-map
-  "C-c C-n"                      #'forge-create-post
-  "C-c C-r"                      #'forge-create-post
-  "L"                            #'forge-topic-menu
   "<remap> <magit-visit-thing>"  #'markdown-follow-link-at-point
-  "<mouse-2>"                    #'markdown-follow-link-at-point)
+  "<mouse-2>"                    #'markdown-follow-link-at-point
+  "C-c C-m"                      #'forge-topic-menu
+  "C-c C-n"                      #'forge-create-post
+  "C-c C-r"                      #'forge-create-post)
 
 (define-derived-mode forge-topic-mode magit-mode "Topic"
   "Parent mode of `forge-{issue,pullreq}-mode'.

@@ -191,7 +191,7 @@ forges web interface."
   "RET"      #'forge-visit-this-topic
   "<return>" #'forge-visit-this-topic
   "o"        #'forge-browse-this-topic
-  "L"        #'forge-topics-menu
+  "C-c C-m"  #'forge-topics-menu
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
 
@@ -290,7 +290,7 @@ Must be set before `forge-list' is loaded.")
   "RET"      #'forge-visit-this-repository
   "<return>" #'forge-visit-this-repository
   "o"        #'forge-browse-this-repository
-  "L"        #'forge-repository-menu
+  "C-c C-m"  #'forge-repository-menu
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
 
