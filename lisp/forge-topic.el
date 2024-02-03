@@ -1030,8 +1030,7 @@ This mode itself is never used directly."
   ["Set status"
    ("s i" forge-topic-status-set-unread)
    ("s p" forge-topic-status-set-pending)
-   ("s d" forge-topic-status-set-done)
-   ("s s" forge-topic-toggle-saved)])
+   ("s d" forge-topic-status-set-done)])
 
 (defconst forge--topic-set-slots-group
   ["Set"
