@@ -1033,6 +1033,21 @@ This mode itself is never used directly."
    ("s d" forge-topic-status-set-done)
    ("s s" forge-topic-toggle-saved)])
 
+(defconst forge--topic-set-slots-group
+  ["Set"
+   ("e t" forge-topic-set-title)
+   ("e m" forge-topic-set-milestone)
+   ("e l" forge-topic-set-labels)
+   ("e a" forge-topic-set-assignees)
+   ("e r" forge-topic-set-review-requests)
+   ("e d" forge-topic-toggle-draft)])
+
+(defconst forge--topic-set-local-group
+  ["Set local"
+   ("l s" forge-topic-toggle-saved)
+   ("l m" forge-topic-set-marks)
+   ("l n" forge-edit-topic-note)])
+
 (defconst forge--topic-menus-column-widths '(19))
 
 ;;;###autoload (autoload 'forge-topic-menu "forge-topic" nil t)
@@ -1051,8 +1066,10 @@ This mode itself is never used directly."
     ("k" forge-delete-comment)
     ("p" forge-create-pullreq-from-issue)
     ("m" "show more actions" forge-dispatch)]]
-  [forge--topic-set-state-group]
-  [forge--topic-set-status-group]
+  [forge--topic-set-state-group
+   forge--topic-set-slots-group]
+  [forge--topic-set-status-group
+   forge--topic-set-local-group]
   (interactive)
   (unless (derived-mode-p 'forge-topic-mode)
     (if-let ((topic (forge-topic-at-point)))
