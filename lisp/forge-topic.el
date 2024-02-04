@@ -1024,7 +1024,8 @@ This mode itself is never used directly."
    ("s c" forge-issue-state-set-completed)
    ("s u" forge-issue-state-set-unplanned)
    ("s m" forge-pullreq-state-set-merged)
-   ("s r" forge-pullreq-state-set-rejected)])
+   ("s r" forge-pullreq-state-set-rejected)
+   ""])
 
 (defconst forge--topic-set-status-group
   ["Set status"
