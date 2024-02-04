@@ -4,7 +4,7 @@
     (compat         "29.1.4.4")
     (closql         "20240125")
     (dash           "2.19.1")
-    (emacsql        "20240125")
+    (emacsql        "20240124")
     (ghub           "20240101")
     (let-alist      "1.0.6")
     (magit          "20240125")
