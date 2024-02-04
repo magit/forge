@@ -758,19 +758,17 @@ allow exiting with a number that doesn't match any candidate."
 
 (defun forge--format-topic-assignees (topic)
   (and-let* ((assignees (closql--iref topic 'assignees)))
-    (mapconcat (pcase-lambda (`(,login ,name))
-                 (format "%s%s (@%s)"
-                         (forge--format-avatar login)
-                         name login))
-               assignees ", ")))
+    (mapconcat #'forge--format-person assignees ", ")))
 
 (defun forge--format-topic-review-requests (topic)
   (and-let* ((review-requests (closql--iref topic 'review-requests)))
-    (mapconcat (pcase-lambda (`(,login ,name))
-                 (format "%s%s (@%s)"
-                         (forge--format-avatar login)
-                         name login))
-               review-requests ", ")))
+    (mapconcat #'forge--format-person review-requests ", ")))
+
+(defun forge--format-person (person)
+  (pcase-let ((`(,login ,name) person))
+    (format "%s%s (@%s)"
+            (forge--format-avatar login)
+            name login)))
 
 (defun forge--format-avatar (person)
   (if forge-format-avatar-function
