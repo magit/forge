@@ -1434,7 +1434,7 @@ Return a value between 0 and 1."
                                 :object-type 'alist
                                 :sequence-type 'list)))
 
-(cl-defgeneric forge--topic-templates (repo class)
+(cl-defgeneric forge--topic-template-files (repo class)
   "Return a list of topic template files for REPO and a topic of CLASS.")
 
 (cl-defgeneric forge--topic-template (repo class)
@@ -1451,7 +1451,7 @@ alist, containing just `text' and `position'.")
                 (if (equal (file-name-nondirectory f) "config.yml")
                     (forge--topic-parse-link-buffer)
                   (list (forge--topic-parse-buffer f)))))
-            (forge--topic-templates repo class))))
+            (forge--topic-template-files repo class))))
 
 (cl-defmethod forge--topic-template ((repo forge-repository)
                                      (class (subclass forge-topic)))

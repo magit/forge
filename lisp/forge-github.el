@@ -700,8 +700,8 @@
   (closql-delete post)
   (forge-refresh-buffer))
 
-(cl-defmethod forge--topic-templates ((repo forge-github-repository)
-                                      (_ (subclass forge-issue)))
+(cl-defmethod forge--topic-template-files ((repo forge-github-repository)
+                                           (_ (subclass forge-issue)))
   (and-let* ((files (magit-revision-files (oref repo default-branch))))
     (let ((case-fold-search t))
       (if-let ((file (--first (string-match-p "\
@@ -719,8 +719,8 @@
                    (list conf))
           files)))))
 
-(cl-defmethod forge--topic-templates ((repo forge-github-repository)
-                                      (_ (subclass forge-pullreq)))
+(cl-defmethod forge--topic-template-files ((repo forge-github-repository)
+                                           (_ (subclass forge-pullreq)))
   (and-let* ((files (magit-revision-files (oref repo default-branch))))
     (let ((case-fold-search t))
       (if-let ((file (--first (string-match-p "\

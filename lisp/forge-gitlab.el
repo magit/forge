@@ -586,13 +586,13 @@
   (closql-delete post)
   (forge-refresh-buffer))
 
-(cl-defmethod forge--topic-templates ((repo forge-gitlab-repository)
-                                      (_ (subclass forge-issue)))
+(cl-defmethod forge--topic-template-files ((repo forge-gitlab-repository)
+                                           (_ (subclass forge-issue)))
   (--filter (string-match-p "\\`\\.gitlab/issue_templates/.+\\.md\\'" it)
             (magit-revision-files (oref repo default-branch))))
 
-(cl-defmethod forge--topic-templates ((repo forge-gitlab-repository)
-                                      (_ (subclass forge-pullreq)))
+(cl-defmethod forge--topic-template-files ((repo forge-gitlab-repository)
+                                           (_ (subclass forge-pullreq)))
   (--filter (string-match-p "\\`\\.gitlab/merge_request_templates/.+\\.md\\'" it)
             (magit-revision-files (oref repo default-branch))))
 
