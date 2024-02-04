@@ -772,6 +772,11 @@ allow exiting with a number that doesn't match any candidate."
                          name login))
                review-requests ", ")))
 
+(defun forge--format-avatar (author)
+  (if forge-format-avatar-function
+      (funcall forge-format-avatar-function author)
+    ""))
+
 ;;; Insert
 
 (defun forge--insert-topics (type heading topics)
@@ -1345,11 +1350,6 @@ Return a value between 0 and 1."
               host
               (and (not (string-prefix-p "/" file)) "/")
               file))))
-
-(defun forge--format-avatar (author)
-  (if forge-format-avatar-function
-      (funcall forge-format-avatar-function author)
-    ""))
 
 ;;; Templates
 
