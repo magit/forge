@@ -138,6 +138,12 @@ only specify the `:foreground' attribute, which is why this face
 does not inherit from `magit-dimmed'."
   :group 'magit-faces)
 
+(defface forge-topic-header-line
+  `((t :inherit magit-header-line
+       ,@(and (>= emacs-major-version 29) '(:foreground reset))))
+  "Face for the `header-line' in `forge-topic-mode' buffers."
+  :group 'forge-faces)
+
 ;;;; Topic and Notification Slugs
 
 (defface forge-topic-slug-open
@@ -866,6 +872,7 @@ allow exiting with a number that doesn't match any candidate."
 (define-derived-mode forge-topic-mode magit-mode "Topic"
   "Parent mode of `forge-{issue,pullreq}-mode'.
 This mode itself is never used directly."
+  (face-remap-add-relative 'header-line 'forge-topic-header-line)
   (setq-local markdown-translate-filename-function
               #'forge--markdown-translate-filename-function))
 
@@ -917,8 +924,7 @@ This mode itself is never used directly."
 (defun forge-topic-refresh-buffer ()
   (let ((topic (closql-reload forge-buffer-topic)))
     (setq forge-buffer-topic topic)
-    (magit-set-header-line-format
-     (format "%s: %s" (oref topic slug) (oref topic title)))
+    (magit-set-header-line-format (forge--format-topic-line topic))
     (magit-insert-section (topicbuf)
       (magit-insert-headers
        (intern (format "%s-headers-hook"
