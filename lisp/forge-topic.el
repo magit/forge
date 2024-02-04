@@ -772,9 +772,9 @@ allow exiting with a number that doesn't match any candidate."
                          name login))
                review-requests ", ")))
 
-(defun forge--format-avatar (author)
+(defun forge--format-avatar (person)
   (if forge-format-avatar-function
-      (funcall forge-format-avatar-function author)
+      (funcall forge-format-avatar-function person)
     ""))
 
 ;;; Insert
