@@ -447,18 +447,25 @@
         (message "Upgrading Forge database from version 9 to 10...")
         (emacsql db [:alter-table pullreq :add-column slug :default nil])
         (emacsql db [:alter-table issue   :add-column slug :default nil])
-        (dolist (o (closql-entries (forge-db) nil 'forge-pullreq))
-          (oset o slug
-                (format "%s%s"
-                        (if (and (fboundp
-                                  'forge-gitlab-repository--eieio-childp)
-                                 (forge-gitlab-repository--eieio-childp
-                                  (forge-get-repository o)))
-                            "!"
-                          "#")
-                        (oref o number))))
-        (dolist (o (closql-entries (forge-db) nil 'forge-issue))
-          (oset o slug (format "#%s" (oref o number))))
+        (pcase-dolist (`(,id ,number ,type)
+                       (emacsql
+                        db
+                        [:select [pullreq:id pullreq:number repository:class]
+                         :from pullreq
+                         :join repository
+                         :on (= pullreq:repository repository:id)]))
+          (let ((gitlabp (memq type
+                               (append (closql-where-class-in
+                                        'forge-gitlab-repository--eieio-childp)
+                                       nil))))
+            (emacsql db [:update pullreq :set (= slug $s1) :where (= id $s2)]
+                     (format "%s%s" (if gitlabp "!" "#") number)
+                     id)))
+        (pcase-dolist (`(,id ,number)
+                       (emacsql db [:select [id number] :from issue]))
+          (emacsql db [:update issue :set (= slug $s1) :where (= id $s2)]
+                   (format "#%s" number)
+                   id))
         (closql--db-set-version db (setq version 10))
         (message "Upgrading Forge database from version 9 to 10...done"))
       (when (= version 10)
@@ -478,13 +485,17 @@
         (emacsql db [:create-table notification $S1]
                  (cdr (assq 'notification forge--db-table-schemata)))
         (dolist (id (emacsql db [:select id :from issue :where (= state 'closed)]))
-          (oset (closql-get db (car id) 'forge-issue) state 'completed))
+          (emacsql db [:update issue :set (= state 'completed) :where (= id $s1)]
+                   id))
         (dolist (id (emacsql db [:select id :from issue :where (isnull status)]))
-          (oset (closql-get db (car id) 'forge-issue) status 'done))
+          (emacsql db [:update issue :set (= state 'done) :where (= id $s1)]
+                   id))
         (dolist (id (emacsql db [:select id :from pullreq :where (= state 'closed)]))
-          (oset (closql-get db (car id) 'forge-pullreq) state 'rejected))
+          (emacsql db [:update pullreq :set (= state 'rejected) :where (= id $s1)]
+                   id))
         (dolist (id (emacsql db [:select id :from pullreq :where (isnull status)]))
-          (oset (closql-get db (car id) 'forge-pullreq) status 'done))
+          (emacsql db [:update pullreq :set (= state 'done) :where (= id $s1)]
+                   id))
         (emacsql db [:alter-table repository :add-column issues-until :default nil])
         (emacsql db [:alter-table repository :add-column pullreqs-until :default nil])
         (closql--db-set-version db (setq version 12))
