@@ -321,7 +321,8 @@ depends on option `forge-colorful-topic-summaries'."
    t))
 
 (cl-defmethod forge-topic-mark-read ((topic forge-topic))
-  (oset topic status 'done))
+  (when (eq (oref topic status) 'unread)
+    (oset topic status 'pending)))
 
 (cl-defmethod forge--set-topic-marks ((_repo forge-repository) topic marks)
   (oset topic marks marks)
