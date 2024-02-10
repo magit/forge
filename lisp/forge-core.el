@@ -290,23 +290,24 @@ parent object (determined using `forge-get-parent')."
 ;;; URLs
 
 (defun forge--split-url (url)
-  (and (string-match
-        (concat "\\`"
-                "\\(?:git://\\|"
-                "[^/@]+@\\|"
-                "\\(?:ssh\\|ssh\\+git\\|git\\+ssh\\)://\\(?:[^/@]+@\\)?\\|"
-                "https?://\\(?:[^/@]+@\\)?\\)?"
-                (regexp-opt (mapcar #'car forge-alist) t)
-                "\\(?::[0-9]+\\)?"
-                "\\(?:/\\|:/?\\)"
-                "~?\\(.+?\\)/"
-                "\\([^/]+?\\)"
-                "\\(?:\\.git\\|/\\)?"
-                "\\'")
-        url)
-       (list (match-string 1 url)
-             (match-string 2 url)
-             (match-string 3 url))))
+  (save-match-data
+    (and (string-match
+          (concat "\\`"
+                  "\\(?:git://\\|"
+                  "[^/@]+@\\|"
+                  "\\(?:ssh\\|ssh\\+git\\|git\\+ssh\\)://\\(?:[^/@]+@\\)?\\|"
+                  "https?://\\(?:[^/@]+@\\)?\\)?"
+                  (regexp-opt (mapcar #'car forge-alist) t)
+                  "\\(?::[0-9]+\\)?"
+                  "\\(?:/\\|:/?\\)"
+                  "~?\\(.+?\\)/"
+                  "\\([^/]+?\\)"
+                  "\\(?:\\.git\\|/\\)?"
+                  "\\'")
+          url)
+         (list (match-string 1 url)
+               (match-string 2 url)
+               (match-string 3 url)))))
 
 ;;; Miscellaneous
 
