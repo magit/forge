@@ -289,25 +289,24 @@ parent object (determined using `forge-get-parent')."
 
 ;;; URLs
 
-(defun forge--url-regexp ()
-  (concat "\\`\\(?:git://\\|"
-          "[^/@]+@\\|"
-          "\\(?:ssh\\|ssh\\+git\\|git\\+ssh\\)://\\(?:[^/@]+@\\)?\\|"
-          "https?://\\(?:[^/@]+@\\)?\\)?"
-          (regexp-opt (mapcar #'car forge-alist) t)
-          "\\(?::[0-9]+\\)?"
-          "\\(?:/\\|:/?\\)"
-          "\\(.+?\\)"
-          "\\(?:\\.git\\|/\\)?\\'"))
-
 (defun forge--split-url (url)
-  (and-let* ((* (string-match (forge--url-regexp) url))
-             (host  (match-string 1 url))
-             (path  (match-string 2 url))
-             (* (string-match "\\`\\(?:~?\\(.+\\)/\\)?\\([^/]+?\\)\\'" path))
-             (owner (match-string 1 path))
-             (name  (match-string 2 path)))
-    (list host owner name)))
+  (and (string-match
+        (concat "\\`"
+                "\\(?:git://\\|"
+                "[^/@]+@\\|"
+                "\\(?:ssh\\|ssh\\+git\\|git\\+ssh\\)://\\(?:[^/@]+@\\)?\\|"
+                "https?://\\(?:[^/@]+@\\)?\\)?"
+                (regexp-opt (mapcar #'car forge-alist) t)
+                "\\(?::[0-9]+\\)?"
+                "\\(?:/\\|:/?\\)"
+                "~?\\(.+?\\)/"
+                "\\([^/]+?\\)"
+                "\\(?:\\.git\\|/\\)?"
+                "\\'")
+        url)
+       (list (match-string 1 url)
+             (match-string 2 url)
+             (match-string 3 url))))
 
 ;;; Miscellaneous
 
