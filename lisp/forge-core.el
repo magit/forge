@@ -309,30 +309,6 @@ parent object (determined using `forge-get-parent')."
              (name  (match-string 2 path)))
     (list host owner name)))
 
-(defun forge--url-p (url)
-  (save-match-data
-    (and (string-match (forge--url-regexp) url)
-         (nth 2 (assoc (match-string 1 url) forge-alist)))))
-
-(defun forge--forge-remote-p (remote)
-  (and-let* ((url (magit-git-string "remote" "get-url" remote)))
-    (forge--url-p url)))
-
-(defun forge--url-equal (urlA urlB)
-  (or (equal urlA urlB)
-      (save-match-data
-        (let ((re (forge--url-regexp))
-              hostA repoA hostB repoB)
-          (and (when (string-match re urlA)
-                 (setq hostA (match-string 1 urlA))
-                 (setq repoA (match-string 2 urlA)))
-               (when (string-match re urlB)
-                 (setq hostB (match-string 1 urlB))
-                 (setq repoB (match-string 2 urlB)))
-               (equal repoA repoB)
-               (equal (cl-caddr (assoc hostA forge-alist))
-                      (cl-caddr (assoc hostB forge-alist))))))))
-
 ;;; Miscellaneous
 
 (defun forge-refresh-buffer (&optional buffer)

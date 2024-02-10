@@ -738,11 +738,13 @@ Please see the manual for more information."
          (pr-branch (oref pullreq head-ref))
          (repo (forge-get-repository pullreq))
          (host (oref repo githost))
+         (user (oref pullreq head-user))
          (fork (oref pullreq head-repo)))
     (if (magit-remote-p pr-remote)
         (let ((url (magit-git-string "remote" "get-url" pr-remote))
               (fetch (magit-get-all "remote" pr-remote "fetch")))
-          (unless (forge--url-equal url (format "git@%s:%s.git" host fork))
+          (unless (equal (forge--split-url url)
+                         (list host user (substring fork (1+ (length user)))))
             (user-error "Remote `%s' already exists but does not point to %s"
                         pr-remote url))
           (unless (or (member (format "+refs/heads/*:refs/remotes/%s/*"
