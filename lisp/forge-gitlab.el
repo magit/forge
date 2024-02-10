@@ -119,12 +119,6 @@
     (oset repo stars          .star_count)
     (oset repo watchers       .star_count)))
 
-(cl-defmethod forge--split-url-path
-  ((_class (subclass forge-gitlab-repository)) path)
-  (and (string-match "\\`\\(?:~?\\(.+\\)/\\)?\\([^/]+?\\)\\'" path)
-       (list (match-string 1 path)
-             (match-string 2 path))))
-
 ;;;; Issues
 
 (cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback until)

@@ -301,25 +301,13 @@ parent object (determined using `forge-get-parent')."
           "\\(?:\\.git\\|/\\)?\\'"))
 
 (defun forge--split-url (url)
-  (and (string-match (forge--url-regexp) url)
-       (and-let* ((host (match-string 1 url))
-                  (path (match-string 2 url))
-                  (path (forge--split-url-path
-                         (nth 3 (assoc host forge-alist))
-                         path)))
-         (cons host path))))
-
-(cl-defmethod forge--split-url-path
-  ((_class (subclass forge-repository)) path)
-  (and (string-match "\\`\\([^/]+\\)/\\([^/]+?\\)\\'" path)
-       (list (match-string 1 path)
-             (match-string 2 path))))
-
-(cl-defmethod forge--split-url-path
-  ((_class (subclass forge-noapi-repository)) path)
-  (and (string-match "\\`\\(?:~?\\(.+\\)/\\)?\\([^/]+?\\)\\'" path)
-       (list (match-string 1 path)
-             (match-string 2 path))))
+  (and-let* ((* (string-match (forge--url-regexp) url))
+             (host  (match-string 1 url))
+             (path  (match-string 2 url))
+             (* (string-match "\\`\\(?:~?\\(.+\\)/\\)?\\([^/]+?\\)\\'" path))
+             (owner (match-string 1 path))
+             (name  (match-string 2 path)))
+    (list host owner name)))
 
 (defun forge--url-p (url)
   (save-match-data
