@@ -289,7 +289,7 @@ parent object (determined using `forge-get-parent')."
 
 ;;; URLs
 
-(defun forge--split-url (url)
+(defun forge--split-forge-url (url)
   (save-match-data
     (and (string-match
           (concat "\\`"

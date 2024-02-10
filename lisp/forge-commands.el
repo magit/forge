@@ -743,7 +743,7 @@ Please see the manual for more information."
     (if (magit-remote-p pr-remote)
         (let ((url (magit-git-string "remote" "get-url" pr-remote))
               (fetch (magit-get-all "remote" pr-remote "fetch")))
-          (unless (equal (forge--split-url url)
+          (unless (equal (forge--split-forge-url url)
                          (list host user (substring fork (1+ (length user)))))
             (user-error "Remote `%s' already exists but does not point to %s"
                         pr-remote url))

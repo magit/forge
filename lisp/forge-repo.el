@@ -163,7 +163,7 @@ or signal an error, depending on DEMAND."
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
-  (if-let ((parts (forge--split-url url)))
+  (if-let ((parts (forge--split-forge-url url)))
       (forge-get-repository parts remote demand)
     (when (memq demand forge--signal-no-entry)
       (error "Cannot determine forge repository.  %s isn't a forge url" url))))
