@@ -335,7 +335,7 @@ forges and hosts."
   (or (cadr (car (cl-member host forge-alist :test #'equal :key #'cadr)))
       (cadr (car (cl-member host forge-alist :test #'equal :key #'car)))
       (cadr (car (cl-member host forge-alist :test #'equal :key #'caddr)))
-      (user-error "Cannot determine githost for %S" host)))
+      (user-error "Cannot determine apihost for %S" host)))
 
 (cl-defmethod forge--topics-until ((repo forge-repository) until type)
   (if (oref repo sparse-p)
