@@ -346,9 +346,7 @@
   ;; The GraphQL API doesn't support notifications and also likes to
   ;; timeout for handcrafted requests, forcing us to perform a major
   ;; rain dance.
-  (let ((spec (assoc githost forge-alist)))
-    (unless spec
-      (error "No entry for %S in forge-alist" githost))
+  (let ((spec (forge--get-forge-host githost t)))
     (forge--msg nil t nil "Pulling notifications")
     (pcase-let*
         ((`(,_ ,apihost ,forge ,_) spec)

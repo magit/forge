@@ -170,11 +170,11 @@ or signal an error, depending on DEMAND."
 
 (cl-defmethod forge-get-repository (((host owner name) list)
                                     &optional remote demand)
-  "((GITHOST OWNER NAME) &optional REMOTE DEMAND)
+  "((HOST OWNER NAME) &optional REMOTE DEMAND)
 
-Return the repository identified by GITHOST, OWNER and NAME.
+Return the repository identified by HOST, OWNER and NAME.
 See `forge-alist' for valid Git hosts."
-  (if-let ((spec (assoc host forge-alist)))
+  (if-let ((spec (forge--get-forge-host host t)))
       (pcase-let ((`(,githost ,apihost ,webhost ,class) spec))
         ;; The `webhost' is used to identify the corresponding forge.
         ;; For that reason it is stored in the `forge' slot.  The id
@@ -259,8 +259,7 @@ retrieve THEIR-ID, the repository's ID on the forge.  In that
 case OUR-ID derives from THEIR-ID and is unique across all
 forges and hosts."
   (pcase-let* ((`(,_githost ,apihost ,id ,_class)
-                (or (assoc host forge-alist)
-                    (error "No entry for %S in forge-alist" host)))
+                (forge--get-forge-host host t))
                (path (format "%s/%s" owner name))
                (their-id (and (not stub)
                               (ghub-repository-id
@@ -288,8 +287,7 @@ forges and hosts."
   (let ((their-id (if owner (concat owner "/" name) name)))
     (cons (base64-encode-string
            (format "%s:%s"
-                   (nth 3 (or (assoc host forge-alist)
-                              (error "No entry for %S in forge-alist" host)))
+                   (nth 3 (forge--get-forge-host host t))
                    their-id)
            t)
           their-id)))
@@ -320,7 +318,7 @@ forges and hosts."
   (magit-completing-read
    prompt
    (if class
-       (seq-keep (pcase-lambda (`(,githost ,_apihost ,_id ,c))
+       (seq-keep (pcase-lambda (`(,githost ,_apihost ,_webhost ,c))
                    (and (child-of-class-p c class) githost))
                  forge-alist)
      (mapcar #'car forge-alist))

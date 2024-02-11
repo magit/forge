@@ -85,44 +85,31 @@
      "git.sr.ht" forge-srht-repository))
   "List of Git forges.
 
-Each entry has the form (GITHOST APIHOST ID CLASS).
+Each entry has the form (GITHOST APIHOST WEBHOST CLASS).
 
-GITHOST is matched against the host part of Git remote urls
-  using `forge--url-regexp' to identify the forge.
-APIHOST is the api endpoint of the forge's api.
-ID is used to identify the forge in the local database.
-CLASS is the class to be used for repository from the forge.
+- GITHOST is the host used to access repositories on the forge using
+  Git.
 
-GITHOST and APIHOST can be changed, but ID and CLASS are final.
-If you change ID, then the identity of every repository from
-that forge changes.  If you change CLASS, then things start
-falling apart.
+- APIHOST is the host used to access the forge's API.  For some forges
+  the isn't just a host, but a host followed by the path to the API's
+  endpoint.
 
-There can be multiple elements that only differ in GITHOST.
-Among those, the canonical element should come first.  Any
-elements that have the same APIHOST must also have the same
-ID, and vice-versa.
+- WEBHOST is the host used to access repositories on this forge using
+  a browser.  The IDs used to identify repositories from the forge in
+  the local database also derives from this value.
+  
+- CLASS is the class to be used for repositories from the forge.
 
 Complications:
 
-* When connecting to a Github Enterprise edition whose REST
-  API's end point is \"<host>/v3\" and whose GraphQL API's
-  end point is \"<host>/graphql\", then use \"<host>/v3\" as
-  APIHOST.  This is a historic accident.  See issue #174.
+- When connecting to a Github Enterprise edition whose REST API's
+  end point is \"<host>/v3\" and whose GraphQL API's end point is
+  \"<host>/graphql\", then use \"<host>/v3\" as APIHOST.  This is a
+  historic accident.  See issue #174.
 
-* This variable does not account for the possibility that the
-  git repository does not use the same address as the web
-  interface.  That is another historic accident and if many
-  users are affected by it, we might have to fix it properly.
-  If you would like that, comment on issue #532.
-
-  For now a workaround has to be used.  Assuming the web
-  interface is available at \"example.com\" and the repository
-  is at \"ssh.example.com\", use \"example.com\" as GITHOST and
-  add something like this to \".gitconfig\":
-
-    [url \"git@ssh.example.com\"]
-        insteadOf = git@example.com"
+- WEBHOST and CLASS cannot be changed once you have added one or
+  more repositories from a forge.  Changing GITHOST and/or APIHOST
+  may be possible, but should seldom be necessary."
   :package-version '(forge . "0.1.0")
   :group 'forge
   :type '(repeat (list (string :tag "Git host")
@@ -213,6 +200,29 @@ Also see info node `(forge) Repository Detection'.")
 
 (cl-defgeneric forge-get-pullreq ()
   "Return a forge pullreq object.")
+
+(defun forge--get-forge-host (host &optional demand)
+  "Return `forge-alist' entry matching HOST.
+
+Entries have the form (GITHOST APIHOST WEBHOST CLASS).
+
+- If HOST matches a GITHOST, return the corresponding entry.
+- Else, if HOST is an ssh alias and the canonical hostname matches a
+  GITHOST, return the corresponding entry.
+- Finally, if HOST matches a WEBHOST, return the corresponding entry
+
+If no entry matches, return nil, or signal an error if optional DEMAND
+is non-nil."
+  (or (assoc host forge-alist)
+      (assoc (seq-some (lambda (line)
+                         (and (string-prefix-p "hostname" line)
+                              (substring line 9)))
+                       (ignore-errors
+                         (process-lines-ignore-status "ssh" "-G" host)))
+             forge-alist)
+      (car (cl-member host forge-alist :test #'equal :key #'caddr))
+      (and demand
+           (error "No entry for \"%s\" in `forge-alist'" host))))
 
 ;;; Identity
 
@@ -305,7 +315,7 @@ parent object (determined using `forge-get-parent')."
                   "\\(?:\\.git\\|/\\)?"
                   "\\'")
           url)
-         (list (match-string 1 url)
+         (list (caddr (forge--get-forge-host (match-string 1 url) t))
                (match-string 2 url)
                (match-string 3 url)))))
 
