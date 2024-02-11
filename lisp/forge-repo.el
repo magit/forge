@@ -357,10 +357,10 @@ forges and hosts."
    (if (symbolp format-or-slot)
        (eieio-oref repo format-or-slot)
      format-or-slot)
-   (pcase-let* (((eieio githost owner name) repo)
+   (pcase-let* (((eieio forge owner name) repo)
                 (path (if owner (concat owner "/" name) name)))
      `(,@spec
-       (?h . ,githost)
+       (?h . ,forge) ;aka webhost
        (?o . ,owner)
        (?n . ,name)
        (?p . ,path)
