@@ -175,12 +175,15 @@ or signal an error, depending on DEMAND."
 Return the repository identified by GITHOST, OWNER and NAME.
 See `forge-alist' for valid Git hosts."
   (if-let ((spec (assoc host forge-alist)))
-      (pcase-let ((`(,githost ,apihost ,forge ,class) spec))
+      (pcase-let ((`(,githost ,apihost ,webhost ,class) spec))
+        ;; The `webhost' is used to identify the corresponding forge.
+        ;; For that reason it is stored in the `forge' slot.  The id
+        ;; stored in the `id' slot also derives from that value.
         (let* ((row (car (forge-sql [:select * :from repository
                                      :where (and (= forge $s1)
                                                  (= owner $s2)
                                                  (= name  $s3))]
-                                    forge owner name)))
+                                    webhost owner name)))
                (obj (and row (closql--remake-instance class (forge-db) row))))
           (when obj
             (oset obj apihost apihost)
@@ -200,14 +203,14 @@ See `forge-alist' for valid Git hosts."
                      (not obj))
             (pcase-let ((`(,id . ,forge-id)
                          (forge--repository-ids
-                          class host owner name
+                          class webhost owner name
                           (memq demand '(stub maybe)))))
               ;; The repo might have been renamed on the forge.  #188
               (unless (setq obj (forge-get-repository :id id))
                 (setq obj (funcall class
                                    :id       id
                                    :forge-id forge-id
-                                   :forge    forge
+                                   :forge    webhost
                                    :owner    owner
                                    :name     name
                                    :apihost  apihost
