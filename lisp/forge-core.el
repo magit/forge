@@ -224,6 +224,26 @@ is non-nil."
       (and demand
            (error "No entry for \"%s\" in `forge-alist'" host))))
 
+(defun forge--split-forge-url (url)
+  (save-match-data
+    (and (string-match
+          (concat "\\`"
+                  "\\(?:git://\\|"
+                  "[^/@]+@\\|"
+                  "\\(?:ssh\\|ssh\\+git\\|git\\+ssh\\)://\\(?:[^/@]+@\\)?\\|"
+                  "https?://\\(?:[^/@]+@\\)?\\)?"
+                  (regexp-opt (mapcar #'car forge-alist) t)
+                  "\\(?::[0-9]+\\)?"
+                  "\\(?:/\\|:/?\\)"
+                  "~?\\(.+?\\)/"
+                  "\\([^/]+?\\)"
+                  "\\(?:\\.git\\|/\\)?"
+                  "\\'")
+          url)
+         (list (caddr (forge--get-forge-host (match-string 1 url) t))
+               (match-string 2 url)
+               (match-string 3 url)))))
+
 ;;; Identity
 
 (cl-defgeneric forge--object-id (class &rest args)
@@ -296,28 +316,6 @@ parent object (determined using `forge-get-parent')."
                  (match-string 0 resource)
                  (eieio-object-class object)))
       resource)))
-
-;;; URLs
-
-(defun forge--split-forge-url (url)
-  (save-match-data
-    (and (string-match
-          (concat "\\`"
-                  "\\(?:git://\\|"
-                  "[^/@]+@\\|"
-                  "\\(?:ssh\\|ssh\\+git\\|git\\+ssh\\)://\\(?:[^/@]+@\\)?\\|"
-                  "https?://\\(?:[^/@]+@\\)?\\)?"
-                  (regexp-opt (mapcar #'car forge-alist) t)
-                  "\\(?::[0-9]+\\)?"
-                  "\\(?:/\\|:/?\\)"
-                  "~?\\(.+?\\)/"
-                  "\\([^/]+?\\)"
-                  "\\(?:\\.git\\|/\\)?"
-                  "\\'")
-          url)
-         (list (caddr (forge--get-forge-host (match-string 1 url) t))
-               (match-string 2 url)
-               (match-string 3 url)))))
 
 ;;; Miscellaneous
 
