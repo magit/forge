@@ -228,6 +228,16 @@ a prefix argument is in effect."
                       (car default)))
                 choices))))
 
+(defun forge-read-open-issue (prompt)
+  "Read an open issue with completion using PROMPT."
+  (let* ((current (forge-current-issue))
+         (default (and current (car (forge--format-topic-choice current))))
+         (repo    (forge-get-repository (or current t)))
+         (choices (mapcar #'forge--format-topic-choice
+                          (forge-ls-issues repo 'open))))
+    (cdr (assoc (magit-completing-read prompt choices nil nil nil nil default)
+                choices))))
+
 ;;; Insert
 
 (defvar-keymap forge-issues-section-map

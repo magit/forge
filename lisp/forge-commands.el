@@ -504,7 +504,7 @@ with a prefix argument also closed topics."
         (let ((issue (forge-current-issue)))
           (and issue (eq (oref issue state) 'open)
                issue)))
-  (interactive (cons (forge-read-issue "Convert issue")
+  (interactive (cons (forge-read-open-issue "Convert issue")
                      (forge-create-pullreq--read-args)))
   (setq issue (forge-get-issue issue))
   (forge--create-pullreq-from-issue (forge-get-repository issue)
