@@ -147,6 +147,10 @@ an error."
 (defun forge--ls-recent-issues (repo)
   (forge-ls-recent-topics repo 'issue))
 
+(defun forge--ls-issues (repo)
+  (forge--select-issues repo
+    [:from issue :where (= issue:repository $s2)]))
+
 (defun forge--ls-assigned-issues (repo)
   (forge--select-issues repo
     [:from issue

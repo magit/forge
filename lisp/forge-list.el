@@ -518,7 +518,9 @@ Non-interactively if optional REPOSITORY is non-nil, then list
 topics for that instead."
   :class 'forge--topic-list-command :type 'topic
   (interactive)
-  (forge--topic-list-setup nil (list #'forge-ls-issues #'forge-ls-pullreqs)
+  (forge--topic-list-setup nil
+                           (list #'forge--ls-issues
+                                 #'forge--ls-pullreqs)
                            repository))
 (put 'forge-list-topics 'interactive-only nil)
 
@@ -573,7 +575,7 @@ Only Github is supported for now."
   "List issues of the current repository."
   :class 'forge--topic-list-command :type 'issue
   (interactive)
-  (forge--issue-list-setup nil #'forge-ls-issues))
+  (forge--issue-list-setup nil #'forge--ls-issues))
 
 ;;;###autoload (autoload 'forge-list-labeled-issues "forge-list" nil t)
 (transient-define-suffix forge-list-labeled-issues (label)
@@ -617,7 +619,7 @@ Only Github is supported for now."
   "List pull-requests of the current repository."
   :class 'forge--topic-list-command :type 'pullreq
   (interactive)
-  (forge--pullreq-list-setup nil #'forge-ls-pullreqs))
+  (forge--pullreq-list-setup nil #'forge--ls-pullreqs))
 
 ;;;###autoload (autoload 'forge-list-labeled-pullreqs "forge-list" nil t)
 (transient-define-suffix forge-list-labeled-pullreqs (label)
