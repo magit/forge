@@ -263,7 +263,7 @@ If pulling is too slow, then also consider setting the Git variable
   "Read a TOPIC and visit it using a browser.
 By default only offer open topics but with a prefix argument
 also offer closed topics."
-  (interactive (list (forge-read-pullreq "Browse topic" t)))
+  (interactive (list (forge-read-topic "Browse topic" t)))
   (forge--browse-topic topic))
 
 ;;;###autoload
