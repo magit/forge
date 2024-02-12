@@ -43,9 +43,6 @@ used to order the topics by that slot.  Reasonable values
 include (number . >) and (updated . string>)."
   :package-version '(forge . "0.1.0")
   :group 'forge
-  :set (lambda (symbol value)
-         (set-default-toplevel-value symbol value)
-         (forge--zap-repository-cache 'all))
   :type '(cons (symbol   :tag "Slot")
                (function :tag "Predicate")))
 
@@ -446,45 +443,44 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
               rows))))
 
 (defun forge-ls-recent-topics (repo table)
-  (progn ; MAYBE resume caching this
-    (let* ((id (oref repo id))
-           (limit forge-topic-list-limit)
-           (open-limit   (if (consp limit) (car limit) limit))
-           (closed-limit (if (consp limit) (cdr limit) limit))
-           (topics (forge-sql [:select * :from $i1
-                               :where (and (= repository $s2)
-                                           (= status 'unread))]
-                              table id)))
-      (mapc (lambda (row)
-              (cl-pushnew row topics :test #'equal))
-            (if (consp limit)
-                (forge-sql [:select * :from $i1
-                            :where (and (= repository $s2)
-                                        (isnull closed))
-                            :order-by [(desc updated)]
-                            :limit $s3]
-                           table id open-limit)
+  (let* ((id (oref repo id))
+         (limit forge-topic-list-limit)
+         (open-limit   (if (consp limit) (car limit) limit))
+         (closed-limit (if (consp limit) (cdr limit) limit))
+         (topics (forge-sql [:select * :from $i1
+                             :where (and (= repository $s2)
+                                         (= status 'unread))]
+                            table id)))
+    (mapc (lambda (row)
+            (cl-pushnew row topics :test #'equal))
+          (if (consp limit)
               (forge-sql [:select * :from $i1
                           :where (and (= repository $s2)
-                                      (isnull closed))]
-                         table id)))
-      (when (> closed-limit 0)
-        (mapc (lambda (row)
-                (cl-pushnew row topics :test #'equal))
-              (forge-sql [:select * :from $i1
-                          :where (and (= repository $s2)
-                                      (notnull closed))
+                                      (isnull closed))
                           :order-by [(desc updated)]
                           :limit $s3]
-                         table id closed-limit)))
-      (cl-sort (mapcar (let ((class (if (eq table 'pullreq)
-                                        'forge-pullreq
-                                      'forge-issue)))
-                         (lambda (row)
-                           (closql--remake-instance class (forge-db) row)))
-                       topics)
-               (cdr forge-topic-list-order)
-               :key (lambda (it) (eieio-oref it (car forge-topic-list-order)))))))
+                         table id open-limit)
+            (forge-sql [:select * :from $i1
+                        :where (and (= repository $s2)
+                                    (isnull closed))]
+                       table id)))
+    (when (> closed-limit 0)
+      (mapc (lambda (row)
+              (cl-pushnew row topics :test #'equal))
+            (forge-sql [:select * :from $i1
+                        :where (and (= repository $s2)
+                                    (notnull closed))
+                        :order-by [(desc updated)]
+                        :limit $s3]
+                       table id closed-limit)))
+    (cl-sort (mapcar (let ((class (if (eq table 'pullreq)
+                                      'forge-pullreq
+                                    'forge-issue)))
+                       (lambda (row)
+                         (closql--remake-instance class (forge-db) row)))
+                     topics)
+             (cdr forge-topic-list-order)
+             :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
 
 ;;; Read
 

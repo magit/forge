@@ -159,7 +159,6 @@ If pulling is too slow, then also consider setting the Git variable
         (setq repo (forge-get-repository 'create))
         (setq create t)))
     (when (or create interactive (magit-git-config-p "forge.autoPull" t))
-      (forge--zap-repository-cache repo)
       (when (and interactive
                  (oref repo selective-p)
                  (yes-or-no-p
@@ -226,7 +225,6 @@ If pulling is too slow, then also consider setting the Git variable
   "Read a TOPIC and pull data about it from its forge."
   (interactive (list (forge-read-topic "Pull topic" nil t)))
   (let ((repo (forge-get-repository t)))
-    (forge--zap-repository-cache repo)
     (forge--pull-topic repo
                        (if (numberp topic)
                            (forge-issue :repository (oref repo id)
@@ -1014,7 +1012,6 @@ This only affect the current status buffer."
                    "display recently closed topics"))
   :transient t
   (interactive)
-  (forge--zap-repository-cache)
   (make-local-variable 'forge-topic-list-limit)
   (if (atom forge-topic-list-limit)
       (setq forge-topic-list-limit (cons forge-topic-list-limit 5))

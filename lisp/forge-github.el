@@ -462,8 +462,7 @@
                   (`(nil    ,_    always-unread)    'unread)
                   (`(nil    ,_    pending-again)    'pending)
                   ('(nil    unset pending-if-unset) 'pending)
-                  (`(nil    ,_    ,_)               'done)))))
-      (forge--zap-repository-cache repo))))
+                  (`(nil    ,_    ,_)               'done))))))))
 
 ;;;; Miscellaneous
 

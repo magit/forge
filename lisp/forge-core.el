@@ -337,13 +337,6 @@ it is alive and satisfies the mode requirement."
                          'forge-repository-list-mode)
          (revert-buffer))))
 
-(defun forge--zap-repository-cache (&optional repo)
-  (when-let ((r (cond ((eq repo 'all) repo)
-                      (repo (oref repo worktree))
-                      ((magit-repository-local-repository)))))
-    (magit-repository-local-delete (list 'forge-ls-recent-topics 'issue) r)
-    (magit-repository-local-delete (list 'forge-ls-recent-topics 'pullreq) r)))
-
 (defun forge--sanitize-string (string)
   ;; For Gitlab this may also be nil.
   (if string (string-replace "\r\n" "\n" string) ""))
