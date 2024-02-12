@@ -285,7 +285,7 @@ argument also offer closed pull-requests."
 (defun forge--browse-topic (topic)
   (let ((obj (forge-get-topic topic)))
     (browse-url (forge-get-url obj))
-    (forge-topic-mark-read topic)))
+    (forge-topic-mark-read obj)))
 
 ;;;###autoload
 (defun forge-browse-commit (commit)
