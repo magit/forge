@@ -172,7 +172,7 @@ an error."
   (forge-ls-recent-topics repo 'pullreq))
 
 (defun forge--ls-pullreqs (repo)
-  (forge--select-issues repo
+  (forge--select-pullreqs repo
     [:from pullreq :where (= pullreq:repository $s2)]))
 
 (defun forge--ls-assigned-pullreqs (repo)
