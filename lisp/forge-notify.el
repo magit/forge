@@ -45,6 +45,12 @@
   :group 'forge
   :type (if (>= emacs-major-version 28) 'natnum 'number))
 
+(defcustom forge-notifications-always-show-counts t
+  "Whether to try to always show a count of items."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type 'boolean)
+
 ;;; Class
 
 (defclass forge-notification (forge-object)
@@ -285,8 +291,10 @@ signal an error."
         (cond
          ((not (listp status))
           (format "%s notifications" (capitalize (symbol-name status))))
-         ((seq-set-equal-p status '(unread pending)) "Inbox")
-         ((seq-set-equal-p status '(unread pending done)) "All notifications")
+         ((seq-set-equal-p status '(unread pending))
+          (if forge-notifications-always-show-counts (format "Inbox (%s)" (length notifs)) "Inbox"))
+         ((seq-set-equal-p status '(unread pending done))
+          (if forge-notifications-always-show-counts (format "All notifications (%s)" (length notifs)) "All notifications"))
          ((format "Notifications %s" status))))
       (if (eq forge-notifications-display-style 'flat)
           (magit-insert-section-body
