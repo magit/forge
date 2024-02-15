@@ -376,7 +376,7 @@ forges and hosts."
                                    (memq transient-current-command
                                          '(forge-topic-menu
                                            forge-topics-menu
-                                           forge-notification-menu)))
+                                           forge-notifications-menu)))
                           (transient--refresh-transient)))))))))
 
 (defvar forge--mode-line-buffer nil)

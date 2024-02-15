@@ -137,7 +137,7 @@ signal an error."
   :doc "Keymap for `forge-notifications-mode'."
   :parent magit-mode-map
   "<remap> <magit-refresh>" #'magit-refresh-buffer
-  "C-c C-m"                 #'forge-notification-menu)
+  "C-c C-m"                 #'forge-notifications-menu)
 
 (define-derived-mode forge-notifications-mode magit-mode "Forge Notifications"
   "Mode for looking at forge notifications."
@@ -161,7 +161,7 @@ signal an error."
 
 ;;; Commands
 
-(transient-define-prefix forge-notification-menu ()
+(transient-define-prefix forge-notifications-menu ()
   "Control list of notifications and notification at point."
   :transient-suffix t
   :transient-non-suffix t
@@ -173,9 +173,9 @@ signal an error."
    ("RET"      forge-topic-menu)
    ("<return>" forge-topic-menu)]
   [["Type"
-    ("t"   "topics..."       forge-topics-menu     :transient replace)
+    ("t"   "topics..."       forge-topics-menu       :transient replace)
     (:info "notifications"   :face forge-active-suffix)
-    ("r"   "repositories..." forge-repository-menu :transient replace)
+    ("r"   "repositories..." forge-repositories-menu :transient replace)
     ""]
    ["Selection"
     ("I" forge-notifications-display-inbox)
@@ -190,7 +190,7 @@ signal an error."
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (forge-list-notifications))
-  (transient-setup 'forge-notification-menu))
+  (transient-setup 'forge-notifications-menu))
 
 ;;;###autoload
 (defun forge-list-notifications ()

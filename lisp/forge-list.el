@@ -290,7 +290,7 @@ Must be set before `forge-list' is loaded.")
   "RET"      #'forge-visit-this-repository
   "<return>" #'forge-visit-this-repository
   "o"        #'forge-browse-this-repository
-  "C-c C-m"  #'forge-repository-menu
+  "C-c C-m"  #'forge-repositories-menu
   "'"        #'forge-dispatch
   "?"        #'magit-dispatch)
 
@@ -373,8 +373,8 @@ Must be set before `forge-list' is loaded.")
    ("<return>" forge-topic-menu)]
   [["Type"
     (:info "topics"           :face forge-active-suffix)
-    ("n"   "notifications..." forge-notification-menu :transient replace)
-    ("r"   "repositories..."  forge-repository-menu   :transient replace)]
+    ("n"   "notifications..." forge-notifications-menu :transient replace)
+    ("r"   "repositories..."  forge-repositories-menu  :transient replace)]
    [:description (lambda ()
                    (if forge--buffer-list-global
                        "Per-repository lists"
@@ -431,8 +431,8 @@ Must be set before `forge-list' is loaded.")
             (forge-list-owned-topics)))))
     (transient-setup 'forge-topics-menu)))
 
-;;;###autoload (autoload 'forge-repository-menu "forge-list" nil t)
-(transient-define-prefix forge-repository-menu ()
+;;;###autoload (autoload 'forge-repositories-menu "forge-list" nil t)
+(transient-define-prefix forge-repositories-menu ()
   "Control list of repositories and repository at point."
   :transient-suffix t
   :transient-non-suffix 'call
@@ -441,7 +441,7 @@ Must be set before `forge-list' is loaded.")
   [:hide always ("q" forge-menu-quit-list)]
   [["Type"
     ("t" "topics..."        forge-topics-menu       :transient replace)
-    ("n" "notifications..." forge-notification-menu :transient replace)
+    ("n" "notifications..." forge-notifications-menu :transient replace)
     ("r" "repositories"     forge-list-repositories)]
    ["Filter"
     ("o" "owned" forge-list-owned-repositories)]]
@@ -451,7 +451,7 @@ Must be set before `forge-list' is loaded.")
         (switch-to-buffer buffer)
       (with-no-warnings ; "interactive use only"
         (forge-list-repositories))))
-  (transient-setup 'forge-repository-menu))
+  (transient-setup 'forge-repositories-menu))
 
 (defun forge-menu-quit-list ()
   "From a transient menu, quit the list buffer and the menu.
@@ -474,10 +474,10 @@ menu."
          (transient-setup (setq this-command 'forge-topics-menu)))
         ((derived-mode-p 'forge-repository-list-mode)
          (setq transient--exitp 'replace)
-         (transient-setup (setq this-command 'forge-repository-menu)))
+         (transient-setup (setq this-command 'forge-repositories-menu)))
         ((derived-mode-p 'forge-notifications-mode)
          (setq transient--exitp 'replace)
-         (transient-setup (setq this-command 'forge-notification-menu)))
+         (transient-setup (setq this-command 'forge-notifications-menu)))
         (t
          (setq transient--exitp t)
          (transient--pre-exit)

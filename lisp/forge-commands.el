@@ -65,9 +65,9 @@ Takes the pull-request as only argument and must return a directory."
     ("c f" "fork or remote"    forge-fork)]]
   [:if forge--get-full-repository
    ["List"
-    ("t" "topics...         "  forge-topics-menu       :transient replace)
-    ("n" "notifications...  "  forge-notification-menu :transient replace)
-    ("r" "repositories...   "  forge-repository-menu   :transient replace)]
+    ("t" "topics...         "  forge-topics-menu        :transient replace)
+    ("n" "notifications...  "  forge-notifications-menu :transient replace)
+    ("r" "repositories...   "  forge-repositories-menu  :transient replace)]
    ["Fetch"
     ("f f" "all topics       " forge-pull)
     ("f t" "one topic        " forge-pull-topic)
@@ -457,7 +457,7 @@ with a prefix argument also closed topics."
   (let* ((repo (forge-repository-at-point))
          (worktree (oref repo worktree)))
     (cond
-     ((eq transient-current-command 'forge-repository-menu)
+     ((eq transient-current-command 'forge-repositories-menu)
       (if-let ((buffer (forge-topic-get-buffer repo)))
           (switch-to-buffer buffer)
         (forge-list-topics repo))
