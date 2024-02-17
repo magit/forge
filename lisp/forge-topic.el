@@ -429,34 +429,6 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 ;;;; List
 
-(defun forge-ls-topics (repo &optional class type select)
-  (if (not class)
-      (cl-sort (nconc (forge-ls-topics repo 'forge-issue   type select)
-                      (forge-ls-topics repo 'forge-pullreq type select))
-               #'> :key (-cut oref <> number))
-    (let* ((table (oref-default class closql-table))
-           (id (oref repo id))
-           (rows (pcase-exhaustive type
-                   (`open   (forge-sql [:select $i1 :from $i2
-                                        :where (and (= repository $s3)
-                                                    (isnull closed))
-                                        :order-by [(desc number)]]
-                                       (or select '*) table id))
-                   (`closed (forge-sql [:select $i1 :from $i2
-                                        :where (and (= repository $s3)
-                                                    (notnull closed))
-                                        :order-by [(desc number)]]
-                                       (or select '*) table id))
-                   (`nil    (forge-sql [:select $i1 :from $i2
-                                        :where (= repository $s3)
-                                        :order-by [(desc number)]]
-                                       (or select '*) table id)))))
-      (if select
-          rows
-        (mapcar (lambda (row)
-                  (closql--remake-instance class (forge-db) row))
-                rows)))))
-
 (defun forge-ls-recent-topics (repo table)
   (let* ((id (oref repo id))
          (limit forge-topic-list-limit)

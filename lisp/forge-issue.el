@@ -141,9 +141,6 @@ an error."
 
 ;;;; List
 
-(defun forge-ls-issues (repo &optional type select)
-  (forge-ls-topics repo 'forge-issue type select))
-
 (defun forge--ls-recent-issues (repo)
   (forge-ls-recent-topics repo 'issue))
 

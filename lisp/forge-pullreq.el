@@ -165,9 +165,6 @@ an error."
 
 ;;;; List
 
-(defun forge-ls-pullreqs (repo &optional type select)
-  (forge-ls-topics repo 'forge-pullreq type select))
-
 (defun forge--ls-recent-pullreqs (repo)
   (forge-ls-recent-topics repo 'pullreq))
 
