@@ -151,6 +151,12 @@ an error."
   (forge--select-issues repo
     [:from issue :where (= issue:repository $s2)]))
 
+(defun forge--ls-open-issues (repo)
+  (forge--select-issues repo
+    [:from issue
+     :where (and (= issue:repository $s2)
+                 (= issue:state 'open))]))
+
 (defun forge--ls-assigned-issues (repo)
   (forge--select-issues repo
     [:from issue
@@ -229,7 +235,7 @@ can be selected from the start."
          (default (and current (car (forge--format-topic-choice current))))
          (repo    (forge-get-repository (or current t)))
          (choices (mapcar #'forge--format-topic-choice
-                          (forge-ls-issues repo 'open))))
+                          (forge--ls-open-issues repo))))
     (cdr (assoc (magit-completing-read prompt choices nil nil nil nil default)
                 choices))))
 
