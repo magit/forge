@@ -170,12 +170,12 @@ an error."
 
 (defun forge--ls-pullreqs (repo)
   (forge--select-pullreqs repo
-    [:from pullreq :where (= pullreq:repository $s2)]))
+    [:from pullreq :where (= pullreq:repository $s1)]))
 
 (defun forge--ls-active-pullreqs (repo)
   (forge--select-pullreqs repo
     [:from pullreq
-     :where (and (= pullreq:repository $s2)
+     :where (and (= pullreq:repository $s1)
                  (or (= pullreq:state 'open)
                      (in pullreq:status [pending unread])))]))
 
@@ -184,8 +184,8 @@ an error."
     [:from pullreq
      :join pullreq_assignee :on (= pullreq_assignee:pullreq pullreq:id)
      :join assignee         :on (= pullreq_assignee:id      assignee:id)
-     :where (and (= pullreq:repository $s2)
-                 (= assignee:login     $s3)
+     :where (and (= pullreq:repository $s1)
+                 (= assignee:login     $s2)
                  (isnull pullreq:closed))]
     (ghub--username repo)))
 
@@ -194,16 +194,16 @@ an error."
     [:from pullreq
      :join pullreq_review_request :on (= pullreq_review_request:pullreq pullreq:id)
      :join assignee               :on (= pullreq_review_request:id      assignee:id)
-     :where (and (= pullreq:repository $s2)
-                 (= assignee:login     $s3)
+     :where (and (= pullreq:repository $s1)
+                 (= assignee:login     $s2)
                  (isnull pullreq:closed))]
     (ghub--username repo)))
 
 (defun forge--ls-authored-pullreqs (repo)
   (forge--select-pullreqs repo
     [:from [pullreq]
-     :where (and (= pullreq:repository $s2)
-                 (= pullreq:author     $s3)
+     :where (and (= pullreq:repository $s1)
+                 (= pullreq:author     $s2)
                  (isnull pullreq:closed))]
     (ghub--username repo)))
 
@@ -212,8 +212,8 @@ an error."
     [:from pullreq
      :join pullreq_label :on (= pullreq_label:pullreq pullreq:id)
      :join label         :on (= pullreq_label:id      label:id)
-     :where (and (= pullreq:repository  $s2)
-                 (= label:name        $s3)
+     :where (and (= pullreq:repository  $s1)
+                 (= label:name        $s2)
                  (isnull pullreq:closed))]
     label))
 
@@ -221,8 +221,8 @@ an error."
   (forge--select-pullreqs nil
     [:from [pullreq repository]
      :where (and (= pullreq:repository repository:id)
-                 (in repository:owner $v2)
-                 (not (in repository:name $v3))
+                 (in repository:owner $v1)
+                 (not (in repository:name $v2))
                  (isnull pullreq:closed))
      :order-by [(asc repository:owner)
                 (asc repository:name)
@@ -236,11 +236,10 @@ an error."
     (mapcar (lambda (row)
               (closql--remake-instance 'forge-pullreq db row))
             (apply #'forge-sql
-                   (vconcat [:select $i1]
+                   (vconcat [:select *]
                             query
                             (and (not (cl-find :order-by query))
                                  [:order-by [(desc updated)]]))
-                   (vconcat (closql--table-columns db 'pullreq t))
                    (if repo
                        (cons (oref repo id) args)
                      args)))))

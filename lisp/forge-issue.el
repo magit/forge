@@ -146,18 +146,18 @@ an error."
 
 (defun forge--ls-issues (repo)
   (forge--select-issues repo
-    [:from issue :where (= issue:repository $s2)]))
+    [:from issue :where (= issue:repository $s1)]))
 
 (defun forge--ls-open-issues (repo)
   (forge--select-issues repo
     [:from issue
-     :where (and (= issue:repository $s2)
+     :where (and (= issue:repository $s1)
                  (= issue:state 'open))]))
 
 (defun forge--ls-active-issues (repo)
   (forge--select-issues repo
     [:from issue
-     :where (and (= issue:repository $s2)
+     :where (and (= issue:repository $s1)
                  (or (= issue:state 'open)
                      (in issue:status [pending unread])))]))
 
@@ -166,16 +166,16 @@ an error."
     [:from issue
      :join issue_assignee :on (= issue_assignee:issue issue:id)
      :join assignee       :on (= issue_assignee:id    assignee:id)
-     :where (and (= issue:repository $s2)
-                 (= assignee:login   $s3)
+     :where (and (= issue:repository $s1)
+                 (= assignee:login   $s2)
                  (isnull issue:closed))]
     (ghub--username repo)))
 
 (defun forge--ls-authored-issues (repo)
   (forge--select-issues repo
     [:from [issue]
-     :where (and (= issue:repository $s2)
-                 (= issue:author     $s3)
+     :where (and (= issue:repository $s1)
+                 (= issue:author     $s2)
                  (isnull issue:closed))]
     (ghub--username repo)))
 
@@ -184,8 +184,8 @@ an error."
     [:from issue
      :join issue_label :on (= issue_label:issue issue:id)
      :join label       :on (= issue_label:id    label:id)
-     :where (and (= issue:repository $s2)
-                 (= label:name       $s3)
+     :where (and (= issue:repository $s1)
+                 (= label:name       $s2)
                  (isnull issue:closed))]
     label))
 
@@ -193,8 +193,8 @@ an error."
   (forge--select-issues nil
     [:from [issue repository]
      :where (and (= issue:repository repository:id)
-                 (in repository:owner $v2)
-                 (not (in repository:name $v3))
+                 (in repository:owner $v1)
+                 (not (in repository:name $v2))
                  (isnull issue:closed))
      :order-by [(asc repository:owner)
                 (asc repository:name)
@@ -208,11 +208,10 @@ an error."
     (mapcar (lambda (row)
               (closql--remake-instance 'forge-issue db row))
             (apply #'forge-sql
-                   (vconcat [:select $i1]
+                   (vconcat [:select *]
                             query
                             (and (not (cl-find :order-by query))
                                  [:order-by [(desc updated)]]))
-                   (vconcat (closql--table-columns db 'issue t))
                    (if repo
                        (cons (oref repo id) args)
                      args)))))
