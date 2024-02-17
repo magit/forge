@@ -218,7 +218,7 @@ With a prefix argument offer all issues as completion candidates."
                           (forge-ls-issues
                            repo (if current-prefix-arg nil 'open)))))
     (cdr (assoc (magit-completing-read
-                 prompt choices nil nil nil nil
+                 prompt choices nil t nil nil
                  (and default
                       (setq default (forge--format-topic-choice default))
                       (member default choices)
