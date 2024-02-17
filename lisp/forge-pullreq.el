@@ -243,18 +243,14 @@ an error."
 
 ;;; Read
 
-(defun forge-read-pullreq (prompt &optional type)
-  "Read a pull-request with completion using PROMPT.
-TYPE can be `open', `closed', or nil to select from all
-pull-requests.  TYPE can also be t to select from open
-pull-requests, or all pull-requests if a prefix argument
-is in effect."
-  (when (eq type t)
-    (setq type (if current-prefix-arg nil 'open)))
+(defun forge-read-pullreq (prompt)
+  "Read an active pull-request with completion using PROMPT.
+With a prefix argument offer all pull-requests as completion candidates."
   (let* ((default (forge-current-pullreq))
          (repo    (forge-get-repository (or default t)))
          (choices (mapcar #'forge--format-topic-choice
-                          (forge-ls-pullreqs repo type))))
+                          (forge-ls-pullreqs
+                           repo (if current-prefix-arg nil 'open)))))
     (cdr (assoc (magit-completing-read
                  prompt choices nil nil nil nil
                  (and default

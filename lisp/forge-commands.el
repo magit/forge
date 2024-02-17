@@ -266,7 +266,7 @@ If pulling is too slow, then also consider setting the Git variable
   "Read a TOPIC and visit it using a browser.
 By default only offer open topics but with a prefix argument
 also offer closed topics."
-  (interactive (list (forge-read-topic "Browse topic" t)))
+  (interactive (list (forge-read-topic "Browse topic")))
   (forge--browse-topic topic))
 
 ;;;###autoload
@@ -274,7 +274,7 @@ also offer closed topics."
   "Read an ISSUE and visit it using a browser.
 By default only offer open issues but with a prefix argument
 also offer closed issues."
-  (interactive (list (forge-read-issue "Browse issue" t)))
+  (interactive (list (forge-read-issue "Browse issue")))
   (forge--browse-topic issue))
 
 ;;;###autoload
@@ -282,7 +282,7 @@ also offer closed issues."
   "Read a PULL-REQUEST and visit it using a browser.
 By default only offer open pull-requests but with a prefix
 argument also offer closed pull-requests."
-  (interactive (list (forge-read-pullreq "Browse pull-request" t)))
+  (interactive (list (forge-read-pullreq "Browse pull-request")))
   (forge--browse-topic pull-request))
 
 (defun forge--browse-topic (topic)
@@ -428,7 +428,7 @@ argument also offer closed pull-requests."
   "Read a TOPIC and visit it.
 By default only offer open topics for completion;
 with a prefix argument also closed topics."
-  (interactive (list (forge-read-topic "View topic" t)))
+  (interactive (list (forge-read-topic "View topic")))
   (forge-topic-setup-buffer (forge-get-topic topic)))
 
 ;;;###autoload
@@ -436,7 +436,7 @@ with a prefix argument also closed topics."
   "Read an ISSUE and visit it.
 By default only offer open topics for completion;
 with a prefix argument also closed topics."
-  (interactive (list (forge-read-issue "View issue" t)))
+  (interactive (list (forge-read-issue "View issue")))
   (forge-topic-setup-buffer (forge-get-issue issue)))
 
 ;;;###autoload
@@ -444,7 +444,7 @@ with a prefix argument also closed topics."
   "Read a PULL-REQUEST and visit it.
 By default only offer open topics for completion;
 with a prefix argument also closed topics."
-  (interactive (list (forge-read-pullreq "View pull-request" t)))
+  (interactive (list (forge-read-pullreq "View pull-request")))
   (forge-topic-setup-buffer (forge-get-pullreq pull-request)))
 
 ;;;###autoload
@@ -641,7 +641,7 @@ point is currently on."
 (defun forge-branch-pullreq (pullreq)
   "Create and configure a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (forge-read-pullreq "Branch pull request" t)))
+  (interactive (list (forge-read-pullreq "Branch pull request")))
   (let ((pullreq (forge-get-pullreq pullreq)))
     (if-let ((branch (forge--pullreq-branch-active pullreq)))
         (progn (message "Branch %S already exists and is configured" branch)
@@ -775,7 +775,7 @@ Please see the manual for more information."
 (defun forge-checkout-pullreq (pullreq)
   "Create, configure and checkout a new branch from a pull-request.
 Please see the manual for more information."
-  (interactive (list (forge-read-pullreq "Checkout pull request" t)))
+  (interactive (list (forge-read-pullreq "Checkout pull request")))
   (magit--checkout (forge--branch-pullreq (forge-get-pullreq pullreq)))
   (forge-refresh-buffer))
 
@@ -786,7 +786,7 @@ This is like `forge-checkout-pullreq', except that it also
 creates a new worktree. Please see the manual for more
 information."
   (interactive
-   (let ((id (forge-read-pullreq "Checkout pull request" t)))
+   (let ((id (forge-read-pullreq "Checkout pull request")))
      (list (funcall forge-checkout-worktree-read-directory-function
                     (forge-get-pullreq id))
            id)))
@@ -918,7 +918,7 @@ and then push the target branch.  Forges detect that you have
 done that and respond by automatically marking the pull-request
 as merged."
   (interactive
-   (list (forge-read-pullreq "Merge pull-request" t)
+   (list (forge-read-pullreq "Merge pull-request")
          (if (forge--childp (forge-get-repository t) 'forge-gitlab-repository)
              (magit-read-char-case "Merge method " t
                (?m "[m]erge"  'merge)
