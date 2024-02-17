@@ -497,6 +497,11 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
              (cdr forge-topic-list-order)
              :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
 
+(defun forge--ls-topics (repo)
+  (cl-sort (nconc (forge--ls-issues repo)
+                  (forge--ls-pullreqs repo))
+           #'> :key (-cut oref <> number)))
+
 ;;; Read
 
 (defun forge-read-topic (prompt)
