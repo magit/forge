@@ -175,6 +175,13 @@ an error."
   (forge--select-pullreqs repo
     [:from pullreq :where (= pullreq:repository $s2)]))
 
+(defun forge--ls-active-pullreqs (repo)
+  (forge--select-pullreqs repo
+    [:from pullreq
+     :where (and (= pullreq:repository $s2)
+                 (or (= pullreq:state 'open)
+                     (in pullreq:status [pending unread])))]))
+
 (defun forge--ls-assigned-pullreqs (repo)
   (forge--select-pullreqs repo
     [:from pullreq

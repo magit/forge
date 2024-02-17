@@ -157,6 +157,13 @@ an error."
      :where (and (= issue:repository $s2)
                  (= issue:state 'open))]))
 
+(defun forge--ls-active-issues (repo)
+  (forge--select-issues repo
+    [:from issue
+     :where (and (= issue:repository $s2)
+                 (or (= issue:state 'open)
+                     (in issue:status [pending unread])))]))
+
 (defun forge--ls-assigned-issues (repo)
   (forge--select-issues repo
     [:from issue

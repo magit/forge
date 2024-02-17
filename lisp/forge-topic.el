@@ -502,6 +502,11 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
                   (forge--ls-pullreqs repo))
            #'> :key (-cut oref <> number)))
 
+(defun forge--ls-active-topics (repo)
+  (cl-sort (nconc (forge--ls-active-issues repo)
+                  (forge--ls-active-pullreqs repo))
+           #'> :key (-cut oref <> number)))
+
 ;;; Read
 
 (defun forge-read-topic (prompt)
