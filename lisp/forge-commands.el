@@ -238,7 +238,8 @@ If pulling is too slow, then also consider setting the Git variable
   :inapt-if-not #'forge--get-github-repository
   :description "fetch"
   (interactive)
-  (forge-pull-topic (forge-current-topic t)))
+  (let ((topic (forge-current-topic t)))
+    (forge--pull-topic (forge-get-repository topic) topic)))
 
 (cl-defmethod forge--pull-topic ((repo forge-repository) _topic)
   (error "Fetching an individual topic not implemented for %s"
