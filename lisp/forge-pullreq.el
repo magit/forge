@@ -245,7 +245,16 @@ an error."
 
 (defun forge-read-pullreq (prompt)
   "Read an active pull-request with completion using PROMPT.
-With a prefix argument offer all pull-requests as completion candidates."
+
+Open pull-requests are considered active.
+Default to the current pull-request even if it isn't active.
+
+\\<forge-read-topic-minibuffer-map>While completion is in \
+progress, \\[forge-read-topic-lift-limit] lifts the limit, extending
+the completion candidates to include all pull-requests.
+
+If `forge-limit-topic-choices' is nil, then all candidates
+can be selected from the start."
   (forge--read-topic prompt #'forge-current-pullreq #'forge-ls-pullreqs))
 
 ;;; Utilities

@@ -211,7 +211,16 @@ an error."
 
 (defun forge-read-issue (prompt)
   "Read an active issue with completion using PROMPT.
-With a prefix argument offer all issues as completion candidates."
+
+Open issues are considered active.
+Default to the current issue even if it isn't active.
+
+\\<forge-read-topic-minibuffer-map>While completion is in \
+progress, \\[forge-read-topic-lift-limit] lifts the limit, extending
+the completion candidates to include all issues.
+
+If `forge-limit-topic-choices' is nil, then all candidates
+can be selected from the start."
   (forge--read-topic prompt #'forge-current-issue #'forge-ls-issues))
 
 (defun forge-read-open-issue (prompt)

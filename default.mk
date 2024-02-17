@@ -36,6 +36,7 @@ DEPS += with-editor/lisp
 DEPS += yaml
 # Optional
 DEPS += sqlite3
+DEPS += vertico
 
 DOMAIN      ?= magit.vc
 CFRONT_DIST ?= E2LUHBKU1FBV02

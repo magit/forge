@@ -64,6 +64,12 @@ number of closed topics only."
                  (cons (number :tag "Maximal number of open topics")
                        (number :tag "Maximal number of closed topics"))))
 
+(defcustom forge-limit-topic-choices t
+  "Whether to initially limit completion candidates to active topics."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type 'boolean)
+
 (defcustom forge-post-heading-format "%a %C\n"
   "Format for post headings in topic view.
 
@@ -490,24 +496,87 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 (defun forge-read-topic (prompt)
   "Read an active topic with completion using PROMPT.
-With a prefix argument offer all topics as completion candidates."
+
+Open topics are considered active.
+Default to the current topic even if it isn't active.
+
+\\<forge-read-topic-minibuffer-map>While completion is in \
+progress, \\[forge-read-topic-lift-limit] lifts the limit, extending
+the completion candidates to include all topics.
+
+If `forge-limit-topic-choices' is nil, then all candidates
+can be selected from the start."
   (forge--read-topic prompt #'forge-current-topic
                      (lambda (repo &optional type)
                        (forge-ls-topics repo nil type))))
 
 (defun forge--read-topic (prompt current list)
   (let* ((current (funcall current))
-         (repo    (forge-get-repository (or default t)))
+         (repo    (forge-get-repository (or current t)))
+         (default (and current (forge--format-topic-choice current)))
          (choices (mapcar #'forge--format-topic-choice
-                          (funcall list repo
-                                   (if current-prefix-arg nil 'open)))))
-    (cdr (assoc (magit-completing-read
-                 prompt choices nil t nil nil
-                 (and default
-                      (setq default (forge--format-topic-choice default))
-                      (member default choices)
-                      (car default)))
-                choices))))
+                          (funcall list repo 'open)))
+         (choices (if (and default (not (member default choices)))
+                      (cons default choices)
+                    choices))
+         (choice
+          (if forge-limit-topic-choices
+              (minibuffer-with-setup-hook
+                  (lambda ()
+                    (use-local-map (make-composed-keymap
+                                    forge-read-topic-minibuffer-map
+                                    (current-local-map))))
+                (magit-completing-read
+                 (concat prompt
+                         (substitute-command-keys
+                          (format "\\<forge-read-topic-minibuffer-map>\
+ (\\[forge-read-topic-lift-limit] for all)")))
+                 (let (all-choices)
+                   (lambda (&rest _)
+                     (cond
+                      (all-choices)
+                      (forge-limit-topic-choices choices)
+                      (t
+                       (forge--replace-minibuffer-prompt prompt)
+                       (setq all-choices (mapcar #'forge--format-topic-choice
+                                                 (funcall list repo)))))))
+                 nil t nil nil default))
+            (magit-completing-read prompt choices nil t nil nil default))))
+    (get-text-property 0 'forge--topic-id choice)))
+
+(setq minibuffer-allow-text-properties
+      (cons 'forge--topic-id
+            minibuffer-allow-text-properties))
+
+(defvar-keymap forge-read-topic-minibuffer-map
+  "+" #'forge-read-topic-lift-limit)
+
+(defun forge-read-topic-lift-limit ()
+  "No longer limit completion candidates to active topics."
+  (interactive)
+  (when (and (minibufferp)
+             forge-limit-topic-choices)
+    (setq-local forge-limit-topic-choices nil)))
+
+(defun forge--replace-minibuffer-prompt (prompt)
+  (save-excursion
+    (goto-char (point-min))
+    (let ((inhibit-read-only t)
+          (end (length prompt)))
+      ;; (insert-and-inherit prompt) would discard all faces already
+      ;; present in PROMPT, so instead we do it like `read_minibuf'.
+      (put-text-property 0 end 'front-sticky t prompt)
+      (put-text-property 0 end 'rear-nonsticky t prompt)
+      (put-text-property 0 end 'field t prompt)
+      (let ((props minibuffer-prompt-properties))
+        (while props
+          (let ((key (pop props))
+                (val (pop props)))
+            (if (eq key 'face)
+                (add-face-text-property 0 end val t prompt)
+              (put-text-property 0 end key val prompt)))))
+      (insert prompt)
+      (delete-region (point) (minibuffer-prompt-end)))))
 
 (defun forge-topic-completion-at-point ()
   (let ((bol (line-beginning-position))
@@ -639,8 +708,9 @@ With a prefix argument offer all topics as completion candidates."
    (forge--format-topic-title topic)))
 
 (defun forge--format-topic-choice (topic)
-  (cons (forge--format-topic-line topic)
-        (oref topic id)))
+  (let ((line (forge--format-topic-line topic)))
+    (put-text-property 0 (length line) 'forge--topic-id (oref topic id) line)
+    line))
 
 (defun forge--format-topic-slug (topic)
   (with-slots (slug state status saved-p) topic
