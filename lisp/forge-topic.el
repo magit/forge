@@ -32,6 +32,11 @@
 
 (defvar bug-reference-auto-setup-functions)
 
+(defvar vertico-mode)
+(defvar vertico--input)
+
+(declare-function vertico--exhibit "vertico" ())
+
 ;;; Options
 
 (defcustom forge-topic-list-order '(updated . string>)
@@ -556,7 +561,10 @@ can be selected from the start."
   (interactive)
   (when (and (minibufferp)
              forge-limit-topic-choices)
-    (setq-local forge-limit-topic-choices nil)))
+    (setq-local forge-limit-topic-choices nil)
+    (when vertico-mode
+      (setq vertico--input t)
+      (vertico--exhibit))))
 
 (defun forge--replace-minibuffer-prompt (prompt)
   (save-excursion
