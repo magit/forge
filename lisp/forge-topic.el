@@ -512,7 +512,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 (defun forge-read-topic (prompt)
   "Read an active topic with completion using PROMPT.
 
-Open topics are considered active.
+Open, unread and pending topics are considered active.
 Default to the current topic even if it isn't active.
 
 \\<forge-read-topic-minibuffer-map>While completion is in \
@@ -521,16 +521,16 @@ the completion candidates to include all topics.
 
 If `forge-limit-topic-choices' is nil, then all candidates
 can be selected from the start."
-  (forge--read-topic prompt #'forge-current-topic
-                     (lambda (repo &optional type)
-                       (forge-ls-topics repo nil type))))
+  (forge--read-topic prompt
+                     #'forge-current-topic
+                     #'forge--ls-active-topics
+                     #'forge--ls-topics))
 
-(defun forge--read-topic (prompt current list)
+(defun forge--read-topic (prompt current active all)
   (let* ((current (funcall current))
          (repo    (forge-get-repository (or current t)))
          (default (and current (forge--format-topic-choice current)))
-         (choices (mapcar #'forge--format-topic-choice
-                          (funcall list repo 'open)))
+         (choices (mapcar #'forge--format-topic-choice (funcall active repo)))
          (choices (if (and default (not (member default choices)))
                       (cons default choices)
                     choices))
@@ -554,7 +554,7 @@ can be selected from the start."
                       (t
                        (forge--replace-minibuffer-prompt prompt)
                        (setq all-choices (mapcar #'forge--format-topic-choice
-                                                 (funcall list repo)))))))
+                                                 (funcall all repo)))))))
                  nil t nil nil default))
             (magit-completing-read prompt choices nil t nil nil default))))
     (get-text-property 0 'forge--topic-id choice)))
