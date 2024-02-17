@@ -246,18 +246,7 @@ an error."
 (defun forge-read-pullreq (prompt)
   "Read an active pull-request with completion using PROMPT.
 With a prefix argument offer all pull-requests as completion candidates."
-  (let* ((default (forge-current-pullreq))
-         (repo    (forge-get-repository (or default t)))
-         (choices (mapcar #'forge--format-topic-choice
-                          (forge-ls-pullreqs
-                           repo (if current-prefix-arg nil 'open)))))
-    (cdr (assoc (magit-completing-read
-                 prompt choices nil t nil nil
-                 (and default
-                      (setq default (forge--format-topic-choice default))
-                      (member default choices)
-                      (car default)))
-                choices))))
+  (forge--read-topic prompt #'forge-current-pullreq #'forge-ls-pullreqs))
 
 ;;; Utilities
 

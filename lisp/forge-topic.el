@@ -491,11 +491,16 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 (defun forge-read-topic (prompt)
   "Read an active topic with completion using PROMPT.
 With a prefix argument offer all topics as completion candidates."
-  (let* ((default (forge-current-topic))
+  (forge--read-topic prompt #'forge-current-topic
+                     (lambda (repo &optional type)
+                       (forge-ls-topics repo nil type))))
+
+(defun forge--read-topic (prompt current list)
+  (let* ((current (funcall current))
          (repo    (forge-get-repository (or default t)))
          (choices (mapcar #'forge--format-topic-choice
-                          (forge-ls-topics
-                           repo nil (if current-prefix-arg nil 'open)))))
+                          (funcall list repo
+                                   (if current-prefix-arg nil 'open)))))
     (cdr (assoc (magit-completing-read
                  prompt choices nil t nil nil
                  (and default

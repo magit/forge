@@ -212,18 +212,7 @@ an error."
 (defun forge-read-issue (prompt)
   "Read an active issue with completion using PROMPT.
 With a prefix argument offer all issues as completion candidates."
-  (let* ((default (forge-current-issue))
-         (repo    (forge-get-repository (or default t)))
-         (choices (mapcar #'forge--format-topic-choice
-                          (forge-ls-issues
-                           repo (if current-prefix-arg nil 'open)))))
-    (cdr (assoc (magit-completing-read
-                 prompt choices nil t nil nil
-                 (and default
-                      (setq default (forge--format-topic-choice default))
-                      (member default choices)
-                      (car default)))
-                choices))))
+  (forge--read-topic prompt #'forge-current-issue #'forge-ls-issues))
 
 (defun forge-read-open-issue (prompt)
   "Read an open issue with completion using PROMPT."
