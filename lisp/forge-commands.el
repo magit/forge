@@ -221,8 +221,9 @@ If pulling is too slow, then also consider setting the Git variable
     (forge--pull-notifications 'forge-github-repository "github.com")))
 
 ;;;###autoload
-(defun forge-pull-topic (topic)
+(transient-define-suffix forge-pull-topic (topic)
   "Read a TOPIC and pull data about it from its forge."
+  :inapt-if-not #'forge--get-github-repository
   (interactive (list (forge-read-topic "Pull topic" nil t)))
   (let ((repo (forge-get-repository t)))
     (forge--pull-topic repo
@@ -234,6 +235,7 @@ If pulling is too slow, then also consider setting the Git variable
 ;;;###autoload (autoload 'forge-pull-this-topic "forge-commands" nil t)
 (transient-define-suffix forge-pull-this-topic ()
   "Pull data about the topic at point from its forge."
+  :inapt-if-not #'forge--get-github-repository
   :description "fetch"
   (interactive)
   (forge-pull-topic (forge-current-topic t)))
