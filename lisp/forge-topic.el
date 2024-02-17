@@ -488,30 +488,24 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 
 ;;; Read
 
-(defun forge-read-topic (prompt &optional type allow-number)
+(defun forge-read-topic (prompt &optional type)
   "Read a topic with completion using PROMPT.
 TYPE can be `open', `closed', or nil to select from all topics.
 TYPE can also be t to select from open topics, or all topics if
-a prefix argument is in effect.  If ALLOW-NUMBER is non-nil, then
-allow exiting with a number that doesn't match any candidate."
+a prefix argument is in effect."
   (when (eq type t)
     (setq type (if current-prefix-arg nil 'open)))
   (let* ((default (forge-current-topic))
          (repo    (forge-get-repository (or default t)))
          (choices (mapcar #'forge--format-topic-choice
-                          (forge-ls-topics repo nil type)))
-         (choice  (magit-completing-read
-                   prompt choices nil nil nil nil
-                   (and default
-                        (setq default (forge--format-topic-choice default))
-                        (member default choices)
-                        (car default)))))
-    (or (cdr (assoc choice choices))
-        (and allow-number
-             (let ((number (string-to-number choice)))
-               (if (= number 0)
-                   (user-error "Not an existing topic or number: %s" choice)
-                 number))))))
+                          (forge-ls-topics repo nil type))))
+    (cdr (assoc (magit-completing-read
+                 prompt choices nil nil nil nil
+                 (and default
+                      (setq default (forge--format-topic-choice default))
+                      (member default choices)
+                      (car default)))
+                choices))))
 
 (defun forge-topic-completion-at-point ()
   (let ((bol (line-beginning-position))
