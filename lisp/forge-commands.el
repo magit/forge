@@ -193,7 +193,7 @@ If pulling is too slow, then also consider setting the Git variable
                       (oref repo forge))))
     (forge--pull-notifications 'forge-github-repository "github.com")))
 
-;;;###autoload
+;;;###autoload (autoload 'forge-pull-topic "forge-commands" nil t)
 (transient-define-suffix forge-pull-topic (number)
   "Read a topic TYPE and NUMBER pull data about it from its forge."
   :inapt-if-not #'forge--get-github-repository
