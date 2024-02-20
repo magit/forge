@@ -102,6 +102,7 @@ Takes the pull-request as only argument and must return a directory."
                      "Not inside a Git repository"))
     :if-not forge--get-full-repository
     ("a" "add repository to database" forge-add-repository)
+    ("b" "browse remote"              forge-browse-remote)
     ("f" "fetch notifications"        forge-pull-notifications)
     ("l" "list notifications"         forge-list-notifications)]])
 
