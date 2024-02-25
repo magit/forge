@@ -238,7 +238,7 @@ can be selected from the start."
 (defun forge-read-open-issue (prompt)
   "Read an open issue with completion using PROMPT."
   (let* ((current (forge-current-issue))
-         (default (and current (car (forge--format-topic-choice current))))
+         (default (and current (forge--format-topic-choice current)))
          (repo    (forge-get-repository (or current t)))
          (choices (mapcar #'forge--format-topic-choice
                           (forge--ls-open-issues repo))))
