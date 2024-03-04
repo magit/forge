@@ -406,7 +406,7 @@
                            (list githost
                                  .repository.owner.login
                                  .repository.name)
-                           nil 'create))
+                           nil :insert!))
                   (repoid (oref repo id))
                   (owner  (oref repo owner))
                   (name   (oref repo name))
@@ -511,7 +511,7 @@
   (let ((repos (cl-mapcan (lambda (name)
                             (let ((repo (forge-get-repository
                                          (list host owner name)
-                                         nil 'create)))
+                                         nil :insert!)))
                               (and (oref repo sparse-p)
                                    (list repo))))
                           names))

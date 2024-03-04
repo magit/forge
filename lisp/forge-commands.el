@@ -129,7 +129,7 @@ If pulling is too slow, then also consider setting the Git variable
     (when (or (not repo) (oref repo sparse-p))
       (setq repo (forge-current-repository))
       (unless repo
-        (setq repo (forge-get-repository 'create))
+        (setq repo (forge-get-repository :insert!))
         (setq create t)))
     (when (or create interactive (magit-git-config-p "forge.autoPull" t))
       (when (and interactive
@@ -1043,7 +1043,7 @@ pull individual topics when the user invokes `forge-pull-topic'."
        (list (magit-clone--name-to-url str)))))
   (if (forge-get-repository url nil :tracked?)
       (user-error "%s is already tracked in Forge database" url)
-    (let ((repo (forge-get-repository url nil 'create)))
+    (let ((repo (forge-get-repository url nil :insert!)))
       (oset repo sparse-p nil)
       (magit-read-char-case "Pull " nil
         (?a "[a]ll topics"
