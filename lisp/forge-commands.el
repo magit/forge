@@ -55,7 +55,7 @@ Takes the pull-request as only argument and must return a directory."
 ;;;###autoload (autoload 'forge-dispatch "forge-commands" nil t)
 (transient-define-prefix forge-dispatch ()
   "Dispatch a forge command."
-  [:if forge--get-full-repository
+  [:if forge--get-repository:tracked?
    ["Create"
     ("c i" "issue"             forge-create-issue)
     ("c p" "pull-request"      forge-create-pullreq)
@@ -63,7 +63,7 @@ Takes the pull-request as only argument and must return a directory."
      forge-create-pullreq-from-issue
      :if forge--get-github-repository)
     ("c f" "fork or remote"    forge-fork)]]
-  [:if forge--get-full-repository
+  [:if forge--get-repository:tracked?
    ["List"
     ("t" "topics...         "  forge-topics-menu        :transient replace)
     ("n" "notifications...  "  forge-notifications-menu :transient replace)
@@ -73,9 +73,9 @@ Takes the pull-request as only argument and must return a directory."
     ("f t" "one topic        " forge-pull-topic)
     ("f n" "notifications    " forge-pull-notifications)]
    ["API Commands"
-    :if forge--get-full-repository
+    :if forge--get-repository:tracked?
     (7 "M" "merge" forge-merge)]]
-  [:if forge--get-full-repository
+  [:if forge--get-repository:tracked?
    ["Visit"
     ("v t" "topic"         forge-visit-topic)
     ("v i" "issue"         forge-visit-issue)
@@ -89,7 +89,7 @@ Takes the pull-request as only argument and must return a directory."
     ("b I" "issues"        forge-browse-issues)
     ("b P" "pull-requests" forge-browse-pullreqs)]]
   [["Configure"
-    :if forge--get-full-repository
+    :if forge--get-repository:tracked?
     ("a  " forge-add-repository)
     ("R  " forge-add-pullreq-refspec)
     ("s r" forge-forge.remote)
@@ -100,7 +100,7 @@ Takes the pull-request as only argument and must return a directory."
                    (if (magit-gitdir)
                        "Forge doesn't know about this Git repository yet"
                      "Not inside a Git repository"))
-    :if-not forge--get-full-repository
+    :if-not forge--get-repository:tracked?
     ("a" "add repository to database" forge-add-repository)
     ("f" "fetch notifications"        forge-pull-notifications)
     ("l" "list notifications"         forge-list-notifications)]])

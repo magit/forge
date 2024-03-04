@@ -249,8 +249,8 @@ See `forge-alist' for valid Git hosts."
 (cl-defmethod forge-get-repository ((repo forge-repository))
   repo)
 
-(defun forge--get-full-repository ()
-  (forge-get-repository 'full))
+(defun forge--get-repository:tracked? ()
+  (forge-get-repository :tracked?))
 
 ;;;; Current
 
