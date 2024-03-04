@@ -230,7 +230,7 @@ Must be set before `forge-list' is loaded.")
                         (if-let* ((topic (forge-topic-at-point))
                                   (repo (forge-get-repository topic)))
                             repo
-                          (forge-get-repository nil)))))
+                          (forge-get-repository :known?)))))
          (topdir (and repo (oref repo worktree)))
          (buffer nil))
     (unless (or repo global)

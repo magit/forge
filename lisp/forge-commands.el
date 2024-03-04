@@ -965,7 +965,7 @@ the upstream remotes of local branches accordingly."
   "Toggle whether to display topics in the current status buffer."
   :inapt-if-not (lambda ()
                   (and (eq major-mode 'magit-status-mode)
-                       (forge-get-repository nil)))
+                       (forge-get-repository :known?)))
   :description (lambda ()
                  (if forge-display-in-status-buffer
                      "hide all topics"
@@ -981,7 +981,7 @@ This only affect the current status buffer."
   :inapt-if-not (lambda ()
                   (and forge-display-in-status-buffer
                        (eq major-mode 'magit-status-mode)
-                       (forge-get-repository nil)))
+                       (forge-get-repository :known?)))
   :description (lambda ()
                  (if (or (atom forge-topic-list-limit)
                          (> (cdr forge-topic-list-limit) 0))
@@ -1031,7 +1031,7 @@ Offer to either pull topics (now and in the future) or to only
 pull individual topics when the user invokes `forge-pull-topic'."
   :description (lambda ()
                  (format "add %srepository to database"
-                         (if (forge-get-repository nil) "another " "")))
+                         (if (forge-get-repository :known?) "another " "")))
   (interactive
    (let ((str (magit-read-string-ns
                "Add repository to database (url or name)"

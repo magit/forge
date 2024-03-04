@@ -408,7 +408,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
       (and-let* ((topic (forge-topic-at-point nil 'not-thingatpt)))
         (forge-get-repository topic))
       (and (not forge-buffer-unassociated-p)
-           (forge-get-repository nil))))
+           (forge-get-repository :known?))))
 
 (defun forge-region-topics ()
   (cond
@@ -905,7 +905,7 @@ can be selected from the start."
   (and (forge-db t)
        (or forge-display-in-status-buffer
            (not (eq major-mode 'magit-status-mode)))
-       (and-let* ((repo (forge-get-repository nil)))
+       (and-let* ((repo (forge-get-repository :known?)))
          (and (not (oref repo sparse-p))
               (or (not issues-p)
                   (oref repo issues-p))
@@ -964,7 +964,7 @@ This mode itself is never used directly."
   (let* ((repo (forge-get-repository topic))
          (name (format "*forge: %s %s*" (oref repo slug) (oref topic slug)))
          (magit-generate-buffer-name-function (lambda (_mode _value) name))
-         (current-repo (forge-get-repository nil))
+         (current-repo (forge-get-repository :known?))
          (default-directory (if (and current-repo
                                      (eq (oref current-repo id)
                                          (oref repo id)))

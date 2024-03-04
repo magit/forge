@@ -169,7 +169,7 @@ or signal an error, depending on DEMAND."
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
   (if-let ((parts (forge--split-forge-url url)))
-      (forge-get-repository parts remote demand)
+      (forge-get-repository parts remote (or demand :known?))
     (when (memq demand forge--signal-no-entry)
       (error "Cannot determine forge repository.  %s isn't a forge url" url))))
 
@@ -257,7 +257,7 @@ See `forge-alist' for valid Git hosts."
 (defun forge-current-repository ()
   "Return the repository at point or being visited."
   (or (forge-repository-at-point)
-      (forge-get-repository nil)))
+      (forge-get-repository :known?)))
 
 (defun forge-repository-at-point (&optional demand)
   "Return the repository at point.
