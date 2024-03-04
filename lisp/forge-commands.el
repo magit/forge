@@ -224,14 +224,14 @@ If pulling is too slow, then also consider setting the Git variable
 (defun forge-browse-issues ()
   "Visit the current repository's issues using a browser."
   (interactive)
-  (browse-url (forge--format (forge-get-repository 'stub)
+  (browse-url (forge--format (forge-get-repository :stub)
                              'issues-url-format)))
 
 ;;;###autoload
 (defun forge-browse-pullreqs ()
   "Visit the current repository's pull-requests using a browser."
   (interactive)
-  (browse-url (forge--format (forge-get-repository 'stub)
+  (browse-url (forge--format (forge-get-repository :stub)
                              'pullreqs-url-format)))
 
 ;;;###autoload
@@ -357,12 +357,12 @@ argument also offer closed pull-requests."
   (forge--format repo 'remote-url-format))
 
 (cl-defmethod forge-get-url ((_(eql :commit)) commit)
-  (let ((repo (forge-get-repository 'stub)))
+  (let ((repo (forge-get-repository :stub)))
     (unless (magit-list-containing-branches
              commit "-r" (concat (oref repo remote) "/*"))
       (if-let* ((branch (car (magit-list-containing-branches commit "-r")))
                 (remote (cdr (magit-split-branch-name branch))))
-          (setq repo (forge-get-repository 'stub remote))
+          (setq repo (forge-get-repository :stub remote))
         (message "%s does not appear to be available on any remote.  %s"
                  commit "You might have to push it first.")))
     (forge--format repo 'commit-url-format
@@ -377,12 +377,12 @@ argument also offer closed pull-requests."
       (unless (setq remote (or (magit-get-push-remote branch)
                                (magit-get-upstream-remote branch)))
         (user-error "Cannot determine remote for %s" branch)))
-    (forge--format (forge-get-repository 'stub remote)
+    (forge--format (forge-get-repository :stub remote)
                    'branch-url-format
                    `((?r . ,branch)))))
 
 (cl-defmethod forge-get-url ((_(eql :remote)) remote)
-  (forge--format (forge-get-repository 'stub remote) 'remote-url-format))
+  (forge--format (forge-get-repository :stub remote) 'remote-url-format))
 
 (cl-defmethod forge-get-url ((post forge-post))
   (forge--format post (let ((topic (forge-get-parent post)))
@@ -871,7 +871,7 @@ is added anyway.  Currently this only supports Github and Gitlab."
                         (or (plist-get (cdr (assoc fork forge-owned-accounts))
                                        'remote-name)
                             fork)))))
-  (let ((repo (forge-get-repository 'stub)))
+  (let ((repo (forge-get-repository :stub)))
     (forge--fork-repository repo fork)
     (magit-remote-add remote
                       (magit-clone--format-url (oref repo githost) fork
@@ -1004,7 +1004,7 @@ upstream remote.  Also fetch from REMOTE."
   :if-not 'forge--pullreq-refspec
   :description "add pull-request refspec"
   (interactive)
-  (let* ((repo    (forge-get-repository 'stub))
+  (let* ((repo    (forge-get-repository :stub))
          (remote  (oref repo remote))
          (fetch   (magit-get-all "remote" remote "fetch"))
          (refspec (oref repo pullreq-refspec)))
@@ -1016,7 +1016,7 @@ upstream remote.  Also fetch from REMOTE."
       (magit-git-fetch remote (magit-fetch-arguments)))))
 
 (defun forge--pullreq-refspec ()
-  (let* ((repo    (forge-get-repository 'stub))
+  (let* ((repo    (forge-get-repository :stub))
          (remote  (oref repo remote))
          (fetch   (magit-get-all "remote" remote "fetch"))
          (refspec (oref repo pullreq-refspec)))
@@ -1035,7 +1035,7 @@ pull individual topics when the user invokes `forge-pull-topic'."
   (interactive
    (let ((str (magit-read-string-ns
                "Add repository to database (url or name)"
-               (and-let* ((repo (forge-get-repository 'stub))
+               (and-let* ((repo (forge-get-repository :stub))
                           (remote (oref repo remote)))
                  (magit-git-string "remote" "get-url" remote)))))
      (if (string-match-p "\\(://\\|@\\)" str)
