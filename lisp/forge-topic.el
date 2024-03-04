@@ -1572,7 +1572,7 @@ modify `bug-reference-bug-regexp' if appropriate."
               ;; TODO Allow use in this mode again.
               (derived-mode-p 'forge-notifications-mode))
     (magit--with-safe-default-directory nil
-      (when-let ((repo (forge-get-repository 'full)))
+      (when-let ((repo (forge-get-repository :tracked?)))
         (if (>= emacs-major-version 28)
             (when (derived-mode-p 'magit-status-mode
                                   'forge-notifications-mode)

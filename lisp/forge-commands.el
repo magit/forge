@@ -915,7 +915,7 @@ as merged."
 Change the name on the upstream remote and locally, and update
 the upstream remotes of local branches accordingly."
   (interactive)
-  (let* ((repo (forge-get-repository 'full))
+  (let* ((repo (forge-get-repository :tracked?))
          (_ (unless (forge-github-repository-p repo)
               (user-error "Updating default branch not supported for forge `%s'"
                           (oref repo forge))))
@@ -1041,7 +1041,7 @@ pull individual topics when the user invokes `forge-pull-topic'."
      (if (string-match-p "\\(://\\|@\\)" str)
          (list str)
        (list (magit-clone--name-to-url str)))))
-  (if (forge-get-repository url nil 'full)
+  (if (forge-get-repository url nil :tracked?)
       (user-error "%s is already tracked in Forge database" url)
     (let ((repo (forge-get-repository url nil 'create)))
       (oset repo sparse-p nil)
