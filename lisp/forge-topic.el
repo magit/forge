@@ -500,7 +500,7 @@ can be selected from the start."
 
 (defun forge--read-topic (prompt current active all)
   (let* ((current (funcall current))
-         (repo    (forge-get-repository (or current t)))
+         (repo    (forge-get-repository (or current :tracked)))
          (default (and current (forge--format-topic-choice current)))
          (choices (mapcar #'forge--format-topic-choice (funcall active repo)))
          (choices (if (and default (not (member default choices)))
@@ -574,7 +574,7 @@ can be selected from the start."
     (and (looking-back "[!#][0-9]*" bol)
          (or (not bug-reference-prog-mode)
              (nth 8 (syntax-ppss))) ; inside comment or string
-         (setq repo (forge-get-repository t))
+         (setq repo (forge-get-repository :tracked))
          (looking-back (if (forge--childp repo 'forge-gitlab-repository)
                            "\\(?3:[!#]\\)\\(?2:[0-9]*\\)"
                          "#\\(?2:[0-9]*\\)")
@@ -619,7 +619,7 @@ can be selected from the start."
 (defun forge-read-topic-label (&optional prompt repository)
   (magit-completing-read (or prompt "Label")
                          (forge--format-topic-label-choices
-                          (or repository (forge-get-repository t)))
+                          (or repository (forge-get-repository :tracked)))
                          nil t))
 
 (defun forge-read-topic-labels (topic)
@@ -1404,7 +1404,7 @@ Return a value between 0 and 1."
 (defun forge--markdown-translate-filename-function (file)
   (if (string-match-p "\\`https?://" file)
       file
-    (let ((host (oref (forge-get-repository t) githost)))
+    (let ((host (oref (forge-get-repository :tracked) githost)))
       (concat (if (member host ghub-insecure-hosts) "http://" "https://")
               host
               (and (not (string-prefix-p "/" file)) "/")

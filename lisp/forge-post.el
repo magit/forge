@@ -133,7 +133,7 @@ an error."
             (setq resume nil)))
         (when (and (not resume) (string-prefix-p "new" filename))
           (let-alist (forge--topic-template
-                      (forge-get-repository t)
+                      (forge-get-repository :tracked)
                       (if source 'forge-pullreq 'forge-issue))
             (cond
              (.url

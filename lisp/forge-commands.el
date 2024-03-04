@@ -201,7 +201,7 @@ If pulling is too slow, then also consider setting the Git variable
    (list (read-number "Pull topic: "
                       (and-let* ((topic (forge-current-topic)))
                         (oref topic number)))))
-  (let ((repo (forge-get-repository t)))
+  (let ((repo (forge-get-repository :tracked)))
     (forge--pull-topic
      repo (forge-issue :repository (oref repo id) :number number))))
 
@@ -447,7 +447,7 @@ with a prefix argument also closed topics."
 (defun forge-create-issue ()
   "Create a new issue for the current repository."
   (interactive)
-  (let* ((repo (forge-get-repository t))
+  (let* ((repo (forge-get-repository :tracked))
          (buf (forge--prepare-post-buffer
                "new-issue"
                (forge--format repo "Create new issue on %p"))))
@@ -460,7 +460,7 @@ with a prefix argument also closed topics."
 (defun forge-create-pullreq (source target)
   "Create a new pull-request for the current repository."
   (interactive (forge-create-pullreq--read-args))
-  (let* ((repo (forge-get-repository t))
+  (let* ((repo (forge-get-repository :tracked))
          (buf (forge--prepare-post-buffer
                "new-pullreq"
                (forge--format repo "Create new pull-request on %p")
@@ -499,7 +499,7 @@ with a prefix argument also closed topics."
                          (if (magit-remote-branch-p d)
                              d
                            (magit-get-push-branch d t))))))
-         (repo    (forge-get-repository t))
+         (repo    (forge-get-repository :tracked))
          (remote  (oref repo remote))
          (targets (delete source (magit-list-remote-branch-names remote)))
          (target  (magit-completing-read
@@ -606,7 +606,7 @@ point is currently on."
   (interactive)
   (let ((comment (forge-comment-at-point t)))
     (when (yes-or-no-p "Really delete the current comment? ")
-      (forge--delete-comment (forge-get-repository t) comment))))
+      (forge--delete-comment (forge-get-repository :tracked) comment))))
 
 ;;; Branch
 
@@ -892,7 +892,8 @@ done that and respond by automatically marking the pull-request
 as merged."
   (interactive
    (list (forge-read-pullreq "Merge pull-request")
-         (if (forge--childp (forge-get-repository t) 'forge-gitlab-repository)
+         (if (forge--childp (forge-get-repository :tracked)
+                            'forge-gitlab-repository)
              (magit-read-char-case "Merge method " t
                (?m "[m]erge"  'merge)
                (?s "[s]quash" 'squash))
