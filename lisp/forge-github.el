@@ -47,7 +47,7 @@
 ;;; Query
 
 (defun forge--get-github-repository ()
-  (forge-github-repository-p (forge-get-repository 'maybe)))
+  (forge-github-repository-p (forge-get-repository :stub?)))
 
 ;;; Pull
 ;;;; Repository

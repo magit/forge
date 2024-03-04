@@ -185,7 +185,7 @@ If pulling is too slow, then also consider setting the Git variable
 (defun forge-pull-notifications ()
   "Fetch notifications for all repositories from the current forge."
   (interactive)
-  (if-let ((repo (forge-get-repository 'maybe)))
+  (if-let ((repo (forge-get-repository :stub?)))
       (let ((class (eieio-object-class repo)))
         (if (eq class 'forge-github-repository)
             (forge--pull-notifications class (oref repo githost))
