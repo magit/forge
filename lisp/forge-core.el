@@ -147,48 +147,59 @@ For other objects return nil.")
 (cl-defgeneric forge-get-repository (demand)
   "Return a forge repository object or nil, or signal an error.
 
-The DEMAND argument controls what to do when the object isn't
-stored in the database yet, or if it is marked as sparse.  The
-valid values are:
+A forge repository is a repository hosted on a forge.  The local clone
+is also a \"repository\", but it is a \"Git\" repository, not a \"Forge\"
+repository.  (Forge repositories are also Git repositories, but not the
+other way around.)
 
-* `nil' If the repository is stored in the database then return
-  it, even if it is sparse.  Otherwise return nil.
+A `known' repository has an entry in the local database.  All other
+repositories are unknown.  `known' repositories are devided into two
+subgroups: `tracked' and \"untracked\" repositories.
 
-* `t' If the repository isn't stored in the database or if the
-  object is sparse, then signal an error, informing the user
-  that `this-command' cannot be run until the repository has
-  been pulled.
+A `tracked' repository was previously explicitly added to the database
+by the user.
 
-* `full' If the repository is stored in the database and the
-  object isn't sparse, then return it.  Otherwise return nil.
+When Forge encounters a repository, without being instructed by the user
+to track it, it may nevertheless add limited information about it to the
+database.  Such a repository is `known' but it is not `tracked'.
 
-* `stub' If the repository is stored in the database, then return
-  it, regardless of whether it is sparse or not.  Otherwise create
-  a new object and return it, but do not store it in the database.
-  In the latter case it is assumed that the caller does not need
-  the `id' and `forge-id' slots whose value differ from what they
-  would be if the object were retrieved from the database.
+Other repositories are \"unknown\".  Most commands can only deal with
+repositories that are stored in the database.  Of these, some can deal
+with any `known' repositories, others require that they are `tracked'.
 
-* `maybe' Like `stub', but when that would signal an error, just
-  return nil.
+Some other commands exist — such as the browse commands — that have no
+such requirement.  While such commands also require a repository object,
+they do not care whether that is stored in the database.  Instead they
+are happy to use a `stub' repository; a repository that is not stored in
+the database.
 
-* `create' This value is only intended to be used by commands
-  that fetch data from the API.  If the repository is stored in
-  the database, then return that, regardless of whether the
-  object is sparse or not.  If the repository is not stored in the
-  database, then make an API request to determine the ID used on
-  the forge, derive our own ID from that, and store a new sparse
-  object in the database and return it.
+The DEMAND argument specifies what kind of repository object the caller
+requires, at least.  `tracked' is greater than `known', which is greater
+than `stub'.  For example, if the caller requests a `known' repository,
+a `tracked' repository will do, while a `stub' repository will not.
 
-If DEMAND is t, `stub' or `create', then also signal an error if
-if the Forge repository cannot be determined.  This happens if
-`default-directory' is not inside a Git repository, if there is
-no matching entry in `forge-alist', of if it is unclear which
-remote to use.
+The valid values for DEMAND are:
 
-Also update the object's `apihost', `githost' and `remote' slots
-according to the respective entry in `forge-alist' and the REMOTE
-argument.
+- `:tracked' and `:tracked?' request a repository that the user added
+  to the database.  If there is no such repository, the former causes
+  an error to be signaled, while for the latter nil is returned.
+
+- `:known?' and `:insert!' request a repository from the database.
+  Whether the user explicitly added it does not matter.  If there is no
+  such repository, nil is returned for the former, while for the latter
+  a new repository is inserted into the repository and then returned.
+
+- `:stub' and `:stub?' request the Forge repository corresponding to
+  the current Git repository.  It does not matter whether it is known.
+  This fails if `default-directory' is not inside a Git repository, if
+  there is no matching entry in `forge-alist', or if it is unclear which
+  remote to use.  If the repository cannot be determined, the former
+  causes an error to be signaled, while for the latter nil is returned.
+
+  Stub repository objects are created without making an API request, so
+  we lack access to the upstream ID, which the IDs used in out database,
+  derive from.  This is done to allow offline operations, but means that
+  the ID cannot be relied on, making equality operations harder.
 
 Also see info node `(forge) Repository Detection'.")
 

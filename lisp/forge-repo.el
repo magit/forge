@@ -102,7 +102,7 @@
 
 (defvar-local forge-buffer-unassociated-p nil)
 
-(defconst forge--signal-no-entry '(t stub create))
+(defconst forge--signal-no-entry '(:tracked :stub :insert!))
 
 (defun forge--get-remote (&optional warn)
   (let* ((remotes (magit-list-remotes))
@@ -123,7 +123,7 @@
 (cl-defmethod forge-get-repository ((_ null) &optional remote)
   ;; Avoid matching the ((host owner name) list) ...) method.
   ;; Necessary for Emacs 30.0.50, since c55694785e9.  See #642.
-  (forge-get-repository 'null remote))
+  (forge-get-repository :known? remote))
 
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
   "Return the current forge repository.
@@ -179,6 +179,20 @@ or signal an error, depending on DEMAND."
 
 Return the repository identified by HOST, OWNER and NAME.
 See `forge-alist' for valid Git hosts."
+  (unless (memq demand '(:tracked :tracked? :known? :insert! :stub :stub?))
+    (if-let ((new (pcase demand
+                    ('t      :tracked)
+                    ('full   :tracked?)
+                    ('nil    :known?)
+                    ('create :insert!)
+                    ('stub   :stub)
+                    ('maybe  :stub?))))
+        (progn
+          (message "Obsolete value for `%s's DEMAND: `%s'; use `%s' instead"
+                   'forge-get-repository demand new)
+          (setq demand new))
+      (error "Unknown value for `%s's DEMAND: `%s'"
+             'forge-get-repository demand)))
   (if-let ((spec (forge--get-forge-host host t)))
       (pcase-let ((`(,githost ,apihost ,webhost ,class) spec))
         ;; The `webhost' is used to identify the corresponding forge.
@@ -190,11 +204,15 @@ See `forge-alist' for valid Git hosts."
                                                  (= name  $s3))]
                                     webhost owner name)))
                (obj (and row (closql--remake-instance class (forge-db) row))))
+          ;; Synchronize the object with the entry from `forge-alist'.
+          ;; This only has an effect if the entry was modified, which
+          ;; should rarely, if ever, happen.  Avoid confusion, by not
+          ;; mentioning this detail in any docstring.
           (when obj
             (oset obj apihost apihost)
             (oset obj githost githost)
             (oset obj remote  remote))
-          (cond ((and (eq demand t)
+          (cond ((and (eq demand :tracked)
                       (or (not obj)
                           (oref obj sparse-p)))
                  (error "Cannot use `%s' in %S yet.\n%s"
@@ -202,14 +220,14 @@ See `forge-alist' for valid Git hosts."
                         "Use `M-x forge-add-repository' before trying again."))
                 ((and obj
                       (oref obj sparse-p)
-                      (eq demand 'full))
+                      (eq demand :tracked?))
                  (setq obj nil)))
-          (when (and (memq demand '(create stub maybe))
+          (when (and (memq demand '(:insert! :stub :stub?))
                      (not obj))
             (pcase-let ((`(,id . ,forge-id)
                          (forge--repository-ids
                           class webhost owner name
-                          (memq demand '(stub maybe)))))
+                          (memq demand '(:stub :stub?)))))
               ;; The repo might have been renamed on the forge.  #188
               (unless (setq obj (forge-get-repository :id id))
                 (setq obj (funcall class
@@ -221,7 +239,7 @@ See `forge-alist' for valid Git hosts."
                                    :apihost  apihost
                                    :githost  githost
                                    :remote   remote))
-                (when (eq demand 'create)
+                (when (eq demand :insert!)
                   (closql-insert (forge-db) obj)))))
           obj))
     (when (memq demand forge--signal-no-entry)
