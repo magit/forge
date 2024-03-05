@@ -118,7 +118,7 @@
     remote))
 
 (cl-defmethod forge-get-repository ((_(eql :id)) id)
-  (closql-get (forge-db) id 'forge-repository))
+  (closql-get (forge-db) (substring-no-properties id) 'forge-repository))
 
 (cl-defmethod forge-get-repository ((_ null) &optional remote)
   ;; Avoid matching the ((host owner name) list) ...) method.
@@ -179,6 +179,9 @@ or signal an error, depending on DEMAND."
 
 Return the repository identified by HOST, OWNER and NAME.
 See `forge-alist' for valid Git hosts."
+  (setq host  (substring-no-properties host))
+  (setq owner (substring-no-properties owner))
+  (setq name  (substring-no-properties name))
   (unless (memq demand '(:tracked :tracked? :known? :insert! :stub :stub?))
     (if-let ((new (pcase demand
                     ('t      :tracked)
