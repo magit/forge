@@ -912,9 +912,7 @@ This mode itself is never used directly."
          (name (format "*forge: %s %s*" (oref repo slug) (oref topic slug)))
          (magit-generate-buffer-name-function (lambda (_mode _value) name))
          (current-repo (forge-get-repository :known?))
-         (default-directory (if (and current-repo
-                                     (eq (oref current-repo id)
-                                         (oref repo id)))
+         (default-directory (if (forge-repository-equal current-repo repo)
                                 default-directory
                               (or (oref repo worktree)
                                   default-directory))))
