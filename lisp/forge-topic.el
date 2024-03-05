@@ -525,7 +525,7 @@ can be selected from the start."
                       (all-choices)
                       (forge-limit-topic-choices choices)
                       (t
-                       (forge--replace-minibuffer-prompt prompt)
+                       (forge--replace-minibuffer-prompt (concat prompt ": "))
                        (setq alist (forge--topic-collection (funcall all repo)))
                        (setq all-choices (mapcar #'car alist))))))
                  nil t nil nil default))
