@@ -530,7 +530,13 @@ can be selected from the start."
                                                    (funcall all repo)))))))
                    nil t nil nil default)))
             (magit-completing-read prompt choices nil t nil nil default))))
-    (get-text-property 0 'forge--topic-id choice)))
+    (or (get-text-property 0 'forge--topic-id choice)
+        ;; Apparently non-nil `minibuffer-allow-text-properties' does
+        ;; not absolutely guarantee that properties are not stripped.
+        ;; Safeguard against that eventuallity.  Always use the full,
+        ;; but potentially needlessly expensive calculation.
+        (mapcar (lambda (topic) (forge--format-topic-choice topic t))
+                (funcall all repo)))))
 
 (defvar-keymap forge-read-topic-minibuffer-map
   "+" #'forge-read-topic-lift-limit)
@@ -694,10 +700,13 @@ can be selected from the start."
    " "
    (forge--format-topic-title topic)))
 
-(defun forge--format-topic-choice (topic)
-  (let ((line (forge--format-topic-line topic)))
-    (put-text-property 0 (length line) 'forge--topic-id (oref topic id) line)
-    line))
+(defun forge--format-topic-choice (topic &optional consp)
+  (let* ((line (forge--format-topic-line topic))
+         (id (oref topic id)))
+    (if consp
+        (cons line id)
+      (put-text-property 0 (length line) 'forge--topic-id id line)
+      line)))
 
 (defun forge--format-topic-slug (topic)
   (with-slots (slug state status saved-p) topic
