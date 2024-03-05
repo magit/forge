@@ -108,23 +108,6 @@ This variable has to be customized before `forge' is loaded."
              magit-mode-hook)
   :type '(list :convert-widget custom-hook-convert-widget))
 
-(defcustom forge-colorful-topic-summaries t
-  "Whether to use colorful faces for summaries of pull-requests.
-
-If t, colorful faces are used for summaries of pull-requests,
-while summaries of issues use grayscale faces.
-
-If nil, then both issue and pull-request summaries use grayscale
-faces.  Instead the topic slug is prefixed with a character
-indicating the type.
-
-Pull-request sections in Magit's status ignore this option and
-always use grayscale faces to avoid fruit-salad, and because the
-type is never ambigious here, also do not use type characters."
-  :package-version '(forge . "0.4.0")
-  :group 'forge-faces
-  :type 'boolean)
-
 (defvar-local forge-display-in-status-buffer t
   "Whether to display topics in the current Magit status buffer.")
 (put 'forge-display-in-status-buffer 'permanent-local t)
@@ -233,47 +216,18 @@ Likewise those faces should not set `:weight' or `:slant'."
 ;;;;; Pull-Requests
 
 (defface forge-pullreq-open
-  '((t :inherit forge-issue-open))
-  "Face used for summaries of open pull-requests.
-Whether this face or `forge-pullreq-open-colored' is
-used, depends on option `forge-colorful-topic-summaries'."
+  '((t :foreground "LimeGreen"))
+  "Face used for summaries of open pull-requests."
   :group 'forge-faces)
 
 (defface forge-pullreq-merged
-  '((t :inherit forge-issue-completed))
-  "Face used for summaries of merged pull-requests.
-Whether this face or `forge-pullreq-merged-colored' is
-used, depends on option `forge-colorful-topic-summaries'."
+  '((t :foreground "MediumPurple"))
+  "Face used for summaries of merged pull-requests."
   :group 'forge-faces)
 
 (defface forge-pullreq-rejected
-  '((t :inherit forge-issue-unplanned))
-  "Face used for summaries of closed pull-requests, that weren't merged.
-Whether this face or `forge-pullreq-rejected-colored' is
-used, depends on option `forge-colorful-topic-summaries'."
-  :group 'forge-faces)
-
-;;;;; Colorful Pull-Requests
-
-(defface forge-pullreq-open-colored
-  '((t :foreground "LimeGreen"))
-  "Face used for summaries of open pull-requests.
-Whether this face or `forge-pullreq-open' is used,
-depends on option `forge-colorful-topic-summaries'."
-  :group 'forge-faces)
-
-(defface forge-pullreq-merged-colored
-  '((t :foreground "MediumPurple"))
-  "Face used for summaries of merged pull-requests.
-Whether this face or `forge-pullreq-merged' is used,
-depends on option `forge-colorful-topic-summaries'."
-  :group 'forge-faces)
-
-(defface forge-pullreq-rejected-colored
   '((t :foreground "MediumPurple" :strike-through t))
-  "Face used for summaries of closed pull-requests, that weren't merged.
-Whether this face or `forge-pullreq-rejected' is used,
-depends on option `forge-colorful-topic-summaries'."
+  "Face used for summaries of closed pull-requests, that weren't merged."
   :group 'forge-faces)
 
 ;;;; Labels
@@ -683,7 +637,7 @@ can be selected from the start."
   (forge--format (forge-get-repository topic) slot
                  `(,@spec (?i . ,(oref topic number)))))
 
-(defun forge--format-topic-line (topic &optional width no-indicator)
+(defun forge--format-topic-line (topic &optional width)
   (concat
    (and (derived-mode-p 'forge-notifications-mode)
         (eq forge-notifications-display-style 'flat)
@@ -692,10 +646,11 @@ can be selected from the start."
                  forge-notifications-repo-slug-width
                  nil ?\s t)
                 " "))
-   (cond ((or forge-colorful-topic-summaries no-indicator) nil)
-         ((forge-issue-p   topic) (magit--propertize-face "I " 'magit-dimmed))
-         ((forge-pullreq-p topic) (magit--propertize-face "P " 'magit-dimmed))
-         (t                       (magit--propertize-face "* " 'error)))
+   ;; MAYBE bring this back once we support discussions.
+   ;; (cond (no-indicator nil)
+   ;;       ((forge-issue-p   topic) (magit--propertize-face "I " 'magit-dimmed))
+   ;;       ((forge-pullreq-p topic) (magit--propertize-face "P " 'magit-dimmed))
+   ;;       (t                       (magit--propertize-face "* " 'error)))
    (string-pad (forge--format-topic-slug topic) (or width 5))
    " "
    (forge--format-topic-title topic)))
@@ -741,18 +696,13 @@ can be selected from the start."
            ('unread  'forge-notification-unread)
            ('pending 'forge-notification-pending)
            ('done    'forge-notification-done))
-        ,(pcase (list (eieio-object-class topic)
-                      state
-                      forge-colorful-topic-summaries)
-           (`(forge-issue   open       ,_) 'forge-issue-open)
-           (`(forge-issue   completed  ,_) 'forge-issue-completed)
-           (`(forge-issue   unplanned  ,_) 'forge-issue-unplanned)
-           (`(forge-pullreq open      nil) 'forge-pullreq-open)
-           (`(forge-pullreq merged    nil) 'forge-pullreq-merged)
-           (`(forge-pullreq rejected  nil) 'forge-pullreq-rejected)
-           (`(forge-pullreq open       ,_) 'forge-pullreq-open-colored)
-           (`(forge-pullreq merged     ,_) 'forge-pullreq-merged-colored)
-           (`(forge-pullreq rejected   ,_) 'forge-pullreq-rejected-colored)))))))
+        ,(pcase (list (eieio-object-class topic) state)
+           (`(forge-issue   open)      'forge-issue-open)
+           (`(forge-issue   completed) 'forge-issue-completed)
+           (`(forge-issue   unplanned) 'forge-issue-unplanned)
+           (`(forge-pullreq open)      'forge-pullreq-open)
+           (`(forge-pullreq merged)    'forge-pullreq-merged)
+           (`(forge-pullreq rejected)  'forge-pullreq-rejected)))))))
 
 (defun forge--format-topic-title+labels (topic)
   (concat (forge--format-topic-title  topic) " "
@@ -847,15 +797,14 @@ can be selected from the start."
                                           'magit-section-child-count)))
         (magit-make-margin-overlay nil t)
         (magit-insert-section-body
-          (let ((forge-colorful-topic-summaries nil))
-            (dolist (topic topics)
-              (forge--insert-topic topic width)))
+          (dolist (topic topics)
+            (forge--insert-topic topic width))
           (insert ?\n)
           (magit-make-margin-overlay nil t))))))
 
 (defun forge--insert-topic (topic &optional width)
   (magit-insert-section ((eval (oref topic closql-table)) topic t)
-    (insert (forge--format-topic-line topic (or width 5) t))
+    (insert (forge--format-topic-line topic (or width 5)))
     (forge--insert-topic-marks topic t)
     (forge--insert-topic-labels topic t)
     (insert "\n")
