@@ -513,27 +513,24 @@ can be selected from the start."
                     (use-local-map (make-composed-keymap
                                     forge-read-topic-minibuffer-map
                                     (current-local-map))))
-                (magit-completing-read
-                 (concat prompt
-                         (substitute-command-keys
-                          (format "\\<forge-read-topic-minibuffer-map>\
+                (let ((minibuffer-allow-text-properties t))
+                  (magit-completing-read
+                   (concat prompt
+                           (substitute-command-keys
+                            (format "\\<forge-read-topic-minibuffer-map>\
  (\\[forge-read-topic-lift-limit] for all)")))
-                 (let (all-choices)
-                   (lambda (&rest _)
-                     (cond
-                      (all-choices)
-                      (forge-limit-topic-choices choices)
-                      (t
-                       (forge--replace-minibuffer-prompt prompt)
-                       (setq all-choices (mapcar #'forge--format-topic-choice
-                                                 (funcall all repo)))))))
-                 nil t nil nil default))
+                   (let (all-choices)
+                     (lambda (&rest _)
+                       (cond
+                        (all-choices)
+                        (forge-limit-topic-choices choices)
+                        (t
+                         (forge--replace-minibuffer-prompt prompt)
+                         (setq all-choices (mapcar #'forge--format-topic-choice
+                                                   (funcall all repo)))))))
+                   nil t nil nil default)))
             (magit-completing-read prompt choices nil t nil nil default))))
     (get-text-property 0 'forge--topic-id choice)))
-
-(setq minibuffer-allow-text-properties
-      (cons 'forge--topic-id
-            minibuffer-allow-text-properties))
 
 (defvar-keymap forge-read-topic-minibuffer-map
   "+" #'forge-read-topic-lift-limit)
