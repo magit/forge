@@ -453,16 +453,7 @@
           (oset notif updated   (oref topic updated))
           ;; Github represents the three possible states using a boolean,
           ;; which of course means that we cannot do the right thing here.
-          (oset topic status
-                (pcase-exhaustive
-                    (list (and .unread 'unread)
-                          (and (not (oref topic status)) 'unset)
-                          forge-notifications-github-kludge)
-                  (`(unread ,_    ,_)               'unread)
-                  (`(nil    ,_    always-unread)    'unread)
-                  (`(nil    ,_    pending-again)    'pending)
-                  ('(nil    unset pending-if-unset) 'pending)
-                  (`(nil    ,_    ,_)               'done))))))))
+          (oset topic status 'unread))))))
 
 ;;;; Miscellaneous
 

@@ -27,18 +27,6 @@
 
 ;;; Options
 
-(defcustom forge-notifications-github-kludge 'pending-again
-  "The kludge used to work around Github's abysmal notification API."
-  :package-version '(forge . "0.4.0")
-  :group 'forge
-  :type '(choice
-          (const :tag "Every updated notification becomes unread"
-                 always-unread)
-          (const :tag "Unless unread, updated notifications become pending"
-                 pending-again)
-          (const :tag "Unless unread or fetched before, updated become pending")
-                 pending-if-unset))
-
 (defcustom forge-notifications-repo-slug-width 28
   "Width of repository slugs in `forge-notifications-mode' buffers."
   :package-version '(forge . "0.4.0")
