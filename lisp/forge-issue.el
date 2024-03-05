@@ -239,11 +239,11 @@ can be selected from the start."
   "Read an open issue with completion using PROMPT."
   (let* ((current (forge-current-issue))
          (repo    (forge-get-repository (or current :tracked)))
-         (default (and current (forge--format-topic-choice current)))
-         (choices (mapcar #'forge--format-topic-choice
-                          (forge--ls-open-issues repo)))
+         (default (and current (forge--format-topic-line current)))
+         (alist   (forge--topic-collection (forge--ls-open-issues repo)))
+         (choices (mapcar #'car alist))
          (choice  (magit-completing-read prompt choices nil t nil nil default)))
-    (cdr (assoc choice choices))))
+    (cdr (assoc choice alist))))
 
 ;;; Insert
 

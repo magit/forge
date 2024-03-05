@@ -501,8 +501,9 @@ can be selected from the start."
 (defun forge--read-topic (prompt current active all)
   (let* ((current (funcall current))
          (repo    (forge-get-repository (or current :tracked)))
-         (default (and current (forge--format-topic-choice current)))
-         (choices (mapcar #'forge--format-topic-choice (funcall active repo)))
+         (default (and current (forge--format-topic-line current)))
+         (alist   (forge--topic-collection (funcall active repo)))
+         (choices (mapcar #'car alist))
          (choices (if (and default (not (member default choices)))
                       (cons default choices)
                     choices))
@@ -525,15 +526,17 @@ can be selected from the start."
                       (forge-limit-topic-choices choices)
                       (t
                        (forge--replace-minibuffer-prompt prompt)
-                       (setq all-choices (mapcar #'forge--format-topic-choice
-                                                 (funcall all repo)))))))
+                       (setq alist (forge--topic-collection (funcall all repo)))
+                       (setq all-choices (mapcar #'car alist))))))
                  nil t nil nil default))
             (magit-completing-read prompt choices nil t nil nil default))))
-    (get-text-property 0 'forge--topic-id choice)))
+    (cdr (assoc choice alist))))
 
-(setq minibuffer-allow-text-properties
-      (cons 'forge--topic-id
-            minibuffer-allow-text-properties))
+(defun forge--topic-collection (topics)
+  (mapcar (lambda (topic)
+            (cons (forge--format-topic-line topic)
+                  (oref topic id)))
+          topics))
 
 (defvar-keymap forge-read-topic-minibuffer-map
   "+" #'forge-read-topic-lift-limit)
@@ -696,11 +699,6 @@ can be selected from the start."
    (string-pad (forge--format-topic-slug topic) (or width 5))
    " "
    (forge--format-topic-title topic)))
-
-(defun forge--format-topic-choice (topic)
-  (let ((line (forge--format-topic-line topic)))
-    (put-text-property 0 (length line) 'forge--topic-id (oref topic id) line)
-    line))
 
 (defun forge--format-topic-slug (topic)
   (with-slots (slug state status saved-p) topic
