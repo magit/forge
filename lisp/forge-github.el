@@ -55,10 +55,7 @@
 (cl-defmethod forge--pull ((repo forge-github-repository) until
                            &optional callback)
   (let ((buf (current-buffer))
-        (dir default-directory)
-        (ghub-graphql-items-per-request
-         (string-to-number
-          (or (magit-get "forge.graphqlItemLimit") "100"))))
+        (dir default-directory))
     (ghub-fetch-repository
      (oref repo owner)
      (oref repo name)
