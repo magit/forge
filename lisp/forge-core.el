@@ -118,13 +118,6 @@ Complications:
                        (string :tag "ID")
                        (symbol :tag "Repository class"))))
 
-(defcustom forge-pull-notifications nil
-  "Whether `forge-pull' also fetches notifications.
-If this is nil, then `forge-pull-notifications' has to be used."
-  :package-version '(forge . "0.2.0")
-  :group 'forge
-  :type 'boolean)
-
 ;;; Class
 
 (defclass forge-object (closql-object) () :abstract t)

@@ -77,10 +77,6 @@
        (cond
         ((oref repo selective-p))
         (callback (funcall callback))
-        (forge-pull-notifications
-         (forge--pull-notifications (eieio-object-class repo)
-                                    (oref repo githost)
-                                    (lambda () (forge--git-fetch buf dir repo))))
         (t (forge--git-fetch buf dir repo))))
      `((issues-until       . ,(forge--topics-until repo until 'issue))
        (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
