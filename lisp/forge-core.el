@@ -191,8 +191,10 @@ The valid values for DEMAND are:
 
   Stub repository objects are created without making an API request, so
   we lack access to the upstream ID, which the IDs used in out database,
-  derive from.  This is done to allow offline operations, but means that
-  the ID cannot be relied on, making equality operations harder.
+  derive from.  This is done to allow offline operations.
+
+Use `forge-repository-equal' to check if two objects refer to the same
+repository.
 
 Also see info node `(forge) Repository Detection'.")
 
