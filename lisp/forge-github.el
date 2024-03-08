@@ -56,7 +56,6 @@
                            &optional callback)
   (let ((buf (current-buffer))
         (dir default-directory)
-        (selective-p (oref repo selective-p))
         (ghub-graphql-items-per-request
          (string-to-number
           (or (magit-get "forge.graphqlItemLimit") "100"))))
@@ -79,7 +78,7 @@
          (oset repo sparse-p nil))
        (forge--msg repo t t   "Storing REPO")
        (cond
-        (selective-p)
+        ((oref repo selective-p))
         (callback (funcall callback))
         (forge-pull-notifications
          (forge--pull-notifications (eieio-object-class repo)
@@ -90,7 +89,7 @@
        (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
      :host (oref repo apihost)
      :auth 'forge
-     :sparse selective-p)))
+     :sparse (oref repo selective-p))))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-topic))
