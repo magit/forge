@@ -183,6 +183,30 @@ forges web interface."
 (defvar-local forge--buffer-list-global nil)
 
 ;;; Modes
+;;;; Common
+
+(defun forge--tablist-refresh ()
+  (setq tabulated-list-format
+        (vconcat (mapcar (pcase-lambda (`(,name ,_get ,width ,sort ,props))
+                           `(,name ,width ,sort . ,props))
+                         forge--tabulated-list-columns)))
+  (tabulated-list-init-header)
+  (setq tabulated-list-entries
+        (mapcar
+         (lambda (obj)
+           (list (oref obj id)
+                 (vconcat
+                  (mapcar (pcase-lambda (`(,_name ,get ,_width ,_sort ,_props))
+                            (cond
+                             ((functionp get)
+                              (funcall get obj))
+                             ((eq (car-safe get) 'repository)
+                              (eieio-oref (forge-get-repository obj)
+                                          (cadr get)))
+                             ((eieio-oref obj get))))
+                          forge--tabulated-list-columns))))
+         (funcall forge--tabulated-list-query))))
+
 ;;;; Topics
 
 (defvar-keymap forge-topic-list-mode-map
@@ -251,35 +275,12 @@ Must be set before `forge-list' is loaded.")
       (setq forge--buffer-list-type type)
       (setq forge--buffer-list-filter filter)
       (setq forge--buffer-list-global global)
-      (forge-topic-list-refresh)
-      (add-hook 'tabulated-list-revert-hook
-                #'forge-topic-list-refresh nil t)
+      (forge--tablist-refresh)
+      (add-hook 'tabulated-list-revert-hook #'forge--tablist-refresh nil t)
       (tabulated-list-print)
       (when hl-line-mode
         (hl-line-highlight)))
     (switch-to-buffer buffer)))
-
-(defun forge-topic-list-refresh ()
-  (setq tabulated-list-format
-        (vconcat (mapcar (pcase-lambda (`(,name ,_get ,width ,sort ,props))
-                           `(,name ,width ,sort . ,props))
-                         forge--tabulated-list-columns)))
-  (tabulated-list-init-header)
-  (setq tabulated-list-entries
-        (mapcar
-         (lambda (topic)
-           (list (oref topic id)
-                 (vconcat
-                  (mapcar (pcase-lambda (`(,_name ,get ,_width ,_sort ,_props))
-                            (cond
-                             ((functionp get)
-                              (funcall get topic))
-                             ((eq (car-safe get) 'repository)
-                              (eieio-oref (forge-get-repository topic)
-                                          (cadr get)))
-                             ((eieio-oref topic get))))
-                          forge--tabulated-list-columns))))
-         (funcall forge--tabulated-list-query))))
 
 ;;;; Repository
 
