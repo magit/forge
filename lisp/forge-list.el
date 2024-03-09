@@ -211,9 +211,9 @@ Must be set before `forge-list' is loaded.")
 (define-derived-mode forge-topic-list-mode tabulated-list-mode
   forge-topic-list-mode-name
   "Major mode for browsing a list of topics."
-  (setq-local x-stretch-cursor  nil)
   (setq-local hl-line-face 'forge-tablist-hl-line)
-  (setq tabulated-list-padding  0)
+  (setq-local x-stretch-cursor nil)
+  (setq tabulated-list-padding 0)
   (setq tabulated-list-sort-key (cons "#" nil)))
 
 (defun forge-topic-get-buffer (&optional repo create)
