@@ -254,7 +254,6 @@ Must be set before `forge-list' is loaded.")
       (forge-topic-list-refresh)
       (add-hook 'tabulated-list-revert-hook
                 #'forge-topic-list-refresh nil t)
-      (tabulated-list-init-header)
       (tabulated-list-print)
       (when hl-line-mode
         (hl-line-highlight)))
