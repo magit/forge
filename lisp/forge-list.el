@@ -39,6 +39,13 @@
   :type 'hook
   :options '(hl-line-mode))
 
+(defcustom forge-repository-list-mode-hook '(hl-line-mode)
+  "Hook run after entering Forge-Repository-List mode."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type 'hook
+  :options '(hl-line-mode))
+
 (defconst forge--tablist-columns-type
   '(repeat
     (list :tag "Column"
@@ -335,7 +342,9 @@ Must be set before `forge-list' is loaded.")
       (setq forge--buffer-list-filter filter)
       (setq forge--buffer-list-global t)
       (add-hook 'tabulated-list-revert-hook fn nil t)
-      (tabulated-list-print))
+      (tabulated-list-print)
+      (when hl-line-mode
+        (hl-line-highlight)))
     (switch-to-buffer buffer)))
 
 (defun forge-repository-list-refresh ()
