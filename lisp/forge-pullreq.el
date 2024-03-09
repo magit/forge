@@ -232,17 +232,17 @@ an error."
 
 (defun forge--select-pullreqs (repo query &rest args)
   (declare (indent 1))
-  (let ((db (forge-db)))
-    (mapcar (lambda (row)
-              (closql--remake-instance 'forge-pullreq db row))
-            (apply #'forge-sql
-                   (vconcat [:select *]
-                            query
-                            (and (not (cl-find :order-by query))
-                                 [:order-by [(desc updated)]]))
-                   (if repo
-                       (cons (oref repo id) args)
-                     args)))))
+  (mapcar (let ((db (forge-db)))
+            (lambda (row)
+              (closql--remake-instance 'forge-pullreq db row)))
+          (apply #'forge-sql
+                 (vconcat [:select *]
+                          query
+                          (and (not (cl-find :order-by query))
+                               [:order-by [(desc updated)]]))
+                 (if repo
+                     (cons (oref repo id) args)
+                   args))))
 
 ;;; Read
 
