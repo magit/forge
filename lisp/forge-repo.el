@@ -274,6 +274,26 @@ an error."
              (forge-get-repository :id id)))
       (and demand (user-error "No repository at point"))))
 
+;;;; List
+
+(defun forge--ls-repos ()
+  (mapcar (let ((db (forge-db)))
+            (lambda (row)
+              (closql--remake-instance 'forge-repository db row)))
+          (forge-sql [:select * :from repository
+                      :order-by [(asc owner) (asc name)]])))
+
+(defun forge--ls-owned-repos ()
+  (mapcar (let ((db (forge-db)))
+            (lambda (row)
+              (closql--remake-instance 'forge-repository db row)))
+          (forge-sql [:select * :from repository
+                      :where (and (in owner $v1)
+                                  (not (in name $v2)))
+                      :order-by [(asc owner) (asc name)]]
+                     (vconcat (mapcar #'car forge-owned-accounts))
+                     (vconcat forge-owned-ignored))))
+
 ;;; Identity
 
 (defun forge-repository-equal (repo1 repo2)

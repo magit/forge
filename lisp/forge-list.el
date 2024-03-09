@@ -321,52 +321,27 @@ Must be set before `forge-list' is loaded.")
 (define-derived-mode forge-repository-list-mode tabulated-list-mode
   forge-repository-list-mode-name
   "Major mode for browsing a list of repositories."
-  (setq-local x-stretch-cursor  nil)
-  (setq forge--tabulated-list-columns forge-repository-list-columns)
-  (setq tabulated-list-padding  0)
-  (setq tabulated-list-sort-key (cons "Owner" nil))
-  (setq tabulated-list-format
-        (vconcat (mapcar (pcase-lambda (`(,name ,_get ,width ,sort ,props))
-                           `(,name ,width ,sort . ,props))
-                         forge--tabulated-list-columns)))
-  (tabulated-list-init-header))
+  (setq-local x-stretch-cursor nil)
+  (setq tabulated-list-padding 0)
+  (setq tabulated-list-sort-key (cons "Owner" nil)))
 
 (defun forge-repository-list-setup (filter fn)
   (let ((buffer (get-buffer-create forge-repository-list-buffer-name)))
     (with-current-buffer buffer
       (setq default-directory "/")
+      (setq forge--tabulated-list-columns forge-repository-list-columns)
+      (setq forge--tabulated-list-query fn)
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
         (forge-repository-list-mode))
-      (funcall fn)
       (setq forge--buffer-list-type 'repo)
       (setq forge--buffer-list-filter filter)
       (setq forge--buffer-list-global t)
-      (add-hook 'tabulated-list-revert-hook fn nil t)
+      (forge--tablist-refresh)
+      (add-hook 'tabulated-list-revert-hook #'forge--tablist-refresh nil t)
       (tabulated-list-print)
       (when hl-line-mode
         (hl-line-highlight)))
     (switch-to-buffer buffer)))
-
-(defun forge-repository-list-refresh ()
-  (forge-repository--tabulate-entries))
-
-(defun forge-repository-list-owned-refresh ()
-  (forge-repository--tabulate-entries
-   [:where (and (in owner $v2) (not (in name $v3)))]
-   (vconcat (mapcar #'car forge-owned-accounts))
-   (vconcat forge-owned-ignored)))
-
-(defun forge-repository--tabulate-entries (&optional where &rest args)
-  (setq tabulated-list-entries
-        (mapcar
-         (pcase-lambda (`(,id . ,row))
-           (list id (vconcat (mapcar (lambda (v) (if v (format "%s" v) "")) row))))
-         (apply #'forge-sql
-                (vconcat [:select $i1 :from repository]
-                         where
-                         [:order-by [(asc owner) (asc name)]])
-                (vconcat [id] (mapcar #'cadr forge--tabulated-list-columns))
-                args))))
 
 ;;; Commands
 ;;;; Menus
@@ -680,7 +655,7 @@ Only Github is supported for now."
 Here \"known\" means that an entry exists in the local database."
   :class 'forge--topic-list-command :type 'repo :global t
   (interactive)
-  (forge-repository-list-setup nil #'forge-repository-list-refresh))
+  (forge-repository-list-setup nil #'forge--ls-repos))
 
 ;;;###autoload (autoload 'forge-list-owned-repositories "forge-list" nil t)
 (transient-define-suffix forge-list-owned-repositories ()
@@ -691,7 +666,7 @@ controls which repositories are considered to be owned by you.
 Only Github is supported for now."
   :class 'forge--topic-list-command :type 'repo :filter 'owned :global t
   (interactive)
-  (forge-repository-list-setup 'owned #'forge-repository-list-owned-refresh))
+  (forge-repository-list-setup 'owned #'forge--ls-owned-repos))
 
 ;;; _
 (provide 'forge-list)
