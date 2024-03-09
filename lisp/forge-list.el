@@ -197,13 +197,16 @@ forges web interface."
            (list (oref obj id)
                  (vconcat
                   (mapcar (pcase-lambda (`(,_name ,get ,_width ,_sort ,_props))
-                            (cond
-                             ((functionp get)
-                              (funcall get obj))
-                             ((eq (car-safe get) 'repository)
-                              (eieio-oref (forge-get-repository obj)
-                                          (cadr get)))
-                             ((eieio-oref obj get))))
+                            (let ((val (cond
+                                        ((functionp get)
+                                         (funcall get obj))
+                                        ((eq (car-safe get) 'repository)
+                                         (eieio-oref (forge-get-repository obj)
+                                                     (cadr get)))
+                                        ((eieio-oref obj get)))))
+                              (cond ((stringp val) val)
+                                    ((null val) "")
+                                    ((format "%s" val)))))
                           forge--tabulated-list-columns))))
          (funcall forge--tabulated-list-query))))
 
