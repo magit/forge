@@ -752,9 +752,9 @@ can be selected from the start."
        ('(issue   closed)    'forge-issue-completed)
        ('(issue   completed) 'forge-issue-completed)
        ('(issue   unplanned) 'forge-issue-unplanned)
-       ('(pullreq open)      'forge-pullreq-open-colored)
-       ('(pullreq merged)    'forge-pullreq-merged-colored)
-       ('(pullreq closed)    'forge-pullreq-rejected-colored)))))
+       ('(pullreq open)      'forge-pullreq-open)
+       ('(pullreq merged)    'forge-pullreq-merged)
+       ('(pullreq closed)    'forge-pullreq-rejected)))))
 
 (defun forge--format-topic-status (topic)
   (with-slots (status) topic
