@@ -458,8 +458,8 @@ forges and hosts."
   (cl-call-next-method (forge--ghub-type-symbol (eieio-object-class repo))))
 
 (cl-defmethod ghub--username ((repo forge-repository))
-  (let ((sym (forge--ghub-type-symbol (eieio-object-class repo))))
-    (cl-call-next-method (ghub--host sym) sym)))
+  (cl-call-next-method (oref repo apihost)
+                       (forge--ghub-type-symbol (eieio-object-class repo))))
 
 (defun forge--ghub-type-symbol (class)
   (pcase-exhaustive class
