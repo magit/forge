@@ -582,10 +582,9 @@ the key for @code{git@@github.com:magit/forge.git} is @code{github.com}.
 @defopt forge-alist
 This option defines forge hosts known to Forge.
 
-Each entry has the form @code{(GITHOST APIHOST ID CLASS)}.
-@end defopt
+Each entry has the form @code{(GITHOST APIHOST WEBHOST CLASS)}.
 
-@table @asis
+@itemize
 @item
 GITHOST is the host used to access repositories on the forge using
 Git.
@@ -602,7 +601,7 @@ the local database also derives from this value.
 
 @item
 CLASS is the class to be used for repositories from the forge.
-@end table
+@end itemize
 
 Complications:
 
@@ -616,9 +615,9 @@ a historic accident.  See issue #174.
 @item
 WEBHOST and CLASS cannot be changed once you have added one or
 more repositories from a forge.  Changing GITHOST and/or APIHOST
-may be possible, but should seldom be necessary."
-:package-version '(forge . "0.1.0")
+may be possible, but should seldom be necessary.
 @end itemize
+@end defopt
 
 @node Caveats
 @section Caveats

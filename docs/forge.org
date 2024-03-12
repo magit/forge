@@ -394,32 +394,31 @@ the key for ~git@github.com:magit/forge.git~ is ~github.com~.
 
   This option defines forge hosts known to Forge.
 
-  Each entry has the form ~(GITHOST APIHOST ID CLASS)~.
+  Each entry has the form ~(GITHOST APIHOST WEBHOST CLASS)~.
 
-- GITHOST is the host used to access repositories on the forge using
-  Git.
+  - GITHOST is the host used to access repositories on the forge using
+    Git.
 
-- APIHOST is the host used to access the forge's API.  For some forges
-  the isn't just a host, but a host followed by the path to the API's
-  endpoint.
+  - APIHOST is the host used to access the forge's API.  For some forges
+    the isn't just a host, but a host followed by the path to the API's
+    endpoint.
 
-- WEBHOST is the host used to access repositories on this forge using
-  a browser.  The IDs used to identify repositories from the forge in
-  the local database also derives from this value.
+  - WEBHOST is the host used to access repositories on this forge using
+    a browser.  The IDs used to identify repositories from the forge in
+    the local database also derives from this value.
   
-- CLASS is the class to be used for repositories from the forge.
+  - CLASS is the class to be used for repositories from the forge.
 
-Complications:
+  Complications:
 
-- When connecting to a Github Enterprise edition whose REST API's
-  end point is "<host>/v3" and whose GraphQL API's end point is
-  "<host>/graphql", then use "<host>/v3" as APIHOST.  This is
-  a historic accident.  See issue #174.
+  - When connecting to a Github Enterprise edition whose REST API's
+    end point is "<host>/v3" and whose GraphQL API's end point is
+    "<host>/graphql", then use "<host>/v3" as APIHOST.  This is
+    a historic accident.  See issue #174.
 
-- WEBHOST and CLASS cannot be changed once you have added one or
-  more repositories from a forge.  Changing GITHOST and/or APIHOST
-  may be possible, but should seldom be necessary."
-  :package-version '(forge . "0.1.0")
+  - WEBHOST and CLASS cannot be changed once you have added one or
+    more repositories from a forge.  Changing GITHOST and/or APIHOST
+    may be possible, but should seldom be necessary.
 
 ** Caveats
 
