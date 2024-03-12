@@ -171,7 +171,8 @@ or signal an error, depending on DEMAND."
   (if-let ((parts (forge--split-forge-url url)))
       (forge-get-repository parts remote (or demand :known?))
     (when (memq demand forge--signal-no-entry)
-      (error "Cannot determine forge repository.  %s isn't a forge url" url))))
+      (error "Cannot determine forge repository.  %s isn't a forge URL.  %s"
+             url "You might have to customize `forge-alist'."))))
 
 (cl-defmethod forge-get-repository (((host owner name) list)
                                     &optional remote demand)
