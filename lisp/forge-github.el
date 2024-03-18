@@ -78,8 +78,8 @@
         ((oref repo selective-p))
         (callback (funcall callback))
         ((forge--maybe-git-fetch repo buf))))
-     `((issues-until       . ,(or since (forge--topics-until repo 'issue))
-       (pullRequests-until . ,(or since (forge--topics-until repo 'pullreq)))
+     `((issues-until       . ,(or since (oref repo issues-until)))
+       (pullRequests-until . ,(or since (oref repo pullreqs-until))))
      :host (oref repo apihost)
      :auth 'forge
      :sparse (oref repo selective-p))))
@@ -272,7 +272,7 @@
               :body    (forge--sanitize-string .body))
              t)))
         (when bump
-          (when (string> updated (forge--topics-until repo 'issue))
+          (when (string> updated (oref repo issues-until))
             (oset repo issues-until updated))
           (forge--set-id-slot repo issue 'assignees .assignees)
           (unless (magit-get-boolean "forge.kludge-for-issue-294")
@@ -338,7 +338,7 @@
               :body    (forge--sanitize-string .body))
              t)))
         (when bump
-          (when (string> updated (forge--topics-until repo 'pullreq))
+          (when (string> updated (oref repo pullreqs-until))
             (oset repo pullreqs-until updated))
           (forge--set-id-slot repo pullreq 'assignees .assignees)
           (forge--set-id-slot repo pullreq 'review-requests

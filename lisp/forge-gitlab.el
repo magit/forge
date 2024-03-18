@@ -151,7 +151,7 @@
     (forge--glab-get repo "/projects/:project/issues"
       `((per_page . 100)
         (order_by . "updated_at")
-        ,@(and-let* ((after (or since (forge--topics-until repo 'issue))))
+        ,@(and-let* ((after (or since (oref repo issues-until))))
             `((updated_after . ,after))))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
@@ -211,7 +211,7 @@
                     :updated .updated_at
                     :body    (forge--sanitize-string .body))))
               (closql-insert (forge-db) post t))))
-        (when (string> .updated_at (forge--topics-until repo 'issue))
+        (when (string> .updated_at (oref repo issues-until))
           (oset repo issues-until .updated_at))
         issue))))
 
@@ -246,7 +246,7 @@
     (forge--glab-get repo "/projects/:project/merge_requests"
       `((per_page . 100)
         (order_by . "updated_at")
-        ,@(and-let* ((after (or since (forge--topics-until repo 'pullreq))))
+        ,@(and-let* ((after (or since (oref repo pullreqs-until))))
             `((updated_after . ,after))))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
@@ -350,7 +350,7 @@
                     :updated .updated_at
                     :body    (forge--sanitize-string .body))))
               (closql-insert (forge-db) post t))))
-        (when (string> .updated_at (forge--topics-until repo 'pullreq))
+        (when (string> .updated_at (oref repo pullreqs-until))
           (oset repo pullreqs-until .updated_at))
         pullreq))))
 

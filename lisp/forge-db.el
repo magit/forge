@@ -500,6 +500,30 @@
         (emacsql db [:alter-table repository :add-column pullreqs-until :default nil])
         (closql--db-set-version db (setq version 12))
         (message "Upgrading Forge database from version 11 to 12...done"))
+      (when nil; (= version 12)
+        (message "Upgrading Forge database from version 12 to 13...")
+        (dolist (id (emacsql db [:select id :from repository
+                                 :where (isnull issues-until)]))
+          (emacsql
+           db [:update repository :set (= issues-until $s1) :where (= id $s2)]
+           (caar (forge-sql [:select [updated] :from issue
+                             :where (= repository $s1)
+                             :order-by [(desc updated)]
+                             :limit 1]
+                            id))
+           id))
+        (dolist (id (emacsql db [:select id :from repository
+                                 :where (isnull pullreqs-until)]))
+          (emacsql
+           db [:update repository :set (= pullreqs-until $s1) :where (= id $s2)]
+           (caar (forge-sql [:select [updated] :from pullreq
+                             :where (= repository $s1)
+                             :order-by [(desc updated)]
+                             :limit 1]
+                            id))
+           id))
+        (closql--db-set-version db (setq version 13))
+        (message "Upgrading Forge database from version 12 to 13...done"))
       )
     (cl-call-next-method)))
 
