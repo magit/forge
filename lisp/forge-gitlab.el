@@ -119,6 +119,12 @@
     (oset repo stars          .star_count)
     (oset repo watchers       .star_count)))
 
+;;;; Topics
+
+(cl-defmethod forge--pull-topic ((repo forge-gitlab-repository) _topic
+                                 &key callback _errorback)
+  (forge--pull repo callback)) ; TODO Pull only the one topic.
+
 ;;;; Issues
 
 (cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback until)
