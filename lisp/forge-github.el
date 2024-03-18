@@ -196,7 +196,7 @@
      (oref repo name)
      (oref topic number)
      (lambda (data)
-       (forge--update-issue repo data nil)
+       (forge--update-issue repo data)
        (forge-refresh-buffer (and (buffer-live-p buffer) buffer))
        (when callback (funcall callback)))
      nil
@@ -213,7 +213,7 @@
      (oref repo name)
      (oref topic number)
      (lambda (data)
-       (forge--update-pullreq repo data nil)
+       (forge--update-pullreq repo data)
        (forge-refresh-buffer (and (buffer-live-p buffer) buffer))
        (when callback (funcall callback)))
      nil
@@ -223,11 +223,13 @@
 
 ;;;; Issues
 
-(cl-defmethod forge--update-issues ((repo forge-github-repository) data bump)
+(cl-defmethod forge--update-issues ((repo forge-github-repository) data
+                                    &optional bump)
   (closql-with-transaction (forge-db)
     (mapc (lambda (e) (forge--update-issue repo e bump)) data)))
 
-(cl-defmethod forge--update-issue ((repo forge-github-repository) data bump)
+(cl-defmethod forge--update-issue ((repo forge-github-repository) data
+                                   &optional bump)
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((updated (or .updatedAt .createdAt))
@@ -281,11 +283,13 @@
 
 ;;;; Pullreqs
 
-(cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data bump)
+(cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data
+                                      &optional bump)
   (closql-with-transaction (forge-db)
     (mapc (lambda (e) (forge--update-pullreq repo e bump)) data)))
 
-(cl-defmethod forge--update-pullreq ((repo forge-github-repository) data bump)
+(cl-defmethod forge--update-pullreq ((repo forge-github-repository) data
+                                     &optional bump)
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((updated (or .updatedAt .createdAt))
@@ -443,8 +447,7 @@
                                    #'forge--update-issue
                                  #'forge--update-pullreq)
                                repo
-                               (cdr (cadr (assq alias topics)))
-                               nil))
+                               (cdr (cadr (assq alias topics)))))
                (notif (or (forge-get-notification id)
                           (closql-insert (forge-db)
                                          (forge-notification
