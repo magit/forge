@@ -54,8 +54,7 @@
 
 (cl-defmethod forge--pull ((repo forge-github-repository) until
                            &optional callback)
-  (let ((buf (current-buffer))
-        (dir default-directory))
+  (let ((buf (current-buffer)))
     (ghub-fetch-repository
      (oref repo owner)
      (oref repo name)
@@ -77,7 +76,7 @@
        (cond
         ((oref repo selective-p))
         (callback (funcall callback))
-        (t (forge--git-fetch buf dir repo))))
+        ((forge--maybe-git-fetch repo buf))))
      `((issues-until       . ,(forge--topics-until repo until 'issue))
        (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
      :host (oref repo apihost)

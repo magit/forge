@@ -151,9 +151,7 @@ If pulling is too slow, then also consider setting the Git variable
                           (format "remote.%s.fetch" remote)
                           refspec)))
       (forge--msg repo t nil "Pulling REPO")
-      (when-let ((worktree (oref repo worktree)))
-        (let ((default-directory worktree))
-          (forge--pull repo until callback))))))
+      (forge--pull repo until callback))))
 
 (defun forge-read-date (prompt)
   (cl-block nil
@@ -174,12 +172,18 @@ If pulling is too slow, then also consider setting the Git variable
   (oset repo sparse-p nil)
   (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
 
-(defun forge--git-fetch (buf dir repo)
-  (if (buffer-live-p buf)
-      (with-current-buffer buf
+(defun forge--maybe-git-fetch (repo &optional buffer)
+  (if (and (buffer-live-p buffer)
+           (with-current-buffer buffer
+             (and (derived-mode-p 'magit-mode)
+                  (forge-repository-equal (forge-get-repository :stub?) repo))))
+      (with-current-buffer buffer
         (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
-    (let ((default-directory dir))
-      (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))))
+    (when-let ((worktree (oref repo worktree)))
+      (when (file-directory-p worktree)
+        (let ((default-directory worktree)
+              (magit-inhibit-refresh t))
+          (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))))))
 
 ;;;###autoload
 (defun forge-pull-notifications ()

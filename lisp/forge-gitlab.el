@@ -49,9 +49,7 @@
 
 (cl-defmethod forge--pull ((repo forge-gitlab-repository) until
                            &optional callback)
-  (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
-                            (current-buffer)))
-                  (dir default-directory)
+  (let ((cb (let ((buf (current-buffer))
                   (val nil))
               (lambda (cb &optional v)
                 (when v (if val (push v val) (setq val v)))
@@ -85,7 +83,7 @@
                     (cond
                      ((oref repo selective-p))
                      (callback (funcall callback))
-                     ((forge--git-fetch buf dir repo))))))))))
+                     ((forge--maybe-git-fetch repo buf))))))))))
     (funcall cb cb)))
 
 (cl-defmethod forge--fetch-repository ((repo forge-gitlab-repository) callback)
