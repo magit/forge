@@ -221,9 +221,19 @@
      :auth 'forge
      :errorback errorback)))
 
-(cl-defmethod forge--update-status ((repo forge-github-repository) topic data bump)
+(cl-defmethod forge--update-status ((repo forge-github-repository)
+                                    topic data bump initial-pull)
   (let-alist data
-    (let ((updated (or .updatedAt .createdAt)))
+    (let ((updated (or .updatedAt .createdAt))
+          (current-status (oref topic status)))
+      (cond ((not .isReadByViewer)
+             (oset topic status 'unread))
+            (initial-pull
+             (oset topic status 'done))
+            ((null current-status)
+             (oset topic status 'pending))
+            ((string> updated (oref topic updated))
+             (oset topic status 'pending)))
       (oset topic updated updated)
       (when bump
         (let* ((slot (if (forge-issue-p topic) 'issues-until 'pullreqs-until))
@@ -236,10 +246,11 @@
 (cl-defmethod forge--update-issues ((repo forge-github-repository) data
                                     &optional bump)
   (closql-with-transaction (forge-db)
-    (mapc (lambda (e) (forge--update-issue repo e bump)) data)))
+    (let ((initial-pull (not (oref repo issues-until))))
+      (mapc (lambda (e) (forge--update-issue repo e bump initial-pull)) data))))
 
 (cl-defmethod forge--update-issue ((repo forge-github-repository) data
-                                   &optional bump)
+                                   &optional bump initial-pull)
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((issue-id (forge--object-id 'forge-issue repo .number))
@@ -281,7 +292,7 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo issue data bump)
+        (forge--update-status repo issue data bump initial-pull)
         (when bump
           (forge--set-id-slot repo issue 'assignees .assignees)
           (unless (magit-get-boolean "forge.kludge-for-issue-294")
@@ -293,10 +304,11 @@
 (cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data
                                       &optional bump)
   (closql-with-transaction (forge-db)
-    (mapc (lambda (e) (forge--update-pullreq repo e bump)) data)))
+    (let ((initial-pull (not (oref repo pullreqs-until))))
+      (mapc (lambda (e) (forge--update-pullreq repo e bump initial-pull)) data))))
 
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data
-                                     &optional bump)
+                                     &optional bump initial-pull)
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .number))
@@ -346,7 +358,7 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo pullreq data bump)
+        (forge--update-status repo pullreq data bump initial-pull)
         (when bump
           (forge--set-id-slot repo pullreq 'assignees .assignees)
           (forge--set-id-slot repo pullreq 'review-requests
@@ -464,12 +476,7 @@
           (oset notif title     .subject.title)
           (oset notif reason    (intern (downcase .reason)))
           (oset notif last-read .last_read_at)
-          ;; The `updated_at' returned for notifications is often
-          ;; incorrect, so use the value from the topic instead.
-          (oset notif updated   (oref topic updated))
-          ;; Github represents the three possible states using a boolean,
-          ;; which of course means that we cannot do the right thing here.
-          (oset topic status 'unread))))))
+          (oset notif updated   .updated_at))))))
 
 ;;;; Miscellaneous
 
