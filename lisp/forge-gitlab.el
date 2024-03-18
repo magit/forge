@@ -49,6 +49,7 @@
 
 (cl-defmethod forge--pull ((repo forge-gitlab-repository)
                            &optional callback since)
+  (cl-assert (or (not since) (oref repo sparse-p)))
   (let ((cb (let ((buf (current-buffer))
                   (val nil))
               (lambda (cb &optional v)
@@ -150,7 +151,7 @@
     (forge--glab-get repo "/projects/:project/issues"
       `((per_page . 100)
         (order_by . "updated_at")
-        ,@(and-let* ((after (forge--topics-until repo since 'issue)))
+        ,@(and-let* ((after (or since (forge--topics-until repo 'issue))))
             `((updated_after . ,after))))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
@@ -210,7 +211,7 @@
                     :updated .updated_at
                     :body    (forge--sanitize-string .body))))
               (closql-insert (forge-db) post t))))
-        (when (string> .updated_at (forge--topics-until repo nil 'issue))
+        (when (string> .updated_at (forge--topics-until repo 'issue))
           (oset repo issues-until .updated_at))
         issue))))
 
@@ -245,7 +246,7 @@
     (forge--glab-get repo "/projects/:project/merge_requests"
       `((per_page . 100)
         (order_by . "updated_at")
-        ,@(and-let* ((after (forge--topics-until repo since 'pullreq)))
+        ,@(and-let* ((after (or since (forge--topics-until repo 'pullreq))))
             `((updated_after . ,after))))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
@@ -349,7 +350,7 @@
                     :updated .updated_at
                     :body    (forge--sanitize-string .body))))
               (closql-insert (forge-db) post t))))
-        (when (string> .updated_at (forge--topics-until repo nil 'pullreq))
+        (when (string> .updated_at (forge--topics-until repo 'pullreq))
           (oset repo pullreqs-until .updated_at))
         pullreq))))
 

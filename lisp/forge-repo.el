@@ -394,17 +394,15 @@ forges and hosts."
       (cadr (car (cl-member host forge-alist :test #'equal :key #'caddr)))
       (user-error "Cannot determine apihost for %S" host)))
 
-(cl-defmethod forge--topics-until ((repo forge-repository) until type)
-  (if (oref repo sparse-p)
-      until
-    (let ((slot (intern (format "%ss-until" type))))
-      (or (eieio-oref repo slot)
-          (eieio-oset repo slot
-                      (caar (forge-sql [:select [updated] :from $i1
-                                        :where (= repository $s2)
-                                        :order-by [(desc updated)]
-                                        :limit 1]
-                                       type (oref repo id))))))))
+(cl-defmethod forge--topics-until ((repo forge-repository) type)
+  (let ((slot (intern (format "%ss-until" type))))
+    (or (eieio-oref repo slot)
+        (eieio-oset repo slot
+                    (caar (forge-sql [:select [updated] :from $i1
+                                      :where (= repository $s2)
+                                      :order-by [(desc updated)]
+                                      :limit 1]
+                                     type (oref repo id)))))))
 
 (cl-defmethod forge--format ((repo forge-repository) format-or-slot &optional spec)
   (format-spec
