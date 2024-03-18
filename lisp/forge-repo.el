@@ -423,10 +423,12 @@ forges and hosts."
 (defun forge--set-field-callback ()
   (let ((buf (current-buffer)))
     (lambda (&rest _)
-      (with-current-buffer buf
+      (with-current-buffer
+          (if (buffer-live-p buf) buf (current-buffer))
         (forge-pull nil nil nil
                     (lambda ()
-                      (with-current-buffer buf
+                      (with-current-buffer
+                          (if (buffer-live-p buf) buf (current-buffer))
                         (forge-refresh-buffer)
                         (when (and transient--showp
                                    (memq transient-current-command
