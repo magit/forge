@@ -249,10 +249,7 @@
         (oset issue author     .author.login)
         (oset issue title      .title)
         (oset issue created    .createdAt)
-        (cond (updated
-               (oset issue updated updated))
-              ((not (slot-boundp issue 'updated))
-               (oset issue updated "0")))
+        (oset issue updated    updated)
         (oset issue closed     .closedAt)
         (oset issue locked-p   .locked)
         (oset issue milestone  (and .milestone.id
@@ -274,8 +271,7 @@
               :body    (forge--sanitize-string .body))
              t)))
         (when bump
-          (when (and updated
-                     (string> updated (forge--topics-until repo nil 'issue)))
+          (when (string> updated (forge--topics-until repo nil 'issue))
             (oset repo issues-until updated))
           (forge--set-id-slot repo issue 'assignees .assignees)
           (unless (magit-get-boolean "forge.kludge-for-issue-294")
@@ -308,10 +304,7 @@
         (oset pullreq author       .author.login)
         (oset pullreq title        .title)
         (oset pullreq created      .createdAt)
-        (cond (updated
-               (oset pullreq updated updated))
-              ((not (slot-boundp pullreq 'updated))
-               (oset pullreq updated "0")))
+        (oset pullreq updated      updated)
         (oset pullreq closed       .closedAt)
         (oset pullreq merged       .mergedAt)
         (oset pullreq draft-p      .isDraft)
@@ -344,8 +337,7 @@
               :body    (forge--sanitize-string .body))
              t)))
         (when bump
-          (when (and updated
-                     (string> updated (forge--topics-until repo nil 'pullreq)))
+          (when (string> updated (forge--topics-until repo nil 'pullreq))
             (oset repo pullreqs-until updated))
           (forge--set-id-slot repo pullreq 'assignees .assignees)
           (forge--set-id-slot repo pullreq 'review-requests
