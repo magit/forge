@@ -151,7 +151,7 @@ If pulling is too slow, then also consider setting the Git variable
                           (format "remote.%s.fetch" remote)
                           refspec)))
       (forge--msg repo t nil "Pulling REPO")
-      (forge--pull repo until callback))))
+      (forge--pull repo callback until))))
 
 (defun forge-read-date (prompt)
   (cl-block nil
@@ -165,10 +165,10 @@ If pulling is too slow, then also consider setting the Git variable
       (message "Please enter a date in the format YYYY-MM-DD.")
       (sit-for 1))))
 
-(cl-defmethod forge--pull ((repo forge-noapi-repository) _until) ; NOOP
+(cl-defmethod forge--pull ((repo forge-noapi-repository) &rest _)
   (forge--msg repo t t "Pulling from REPO is not supported"))
 
-(cl-defmethod forge--pull ((repo forge-unusedapi-repository) _until)
+(cl-defmethod forge--pull ((repo forge-unusedapi-repository) &rest _)
   (oset repo sparse-p nil)
   (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
 
@@ -1052,7 +1052,7 @@ pull individual topics when the user invokes `forge-pull-topic'."
             (forge-pull repo))
         (?i "[i]ndividual topics (useful for casual contributors)"
             (oset repo selective-p t)
-            (forge--pull repo nil))))))
+            (forge--pull repo))))))
 
 ;;;###autoload
 (defun forge-add-user-repositories (host user)

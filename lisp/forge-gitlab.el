@@ -47,8 +47,8 @@
 ;;; Pull
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-gitlab-repository) until
-                           &optional callback)
+(cl-defmethod forge--pull ((repo forge-gitlab-repository)
+                           &optional callback until)
   (let ((cb (let ((buf (current-buffer))
                   (val nil))
               (lambda (cb &optional v)

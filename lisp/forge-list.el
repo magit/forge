@@ -408,7 +408,7 @@ Must be set before `forge-list' is loaded.")
            (format "Add %s to database, so its topics can be listed?"
                    (oref repo slug)))
           (oset repo sparse-p nil)
-          (forge--pull repo nil #'ignore)
+          (forge--pull repo #'ignore)
           (throw 'add-instead t))
          ((setq repo nil)))
         (if-let ((buffer (forge-topic-get-buffer repo)))

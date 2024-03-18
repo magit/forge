@@ -52,8 +52,8 @@
 ;;; Pull
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-github-repository) until
-                           &optional callback)
+(cl-defmethod forge--pull ((repo forge-github-repository)
+                           &optional callback until)
   (let ((buf (current-buffer)))
     (ghub-fetch-repository
      (oref repo owner)
@@ -518,7 +518,7 @@
     (setq cb (lambda ()
                (when-let ((repo (pop repos)))
                  (message "Adding %s..." (oref repo name))
-                 (forge--pull repo nil cb))))
+                 (forge--pull repo cb))))
     (funcall cb)))
 
 ;;; Mutations
