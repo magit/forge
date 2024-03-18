@@ -84,6 +84,97 @@
      :auth 'forge
      :sparse (oref repo selective-p))))
 
+(cl-defmethod forge--update-repository ((repo forge-github-repository) data)
+  (let-alist data
+    (oset repo created        .createdAt)
+    (oset repo updated        .updatedAt)
+    (oset repo pushed         .pushedAt)
+    (oset repo parent         .parent.nameWithOwner)
+    (oset repo description    .description)
+    (oset repo homepage       (and (not (equal .homepageUrl "")) .homepageUrl))
+    (oset repo default-branch .defaultBranchRef.name)
+    (oset repo archived-p     .isArchived)
+    (oset repo fork-p         .isFork)
+    (oset repo locked-p       .isLocked)
+    (oset repo mirror-p       .isMirror)
+    (oset repo private-p      .isPrivate)
+    (oset repo issues-p       .hasIssuesEnabled)
+    (oset repo wiki-p         .hasWikiEnabled)
+    (oset repo stars          .stargazers.totalCount)
+    (oset repo watchers       .watchers.totalCount)))
+
+(cl-defmethod forge--update-revnotes ((repo forge-github-repository) data)
+  (closql-with-transaction (forge-db)
+    (mapc (apply-partially #'forge--update-revnote repo) data)))
+
+(cl-defmethod forge--update-revnote ((repo forge-github-repository) data)
+  (closql-with-transaction (forge-db)
+    (let-alist data
+      (closql-insert
+       (forge-db)
+       (forge-revnote
+        :id           (forge--object-id 'forge-revnote repo .id)
+        :repository   (oref repo id)
+        :commit       .commit.oid
+        :file         .path
+        :line         .position
+        :author       .author.login
+        :body         .body)
+       t))))
+
+(cl-defmethod forge--update-assignees ((repo forge-github-repository) data)
+  (oset repo assignees
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      (list (forge--object-id id .id)
+                            .login
+                            .name
+                            .id)))
+                  (delete-dups data)))))
+
+(cl-defmethod forge--update-forks ((repo forge-github-repository) data)
+  (oset repo forks
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      (nconc (forge--repository-ids
+                              (eieio-object-class repo)
+                              (oref repo githost)
+                              .owner.login
+                              .name)
+                             (list .owner.login
+                                   .name))))
+                  (delete-dups data)))))
+
+(cl-defmethod forge--update-labels ((repo forge-github-repository) data)
+  (oset repo labels
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      (list (forge--object-id id .id)
+                            .name
+                            (concat "#" (downcase .color))
+                            .description)))
+                  (delete-dups data)))))
+
+(cl-defmethod forge--update-milestones ((repo forge-github-repository) data)
+  (oset repo milestones
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      (list (forge--object-id id .id)
+                            .number
+                            .title
+                            .createdAt
+                            .updatedAt
+                            .dueOn
+                            .closedAt
+                            .description)))
+                  (delete-dups data)))))
+
+;;;; Topics
+
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-topic))
   (let ((buffer (current-buffer))
@@ -111,24 +202,7 @@
      :host (oref repo apihost)
      :auth 'forge)))
 
-(cl-defmethod forge--update-repository ((repo forge-github-repository) data)
-  (let-alist data
-    (oset repo created        .createdAt)
-    (oset repo updated        .updatedAt)
-    (oset repo pushed         .pushedAt)
-    (oset repo parent         .parent.nameWithOwner)
-    (oset repo description    .description)
-    (oset repo homepage       (and (not (equal .homepageUrl "")) .homepageUrl))
-    (oset repo default-branch .defaultBranchRef.name)
-    (oset repo archived-p     .isArchived)
-    (oset repo fork-p         .isFork)
-    (oset repo locked-p       .isLocked)
-    (oset repo mirror-p       .isMirror)
-    (oset repo private-p      .isPrivate)
-    (oset repo issues-p       .hasIssuesEnabled)
-    (oset repo wiki-p         .hasWikiEnabled)
-    (oset repo stars          .stargazers.totalCount)
-    (oset repo watchers       .watchers.totalCount)))
+;;;; Issues
 
 (cl-defmethod forge--update-issues ((repo forge-github-repository) data bump)
   (closql-with-transaction (forge-db)
@@ -189,6 +263,8 @@
           (unless (magit-get-boolean "forge.kludge-for-issue-294")
             (forge--set-id-slot repo issue 'labels .labels)))
         issue))))
+
+;;;; Pullreqs
 
 (cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data bump)
   (closql-with-transaction (forge-db)
@@ -260,76 +336,6 @@
           (unless (magit-get-boolean "forge.kludge-for-issue-294")
             (forge--set-id-slot repo pullreq 'labels .labels)))
         pullreq))))
-
-(cl-defmethod forge--update-revnotes ((repo forge-github-repository) data)
-  (closql-with-transaction (forge-db)
-    (mapc (apply-partially #'forge--update-revnote repo) data)))
-
-(cl-defmethod forge--update-revnote ((repo forge-github-repository) data)
-  (closql-with-transaction (forge-db)
-    (let-alist data
-      (closql-insert
-       (forge-db)
-       (forge-revnote
-        :id           (forge--object-id 'forge-revnote repo .id)
-        :repository   (oref repo id)
-        :commit       .commit.oid
-        :file         .path
-        :line         .position
-        :author       .author.login
-        :body         .body)
-       t))))
-
-(cl-defmethod forge--update-assignees ((repo forge-github-repository) data)
-  (oset repo assignees
-        (with-slots (id) repo
-          (mapcar (lambda (row)
-                    (let-alist row
-                      (list (forge--object-id id .id)
-                            .login
-                            .name
-                            .id)))
-                  (delete-dups data)))))
-
-(cl-defmethod forge--update-forks ((repo forge-github-repository) data)
-  (oset repo forks
-        (with-slots (id) repo
-          (mapcar (lambda (row)
-                    (let-alist row
-                      (nconc (forge--repository-ids
-                              (eieio-object-class repo)
-                              (oref repo githost)
-                              .owner.login
-                              .name)
-                             (list .owner.login
-                                   .name))))
-                  (delete-dups data)))))
-
-(cl-defmethod forge--update-labels ((repo forge-github-repository) data)
-  (oset repo labels
-        (with-slots (id) repo
-          (mapcar (lambda (row)
-                    (let-alist row
-                      (list (forge--object-id id .id)
-                            .name
-                            (concat "#" (downcase .color))
-                            .description)))
-                  (delete-dups data)))))
-
-(cl-defmethod forge--update-milestones ((repo forge-github-repository) data)
-  (oset repo milestones
-        (with-slots (id) repo
-          (mapcar (lambda (row)
-                    (let-alist row
-                      (list (forge--object-id id .id)
-                            .number
-                            .title
-                            .createdAt
-                            .updatedAt
-                            .dueOn
-                            .closedAt
-                            .description)))
-                  (delete-dups data)))))
 
 ;;;; Notifications
 
