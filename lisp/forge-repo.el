@@ -420,22 +420,24 @@ forges and hosts."
        (?p . ,path)
        (?P . ,(string-replace "/" "%2F" path))))))
 
-(defun forge--set-field-callback ()
+(defun forge--set-field-callback (topic)
   (let ((buf (current-buffer)))
     (lambda (&rest _)
       (with-current-buffer
           (if (buffer-live-p buf) buf (current-buffer))
-        (forge-pull nil nil nil
-                    (lambda ()
-                      (with-current-buffer
-                          (if (buffer-live-p buf) buf (current-buffer))
-                        (forge-refresh-buffer)
-                        (when (and transient--showp
-                                   (memq transient-current-command
-                                         '(forge-topic-menu
-                                           forge-topics-menu
-                                           forge-notifications-menu)))
-                          (transient--refresh-transient)))))))))
+        (forge--pull-topic
+         (forge-get-repository topic)
+         topic
+         :callback (lambda ()
+                     (with-current-buffer
+                         (if (buffer-live-p buf) buf (current-buffer))
+                       (forge-refresh-buffer)
+                       (when (and transient--showp
+                                  (memq transient-current-command
+                                        '(forge-topic-menu
+                                          forge-topics-menu
+                                          forge-notifications-menu)))
+                         (transient--refresh-transient)))))))))
 
 (defvar forge--mode-line-buffer nil)
 

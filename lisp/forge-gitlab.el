@@ -514,7 +514,7 @@
       (forge-pullreq "/projects/:project/merge_requests/:number")
       (forge-issue   "/projects/:project/issues/:number"))
     `((,field . ,value))
-    :callback (forge--set-field-callback)))
+    :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-title
   ((repo forge-gitlab-repository) topic title)

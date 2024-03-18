@@ -616,7 +616,7 @@
   (forge--ghub-patch topic
     "/repos/:owner/:repo/issues/:number"
     `((title . ,title))
-    :callback (forge--set-field-callback)))
+    :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-state
   ((_repo forge-github-repository) topic state)
@@ -628,7 +628,7 @@
       ('unplanned '((state . "closed") (state_reason . "not_planned")))
       ('rejected  '((state . "closed")))
       ('open      '((state . "open"))))
-    :callback (forge--set-field-callback)))
+    :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-draft
   ((_repo forge-github-repository) topic value)
@@ -662,14 +662,14 @@
                                          (oref repo id)
                                          milestone))))
       `((milestone . :null)))
-    :callback (forge--set-field-callback)))
+    :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-labels
   ((_repo forge-github-repository) topic labels)
   (funcall (if labels #'forge--ghub-put #'forge--ghub-delete)
            topic "/repos/:owner/:repo/issues/:number/labels" nil
            :payload labels
-           :callback (forge--set-field-callback)))
+           :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-assignees
   ((_repo forge-github-repository) topic assignees)
@@ -678,11 +678,11 @@
     (when-let ((add (cl-set-difference assignees value :test #'equal)))
       (forge--ghub-post topic "/repos/:owner/:repo/issues/:number/assignees"
         `((assignees . ,add))
-        :callback (forge--set-field-callback)))
+        :callback (forge--set-field-callback topic)))
     (when-let ((remove (cl-set-difference value assignees :test #'equal)))
       (forge--ghub-delete topic "/repos/:owner/:repo/issues/:number/assignees"
         `((assignees . ,remove))
-        :callback (forge--set-field-callback)))))
+        :callback (forge--set-field-callback topic)))))
 
 (cl-defmethod forge--set-topic-review-requests
   ((_repo forge-github-repository) topic reviewers)
@@ -692,12 +692,12 @@
       (forge--ghub-post topic
         "/repos/:owner/:repo/pulls/:number/requested_reviewers"
         `((reviewers . ,add))
-        :callback (forge--set-field-callback)))
+        :callback (forge--set-field-callback topic)))
     (when-let ((remove (cl-set-difference value reviewers :test #'equal)))
       (forge--ghub-delete topic
         "/repos/:owner/:repo/pulls/:number/requested_reviewers"
         `((reviewers . ,remove))
-        :callback (forge--set-field-callback)))))
+        :callback (forge--set-field-callback topic)))))
 
 (cl-defmethod forge--delete-comment
   ((_repo forge-github-repository) post)
