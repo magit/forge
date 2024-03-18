@@ -201,9 +201,7 @@ If pulling is too slow, then also consider setting the Git variable
    (list (read-number "Pull topic: "
                       (and-let* ((topic (forge-current-topic)))
                         (oref topic number)))))
-  (let ((repo (forge-get-repository :tracked)))
-    (forge--pull-topic
-     repo (forge-issue :repository (oref repo id) :number number))))
+  (forge--pull-topic (forge-get-repository :tracked) number))
 
 ;;;###autoload (autoload 'forge-pull-this-topic "forge-commands" nil t)
 (transient-define-suffix forge-pull-this-topic ()

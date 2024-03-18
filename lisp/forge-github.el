@@ -176,31 +176,50 @@
 ;;;; Topics
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
-                                 (topic forge-topic))
-  (let ((buffer (current-buffer))
-        (fetch #'ghub-fetch-issue)
-        (update #'forge--update-issue)
-        (errorback (lambda (err _headers _status _req)
-                     (when (equal (cdr (assq 'type (cadr err))) "NOT_FOUND")
-                       (forge--pull-topic
-                        repo (forge-pullreq :repository (oref repo id)
-                                            :number (oref topic number)))))))
-    (when (cl-typep topic 'forge-pullreq)
-      (setq fetch #'ghub-fetch-pullreq)
-      (setq update #'forge--update-pullreq)
-      (setq errorback nil))
-    (funcall
-     fetch
+                                 (number number))
+  (let ((id (oref repo id)))
+    (forge--pull-topic
+     repo
+     (forge-issue :repository id :number number)
+     :errorback (lambda (err _headers _status _req)
+                  (when (equal (cdr (assq 'type (cadr err))) "NOT_FOUND")
+                    (forge--pull-topic
+                     repo
+                     (forge-pullreq :repository id :number number)))))))
+
+(cl-defmethod forge--pull-topic ((repo forge-github-repository)
+                                 (topic forge-issue)
+                                 &key callback errorback)
+  (let ((buffer (current-buffer)))
+    (ghub-fetch-issue
      (oref repo owner)
      (oref repo name)
      (oref topic number)
      (lambda (data)
-       (funcall update repo data nil)
-       (forge-refresh-buffer (and (buffer-live-p buffer) buffer)))
+       (forge--update-issue repo data nil)
+       (forge-refresh-buffer (and (buffer-live-p buffer) buffer))
+       (when callback (funcall callback)))
      nil
-     :errorback errorback
      :host (oref repo apihost)
-     :auth 'forge)))
+     :auth 'forge
+     :errorback errorback)))
+
+(cl-defmethod forge--pull-topic ((repo forge-github-repository)
+                                 (topic forge-pullreq)
+                                 &key callback errorback)
+  (let ((buffer (current-buffer)))
+    (ghub-fetch-pullreq
+     (oref repo owner)
+     (oref repo name)
+     (oref topic number)
+     (lambda (data)
+       (forge--update-pullreq repo data nil)
+       (forge-refresh-buffer (and (buffer-live-p buffer) buffer))
+       (when callback (funcall callback)))
+     nil
+     :host (oref repo apihost)
+     :auth 'forge
+     :errorback errorback)))
 
 ;;;; Issues
 
