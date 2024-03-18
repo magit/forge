@@ -48,7 +48,7 @@
 ;;;; Repository
 
 (cl-defmethod forge--pull ((repo forge-gitlab-repository)
-                           &optional callback until)
+                           &optional callback since)
   (let ((cb (let ((buf (current-buffer))
                   (val nil))
               (lambda (cb &optional v)
@@ -65,10 +65,10 @@
                     (forge--fetch-labels repo cb))
                    ((and .issues_enabled
                          (not (assq 'issues val)))
-                    (forge--fetch-issues repo cb until))
+                    (forge--fetch-issues repo cb since))
                    ((and .merge_requests_enabled
                          (not (assq 'pullreqs val)))
-                    (forge--fetch-pullreqs repo cb until))
+                    (forge--fetch-pullreqs repo cb since))
                    (t
                     (forge--msg repo t t   "Pulling REPO")
                     (forge--msg repo t nil "Storing REPO")
@@ -125,7 +125,7 @@
 
 ;;;; Issues
 
-(cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback until)
+(cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback since)
   (let ((cb (let (val cur cnt pos)
               (lambda (cb &optional v)
                 (cond
@@ -150,7 +150,7 @@
     (forge--glab-get repo "/projects/:project/issues"
       `((per_page . 100)
         (order_by . "updated_at")
-        ,@(and-let* ((after (forge--topics-until repo until 'issue)))
+        ,@(and-let* ((after (forge--topics-until repo since 'issue)))
             `((updated_after . ,after))))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
@@ -216,7 +216,7 @@
 
 ;;;; Pullreqs
 
-(cl-defmethod forge--fetch-pullreqs ((repo forge-gitlab-repository) callback until)
+(cl-defmethod forge--fetch-pullreqs ((repo forge-gitlab-repository) callback since)
   (let ((cb (let (val cur cnt pos)
               (lambda (cb &optional v)
                 (cond
@@ -245,7 +245,7 @@
     (forge--glab-get repo "/projects/:project/merge_requests"
       `((per_page . 100)
         (order_by . "updated_at")
-        ,@(and-let* ((after (forge--topics-until repo until 'pullreq)))
+        ,@(and-let* ((after (forge--topics-until repo since 'pullreq)))
             `((updated_after . ,after))))
       :unpaginate t
       :callback (lambda (value _headers _status _req)

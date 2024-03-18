@@ -53,7 +53,7 @@
 ;;;; Repository
 
 (cl-defmethod forge--pull ((repo forge-github-repository)
-                           &optional callback until)
+                           &optional callback since)
   (let ((buf (current-buffer)))
     (ghub-fetch-repository
      (oref repo owner)
@@ -77,8 +77,8 @@
         ((oref repo selective-p))
         (callback (funcall callback))
         ((forge--maybe-git-fetch repo buf))))
-     `((issues-until       . ,(forge--topics-until repo until 'issue))
-       (pullRequests-until . ,(forge--topics-until repo until 'pullreq)))
+     `((issues-until       . ,(forge--topics-until repo since 'issue))
+       (pullRequests-until . ,(forge--topics-until repo since 'pullreq)))
      :host (oref repo apihost)
      :auth 'forge
      :sparse (oref repo selective-p))))

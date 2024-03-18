@@ -108,7 +108,7 @@ Takes the pull-request as only argument and must return a directory."
 ;;; Pull
 
 ;;;###autoload
-(defun forge-pull (&optional repo until interactive callback)
+(defun forge-pull (&optional repo since interactive callback)
   "Pull topics from the forge repository.
 
 With a prefix argument and if the repository has not been fetched
@@ -117,7 +117,7 @@ those that have been updated since then.
 
 If pulling is too slow, then also consider setting the Git variable
 `forge.omitExpensive' to `true'.
-\n(fn &optional REPO UNTIL)"
+\n(fn &optional REPO SINCE)"
   (interactive
    (list nil
          (and current-prefix-arg
@@ -151,7 +151,7 @@ If pulling is too slow, then also consider setting the Git variable
                           (format "remote.%s.fetch" remote)
                           refspec)))
       (forge--msg repo t nil "Pulling REPO")
-      (forge--pull repo callback until))))
+      (forge--pull repo callback since))))
 
 (defun forge-read-date (prompt)
   (cl-block nil
