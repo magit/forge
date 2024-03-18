@@ -852,9 +852,8 @@ can be selected from the start."
   (and (forge-db t)
        (or forge-display-in-status-buffer
            (not (eq major-mode 'magit-status-mode)))
-       (and-let* ((repo (forge-get-repository :known?)))
-         (and (not (oref repo sparse-p))
-              (or (not issues-p)
+       (and-let* ((repo (forge-get-repository :tracked?)))
+         (and (or (not issues-p)
                   (oref repo issues-p))
               repo))))
 

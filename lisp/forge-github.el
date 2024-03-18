@@ -54,7 +54,7 @@
 
 (cl-defmethod forge--pull ((repo forge-github-repository)
                            &optional callback since)
-  (cl-assert (or (not since) (oref repo sparse-p)))
+  (cl-assert (not (and since (forge-get-repository repo :tracked?))))
   (let ((buf (current-buffer)))
     (ghub-fetch-repository
      (oref repo owner)
@@ -72,7 +72,7 @@
            (forge--update-issues     repo .issues t)
            (forge--update-pullreqs   repo .pullRequests t)
            (forge--update-revnotes   repo .commitComments))
-         (oset repo sparse-p nil))
+         (oset repo condition :tracked))
        (forge--msg repo t t   "Storing REPO")
        (cond
         ((oref repo selective-p))
@@ -515,7 +515,7 @@
                             (let ((repo (forge-get-repository
                                          (list host owner name)
                                          nil :insert!)))
-                              (and (oref repo sparse-p)
+                              (and (not (forge-get-repository repo :tracked?))
                                    (list repo))))
                           names))
         cb)

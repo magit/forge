@@ -104,7 +104,6 @@ by this column.  Supported PROPS include `:right-align' and
 (defcustom forge-repository-list-columns
   '(("Owner"    owner         20   t nil)
     ("Name"     name          20   t nil)
-    ("N"        sparse-p       1   t nil)
     ("S"        selective-p    1   t nil)
     ("Worktree" worktree      99   t nil))
   "List of columns displayed when listing repositories.
@@ -403,11 +402,11 @@ Must be set before `forge-list' is loaded.")
     (unless (derived-mode-p 'forge-topic-list-mode)
       (let ((repo (forge-current-repository)))
         (cond
-         ((or (not repo) (not (oref repo sparse-p))))
+         ((or (not repo)
+              (forge-get-repository repo :tracked?)))
          ((yes-or-no-p
            (format "Add %s to database, so its topics can be listed?"
                    (oref repo slug)))
-          (oset repo sparse-p nil)
           (forge--pull repo #'ignore)
           (throw 'add-instead t))
          ((setq repo nil)))

@@ -91,7 +91,7 @@
       apihost
       githost
       remote
-      sparse-p
+      condition
       created
       updated
       pushed
@@ -500,7 +500,7 @@
         (emacsql db [:alter-table repository :add-column pullreqs-until :default nil])
         (closql--db-set-version db (setq version 12))
         (message "Upgrading Forge database from version 11 to 12...done"))
-      (when nil; (= version 12)
+      (when (= version 12)
         (message "Upgrading Forge database from version 12 to 13...")
         (dolist (id (emacsql db [:select id :from repository
                                  :where (isnull issues-until)]))
@@ -521,6 +521,13 @@
                              :order-by [(desc updated)]
                              :limit 1]
                             id))
+           id))
+        (emacsql db [:alter-table repository :rename-column sparse-p :to condition])
+        (pcase-dolist (`(,id ,not-tracked)
+                       (emacsql db [:select [id condition] :from repository]))
+          (emacsql
+           db [:update repository :set (= condition $s1) :where (= id $s2)]
+           (if not-tracked :known :tracked)
            id))
         (closql--db-set-version db (setq version 13))
         (message "Upgrading Forge database from version 12 to 13...done"))

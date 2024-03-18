@@ -52,7 +52,7 @@
    (apihost                   :initform nil :initarg :apihost)
    (githost                   :initform nil :initarg :githost)
    (remote                    :initform nil :initarg :remote)
-   (sparse-p                  :initform t)
+   (condition                 :initform :stub)
    (created                   :initform nil)
    (updated                   :initform nil)
    (pushed                    :initform nil)
@@ -138,9 +138,7 @@ or signal an error, depending on DEMAND."
   (or (and-let* ((repo (or forge-buffer-repository
                            (and forge-buffer-topic
                                 (forge-get-repository forge-buffer-topic)))))
-        (and (not (and (memq demand forge--signal-no-entry)
-                       (oref repo sparse-p)))
-             repo))
+        (forge-get-repository repo demand 'noerror))
       (magit--with-refresh-cache
           (list default-directory 'forge-get-repository demand)
         (if (not (magit-gitdir))
@@ -216,16 +214,12 @@ See `forge-alist' for valid Git hosts."
             (oset obj apihost apihost)
             (oset obj githost githost)
             (oset obj remote  remote))
-          (cond ((and (eq demand :tracked)
-                      (or (not obj)
-                          (oref obj sparse-p)))
-                 (error "Cannot use `%s' in %S yet.\n%s"
-                        this-command (magit-toplevel)
-                        "Use `M-x forge-add-repository' before trying again."))
-                ((and obj
-                      (oref obj sparse-p)
-                      (eq demand :tracked?))
-                 (setq obj nil)))
+          (pcase (list demand (and obj (eq (oref obj condition) :tracked)))
+            (`(:tracked? nil) (setq obj nil))
+            (`(:tracked  nil)
+             (error "Cannot use `%s' in %S yet.\n%s"
+                    this-command (magit-toplevel)
+                    "Use `M-x forge-add-repository' before trying again.")))
           (when (and (memq demand '(:insert! :stub :stub?))
                      (not obj))
             (pcase-let ((`(,id . ,forge-id)
@@ -244,14 +238,35 @@ See `forge-alist' for valid Git hosts."
                                    :githost  githost
                                    :remote   remote))
                 (when (eq demand :insert!)
-                  (closql-insert (forge-db) obj)))))
+                  (closql-insert (forge-db) obj)
+                  (oset obj condition :known)))))
           obj))
     (when (memq demand forge--signal-no-entry)
       (error "Cannot determine forge repository.  No entry for %S in %s"
              host 'forge-alist))))
 
-(cl-defmethod forge-get-repository ((repo forge-repository))
-  repo)
+(cl-defmethod forge-get-repository ((repo forge-repository)
+                                    &optional demand noerror)
+  (setq noerror (and noerror t))
+  (with-slots (condition slug) repo
+    (cl-symbol-macrolet
+        ((err (error "Requested %s for %s, but is %s" demand slug condition))
+         (ins (progn (closql-insert (forge-db) repo)
+                     (oset repo condition :known)
+                     repo)))
+      (pcase-exhaustive (list demand condition noerror)
+        (`(nil       ,_                     ,_)  repo)
+        (`(:tracked? :tracked               ,_)  repo)
+        (`(:tracked? ,_                     ,_)   nil)
+        (`(:tracked  :tracked               ,_)  repo)
+        (`(:tracked  ,_                      t)   nil)
+        (`(:tracked  ,_                    nil)   err)
+        (`(:known?   ,(or :tracked :known)  ,_)  repo)
+        (`(:known?   ,_                     ,_)   nil)
+        (`(:insert!  ,(or :tracked :known)  ,_)  repo)
+        (`(:insert!  ,_                     ,_)   ins)
+        (`(:stub?    ,_                     ,_)  repo)
+        (`(:stub     ,_                     ,_)  repo)))))
 
 (defun forge--get-repository:tracked? ()
   (forge-get-repository :tracked?))

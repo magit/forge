@@ -49,7 +49,7 @@
 
 (cl-defmethod forge--pull ((repo forge-gitlab-repository)
                            &optional callback since)
-  (cl-assert (or (not since) (oref repo sparse-p)))
+  (cl-assert (not (and since (forge-get-repository repo :tracked?))))
   (let ((cb (let ((buf (current-buffer))
                   (val nil))
               (lambda (cb &optional v)
@@ -79,7 +79,7 @@
                       (forge--update-labels     repo .labels)
                       (dolist (v .issues)   (forge--update-issue repo v))
                       (dolist (v .pullreqs) (forge--update-pullreq repo v))
-                      (oset repo sparse-p nil))
+                      (oset repo condition :tracked))
                     (forge--msg repo t t "Storing REPO")
                     (cond
                      ((oref repo selective-p))

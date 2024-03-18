@@ -122,11 +122,13 @@ If pulling is too slow, then also consider setting the Git variable
    (list nil
          (and current-prefix-arg
               (let ((repo (forge-current-repository)))
-                (or (not repo) (oref repo sparse-p)))
+                (or (not repo)
+                    (not (forge-get-repository repo :tracked?))))
               (forge-read-date "Limit pulling to topics updates since: "))
          t))
   (let (create)
-    (when (or (not repo) (oref repo sparse-p))
+    (when (or (not repo)
+              (not (forge-get-repository repo :tracked?)))
       (setq repo (forge-current-repository))
       (unless repo
         (setq repo (forge-get-repository :insert!))
@@ -169,7 +171,6 @@ If pulling is too slow, then also consider setting the Git variable
   (forge--msg repo t t "Pulling from REPO is not supported"))
 
 (cl-defmethod forge--pull ((repo forge-unusedapi-repository) &rest _)
-  (oset repo sparse-p nil)
   (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
 
 (defun forge--maybe-git-fetch (repo &optional buffer)
@@ -1046,7 +1047,6 @@ pull individual topics when the user invokes `forge-pull-topic'."
   (if (forge-get-repository url nil :tracked?)
       (user-error "%s is already tracked in Forge database" url)
     (let ((repo (forge-get-repository url nil :insert!)))
-      (oset repo sparse-p nil)
       (magit-read-char-case "Pull " nil
         (?a "[a]ll topics"
             (forge-pull repo))

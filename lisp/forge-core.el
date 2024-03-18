@@ -145,31 +145,32 @@ is also a \"repository\", but it is a \"Git\" repository, not a \"Forge\"
 repository.  (Forge repositories are also Git repositories, but not the
 other way around.)
 
-A `known' repository has an entry in the local database.  All other
-repositories are unknown.  `known' repositories are devided into two
-subgroups: `tracked' and \"untracked\" repositories.
+A `:known' repository has an entry in the local database.  All other
+repositories are unknown.  `:known' repositories are devided into two
+subgroups: `:tracked' and \"untracked\" repositories.
 
-A `tracked' repository was previously explicitly added to the database
+A `:tracked' repository was previously explicitly added to the database
 by the user.
 
 When Forge encounters a repository, without being instructed by the user
 to track it, it may nevertheless add limited information about it to the
-database.  Such a repository is `known' but it is not `tracked'.
+database.  Such a repository is `:known' but it is not `:tracked'.
 
 Other repositories are \"unknown\".  Most commands can only deal with
 repositories that are stored in the database.  Of these, some can deal
-with any `known' repositories, others require that they are `tracked'.
+with any `:known' repositories, others require that they are `:tracked'.
 
 Some other commands exist — such as the browse commands — that have no
 such requirement.  While such commands also require a repository object,
 they do not care whether that is stored in the database.  Instead they
-are happy to use a `stub' repository; a repository that is not stored in
-the database.
+are happy to use a `:stub' repository; a repository that is not stored
+in the database.
 
 The DEMAND argument specifies what kind of repository object the caller
-requires, at least.  `tracked' is greater than `known', which is greater
-than `stub'.  For example, if the caller requests a `known' repository,
-a `tracked' repository will do, while a `stub' repository will not.
+requires, at least.  `:tracked' is greater than `:known', which is
+greater than `:stub'.  For example, if the caller requests a `:known'
+repository, a `:tracked' repository will do, while a `:stub' repository
+will not.
 
 The valid values for DEMAND are:
 
@@ -191,7 +192,15 @@ The valid values for DEMAND are:
 
   Stub repository objects are created without making an API request, so
   we lack access to the upstream ID, which the IDs used in out database,
-  derive from.  This is done to allow offline operations.
+  derive from.  Stub repositories are \"unknown\" in the sense that their
+  IDs are not `:known'.  This is done to allow offline operations.
+
+Given a repository object, you can query its `condition' slot to learn
+whether it is `:tracked', `:known' (i.e., has a valid ID and is stored
+in the database), or merely a `:stub'.
+
+You can also use (forge-get repository OBJECT DEMAND) to check the
+condition of a repository object or even to upgrade it with `:insert!'.
 
 Use `forge-repository-equal' to check if two objects refer to the same
 repository.
