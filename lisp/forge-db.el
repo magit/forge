@@ -53,7 +53,7 @@
    (object-class :initform 'forge-repository)
    (file         :initform 'forge-database-file)
    (schemata     :initform 'forge--db-table-schemata)
-   (version      :initform 12)))
+   (version      :initform 13)))
 
 (defvar forge--override-connection-class nil)
 
