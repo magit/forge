@@ -104,6 +104,7 @@ by this column.  Supported PROPS include `:right-align' and
 (defcustom forge-repository-list-columns
   '(("Owner"    owner                       20   t nil)
     ("Name"     name                        20   t nil)
+    ("T"        forge-format-repo-condition  1   t nil)
     ("S"        forge-format-repo-selective  1   t nil)
     ("Worktree" worktree                    99   t nil))
   "List of columns displayed when listing repositories.
@@ -341,6 +342,13 @@ Must be set before `forge-list' is loaded.")
       (when hl-line-mode
         (hl-line-highlight)))
     (switch-to-buffer buffer)))
+
+(defun forge-format-repo-condition (repo)
+  "Return a character representing the value of REPO's `condition' slot."
+  (pcase-exhaustive (oref repo condition)
+    (:tracked "*")
+    (:known " ")
+    (:stub (propertize "s" 'face 'warning))))
 
 (defun forge-format-repo-selective (repo)
   "Return a character representing the value of REPO's `selective-p' slot."
