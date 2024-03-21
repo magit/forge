@@ -102,10 +102,10 @@ by this column.  Supported PROPS include `:right-align' and
   :type forge--tablist-columns-type)
 
 (defcustom forge-repository-list-columns
-  '(("Owner"    owner         20   t nil)
-    ("Name"     name          20   t nil)
-    ("S"        selective-p    1   t nil)
-    ("Worktree" worktree      99   t nil))
+  '(("Owner"    owner                       20   t nil)
+    ("Name"     name                        20   t nil)
+    ("S"        forge-format-repo-selective  1   t nil)
+    ("Worktree" worktree                    99   t nil))
   "List of columns displayed when listing repositories.
 
 Each element has the form (HEADER SOURCE WIDTH SORT PROPS).
@@ -341,6 +341,12 @@ Must be set before `forge-list' is loaded.")
       (when hl-line-mode
         (hl-line-highlight)))
     (switch-to-buffer buffer)))
+
+(defun forge-format-repo-selective (repo)
+  "Return a character representing the value of REPO's `selective-p' slot."
+  (pcase-exhaustive (oref repo selective-p)
+    ('t   "*")
+    ('nil " ")))
 
 ;;; Commands
 ;;;; Menus
