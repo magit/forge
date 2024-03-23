@@ -474,14 +474,15 @@ can be selected from the start."
                           (format "\\<forge-read-topic-minibuffer-map>\
  (\\[forge-read-topic-lift-limit] for all)")))
                  (let (all-choices)
-                   (lambda (&rest _)
-                     (cond
-                      (all-choices)
-                      (forge-limit-topic-choices choices)
-                      (t
-                       (forge--replace-minibuffer-prompt (concat prompt ": "))
-                       (setq alist (forge--topic-collection (funcall all repo)))
-                       (setq all-choices (mapcar #'car alist))))))
+                   (completion-table-dynamic
+                    (lambda (_string)
+                      (cond
+                       (all-choices)
+                       (forge-limit-topic-choices choices)
+                       (t
+                        (forge--replace-minibuffer-prompt (concat prompt ": "))
+                        (setq alist (forge--topic-collection (funcall all repo)))
+                        (setq all-choices (mapcar #'car alist)))))))
                  nil t nil nil default))
             (magit-completing-read prompt choices nil t nil nil default))))
     (cdr (assoc choice alist))))
