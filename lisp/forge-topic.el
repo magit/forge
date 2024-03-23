@@ -451,7 +451,9 @@ can be selected from the start."
   (let* ((current (funcall current))
          (repo    (forge-get-repository (or current :tracked)))
          (default (and current (forge--format-topic-line current)))
-         (alist   (forge--topic-collection (funcall active repo)))
+         (alist   (forge--topic-collection
+                   (funcall (if forge-limit-topic-choices active all)
+                            repo)))
          (choices (mapcar #'car alist))
          (choices (if (and default (not (member default choices)))
                       (cons default choices)
