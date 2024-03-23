@@ -455,9 +455,12 @@ can be selected from the start."
                    (funcall (if forge-limit-topic-choices active all)
                             repo)))
          (choices (mapcar #'car alist))
-         (choices (if (and default (not (member default choices)))
-                      (cons default choices)
-                    choices))
+         (choices (cond ((and forge-limit-topic-choices
+                              default
+                              (not (member default choices)))
+                         (push (cons default (oref current id)) alist)
+                         (cons default choices))
+                        (choices)))
          (choice
           (if forge-limit-topic-choices
               (minibuffer-with-setup-hook
