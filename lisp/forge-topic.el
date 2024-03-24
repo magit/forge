@@ -469,12 +469,12 @@ can be selected from the start."
                                     forge-read-topic-minibuffer-map
                                     (current-local-map))))
                 (magit-completing-read
-                 (concat prompt
-                         (substitute-command-keys
-                          (format "\\<forge-read-topic-minibuffer-map>\
- (\\[forge-read-topic-lift-limit] for all)")))
-                 (let (all-choices)
-                   (completion-table-dynamic
+                 (substitute-command-keys
+                  (format "%s \\<%s> (\\[%s] for all)" prompt
+                          'forge-read-topic-minibuffer-map
+                          'forge-read-topic-lift-limit))
+                 (completion-table-dynamic
+                  (let (all-choices)
                     (lambda (_string)
                       (cond
                        (all-choices)
