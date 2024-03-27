@@ -1351,7 +1351,7 @@ Return a value between 0 and 1."
 (defun forge--markdown-translate-filename-function (file)
   (if (string-match-p "\\`https?://" file)
       file
-    (let ((host (oref (forge-get-repository :tracked) githost)))
+    (let ((host (oref (forge-get-repository :tracked) forge))) ;aka webhost
       (concat (if (member host ghub-insecure-hosts) "http://" "https://")
               host
               (and (not (string-prefix-p "/" file)) "/")

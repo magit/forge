@@ -410,14 +410,17 @@ forges and hosts."
       (user-error "Cannot determine apihost for %S" host)))
 
 (cl-defmethod forge--format ((repo forge-repository) format-or-slot &optional spec)
-  (format-spec
-   (if (symbolp format-or-slot)
-       (eieio-oref repo format-or-slot)
-     format-or-slot)
-   (pcase-let* (((eieio forge owner name) repo)
-                (path (if owner (concat owner "/" name) name)))
+  (pcase-let* (((eieio (forge webhost) owner name) repo)
+               (path (if owner (concat owner "/" name) name)))
+    (format-spec
+     (let ((format (if (symbolp format-or-slot)
+                       (eieio-oref repo format-or-slot)
+                     format-or-slot)))
+       (if (member webhost ghub-insecure-hosts)
+           (replace-regexp-in-string "\\`https://" "http://" format t t)
+         format))
      `(,@spec
-       (?h . ,forge) ;aka webhost
+       (?h . ,webhost)
        (?o . ,owner)
        (?n . ,name)
        (?p . ,path)
@@ -476,9 +479,11 @@ forges and hosts."
 (defun forge--ghub-type-symbol (class)
   (pcase-exhaustive class
     ;; This package does not define a `forge-gitlab-http-repository'
-    ;; class, but we suggest at #9 that users define such a class if
-    ;; they must connect to a Gitlab instance that uses http instead
-    ;; of https.
+    ;; class, but we used to suggest at #9 that users define such a class
+    ;; if they must connect to a Gitlab instance that uses http instead
+    ;; of https.  Doing that isn't necessary anymore, but we have to keep
+    ;; supporting it here.  It is now sufficient to add an entry to
+    ;; `ghub-insecure-hosts'.
     ((or 'forge-gitlab-repository 'forge-gitlab-http-repository) 'gitlab)
     ('forge-github-repository    'github)
     ('forge-gitea-repository     'gitea)
