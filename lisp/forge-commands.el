@@ -180,11 +180,10 @@ If pulling is too slow, then also consider setting the Git variable
                   (forge-repository-equal (forge-get-repository :stub?) repo))))
       (with-current-buffer buffer
         (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
-    (when-let ((worktree (oref repo worktree)))
-      (when (file-directory-p worktree)
-        (let ((default-directory worktree)
-              (magit-inhibit-refresh t))
-          (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))))))
+    (when-let ((worktree (forge-get-worktree repo)))
+      (let ((default-directory worktree)
+            (magit-inhibit-refresh t))
+        (magit-git-fetch (oref repo remote) (magit-fetch-arguments))))))
 
 ;;;###autoload
 (defun forge-pull-notifications ()
@@ -434,14 +433,14 @@ with a prefix argument also closed topics."
   "Visit the repository at point."
   (interactive)
   (let* ((repo (forge-repository-at-point))
-         (worktree (oref repo worktree)))
+         (worktree (forge-get-worktree repo)))
     (cond
      ((eq transient-current-command 'forge-repositories-menu)
       (if-let ((buffer (forge-topic-get-buffer repo)))
           (switch-to-buffer buffer)
         (forge-list-topics repo))
       (transient-setup 'forge-topics-menu))
-     ((and worktree (file-directory-p worktree))
+     (worktree
       (magit-status-setup-buffer worktree))
      ((forge-list-topics repo)))))
 
