@@ -916,7 +916,7 @@ This mode itself is never used directly."
          (current-repo (forge-get-repository :known?))
          (default-directory (if (forge-repository-equal current-repo repo)
                                 default-directory
-                              (or (oref repo worktree)
+                              (or (forge-get-worktree repo)
                                   default-directory))))
     (magit-setup-buffer-internal
      (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode)

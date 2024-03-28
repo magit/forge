@@ -482,7 +482,7 @@ forges and hosts."
 (cl-defmethod ghub--username ((repo forge-repository))
   (let ((default-directory default-directory))
     (unless (forge-repository-equal (forge-get-repository :stub?) repo)
-      (when-let ((worktree (oref repo worktree)))
+      (when-let ((worktree (forge-get-worktree repo)))
         (setq default-directory worktree)))
     (cl-call-next-method (oref repo apihost)
                          (forge--ghub-type-symbol (eieio-object-class repo)))))
