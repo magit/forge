@@ -63,8 +63,14 @@
 
 (defvar forge-add-default-sections t
   "Whether to add Forge's sections to `magit-status-sections-hook'.
+
 If you want to disable this, then you must set this to nil before
-`forge' is loaded.")
+`forge' is loaded.
+
+If this is nil, then `forge-toggle-display-in-status-buffer' can
+no longer do its job.  It might be better to set the global value
+of `forge-display-in-status-buffer' to nil instead.  That way you
+can still display topics on demand in the status buffer.")
 
 (when forge-add-default-sections
   (magit-add-section-hook 'magit-status-sections-hook #'forge-insert-pullreqs nil t)
@@ -78,12 +84,7 @@ If you want to disable this, then you must set this to nil before
 
 If you want to disable this, then you must set this to nil before
 `magit' is loaded.  If you do it before `forge' but after `magit'
-is loaded, then `magit-mode-map' ends up being modified anyway.
-
-If this is nil, then `forge-toggle-display-in-status-buffer' can
-no longer do its job.  It might be better to set the global value
-of `forge-display-in-status-buffer' to nil instead.  That way you
-can still display topics on demand in the status buffer.")
+is loaded, then `magit-mode-map' ends up being modified anyway.")
 
 ;;;###autoload
 (with-eval-after-load 'magit-mode
