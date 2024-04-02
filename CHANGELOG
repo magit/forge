@@ -3,17 +3,17 @@
 
 - Added ~forge-browse-remote~ to ~forge-dispatch~.  #477
 
-- Depend on the Compat package, allowing me to use convenient features
-  that were added to Emacs over the last few years, without having to
-  wait another few years until everybody has updated to a reasonably
-  recent Emacs release.  453c43f1e
+- Depend on the Compat package, allowing me to use convenient features that were
+  added to Emacs over the last few years, without having to wait another few
+  years until everybody has updated to a reasonably recent Emacs release.
+  453c43f1e
 
 - Added support for visiting the topic reference at point.  #488
 
 - Added ~forge-visit-topic~ to ~git-commit-mode-map~.  05529a2a0
 
-- Removed option ~forge-database-connector~.  EmacSQL now automatically
-  uses the best available backend.  af9358dca
+- Removed option ~forge-database-connector~.  EmacSQL now automatically uses the
+  best available backend.  af9358dca
 
 Bug fixes:
 
@@ -22,8 +22,8 @@ Bug fixes:
 - d04ab8f43 #482 forge-forge.remote: Show the dynamic fallback value
 - 0ebd444a1 #485 forge--fetch-pullreq-target-repo: Fix copy-paste error
 
-Also contains various documentation updates, code clean-ups and
-build improvements.
+Also contains various documentation updates, code clean-ups and build
+improvements.
 
 * v0.3.2    2022-03-07
 
