@@ -314,9 +314,9 @@
              (pullreq (or (forge-get-pullreq repo .number)
                           (closql-insert
                            (forge-db)
-                           (forge-pullreq :id           pullreq-id
-                                          :repository   (oref repo id)
-                                          :number       .number)))))
+                           (forge-pullreq :id         pullreq-id
+                                          :repository (oref repo id)
+                                          :number     .number)))))
         (oset pullreq their-id     .id)
         (oset pullreq slug         (format "#%s" .number))
         (oset pullreq state        (pcase-exhaustive .state
