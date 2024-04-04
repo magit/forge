@@ -260,7 +260,6 @@
                          (forge-issue :id         issue-id
                                       :repository (oref repo id)
                                       :number     .number)))))
-        (oset issue id         issue-id)
         (oset issue their-id   .id)
         (oset issue slug       (format "#%s" .number))
         (oset issue state
