@@ -315,7 +315,7 @@ signal an error."
                    nil
                    (propertize title 'font-lock-face
                                (if-let ((topic (oref notif topic))
-                                        (! (eq (oref topic status) 'unread)))
+                                        ((eq (oref topic status) 'unread)))
                                    'forge-topic-unread
                                  'forge-topic-open)))))))
       (_
