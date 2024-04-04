@@ -251,15 +251,16 @@
 
 (cl-defmethod forge--update-issue ((repo forge-github-repository) data
                                    &optional bump initial-pull)
-  (closql-with-transaction (forge-db)
+  (let (issue-id issue)
     (let-alist data
-      (let* ((issue-id (forge--object-id 'forge-issue repo .number))
-             (issue (or (forge-get-issue repo .number)
+      (closql-with-transaction (forge-db)
+        (setq issue-id (forge--object-id 'forge-issue repo .number))
+        (setq issue (or (forge-get-issue repo .number)
                         (closql-insert
                          (forge-db)
                          (forge-issue :id         issue-id
                                       :repository (oref repo id)
-                                      :number     .number)))))
+                                      :number     .number))))
         (oset issue their-id   .id)
         (oset issue slug       (format "#%s" .number))
         (oset issue state
@@ -291,12 +292,13 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo issue data bump initial-pull)
-        (when bump
-          (forge--set-id-slot repo issue 'assignees .assignees)
-          (unless (magit-get-boolean "forge.kludge-for-issue-294")
-            (forge--set-id-slot repo issue 'labels .labels)))
-        issue))))
+        (forge--update-status repo issue data bump initial-pull))
+      (ignore-errors
+        (forge--set-id-slot repo issue 'assignees .assignees))
+      (ignore-errors
+        (unless (magit-get-boolean "forge.kludge-for-issue-294")
+          (forge--set-id-slot repo issue 'labels .labels))))
+    issue))
 
 ;;;; Pullreqs
 
@@ -308,15 +310,16 @@
 
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data
                                      &optional bump initial-pull)
-  (closql-with-transaction (forge-db)
+  (let (pullreq-id pullreq)
     (let-alist data
-      (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .number))
-             (pullreq (or (forge-get-pullreq repo .number)
+      (closql-with-transaction (forge-db)
+        (setq pullreq-id (forge--object-id 'forge-pullreq repo .number))
+        (setq pullreq (or (forge-get-pullreq repo .number)
                           (closql-insert
                            (forge-db)
                            (forge-pullreq :id         pullreq-id
                                           :repository (oref repo id)
-                                          :number     .number)))))
+                                          :number     .number))))
         (oset pullreq their-id     .id)
         (oset pullreq slug         (format "#%s" .number))
         (oset pullreq state        (pcase-exhaustive .state
@@ -357,15 +360,17 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo pullreq data bump initial-pull)
-        (when bump
-          (forge--set-id-slot repo pullreq 'assignees .assignees)
-          (forge--set-id-slot repo pullreq 'review-requests
-                              (--map (cdr (cadr (car it)))
-                                     .reviewRequests))
-          (unless (magit-get-boolean "forge.kludge-for-issue-294")
-            (forge--set-id-slot repo pullreq 'labels .labels)))
-        pullreq))))
+        (forge--update-status repo pullreq data bump initial-pull))
+      (ignore-errors
+        (forge--set-id-slot repo pullreq 'assignees .assignees))
+      (ignore-errors
+        (forge--set-id-slot repo pullreq 'review-requests
+                            (--map (cdr (cadr (car it)))
+                                   .reviewRequests)))
+      (ignore-errors
+        (unless (magit-get-boolean "forge.kludge-for-issue-294")
+          (forge--set-id-slot repo pullreq 'labels .labels))))
+    pullreq))
 
 ;;;; Notifications
 
