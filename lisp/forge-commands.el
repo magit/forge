@@ -156,16 +156,19 @@ If pulling is too slow, then also consider setting the Git variable
       (forge--pull repo callback since))))
 
 (defun forge-read-date (prompt)
-  (cl-block nil
-    (while t
-      (let ((str (read-from-minibuffer prompt)))
-        (cond ((string-equal str "")
-               (cl-return nil))
-              ((string-match-p
-                "\\`[0-9]\\{4\\}[-/][0-9]\\{2\\}[-/][0-9]\\{2\\}\\'" str)
-               (cl-return str))))
-      (message "Please enter a date in the format YYYY-MM-DD.")
-      (sit-for 1))))
+  (require (quote org) nil)
+  (if (fboundp 'org-read-date)
+      (org-read-date nil nil nil prompt)
+    (cl-block nil
+      (while t
+        (let ((str (read-from-minibuffer prompt)))
+          (cond ((string-equal str "")
+                 (cl-return nil))
+                ((string-match-p
+                  "\\`[0-9]\\{4\\}[-/][0-9]\\{2\\}[-/][0-9]\\{2\\}\\'" str)
+                 (cl-return str))))
+        (message "Please enter a date in the format YYYY-MM-DD.")
+        (sit-for 1)))))
 
 (cl-defmethod forge--pull ((repo forge-noapi-repository) &rest _)
   (forge--msg repo t t "Pulling from REPO is not supported"))
