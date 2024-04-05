@@ -327,10 +327,10 @@ an error."
   "Return t if REPO1 and REPO2 are the same repository.
 REPO1 and/or REPO2 may also be nil, in which case return nil."
   (and repo1 repo2
-       (or (equal      (oref repo1 id)    (oref repo2 id))
-           (and (equal (oref repo1 host)  (oref repo2 host))
-                (equal (oref repo1 owner) (oref repo2 owner))
-                (equal (oref repo1 name)  (oref repo2 name))))))
+       (or (equal      (oref repo1 id)      (oref repo2 id))
+           (and (equal (oref repo1 githost) (oref repo2 githost))
+                (equal (oref repo1 owner)   (oref repo2 owner))
+                (equal (oref repo1 name)    (oref repo2 name))))))
 
 (cl-defmethod forge--repository-ids ((class (subclass forge-repository))
                                      host owner name &optional stub)
