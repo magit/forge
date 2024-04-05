@@ -141,7 +141,6 @@ If pulling is too slow, then also consider setting the Git variable
                           (oref repo owner)
                           (oref repo name))))
         (oset repo selective-p nil))
-      (setq forge--mode-line-buffer (current-buffer))
       (when-let* ((remote  (oref repo remote))
                   (refspec (oref repo pullreq-refspec)))
         (when (and create
@@ -152,7 +151,6 @@ If pulling is too slow, then also consider setting the Git variable
           (magit-call-git "config" "--add"
                           (format "remote.%s.fetch" remote)
                           refspec)))
-      (forge--msg repo t nil "Pulling REPO")
       (forge--pull repo callback since))))
 
 (defun forge-read-date (prompt)

@@ -55,6 +55,8 @@
 (cl-defmethod forge--pull ((repo forge-github-repository)
                            &optional callback since)
   (cl-assert (not (and since (forge-get-repository repo :tracked?))))
+  (setq forge--mode-line-buffer (current-buffer))
+  (forge--msg repo t nil "Pulling REPO")
   (let ((buf (current-buffer)))
     (ghub-fetch-repository
      (oref repo owner)
@@ -536,7 +538,6 @@
         cb)
     (setq cb (lambda ()
                (when-let ((repo (pop repos)))
-                 (message "Adding %s..." (oref repo name))
                  (forge--pull repo cb))))
     (funcall cb)))
 
