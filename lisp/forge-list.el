@@ -455,10 +455,9 @@ Must be set before `forge-list' is loaded.")
 (defun forge-menu-quit-list ()
   "From a transient menu, quit the list buffer and the menu.
 
-If quitting the list buffer causes another topic, repository
-or notification list buffer to becomes current in the selected
-window, then display the respective menu, otherwise display no
-menu."
+If quitting the list buffer causes another topic, repository or
+notification list buffer to become current in the selected window,
+then display the respective menu, otherwise display no menu."
   (interactive)
   (when (derived-mode-p 'forge-topic-mode
                         'forge-topic-list-mode
