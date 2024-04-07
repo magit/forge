@@ -246,9 +246,10 @@ See `forge-alist' for valid Git hosts."
   (with-slots (condition slug) repo
     (cl-symbol-macrolet
         ((err (error "Requested %s for %s, but is %s" demand slug condition))
-         (ins (progn (closql-insert (forge-db) repo)
-                     (oset repo condition :known)
-                     repo)))
+         (key (list (oref repo forge)
+                    (oref repo owner)
+                    (oref repo name)))
+         (ins (forge-get-repository key nil :insert!)))
       (pcase-exhaustive (list demand condition noerror)
         (`(nil       ,_                     ,_)  repo)
         (`(:tracked? :tracked               ,_)  repo)
