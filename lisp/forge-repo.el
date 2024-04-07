@@ -120,11 +120,6 @@
 (cl-defmethod forge-get-repository ((_(eql :id)) id)
   (closql-get (forge-db) (substring-no-properties id) 'forge-repository))
 
-(cl-defmethod forge-get-repository ((_ null) &optional remote)
-  ;; Avoid matching the ((host owner name) list) ...) method.
-  ;; Necessary for Emacs 30.0.50, since c55694785e9.  See #642.
-  (forge-get-repository :known? remote))
-
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote)
   "Return the current forge repository.
 
