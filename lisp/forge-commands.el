@@ -1049,7 +1049,7 @@ upstream remote.  Also fetch from REMOTE."
       (magit-call-git "config" "--add"
                       (format "remote.%s.fetch" remote)
                       refspec))
-    (forge-get-repository repo nil :insert!)
+    (setq repo (forge-get-repository repo nil :insert!))
     (when (eq limit 'selective)
       (oset repo selective-p t)
       (setq limit nil))
