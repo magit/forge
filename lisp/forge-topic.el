@@ -348,9 +348,12 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
   (and-let* ((repo (forge--repo-for-thingatpt)))
     (and (thing-at-point-looking-at
           (if (forge-gitlab-repository--eieio-childp repo)
-              "[#!]\\([0-9]+\\)\\_>"
+              "\\(?2:[#!]\\)\\(?1:[0-9]+\\)\\_>"
             "#\\([0-9]+\\)\\_>"))
-         (forge-get-topic repo (string-to-number (match-string 1))))))
+         (funcall (if (equal (match-string 2) "!")
+                      #'forge-get-pullreq
+                    #'forge-get-topic)
+                  repo (string-to-number (match-string-no-properties 1))))))
 
 (defun forge--repo-for-thingatpt ()
   (or (forge-repository-at-point)
