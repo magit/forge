@@ -263,6 +263,12 @@ See `forge-alist' for valid Git hosts."
         (`(:stub?    ,_                     ,_)  repo)
         (`(:stub     ,_                     ,_)  repo)))))
 
+(cl-defmethod forge-get-repository ((_ null) &optional noerror demand)
+  (if (and (memq demand '(:insert! :tracked :stub))
+           (not noerror))
+      (error "(Maybe repository) is nil; `%s' not satisfied" demand)
+    nil))
+
 (defun forge--get-repository:tracked? ()
   (forge-get-repository :tracked?))
 
