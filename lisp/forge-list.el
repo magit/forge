@@ -418,10 +418,9 @@ Must be set before `forge-list' is loaded.")
         (cond
          ((or (not repo)
               (forge-get-repository repo nil :tracked?)))
-         ((yes-or-no-p
-           (format "Add %s to database, so its topics can be listed?"
-                   (oref repo slug)))
-          (forge--pull repo #'ignore)
+         ((y-or-n-p (format "Add %s to database, so its topics can be listed?"
+                            (oref repo slug)))
+          (forge-add-repository (forge-get-url repo))
           (throw 'add-instead t))
          ((setq repo nil)))
         (if-let ((buffer (forge-topic-get-buffer repo)))
