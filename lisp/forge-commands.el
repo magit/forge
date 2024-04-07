@@ -115,7 +115,8 @@ repository cannot be determined, instead invoke `forge-add-repository'."
   (interactive)
   (if-let ((repo (forge-get-repository :tracked?)))
       (forge--pull repo)
-    (transient-setup 'forge-add-repository)))
+    (transient-setup 'forge-add-repository nil nil
+                     :scope (forge-get-repository :stub))))
 
 (defun forge-read-date (prompt)
   (require (quote org) nil)
@@ -1007,8 +1008,7 @@ upstream remote.  Also fetch from REMOTE."
     (lambda ()
       (format
        (propertize "Adding %s to database," 'face 'transient-heading)
-       (propertize (forge-get-url (oref (transient-prefix-object) scope))
-                   'face 'bold)))
+       (propertize (forge-get-url (transient-scope)) 'face 'bold)))
     ("a" "pulling all topics"
      (lambda (repo)
        (interactive (list (transient-scope)))
