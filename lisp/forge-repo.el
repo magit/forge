@@ -176,7 +176,9 @@ See `forge-alist' for valid Git hosts."
   (setq host  (substring-no-properties host))
   (setq owner (substring-no-properties owner))
   (setq name  (substring-no-properties name))
-  (unless (memq demand '(:tracked :tracked? :known? :insert! :stub :stub?))
+  (unless (memq demand '( :tracked :tracked?
+                          :known? :insert! :valid?
+                          :stub :stub?))
     (if-let ((new (pcase demand
                     ('t      :tracked)
                     ('full   :tracked?)
@@ -215,26 +217,30 @@ See `forge-alist' for valid Git hosts."
              (error "Cannot use `%s' in %S yet.\n%s"
                     this-command (magit-toplevel)
                     "Use `M-x forge-add-repository' before trying again.")))
-          (when (and (memq demand '(:insert! :stub :stub?))
+          (when (and (memq demand '(:insert! :valid? :stub :stub?))
                      (not obj))
             (pcase-let ((`(,id . ,forge-id)
                          (forge--repository-ids
                           class webhost owner name
-                          (memq demand '(:stub :stub?)))))
-              ;; The repo might have been renamed on the forge.  #188
-              (unless (setq obj (forge-get-repository :id id))
-                (setq obj (funcall class
-                                   :id       id
-                                   :forge-id forge-id
-                                   :forge    webhost
-                                   :owner    owner
-                                   :name     name
-                                   :apihost  apihost
-                                   :githost  githost
-                                   :remote   remote))
-                (when (eq demand :insert!)
-                  (closql-insert (forge-db) obj)
-                  (oset obj condition :known)))))
+                          (memq demand '(:stub :stub?))
+                          (eq demand :valid?))))
+              (if (not id)
+                  ;; `:valid?' was used and it turned out it is not.
+                  (setq obj nil)
+                ;; The repo might have been renamed on the forge.  #188
+                (unless (setq obj (forge-get-repository :id id))
+                  (setq obj (funcall class
+                                     :id       id
+                                     :forge-id forge-id
+                                     :forge    webhost
+                                     :owner    owner
+                                     :name     name
+                                     :apihost  apihost
+                                     :githost  githost
+                                     :remote   remote))
+                  (when (eq demand :insert!)
+                    (closql-insert (forge-db) obj)
+                    (oset obj condition :known))))))
           obj))
     (when (memq demand forge--signal-no-entry)
       (error "Cannot determine forge repository.  No entry for %S in %s"
@@ -249,7 +255,8 @@ See `forge-alist' for valid Git hosts."
          (key (list (oref repo forge)
                     (oref repo owner)
                     (oref repo name)))
-         (ins (forge-get-repository key nil :insert!)))
+         (ins (forge-get-repository key nil :insert!))
+         (set (forge-get-repository key nil :valid?)))
       (pcase-exhaustive (list demand condition noerror)
         (`(nil       ,_                     ,_)  repo)
         (`(:tracked? :tracked               ,_)  repo)
@@ -261,6 +268,8 @@ See `forge-alist' for valid Git hosts."
         (`(:known?   ,_                     ,_)   nil)
         (`(:insert!  ,(or :tracked :known)  ,_)  repo)
         (`(:insert!  ,_                     ,_)   ins)
+        (`(:valid?   ,(or :tracked :known)  ,_)  repo)
+        (`(:valid?   ,_                     ,_)   set)
         (`(:stub?    ,_                     ,_)  repo)
         (`(:stub     ,_                     ,_)  repo)))))
 
@@ -335,7 +344,7 @@ REPO1 and/or REPO2 may also be nil, in which case return nil."
                 (equal (oref repo1 name)    (oref repo2 name))))))
 
 (cl-defmethod forge--repository-ids ((class (subclass forge-repository))
-                                     host owner name &optional stub)
+                                     host owner name &optional stub noerror)
   "Return (OUR-ID . THEIR-ID) of the specified repository.
 If optional STUB is non-nil, then the IDs are not guaranteed to
 be unique.  Otherwise this method has to make an API request to
@@ -350,21 +359,24 @@ forges and hosts."
                                owner name
                                :host apihost
                                :auth 'forge
-                               :forge (forge--ghub-type-symbol class)))))
-    (cons (base64-encode-string
-           (format "%s:%s" id
-                   (cond (stub path)
-                         ((eq class 'forge-github-repository)
-                          ;; This is base64 encoded, according to
-                          ;; https://docs.github.com/en/graphql/reference/scalars#id.
-                          ;; Unfortunately that is not always true.
-                          ;; E.g., https://github.com/dit7ya/roamex.
-                          (condition-case nil
-                              (base64-decode-string their-id)
-                            (error their-id)))
-                         (t their-id)))
-           t)
-          (or their-id path))))
+                               :forge (forge--ghub-type-symbol class)
+                               :noerror noerror))))
+    (and (or stub their-id (not noerror))
+         (cons (base64-encode-string
+                (format "%s:%s" id
+                        (cond (stub path)
+                              ((eq class 'forge-github-repository)
+                               ;; This is base64 encoded, according to
+                               ;; https://docs.github.com/en/graphql/
+                               ;; reference/scalars#id.  Unfortunately
+                               ;; that is not always true.  E.g.,
+                               ;; https://github.com/dit7ya/roamex.
+                               (condition-case nil
+                                   (base64-decode-string their-id)
+                                 (error their-id)))
+                              (t their-id)))
+                t)
+               (or their-id path)))))
 
 (cl-defmethod forge--repository-ids ((_class (subclass forge-noapi-repository))
                                      host owner name &optional _stub)

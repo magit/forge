@@ -195,12 +195,21 @@ The valid values for DEMAND are:
   derive from.  Stub repositories are \"unknown\" in the sense that their
   IDs are not `:known'.  This is done to allow offline operations.
 
+- `:valid?' requests the Forge repository corresponding to the current
+  Git repository.  It does not matter whether it is known.  If it is
+  unknown, an API request is made to verify that the repository exists
+  on the forge.  If it does, an object with a valid upstream ID is
+  returned, but that isn't inserted into the database.  If not, nil is
+  returned.
+
 Given a repository object, you can query its `condition' slot to learn
 whether it is `:tracked', `:known' (i.e., has a valid ID and is stored
 in the database), or merely a `:stub'.
 
 You can also use (forge-get repository OBJECT nil DEMAND) to check the
-condition of a repository object or even to upgrade it with `:insert!'.
+condition of a repository object, or even to ensure a repository object
+has a valid upstream ID (using `:valid?'), or that it is tracked in the
+database (using `:insert!').
 
 Use `forge-repository-equal' to check if two objects refer to the same
 repository.
