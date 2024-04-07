@@ -280,7 +280,6 @@
                                     (forge--object-id (oref repo id)
                                                       .milestone.id)))
         (oset issue body       (forge--sanitize-string .body))
-        .databaseId ; Silence Emacs 25 byte-compiler.
         (dolist (c .comments)
           (let-alist c
             (closql-insert
@@ -348,7 +347,6 @@
                                         (forge--object-id (oref repo id)
                                                           .milestone.id)))
         (oset pullreq body         (forge--sanitize-string .body))
-        .databaseId ; Silence Emacs 25 byte-compiler.
         (dolist (p .comments)
           (let-alist p
             (closql-insert

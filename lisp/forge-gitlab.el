@@ -200,7 +200,6 @@
         (unless (magit-get-boolean "forge.omitExpensive")
           (forge--set-id-slot repo issue 'assignees .assignees)
           (forge--set-id-slot repo issue 'labels .labels))
-        .body .id ; Silence Emacs 25 byte-compiler.
         (dolist (c .notes)
           (let-alist c
             (let ((post
@@ -339,7 +338,6 @@
           (forge--set-id-slot repo pullreq 'assignees .assignees)
           (forge--set-id-slot repo pullreq 'review-requests .reviewers)
           (forge--set-id-slot repo pullreq 'labels .labels))
-        .body .id ; Silence Emacs 25 byte-compiler.
         (dolist (c .notes)
           (let-alist c
             (let ((post
