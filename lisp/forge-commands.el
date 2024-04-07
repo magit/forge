@@ -123,12 +123,12 @@ If pulling is too slow, then also consider setting the Git variable
          (and current-prefix-arg
               (let ((repo (forge-current-repository)))
                 (or (not repo)
-                    (not (forge-get-repository repo :tracked?))))
+                    (not (forge-get-repository repo nil :tracked?))))
               (forge-read-date "Limit pulling to topics updates since: "))
          t))
   (let (create)
     (when (or (not repo)
-              (not (forge-get-repository repo :tracked?)))
+              (not (forge-get-repository repo nil :tracked?)))
       (setq repo (forge-current-repository))
       (unless repo
         (setq repo (forge-get-repository :insert!))

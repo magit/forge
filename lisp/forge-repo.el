@@ -138,7 +138,7 @@ or signal an error, depending on DEMAND."
   (or (and-let* ((repo (or forge-buffer-repository
                            (and forge-buffer-topic
                                 (forge-get-repository forge-buffer-topic)))))
-        (forge-get-repository repo demand 'noerror))
+        (forge-get-repository repo 'noerror demand))
       (magit--with-refresh-cache
           (list default-directory 'forge-get-repository demand)
         (if (not (magit-gitdir))
@@ -246,7 +246,7 @@ See `forge-alist' for valid Git hosts."
              host 'forge-alist))))
 
 (cl-defmethod forge-get-repository ((repo forge-repository)
-                                    &optional demand noerror)
+                                    &optional noerror demand)
   (setq noerror (and noerror t))
   (with-slots (condition slug) repo
     (cl-symbol-macrolet

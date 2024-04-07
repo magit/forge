@@ -49,7 +49,7 @@
 
 (cl-defmethod forge--pull ((repo forge-gitlab-repository)
                            &optional callback since)
-  (cl-assert (not (and since (forge-get-repository repo :tracked?))))
+  (cl-assert (not (and since (forge-get-repository repo nil :tracked?))))
   (setq forge--mode-line-buffer (current-buffer))
   (forge--msg repo t nil "Pulling REPO")
   (let ((cb (let ((buf (current-buffer))

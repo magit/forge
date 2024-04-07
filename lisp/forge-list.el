@@ -417,7 +417,7 @@ Must be set before `forge-list' is loaded.")
       (let ((repo (forge-current-repository)))
         (cond
          ((or (not repo)
-              (forge-get-repository repo :tracked?)))
+              (forge-get-repository repo nil :tracked?)))
          ((yes-or-no-p
            (format "Add %s to database, so its topics can be listed?"
                    (oref repo slug)))
