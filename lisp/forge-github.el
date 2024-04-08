@@ -383,6 +383,7 @@
     (forge--msg nil t nil "Pulling notifications")
     (pcase-let*
         ((`(,_ ,apihost ,forge ,_) spec)
+         (since (forge--ghub-notifications-since forge))
          (notifs
           (seq-keep (lambda (data)
                       ;; Github returns notifications for repositories the
@@ -392,9 +393,7 @@
                       (with-demoted-errors "forge--pull-notifications: %S"
                         (forge--ghub-massage-notification data githost)))
                     (forge--ghub-get nil "/notifications"
-                      (if-let ((since (forge--ghub-notifications-since forge)))
-                          `((all . t) (since . ,since))
-                        '((all . t)))
+                      `((all . t) ,@(and since `((since . ,since))))
                       :host apihost :unpaginate t)))
          (groups (-partition-all 50 notifs))
          (pages  (length groups))
@@ -414,7 +413,7 @@
                          nil #'cb nil :auth 'forge :host apihost))
                (forge--msg nil t t   "Pulling notifications")
                (forge--msg nil t nil "Storing notifications")
-               (forge--ghub-update-notifications notifs topics)
+               (forge--ghub-update-notifications notifs topics (not since))
                (forge--msg nil t t "Storing notifications")
                (when callback
                  (funcall callback)))))
@@ -459,7 +458,7 @@
                           ))))
                    repo type data))))))
 
-(defun forge--ghub-update-notifications (notifs topics)
+(defun forge--ghub-update-notifications (notifs topics initial-pull)
   (closql-with-transaction (forge-db)
     (pcase-dolist (`(,alias ,id ,_ ,repo ,type ,data) notifs)
       (let-alist data
@@ -467,7 +466,8 @@
                                    #'forge--update-issue
                                  #'forge--update-pullreq)
                                repo
-                               (cdr (cadr (assq alias topics)))))
+                               (cdr (cadr (assq alias topics)))
+                               nil initial-pull))
                (notif (or (forge-get-notification id)
                           (closql-insert (forge-db)
                                          (forge-notification
