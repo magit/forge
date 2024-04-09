@@ -190,7 +190,7 @@
                :created      .created_at
                :updated      .updated_at
                ;; `.closed_at' may be nil even though the issues is
-               ;; closed.  In such cases use 1, so that this slots
+               ;; closed.  In such cases use 1, so that this slot
                ;; at least can serve as a boolean.
                :closed       (or .closed_at (and (equal .state "closed") 1))
                :locked-p     .discussion_locked
