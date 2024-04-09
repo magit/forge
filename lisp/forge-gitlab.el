@@ -212,8 +212,9 @@
                     :updated .updated_at
                     :body    (forge--sanitize-string .body))))
               (closql-insert (forge-db) post t))))
-        (when (string> .updated_at (oref repo issues-until))
-          (oset repo issues-until .updated_at))
+        (let ((until (oref repo issues-until)))
+          (when (or (not until) (string> .updated_at until))
+            (oset repo issues-until .updated_at)))
         issue))))
 
 ;;;; Pullreqs
@@ -350,8 +351,9 @@
                     :updated .updated_at
                     :body    (forge--sanitize-string .body))))
               (closql-insert (forge-db) post t))))
-        (when (string> .updated_at (oref repo pullreqs-until))
-          (oset repo pullreqs-until .updated_at))
+        (let ((until (oref repo pullreqs-until)))
+          (when (or (not until) (string> .updated_at until))
+            (oset repo pullreqs-until .updated_at)))
         pullreq))))
 
 ;;;; Other
