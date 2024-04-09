@@ -642,7 +642,7 @@ Only Github is supported for now."
 
 ;;;###autoload (autoload 'forge-list-authored-pullreqs "forge-list" nil t)
 (transient-define-suffix forge-list-authored-pullreqs ()
-  "List open pull-requests of the current repository that are authored by you."
+  "List open pull-requests from the current repository that are authored by you."
   :class 'forge--topic-list-command :type 'pullreq :filter 'authored
   (interactive)
   (forge--pullreq-list-setup 'authored #'forge--ls-authored-pullreqs))
