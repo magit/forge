@@ -715,12 +715,8 @@ can be selected from the start."
           (forge--format-topic-labels topic)))
 
 (defun forge--format-topic-milestone (topic)
-  (or (and-let* ((id (oref topic milestone)))
-        (caar (forge-sql [:select [title] :from milestone :where (= id $s1)]
-                         id)))
-      ;; If the user hasn't pulled this repository yet after
-      ;; updating to db v7, then only the id is available.
-      (oref topic milestone)))
+  (and-let* ((id (oref topic milestone)))
+    (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))))
 
 (defun forge--format-topic-labels (topic)
   (and-let* ((labels (closql--iref topic 'labels)))
