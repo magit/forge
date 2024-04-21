@@ -145,9 +145,7 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
 
 (defun forge-startup-asserts ()
   (let ((version (magit-git-version)))
-    (when (and version
-               (version< version forge--minimal-git)
-               (not (equal (getenv "TRAVIS") "true")))
+    (when (and version (version< version forge--minimal-git))
       (display-warning 'magit (format "\
 Forge requires Git >= %s, you are using %s.
 
