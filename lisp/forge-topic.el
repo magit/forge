@@ -162,7 +162,7 @@ were closed without being merged."
 ;;;; Topic and Notification Summaries
 ;;;;; Notifications
 
-(defface forge-notification-unread
+(defface forge-topic-unread
   `((t :weight bold
        :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
               :style nil)))
@@ -173,7 +173,7 @@ specify any attribute that is specified by any of those faces.
 Likewise those faces should not set `:weight' or `:slant'."
   :group 'forge-faces)
 
-(defface forge-notification-pending
+(defface forge-topic-pending
   '((t :weight bold))
   "Face used for summaries of entities with open notifications.
 This face is always used together with, and takes preference
@@ -182,7 +182,7 @@ specify any attribute that is specified by any of those faces.
 Likewise those faces should not set `:weight' or `:slant'."
   :group 'forge-faces)
 
-(defface forge-notification-done
+(defface forge-topic-done
   '((t :slant italic))
   "Face used for summaries of entities with no unread or open notification.
 This face is always used together with, and takes preference
@@ -699,9 +699,9 @@ can be selected from the start."
      (magit--propertize-face
       title
       `(,(pcase status
-           ('unread  'forge-notification-unread)
-           ('pending 'forge-notification-pending)
-           ('done    'forge-notification-done))
+           ('unread  'forge-topic-unread)
+           ('pending 'forge-topic-pending)
+           ('done    'forge-topic-done))
         ,(pcase (list (eieio-object-class topic) state)
            (`(forge-issue   open)      'forge-issue-open)
            (`(forge-issue   completed) 'forge-issue-completed)
@@ -763,9 +763,9 @@ can be selected from the start."
     (magit--propertize-face
      (symbol-name status)
      (pcase status
-       ('unread  'forge-notification-unread)
-       ('pending 'forge-notification-pending)
-       ('done    'forge-notification-done)))))
+       ('unread  'forge-topic-unread)
+       ('pending 'forge-topic-pending)
+       ('done    'forge-topic-done)))))
 
 (defun forge--format-topic-assignees (topic)
   (and-let* ((assignees (closql--iref topic 'assignees)))
