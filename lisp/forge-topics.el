@@ -23,10 +23,9 @@
 ;;; Code:
 
 (require 'hl-line)
-(require 'tabulated-list)
 
-(require 'forge)
 (require 'forge-topic)
+(require 'forge-tablist)
 
 (defvar x-stretch-cursor)
 
@@ -38,25 +37,6 @@
   :group 'forge
   :type 'hook
   :options '(hl-line-mode))
-
-(defconst forge--tablist-columns-type
-  '(repeat
-    (list :tag "Column"
-          (string  :tag "Header Label")
-          (choice  :tag "Value source"
-                   function
-                   (symbol :tag "Object slot"))
-          (integer :tag "Column Width")
-          (choice  :tag "Sort predicate"
-                   (const :tag "Don't sort" nil)
-                   (const :tag "Default" t)
-                   function)
-          (plist   :tag "Properties"
-                   :key-type (choice :tag "Property"
-                                     (const :right-align)
-                                     (const :pad-right)
-                                     symbol)
-                   :value-type (sexp :tag "Value")))))
 
 (defcustom forge-topic-list-columns
   '(("#"     forge--format-topic-slug          5 nil nil)
@@ -150,47 +130,7 @@ label, cannot be changed independently of the color used in the
 forges web interface."
   :group 'forge-faces)
 
-;;; Variables
-
-(defvar-local forge--tabulated-list-columns nil)
-(put 'forge--tabulated-list-columns 'permanent-local t)
-
-(defvar-local forge--tabulated-list-query nil)
-(put 'forge--tabulated-list-query 'permanent-local t)
-
-(defvar-local forge--buffer-list-type nil)
-(defvar-local forge--buffer-list-filter nil)
-(defvar-local forge--buffer-list-global nil)
-
-;;; Modes
-;;;; Common
-
-(defun forge--tablist-refresh ()
-  (setq tabulated-list-format
-        (vconcat (mapcar (pcase-lambda (`(,name ,_get ,width ,sort ,props))
-                           `(,name ,width ,sort . ,props))
-                         forge--tabulated-list-columns)))
-  (tabulated-list-init-header)
-  (setq tabulated-list-entries
-        (mapcar
-         (lambda (obj)
-           (list (oref obj id)
-                 (vconcat
-                  (mapcar (pcase-lambda (`(,_name ,get ,_width ,_sort ,_props))
-                            (let ((val (cond
-                                        ((functionp get)
-                                         (funcall get obj))
-                                        ((eq (car-safe get) 'repository)
-                                         (eieio-oref (forge-get-repository obj)
-                                                     (cadr get)))
-                                        ((eieio-oref obj get)))))
-                              (cond ((stringp val) val)
-                                    ((null val) "")
-                                    ((format "%s" val)))))
-                          forge--tabulated-list-columns))))
-         (funcall forge--tabulated-list-query))))
-
-;;;; Topics
+;;; Mode
 
 (defvar-keymap forge-topic-list-mode-map
   :doc "Local keymap for Forge-Topic-List mode buffers."

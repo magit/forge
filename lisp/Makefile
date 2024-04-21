@@ -22,8 +22,9 @@ $(PKG)-gogs.elc:      $(PKG).elc
 $(PKG)-bitbucket.elc: $(PKG).elc
 $(PKG)-semi.elc:      $(PKG).elc
 $(PKG)-commands.elc:  $(PKG).elc
-$(PKG)-topics.elc:    $(PKG).elc
-$(PKG)-repos.elc:     $(PKG)-topics.elc
+$(PKG)-list.elc:      $(PKG).elc
+$(PKG)-topics.elc:    $(PKG)-tablist.elc
+$(PKG)-repos.elc:     $(PKG)-tablist.elc
 
 %.elc: %.el
 	@printf "Compiling $<\n"

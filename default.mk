@@ -19,6 +19,7 @@ ELS  += $(PKG)-gogs.el
 ELS  += $(PKG)-bitbucket.el
 ELS  += $(PKG)-semi.el
 ELS  += $(PKG)-commands.el
+ELS  += $(PKG)-tablist.el
 ELS  += $(PKG)-topics.el
 ELS  += $(PKG)-repos.el
 ELCS  = $(ELS:.el=.elc)

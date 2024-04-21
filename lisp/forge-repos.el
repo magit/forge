@@ -22,7 +22,10 @@
 
 ;;; Code:
 
-(require 'forge-topics)
+(require 'hl-line)
+
+(require 'forge-repo)
+(require 'forge-tablist)
 
 ;;; Options
 
