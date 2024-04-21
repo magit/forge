@@ -23,6 +23,7 @@ $(PKG)-bitbucket.elc: $(PKG).elc
 $(PKG)-semi.elc:      $(PKG).elc
 $(PKG)-commands.elc:  $(PKG).elc
 $(PKG)-list.elc:      $(PKG).elc
+$(PKG)-repos.elc:     $(PKG)-list.elc
 
 %.elc: %.el
 	@printf "Compiling $<\n"

@@ -58,6 +58,7 @@
 
 (require 'forge-commands)
 (require 'forge-list)
+(require 'forge-repos)
 
 ;;; Add Sections
 

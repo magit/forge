@@ -39,13 +39,6 @@
   :type 'hook
   :options '(hl-line-mode))
 
-(defcustom forge-repository-list-mode-hook '(hl-line-mode)
-  "Hook run after entering Forge-Repository-List mode."
-  :package-version '(forge . "0.4.0")
-  :group 'forge
-  :type 'hook
-  :options '(hl-line-mode))
-
 (defconst forge--tablist-columns-type
   '(repeat
     (list :tag "Column"
@@ -97,26 +90,6 @@ name of a slot of `forge-topic' or a function that takes such an
 object as argument.  SORT is a boolean or a function used to sort
 by this column.  Supported PROPS include `:right-align' and
 `:pad-right'."
-  :package-version '(forge . "0.4.0")
-  :group 'forge
-  :type forge--tablist-columns-type)
-
-(defcustom forge-repository-list-columns
-  '(("Owner"    owner                       20   t nil)
-    ("Name"     name                        20   t nil)
-    ("T"        forge-format-repo-condition  1   t nil)
-    ("S"        forge-format-repo-selective  1   t nil)
-    ("Worktree" worktree                    99   t nil))
-  "List of columns displayed when listing repositories.
-
-Each element has the form (HEADER SOURCE WIDTH SORT PROPS).
-
-HEADER is the string displayed in the header.  WIDTH is the width
-of the column.  SOURCE is used to get the value, it has to be the
-name of a slot of `forge-repository' or a function that takes
-such an object as argument.  SORT is a boolean or a function used
-to sort by this column.  Supported PROPS include `:right-align'
-and `:pad-right'."
   :package-version '(forge . "0.4.0")
   :group 'forge
   :type forge--tablist-columns-type)
@@ -290,70 +263,8 @@ Must be set before `forge-list' is loaded.")
         (hl-line-highlight)))
     (switch-to-buffer buffer)))
 
-;;;; Repository
-
-(defvar-keymap forge-repository-list-mode-map
-  :doc "Local keymap for Forge-Repository-List mode buffers."
-  :parent tabulated-list-mode-map
-  "RET"      #'forge-visit-this-repository
-  "<return>" #'forge-visit-this-repository
-  "o"        #'forge-browse-this-repository
-  "C-c C-m"  #'forge-repositories-menu
-  "'"        #'forge-dispatch
-  "?"        #'magit-dispatch)
-
-(defvar forge-repository-list-buffer-name "*forge-repositories*"
-  "Buffer name to use for displaying lists of repositories.")
-
-(defvar forge-repository-list-mode-name
-  '((:eval (capitalize
-            (concat (if forge--buffer-list-filter
-                        (format "%s " forge--buffer-list-filter)
-                      "")
-                    "repositories"))))
-  "Information shown in the mode-line for `forge-repository-list-mode'.
-Must be set before `forge-list' is loaded.")
-
-(define-derived-mode forge-repository-list-mode tabulated-list-mode
-  forge-repository-list-mode-name
-  "Major mode for browsing a list of repositories."
-  (setq-local x-stretch-cursor nil)
-  (setq tabulated-list-padding 0)
-  (setq tabulated-list-sort-key (cons "Owner" nil)))
-
-(defun forge-repository-list-setup (filter fn)
-  (let ((buffer (get-buffer-create forge-repository-list-buffer-name)))
-    (with-current-buffer buffer
-      (setq default-directory "/")
-      (setq forge--tabulated-list-columns forge-repository-list-columns)
-      (setq forge--tabulated-list-query fn)
-      (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
-        (forge-repository-list-mode))
-      (setq forge--buffer-list-type 'repo)
-      (setq forge--buffer-list-filter filter)
-      (setq forge--buffer-list-global t)
-      (forge--tablist-refresh)
-      (add-hook 'tabulated-list-revert-hook #'forge--tablist-refresh nil t)
-      (tabulated-list-print)
-      (when hl-line-mode
-        (hl-line-highlight)))
-    (switch-to-buffer buffer)))
-
-(defun forge-format-repo-condition (repo)
-  "Return a character representing the value of REPO's `condition' slot."
-  (pcase-exhaustive (oref repo condition)
-    (:tracked "*")
-    (:known " ")
-    (:stub (propertize "s" 'face 'warning))))
-
-(defun forge-format-repo-selective (repo)
-  "Return a character representing the value of REPO's `selective-p' slot."
-  (pcase-exhaustive (oref repo selective-p)
-    ('t   "*")
-    ('nil " ")))
-
 ;;; Commands
-;;;; Menus
+;;;; Menu
 
 ;;;###autoload (autoload 'forge-topics-menu "forge-list" nil t)
 (transient-define-prefix forge-topics-menu ()
@@ -425,28 +336,6 @@ Must be set before `forge-list' is loaded.")
               (forge-list-topics repo)
             (forge-list-owned-topics)))))
     (transient-setup 'forge-topics-menu)))
-
-;;;###autoload (autoload 'forge-repositories-menu "forge-list" nil t)
-(transient-define-prefix forge-repositories-menu ()
-  "Control list of repositories and repository at point."
-  :transient-suffix t
-  :transient-non-suffix 'call
-  :transient-switch-frame nil
-  :refresh-suffixes t
-  [:hide always ("q" forge-menu-quit-list)]
-  [["Type"
-    ("t" "topics..."        forge-topics-menu       :transient replace)
-    ("n" "notifications..." forge-notifications-menu :transient replace)
-    ("r" "repositories"     forge-list-repositories)]
-   ["Filter"
-    ("o" "owned" forge-list-owned-repositories)]]
-  (interactive)
-  (unless (derived-mode-p 'forge-repository-list-mode)
-    (if-let ((buffer (get-buffer forge-repository-list-buffer-name)))
-        (switch-to-buffer buffer)
-      (with-no-warnings ; "interactive use only"
-        (forge-list-repositories))))
-  (transient-setup 'forge-repositories-menu))
 
 (defun forge-menu-quit-list ()
   "From a transient menu, quit the list buffer and the menu.
@@ -653,27 +542,6 @@ Only Github is supported for now."
   (interactive)
   (forge--pullreq-list-setup 'owned #'forge--ls-owned-pullreqs
                              nil t forge-global-topic-list-columns))
-
-;;;; Repository
-
-;;;###autoload (autoload 'forge-list-repositories "forge-list" nil t)
-(transient-define-suffix forge-list-repositories ()
-  "List known repositories in a separate buffer.
-Here \"known\" means that an entry exists in the local database."
-  :class 'forge--topic-list-command :type 'repo :global t
-  (interactive)
-  (forge-repository-list-setup nil #'forge--ls-repos))
-
-;;;###autoload (autoload 'forge-list-owned-repositories "forge-list" nil t)
-(transient-define-suffix forge-list-owned-repositories ()
-  "List your own known repositories in a separate buffer.
-Here \"known\" means that an entry exists in the local database
-and options `forge-owned-accounts' and `forge-owned-ignored'
-controls which repositories are considered to be owned by you.
-Only Github is supported for now."
-  :class 'forge--topic-list-command :type 'repo :filter 'owned :global t
-  (interactive)
-  (forge-repository-list-setup 'owned #'forge--ls-owned-repos))
 
 ;;; _
 (provide 'forge-list)
