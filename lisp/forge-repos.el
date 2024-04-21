@@ -22,7 +22,7 @@
 
 ;;; Code:
 
-(require 'forge-list)
+(require 'forge-topics)
 
 ;;; Options
 

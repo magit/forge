@@ -1,4 +1,4 @@
-;;; forge-list.el --- Tabulated-list interface  -*- lexical-binding:t -*-
+;;; forge-topics.el --- List topics  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2018-2024 Jonas Bernoulli
 
@@ -544,5 +544,5 @@ Only Github is supported for now."
                              nil t forge-global-topic-list-columns))
 
 ;;; _
-(provide 'forge-list)
-;;; forge-list.el ends here
+(provide 'forge-topics)
+;;; forge-topics.el ends here

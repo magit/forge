@@ -57,7 +57,7 @@
 (require 'forge-semi)
 
 (require 'forge-commands)
-(require 'forge-list)
+(require 'forge-topics)
 (require 'forge-repos)
 
 ;;; Add Sections
