@@ -27,6 +27,8 @@
 (require 'forge-repo)
 (require 'forge-tablist)
 
+(defvar x-stretch-cursor)
+
 ;;; Options
 
 (defcustom forge-repository-list-mode-hook '(hl-line-mode)
