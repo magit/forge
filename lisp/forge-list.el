@@ -230,15 +230,13 @@ forges web interface."
   "?"        #'magit-dispatch)
 
 (defvar forge-topic-list-mode-name
-  '((:eval
-     (let ((info (capitalize
-                  (concat (if forge--buffer-list-filter
-                              (format "%s " forge--buffer-list-filter)
-                            "")
-                          (if forge--buffer-list-type
-                              (format "%ss" forge--buffer-list-type)
-                            "topics")))))
-       (if (fboundp 'moody-tab) (moody-tab info) info))))
+  '((:eval (capitalize
+            (concat (if forge--buffer-list-filter
+                        (format "%s " forge--buffer-list-filter)
+                      "")
+                    (if forge--buffer-list-type
+                        (format "%ss" forge--buffer-list-type)
+                      "topics")))))
   "Information shown in the mode-line for `forge-topic-list-mode'.
 Must be set before `forge-list' is loaded.")
 
@@ -308,13 +306,11 @@ Must be set before `forge-list' is loaded.")
   "Buffer name to use for displaying lists of repositories.")
 
 (defvar forge-repository-list-mode-name
-  '((:eval
-     (let ((info (capitalize
-                  (concat (if forge--buffer-list-filter
-                              (format "%s " forge--buffer-list-filter)
-                            "")
-                          "repositories"))))
-       (if (fboundp 'moody-tab) (moody-tab info) info))))
+  '((:eval (capitalize
+            (concat (if forge--buffer-list-filter
+                        (format "%s " forge--buffer-list-filter)
+                      "")
+                    "repositories"))))
   "Information shown in the mode-line for `forge-repository-list-mode'.
 Must be set before `forge-list' is loaded.")
 
