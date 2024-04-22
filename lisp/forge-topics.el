@@ -206,7 +206,7 @@ Must be set before `forge-list' is loaded.")
 ;;; Commands
 ;;;; Menu
 
-;;;###autoload (autoload 'forge-topics-menu "forge-list" nil t)
+;;;###autoload (autoload 'forge-topics-menu "forge-topics" nil t)
 (transient-define-prefix forge-topics-menu ()
   "Control list of topics and the topic at point."
   :transient-suffix t
@@ -334,7 +334,7 @@ then display the respective menu, otherwise display no menu."
 (defun forge--topic-list-setup (filter fn &optional repo global columns)
   (forge-topic-list-setup 'topic filter fn repo global columns))
 
-;;;###autoload (autoload 'forge-list-topics "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-topics (&optional repository)
   "List topics of the current repository.
 Non-interactively if optional REPOSITORY is non-nil, then list
@@ -347,7 +347,7 @@ topics for that instead."
                            repository))
 (put 'forge-list-topics 'interactive-only nil)
 
-;;;###autoload (autoload 'forge-list-labeled-topics "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-labeled-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-labeled-topics (label)
   "List topics of the current repository that have LABEL."
   :class 'forge--topic-list-command :type 'topic :filter 'labeled
@@ -356,7 +356,7 @@ topics for that instead."
                            (list (-cut forge--ls-labeled-issues   <> label)
                                  (-cut forge--ls-labeled-pullreqs <> label))))
 
-;;;###autoload (autoload 'forge-list-assigned-topics "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-assigned-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-assigned-topics ()
   "List topics of the current repository that are assigned to you."
   :class 'forge--topic-list-command :type 'topic :filter 'assigned
@@ -365,7 +365,7 @@ topics for that instead."
                            (list #'forge--ls-assigned-issues
                                  #'forge--ls-assigned-pullreqs)))
 
-;;;###autoload (autoload 'forge-list-authored-topics "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-authored-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-authored-topics ()
   "List open topics from the current repository that are authored by you."
   :class 'forge--topic-list-command :type 'topic :filter 'authored
@@ -374,7 +374,7 @@ topics for that instead."
                            (list #'forge--ls-authored-issues
                                  #'forge--ls-authored-pullreqs)))
 
-;;;###autoload (autoload 'forge-list-owned-topics "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-owned-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-owned-topics ()
   "List open pull-requests from all your Github repositories.
 Options `forge-owned-accounts' and `forge-owned-ignored'
@@ -393,35 +393,35 @@ Only Github is supported for now."
 (defun forge--issue-list-setup (filter fn &optional repo global columns)
   (forge-topic-list-setup 'issue filter fn repo global columns))
 
-;;;###autoload (autoload 'forge-list-issues "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-issues ()
   "List issues of the current repository."
   :class 'forge--topic-list-command :type 'issue
   (interactive)
   (forge--issue-list-setup nil #'forge--ls-issues))
 
-;;;###autoload (autoload 'forge-list-labeled-issues "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-labeled-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-labeled-issues (label)
   "List issues of the current repository that have LABEL."
   :class 'forge--topic-list-command :type 'issue :filter 'labeled
   (interactive (list (forge-read-topic-label)))
   (forge--issue-list-setup 'labeled (-cut forge--ls-labeled-issues <> label)))
 
-;;;###autoload (autoload 'forge-list-assigned-issues "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-assigned-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-assigned-issues ()
   "List issues of the current repository that are assigned to you."
   :class 'forge--topic-list-command :type 'issue :filter 'assigned
   (interactive)
   (forge--issue-list-setup 'assigned #'forge--ls-assigned-issues))
 
-;;;###autoload (autoload 'forge-list-authored-issues "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-authored-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-authored-issues ()
   "List open issues from the current repository that are authored by you."
   :class 'forge--topic-list-command :type 'issue :filter 'authored
   (interactive)
   (forge--issue-list-setup 'authored #'forge--ls-authored-issues))
 
-;;;###autoload (autoload 'forge-list-owned-issues "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-owned-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-owned-issues ()
   "List open issues from all your Github repositories.
 Options `forge-owned-accounts' and `forge-owned-ignored'
@@ -437,42 +437,42 @@ Only Github is supported for now."
 (defun forge--pullreq-list-setup (filter fn &optional repo global columns)
   (forge-topic-list-setup 'pullreq filter fn repo global columns))
 
-;;;###autoload (autoload 'forge-list-pullreqs "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-pullreqs "forge-topics" nil t)
 (transient-define-suffix forge-list-pullreqs ()
   "List pull-requests of the current repository."
   :class 'forge--topic-list-command :type 'pullreq
   (interactive)
   (forge--pullreq-list-setup nil #'forge--ls-pullreqs))
 
-;;;###autoload (autoload 'forge-list-labeled-pullreqs "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-labeled-pullreqs "forge-topics" nil t)
 (transient-define-suffix forge-list-labeled-pullreqs (label)
   "List pull-requests of the current repository that have LABEL."
   :class 'forge--topic-list-command :type 'pullreq :filter 'labeled
   (interactive (list (forge-read-topic-label)))
   (forge--pullreq-list-setup 'labeled (-cut forge--ls-labeled-pullreqs <> label)))
 
-;;;###autoload (autoload 'forge-list-assigned-pullreqs "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-assigned-pullreqs "forge-topics" nil t)
 (transient-define-suffix forge-list-assigned-pullreqs ()
   "List pull-requests of the current repository that are assigned to you."
   :class 'forge--topic-list-command :type 'pullreq :filter 'assigned
   (interactive)
   (forge--pullreq-list-setup 'assigned #'forge--ls-assigned-pullreqs))
 
-;;;###autoload (autoload 'forge-list-requested-reviews "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-requested-reviews "forge-topics" nil t)
 (transient-define-suffix forge-list-requested-reviews ()
   "List pull-requests of the current repository that are awaiting your review."
   :class 'forge--topic-list-command :type 'pullreq :filter 'review
   (interactive)
   (forge--pullreq-list-setup 'review #'forge--ls-requested-reviews))
 
-;;;###autoload (autoload 'forge-list-authored-pullreqs "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-authored-pullreqs "forge-topics" nil t)
 (transient-define-suffix forge-list-authored-pullreqs ()
   "List open pull-requests from the current repository that are authored by you."
   :class 'forge--topic-list-command :type 'pullreq :filter 'authored
   (interactive)
   (forge--pullreq-list-setup 'authored #'forge--ls-authored-pullreqs))
 
-;;;###autoload (autoload 'forge-list-owned-pullreqs "forge-list" nil t)
+;;;###autoload (autoload 'forge-list-owned-pullreqs "forge-topics" nil t)
 (transient-define-suffix forge-list-owned-pullreqs ()
   "List open pull-requests from all your Github repositories.
 Options `forge-owned-accounts' and `forge-owned-ignored'
