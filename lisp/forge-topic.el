@@ -1026,7 +1026,7 @@ This mode itself is never used directly."
   :format #'forge--format-topic-review-requests)
 
 ;;; Commands
-;;;; Menus
+;;;; Groups
 
 (defconst forge--topic-set-state-group
   ["Set state"
@@ -1057,6 +1057,8 @@ This mode itself is never used directly."
    ("l s" forge-topic-toggle-saved)
    ("l m" forge-topic-set-marks)
    ("l n" forge-edit-topic-note)])
+
+;;;; Menus
 
 (defconst forge--topic-menus-column-widths '(19))
 
