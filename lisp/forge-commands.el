@@ -1039,7 +1039,7 @@ upstream remote.  Also fetch from REMOTE."
                      :scope (forge-get-repository repo nil :stub?)))
    (t
     (when-let*
-        ((not (eq limit :selective))
+        (((not (eq limit :selective)))
          ((magit-git-config-p "forge.autoPull" t))
          (remote  (oref repo remote))
          (refspec (oref repo pullreq-refspec))
@@ -1051,7 +1051,7 @@ upstream remote.  Also fetch from REMOTE."
                       (format "remote.%s.fetch" remote)
                       refspec))
     (setq repo (forge-get-repository repo nil :insert!))
-    (when (eq limit 'selective)
+    (when (eq limit :selective)
       (oset repo selective-p t)
       (setq limit nil))
     (forge--pull repo nil limit))))
