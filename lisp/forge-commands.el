@@ -1028,6 +1028,7 @@ upstream remote.  Also fetch from REMOTE."
        forge-add-user-repositories)
     (7 "O" "Add all source repositories belonging to an organization"
        forge-add-organization-repositories)]]
+  (declare (interactive-only nil))
   (interactive)
   (cond
    ((not repo)
@@ -1054,8 +1055,6 @@ upstream remote.  Also fetch from REMOTE."
       (oset repo selective-p t)
       (setq limit nil))
     (forge--pull repo nil limit))))
-
-(put 'forge-add-repository 'interactive-only nil)
 
 (defun forge-add-some-repository (url)
   "Read a repository and add it to the database."

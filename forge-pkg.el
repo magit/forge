@@ -10,7 +10,7 @@
     (magit          "20240404")
     (markdown-mode  "2.6")
     (seq            "2.24")
-    (transient      "20240405")
+    (transient      "20240422")
     (yaml           "0.5.5"))
   :homepage "https://github.com/magit/forge"
   :keywords '("git" "tools" "vc"))
