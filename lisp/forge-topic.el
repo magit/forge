@@ -122,7 +122,7 @@ This face is not directly, instead several faces inherit from it
 either directly or via an intermediate face.  This face should
 only specify the `:foreground' attribute, which is why this face
 does not inherit from `magit-dimmed'."
-  :group 'magit-faces)
+  :group 'forge-faces)
 
 (defface forge-topic-header-line
   `((t :inherit magit-header-line

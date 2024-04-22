@@ -102,7 +102,7 @@ This is a list of package names.  Used by the commands
 
 (defface forge-active-suffix '((t :inherit transient-value))
   "Face used for suffixes whose effects is currently active."
-  :group 'forge)
+  :group 'forge-faces)
 
 (defface forge-tablist-hl-line
   `((((class color) (background light))
