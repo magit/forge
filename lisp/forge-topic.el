@@ -797,7 +797,6 @@ can be selected from the start."
                                           'magit-section-heading)
                   (magit--propertize-face (format "(%s)" (length topics))
                                           'magit-section-child-count)))
-        (magit-make-margin-overlay nil t)
         (magit-insert-section-body
           (dolist (topic topics)
             (forge--insert-topic topic width))

@@ -345,8 +345,7 @@ Also see option `forge-topic-list-limit'."
                            (forge--pullreq-branch-active pullreq)
                            (and-let* ((branch (oref pullreq head-ref)))
                              (and (magit-local-branch-p branch) branch))))
-           (seq-uniq (cons "--graph" magit-buffer-log-args)))
-          (magit-make-margin-overlay nil t))
+           (seq-uniq (cons "--graph" magit-buffer-log-args))))
       (when-let ((range (forge--pullreq-range pullreq)))
         (magit-insert-section-body
           (magit--insert-log nil range magit-buffer-log-args)
