@@ -1240,10 +1240,13 @@ This mode itself is never used directly."
 (cl-defmethod initialize-instance :after
   ((obj forge--topic-set-slot-command) &optional _slots)
   (with-slots (slot) obj
-    (oset obj reader (intern (format "forge-read-topic-%s" slot)))
-    (oset obj setter (intern (format "forge--set-topic-%s" slot)))
-    (unless (slot-boundp obj 'formatter)
-      (oset obj formatter (intern (format "forge--format-topic-%s" slot))))))
+    (let ((name (symbol-name slot)))
+      (cond ((string-suffix-p "-p" name)
+             (setq name (substring name 0 -2))))
+      (oset obj reader (intern (format "forge-read-topic-%s" name)))
+      (oset obj setter (intern (format "forge--set-topic-%s" name)))
+      (unless (slot-boundp obj 'formatter)
+        (oset obj formatter (intern (format "forge--format-topic-%s" name)))))))
 
 (transient-define-suffix forge-topic-set-title (title)
   "Edit the TITLE of the current topic."
