@@ -689,6 +689,11 @@ can be selected from the start."
       (magit--propertize-face "yes" 'bold)
     (magit--propertize-face "no" 'magit-dimmed)))
 
+(defun forge--format-topic-saved (topic)
+  (if (oref topic saved-p)
+      (magit--propertize-face "yes" 'bold)
+    (magit--propertize-face "no" 'magit-dimmed)))
+
 (defun forge--format-topic-title (topic)
   (with-slots (title status state) topic
     (magit-log-propertize-keywords
@@ -904,8 +909,9 @@ This mode itself is never used directly."
 (defalias 'forge-pullreq-refresh-buffer #'forge-topic-refresh-buffer)
 (defvar forge-pullreq-headers-hook
   '(forge-insert-topic-state
-    forge-insert-topic-status
     forge-insert-topic-draft
+    forge-insert-topic-status
+    forge-insert-topic-saved
     forge-insert-topic-refs
     forge-insert-topic-milestone
     forge-insert-topic-labels
@@ -1008,6 +1014,10 @@ This mode itself is never used directly."
 (forge--define-topic-header draft
   :command #'forge-topic-toggle-draft
   :format #'forge--format-topic-draft)
+
+(forge--define-topic-header saved
+  :command #'forge-topic-toggle-saved
+  :format #'forge--format-topic-saved)
 
 (forge--define-topic-header state
   :command #'forge-topic-state-menu
