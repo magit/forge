@@ -567,9 +567,6 @@ can be selected from the start."
                                     (oref repo id))))
                :annotation-function (lambda (c) (get-text-property 0 :title c))))))
 
-(defun forge-read-topic-draft (topic)
-  (not (oref topic draft-p)))
-
 (defun forge-read-topic-title (topic)
   (read-string "Title: " (oref topic title)))
 
@@ -1242,8 +1239,9 @@ This mode itself is never used directly."
   (with-slots (slot) obj
     (let ((name (symbol-name slot)))
       (cond ((string-suffix-p "-p" name)
-             (setq name (substring name 0 -2))))
-      (oset obj reader (intern (format "forge-read-topic-%s" name)))
+             (setq name (substring name 0 -2))
+             (oset obj reader (lambda (topic) (not (eieio-oref topic slot)))))
+            ((oset obj reader (intern (format "forge-read-topic-%s" name)))))
       (oset obj setter (intern (format "forge--set-topic-%s" name)))
       (unless (slot-boundp obj 'formatter)
         (oset obj formatter (intern (format "forge--format-topic-%s" name)))))))
