@@ -1274,8 +1274,9 @@ This mode itself is never used directly."
   :class 'forge--topic-set-slot-command :slot 'review-requests
   :inapt-if-not #'forge-current-pullreq)
 
-(transient-define-suffix forge-topic-toggle-draft ()
+(transient-define-suffix forge-topic-toggle-draft (draft)
   "Toggle whether the current pull-request is a draft."
+  :class 'forge--topic-set-slot-command :slot 'draft-p
   :inapt-if-not #'forge-current-pullreq
   :description
   (lambda ()
@@ -1285,11 +1286,7 @@ This mode itself is never used directly."
                             (if (oref pullreq draft-p)
                                 'transient-value
                               'transient-inactive-value)))
-      "[draft]"))
-  (interactive)
-  (let ((pullreq (forge-current-pullreq t)))
-    (oset pullreq draft-p (not (oref pullreq draft-p))))
-  (forge-refresh-buffer))
+      "[draft]")))
 
 (transient-define-suffix forge-topic-toggle-saved ()
   "Toggle whether this topic is marked as saved."
@@ -1303,6 +1300,7 @@ This mode itself is never used directly."
                                 'transient-value
                               'transient-inactive-value)))
       "[saved]"))
+  ;; Set only locally because Github's API does not support this.
   (interactive)
   (let ((topic (forge-current-topic t)))
     (oset topic saved-p (not (oref topic saved-p))))
