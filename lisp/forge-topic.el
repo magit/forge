@@ -783,6 +783,17 @@ can be selected from the start."
       (funcall forge-format-avatar-function person)
     ""))
 
+(defun forge--format-boolean (slot name)
+  ;; Booleans are formatted differently in transients and headers.
+  ;; Use this to format the (complete) description of suffix commands.
+  (if-let ((topic (forge-current-topic)))
+      (format (propertize "[%s]" 'face 'transient-delimiter)
+              (propertize name 'face
+                          (if (eieio-oref topic slot)
+                              'transient-value
+                            'transient-inactive-value)))
+    (format "[%s]" name)))
+
 ;;; Insert
 
 (defun forge--insert-topics (type heading topics)
@@ -1278,28 +1289,12 @@ This mode itself is never used directly."
   "Toggle whether the current pull-request is a draft."
   :class 'forge--topic-set-slot-command :slot 'draft-p
   :inapt-if-not #'forge-current-pullreq
-  :description
-  (lambda ()
-    (if-let ((pullreq (forge-current-pullreq)))
-        (format (propertize "[%s]" 'face 'transient-delimiter)
-                (propertize "draft" 'face
-                            (if (oref pullreq draft-p)
-                                'transient-value
-                              'transient-inactive-value)))
-      "[draft]")))
+  :description (lambda () (forge--format-boolean 'draft-p "draft")))
 
 (transient-define-suffix forge-topic-toggle-saved ()
   "Toggle whether this topic is marked as saved."
-  :inapt-if-not #'forge-current-topic
-  :description
-  (lambda ()
-    (if-let ((topic (forge-current-topic)))
-        (format (propertize "[%s]" 'face 'transient-delimiter)
-                (propertize "saved" 'face
-                            (if (oref topic saved-p)
-                                'transient-value
-                              'transient-inactive-value)))
-      "[saved]"))
+  :class 'forge--topic-set-slot-command :slot 'saved-p
+  :description (lambda () (forge--format-boolean 'saved-p "saved"))
   ;; Set only locally because Github's API does not support this.
   (interactive)
   (let ((topic (forge-current-topic t)))
