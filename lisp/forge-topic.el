@@ -791,13 +791,14 @@ can be selected from the start."
 (defun forge--format-boolean (slot name)
   ;; Booleans are formatted differently in transients and headers.
   ;; Use this to format the (complete) description of suffix commands.
-  (if-let ((topic (forge-current-topic)))
-      (format (propertize "[%s]" 'face 'transient-delimiter)
-              (propertize name 'face
-                          (if (eieio-oref topic slot)
-                              'transient-value
-                            'transient-inactive-value)))
-    (format "[%s]" name)))
+  (let ((topic (forge-current-topic)))
+    (if (and topic (slot-exists-p topic slot))
+        (format (propertize "[%s]" 'face 'transient-delimiter)
+                (propertize name 'face
+                            (if (eieio-oref topic slot)
+                                'transient-value
+                              'transient-inactive-value)))
+      (format "[%s]" name))))
 
 ;;; Insert
 
