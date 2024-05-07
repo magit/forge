@@ -68,8 +68,6 @@
     ;; Forges (API unsupported)
     ("codeberg.org" "codeberg.org/api/v1"
      "codeberg.org" forge-gitea-repository)
-    ("code.orgmode.org" "code.orgmode.org/api/v1"
-     "code.orgmode.org" forge-gogs-repository)
     ("bitbucket.org" "api.bitbucket.org/2.0"
      "bitbucket.org" forge-bitbucket-repository)
     ;; Semi-Forges
