@@ -282,7 +282,9 @@ Likewise those faces should not set `:weight' or `:slant'."
     (oset topic status 'pending)))
 
 (cl-defmethod forge--set-topic-marks ((_repo forge-repository) topic marks)
-  (oset topic marks marks)
+  (oset topic marks
+        (mapcar #'car (forge-sql [:select id :from mark :where (in name $v1)]
+                                 (vconcat marks))))
   (forge-refresh-buffer))
 
 ;;; Query
