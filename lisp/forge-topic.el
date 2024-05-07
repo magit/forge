@@ -592,7 +592,12 @@ can be selected from the start."
      (mapconcat #'car (closql--iref topic 'labels) ","))))
 
 (defun forge-read-topic-marks (topic)
-  (forge-read-marks "Marks: " topic))
+  (let ((marks (forge-sql [:select [name id] :from mark]))
+        (crm-separator ","))
+    (--map (cadr (assoc it marks))
+           (magit-completing-read-multiple
+            "Marks: " (mapcar #'car marks) nil t
+            (mapconcat #'car (closql--iref topic 'marks) ",")))))
 
 (defun forge-read-topic-assignees (topic)
   (let* ((repo (forge-get-repository topic))

@@ -800,16 +800,6 @@ information."
               :where (= id $s2)]
              (vector name face description) id))
 
-(defun forge-read-marks (prompt &optional topic)
-  "Read multiple mark names and return the respective ids."
-  (let ((marks (forge-sql [:select [name id] :from mark]))
-        (crm-separator ","))
-    (--map (cadr (assoc it marks))
-           (magit-completing-read-multiple
-            prompt (mapcar #'car marks) nil t
-            (and topic
-                 (mapconcat #'car (closql--iref topic 'marks) ","))))))
-
 (defun forge-toggle-mark (mark)
   "Toggle MARK for the current topic."
   (let* ((topic (forge-current-topic t))
