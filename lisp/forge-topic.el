@@ -837,7 +837,8 @@ can be selected from the start."
     (when (and (slot-exists-p topic 'merged)
                (not (oref topic merged)))
       (magit-insert-heading)
-      (forge--insert-pullreq-commits topic))))
+      (magit-insert-section-body
+        (forge--insert-pullreq-commits topic)))))
 
 (defun forge--insert-topic-labels (topic &optional separate)
   (and-let* ((labels (closql--iref topic 'labels)))
