@@ -1153,7 +1153,7 @@ This mode itself is never used directly."
                   (if (and (not (forge-region-topics))
                            (and-let* ((topic (funcall getter)))
                              (eq (oref topic state) state)))
-                      'forge-active-suffix
+                      'forge-suffix-active
                     'transient-inapt-suffix))))))
 
 (transient-define-suffix forge-topic-state-set-open ()
@@ -1214,7 +1214,7 @@ This mode itself is never used directly."
    (inapt-face
     :initform (lambda ()
                 (if (forge-current-topic)
-                    'forge-active-suffix
+                    'forge-suffix-active
                   'transient-inapt-suffix)))))
 
 (transient-define-suffix forge-topic-status-set-unread ()

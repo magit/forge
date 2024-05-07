@@ -158,7 +158,7 @@ signal an error."
    ("<return>" forge-topic-menu)]
   [["Type"
     ("t"   "topics..."       forge-topics-menu       :transient replace)
-    (:info "notifications"   :face forge-active-suffix)
+    (:info "notifications"   :face forge-suffix-active)
     ("r"   "repositories..." forge-repositories-menu :transient replace)
     ""]
    ["Selection"
@@ -186,7 +186,7 @@ signal an error."
   "List unread and pending notifications."
   :description "inbox"
   :inapt-if (lambda () (equal forge-notifications-selection '(unread pending)))
-  :inapt-face 'forge-active-suffix
+  :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (user-error "Not in notification buffer"))
@@ -197,7 +197,7 @@ signal an error."
   "List saved notifications."
   :description "saved"
   :inapt-if (lambda () (eq forge-notifications-selection 'saved))
-  :inapt-face 'forge-active-suffix
+  :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (user-error "Not in notification buffer"))
@@ -208,7 +208,7 @@ signal an error."
   "List done notifications."
   :description "done"
   :inapt-if (lambda () (eq forge-notifications-selection 'done))
-  :inapt-face 'forge-active-suffix
+  :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (user-error "Not in notification buffer"))
@@ -219,7 +219,7 @@ signal an error."
   "List all notifications."
   :description "all"
   :inapt-if (lambda () (equal forge-notifications-selection '(unread pending done)))
-  :inapt-face 'forge-active-suffix
+  :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (user-error "Not in notification buffer"))
@@ -230,7 +230,7 @@ signal an error."
   "Show a flat notification list."
   :description "flat list"
   :inapt-if (lambda () (eq forge-notifications-display-style 'flat))
-  :inapt-face 'forge-active-suffix
+  :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (user-error "Not in notification buffer"))
@@ -241,7 +241,7 @@ signal an error."
   "Group notifications by repository."
   :description "by repository"
   :inapt-if (lambda () (eq forge-notifications-display-style 'nested))
-  :inapt-face 'forge-active-suffix
+  :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (user-error "Not in notification buffer"))

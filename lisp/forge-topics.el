@@ -100,7 +100,7 @@ This is a list of package names.  Used by the commands
 
 ;;; Faces
 
-(defface forge-active-suffix '((t :inherit transient-value))
+(defface forge-suffix-active '((t :inherit transient-value))
   "Face used for suffixes whose effects is currently active."
   :group 'forge-faces)
 
@@ -219,7 +219,7 @@ Must be set before `forge-list' is loaded.")
    ("RET"      forge-topic-menu)
    ("<return>" forge-topic-menu)]
   [["Type"
-    (:info "topics"           :face forge-active-suffix)
+    (:info "topics"           :face forge-suffix-active)
     ("n"   "notifications..." forge-notifications-menu :transient replace)
     ("r"   "repositories..."  forge-repositories-menu  :transient replace)]
    [:description (lambda ()
@@ -326,7 +326,7 @@ then display the respective menu, otherwise display no menu."
     (if (and (eq   type   forge--buffer-list-type)
              (memq filter (list nil forge--buffer-list-filter))
              (eq   global forge--buffer-list-global))
-        (propertize description 'face 'forge-active-suffix)
+        (propertize description 'face 'forge-suffix-active)
       description)))
 
 ;;;; Topic
