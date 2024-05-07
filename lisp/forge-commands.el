@@ -776,8 +776,11 @@ information."
 (defun forge-edit-mark (id name face description)
   "Define a new mark that topics can be marked with."
   (interactive
-   (pcase-let ((`(,id ,name ,face ,description)
-                (forge-read-mark "Edit mark")))
+   (pcase-let*
+       ((marks (forge-sql [:select [name id face description] :from mark]))
+        (`(,name ,id ,face ,description)
+         (assoc (completing-read "Edit mark" (mapcar #'car marks) nil t)
+                marks)))
      (list id
            (read-string "Name: " name)
            (magit-read-char-case "Set appearance using " nil
@@ -796,12 +799,6 @@ information."
               :set (= [name face description] $v1)
               :where (= id $s2)]
              (vector name face description) id))
-
-(defun forge-read-mark (prompt)
-  "Read a topic.  Return (ID NAME FACE DESCRIPTION)."
-  (let* ((marks (forge-sql [:select [id name face description] :from mark]))
-         (name (completing-read prompt (mapcar #'cadr marks) nil t)))
-    (--first (equal (cadr it) name) marks)))
 
 (defun forge-read-marks (prompt &optional topic)
   "Read multiple mark names and return the respective ids."
