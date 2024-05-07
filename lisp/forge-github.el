@@ -199,7 +199,7 @@
      (oref topic number)
      (lambda (data)
        (forge--update-issue repo data)
-       (forge-refresh-buffer (and (buffer-live-p buffer) buffer))
+       (forge-refresh-buffer buffer)
        (when callback (funcall callback)))
      nil
      :host (oref repo apihost)
@@ -216,7 +216,7 @@
      (oref topic number)
      (lambda (data)
        (forge--update-pullreq repo data)
-       (forge-refresh-buffer (and (buffer-live-p buffer) buffer))
+       (forge-refresh-buffer buffer)
        (when callback (funcall callback)))
      nil
      :host (oref repo apihost)
