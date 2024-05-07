@@ -572,11 +572,12 @@ can be selected from the start."
 (defun forge-read-topic-title (topic)
   (read-string "Title: " (oref topic title)))
 
-(defun forge-read-topic-milestone (topic)
+(defun forge-read-topic-milestone (&optional topic)
   (forge--completing-read
    "Milestone"
-   (mapcar #'caddr (oref (forge-get-repository topic) milestones))
-   nil t (forge--format-topic-milestone topic)))
+   (mapcar #'caddr (oref (forge-get-repository (or topic :tracked)) milestones))
+   nil t
+   (and topic (forge--format-topic-milestone topic))))
 
 (defun forge-read-topic-label (&optional prompt repository)
   (magit-completing-read (or prompt "Label")
@@ -584,25 +585,25 @@ can be selected from the start."
                           (or repository (forge-get-repository :tracked)))
                          nil t))
 
-(defun forge-read-topic-labels (topic)
-  (let* ((repo (forge-get-repository topic))
+(defun forge-read-topic-labels (&optional topic)
+  (let* ((repo (forge-get-repository (or topic :tracked)))
          (crm-separator ","))
     (magit-completing-read-multiple
      "Labels: "
      (mapcar #'cadr (oref repo labels))
      nil t
-     (mapconcat #'car (closql--iref topic 'labels) ","))))
+     (and topic (mapconcat #'car (closql--iref topic 'labels) ",")))))
 
-(defun forge-read-topic-marks (topic)
+(defun forge-read-topic-marks (&optional topic)
   (let ((marks (mapcar #'car (forge-sql [:select name :from mark])))
         (crm-separator ","))
     (magit-completing-read-multiple
      "Marks: " marks nil t
-     (mapconcat #'car (closql--iref topic 'marks) ","))))
+     (and topic (mapconcat #'car (closql--iref topic 'marks) ",")))))
 
-(defun forge-read-topic-assignees (topic)
-  (let* ((repo (forge-get-repository topic))
-         (value (closql--iref topic 'assignees))
+(defun forge-read-topic-assignees (&optional topic)
+  (let* ((repo (forge-get-repository (or topic :tracked)))
+         (value (and topic (closql--iref topic 'assignees)))
          (choices (mapcar #'cadr (oref repo assignees)))
          (crm-separator ","))
     (magit-completing-read-multiple
@@ -612,9 +613,9 @@ can be selected from the start."
        'confirm)
      (mapconcat #'car value ","))))
 
-(defun forge-read-topic-review-requests (topic)
-  (let* ((repo (forge-get-repository topic))
-         (value (closql--iref topic 'review-requests))
+(defun forge-read-topic-review-requests (&optional topic)
+  (let* ((repo (forge-get-repository (or topic :tracked)))
+         (value (and topic (closql--iref topic 'review-requests)))
          (choices (mapcar #'cadr (oref repo assignees)))
          (crm-separator ","))
     (magit-completing-read-multiple
