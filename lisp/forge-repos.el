@@ -144,13 +144,36 @@ Must be set before `forge-list' is loaded.")
         (forge-list-repositories))))
   (transient-setup 'forge-repositories-menu))
 
+;;; Class
+
+(defclass forge--repo-list-command (transient-suffix)
+  ((type       :initarg :type   :initform nil)
+   (filter     :initarg :filter :initform nil)
+   (global     :initarg :global :initform nil)
+   (inapt-if                    :initform 'forge--topic-list-inapt)
+   (inapt-face                  :initform nil)))
+
+(defun forge--topic-list-inapt ()
+  (with-slots (type filter global) transient--pending-suffix
+    (and (eq type   forge--buffer-list-type)
+         (eq filter forge--buffer-list-filter)
+         (eq global forge--buffer-list-global))))
+
+(cl-defmethod transient-format-description ((obj forge--repo-list-command))
+  (with-slots (description type filter global) obj
+    (if (and (eq   type   forge--buffer-list-type)
+             (memq filter (list nil forge--buffer-list-filter))
+             (eq   global forge--buffer-list-global))
+        (propertize description 'face 'forge-active-suffix)
+      description)))
+
 ;;; Commands
 
 ;;;###autoload (autoload 'forge-list-repositories "forge-repos" nil t)
 (transient-define-suffix forge-list-repositories ()
   "List known repositories in a separate buffer.
 Here \"known\" means that an entry exists in the local database."
-  :class 'forge--topic-list-command :type 'repo :global t
+  :class 'forge--repo-list-command :type 'repo :global t
   (interactive)
   (forge-repository-list-setup nil #'forge--ls-repos))
 
@@ -161,7 +184,7 @@ Here \"known\" means that an entry exists in the local database
 and options `forge-owned-accounts' and `forge-owned-ignored'
 controls which repositories are considered to be owned by you.
 Only Github is supported for now."
-  :class 'forge--topic-list-command :type 'repo :filter 'owned :global t
+  :class 'forge--repo-list-command :type 'repo :filter 'owned :global t
   (interactive)
   (forge-repository-list-setup 'owned #'forge--ls-owned-repos))
 
