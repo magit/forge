@@ -379,7 +379,7 @@ forges and hosts."
                (or their-id path)))))
 
 (cl-defmethod forge--repository-ids ((_class (subclass forge-noapi-repository))
-                                     host owner name &optional _stub)
+                                     host owner name &optional _stub _noerror)
   (let ((their-id (if owner (concat owner "/" name) name)))
     (cons (base64-encode-string
            (format "%s:%s"

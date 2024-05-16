@@ -271,7 +271,8 @@ is non-nil."
 (cl-defgeneric forge--object-id (class &rest args)
   "Return the database id for the CLASS object specified by ARGS.")
 
-(cl-defgeneric forge--repository-ids (class host owner name &optional stub)
+(cl-defgeneric forge--repository-ids ( class host owner name
+                                       &optional stub noerror)
   "Return the database and forge ids for the specified CLASS object.")
 
 (cl-defmethod magit-section-ident-value ((obj forge-object))
