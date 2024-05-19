@@ -115,8 +115,7 @@
 If there is no such issue and DEMAND is non-nil, then signal
 an error."
   (or (forge-issue-at-point)
-      (and (derived-mode-p 'forge-topic-mode)
-           (forge-issue-p forge-buffer-topic)
+      (and (forge-issue-p forge-buffer-topic)
            forge-buffer-topic)
       (and demand (user-error "No current issue"))))
 

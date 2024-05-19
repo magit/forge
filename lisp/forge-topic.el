@@ -327,8 +327,7 @@ Likewise those faces should not set `:weight' or `:slant'."
 If there is no such topic and DEMAND is non-nil, then signal
 an error."
   (or (forge-topic-at-point)
-      (and (derived-mode-p 'forge-topic-mode)
-           forge-buffer-topic)
+      forge-buffer-topic
       (and demand (user-error "No current topic"))))
 
 (defun forge-topic-at-point (&optional demand not-thingatpt)

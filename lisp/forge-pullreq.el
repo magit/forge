@@ -135,8 +135,7 @@
 If there is no such pull-request and DEMAND is non-nil, then signal
 an error."
   (or (forge-pullreq-at-point)
-      (and (derived-mode-p 'forge-topic-mode)
-           (forge-pullreq-p forge-buffer-topic)
+      (and (forge-pullreq-p forge-buffer-topic)
            forge-buffer-topic)
       (and demand (user-error "No current pull-request"))))
 
