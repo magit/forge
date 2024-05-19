@@ -300,6 +300,7 @@ nil."
 If there is no such repository and DEMAND is non-nil, then signal
 an error."
   (or (forge-repository-at-point)
+      (forge-buffer-repository)
       (forge-get-repository :known?)
       (and demand (user-error "No current repository"))))
 
