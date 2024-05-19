@@ -295,10 +295,13 @@ nil."
 
 ;;;; Current
 
-(defun forge-current-repository ()
-  "Return the repository at point or being visited."
+(defun forge-current-repository (&optional demand)
+  "Return the repository at point or being visited.
+If there is no such repository and DEMAND is non-nil, then signal
+an error."
   (or (forge-repository-at-point)
-      (forge-get-repository :known?)))
+      (forge-get-repository :known?)
+      (and demand (user-error "No current repository"))))
 
 (defun forge-repository-at-point (&optional demand)
   "Return the repository at point.
