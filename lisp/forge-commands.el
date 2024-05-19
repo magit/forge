@@ -800,17 +800,6 @@ information."
               :where (= id $s2)]
              (vector name face description) id))
 
-(defun forge-toggle-mark (mark)
-  "Toggle MARK for the current topic."
-  (let* ((topic (forge-current-topic t))
-         (value (mapcar #'car (closql--iref topic 'marks)))
-         (value (if (member mark value)
-                    (delete mark value)
-                  (cons mark value)))
-         (marks (forge-sql [:select [name id] :from mark])))
-    (oset topic marks (--map (cadr (assoc it marks)) value))
-    (forge-refresh-buffer)))
-
 ;;; Remotely
 
 ;;;###autoload
