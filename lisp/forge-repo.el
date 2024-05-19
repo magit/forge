@@ -320,7 +320,8 @@ an error."
       (and-let* ((topic (magit-section-value-if '(issue pullreq))))
         (forge-get-repository topic))
       (and (not forge-buffer-unassociated-p)
-           (forge-current-repository :known?))))
+           (or (forge-buffer-repository)
+               (forge-get-repository :known?)))))
 
 (defun forge-buffer-repository ()
   (and-let* ((id forge-buffer-repository))
