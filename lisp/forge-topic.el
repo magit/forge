@@ -330,13 +330,12 @@ an error."
       forge-buffer-topic
       (and demand (user-error "No current topic"))))
 
-(defun forge-topic-at-point (&optional demand not-thingatpt)
+(defun forge-topic-at-point (&optional demand)
   "Return the topic at point.
 If there is no such topic and DEMAND is non-nil, then signal
 an error.  If NOT-THINGATPT is non-nil, then don't use
 `thing-at-point'."
-  (or (and (not not-thingatpt)
-           (thing-at-point 'forge-topic))
+  (or (thing-at-point 'forge-topic)
       (magit-section-value-if '(issue pullreq))
       (forge-get-pullreq :branch (magit-branch-at-point))
       (and (derived-mode-p 'forge-topic-list-mode)
@@ -357,8 +356,8 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
                   repo (string-to-number (match-string-no-properties 1))))))
 
 (defun forge--repo-for-thingatpt ()
-  (or (forge-repository-at-point)
-      (and-let* ((topic (forge-topic-at-point nil 'not-thingatpt)))
+  (or (magit-section-value-if 'forge-repo)
+      (and-let* ((topic (magit-section-value-if '(issue pullreq))))
         (forge-get-repository topic))
       (and (not forge-buffer-unassociated-p)
            (forge-get-repository :known?))))

@@ -308,7 +308,7 @@ an error."
 If there is no such repository and DEMAND is non-nil, then signal
 an error."
   (or (magit-section-value-if 'forge-repo)
-      (and-let* ((topic (forge-topic-at-point nil 'not-thingatpt)))
+      (and-let* ((topic (forge-topic-at-point)))
         (forge-get-repository topic))
       (and (derived-mode-p 'forge-repository-list-mode)
            (and-let* ((id (tabulated-list-get-id)))
