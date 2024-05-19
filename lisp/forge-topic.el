@@ -337,7 +337,7 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
 `thing-at-point'."
   (or (thing-at-point 'forge-topic)
       (magit-section-value-if '(issue pullreq))
-      (forge-get-pullreq :branch (magit-branch-at-point))
+      (forge-get-pullreq :branch)
       (and (derived-mode-p 'forge-topic-list-mode)
            (and-let* ((id (tabulated-list-get-id)))
              (forge-get-topic id)))

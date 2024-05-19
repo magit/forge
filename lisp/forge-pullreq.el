@@ -122,11 +122,14 @@
               (oref post pullreq)
               'forge-pullreq))
 
-(cl-defmethod forge-get-pullreq ((_(eql :branch)) branch)
-  (and branch
-       (and-let* ((branch (cdr (magit-split-branch-name branch)))
-                  (number (magit-get "branch" branch "pullRequest")))
-         (forge-get-pullreq (string-to-number number)))))
+(cl-defmethod forge-get-pullreq ((_(eql :branch)) &optional branch)
+  (and-let* ((branch (or branch
+                         (magit-section-case
+                           (branch (oref it value))
+                           (commit (magit--painted-branch-at-point)))))
+             (branch (cdr (magit-split-branch-name branch)))
+             (number (magit-get "branch" branch "pullRequest")))
+    (forge-get-pullreq (string-to-number number))))
 
 ;;;; Current
 
@@ -145,7 +148,7 @@ If there is no such pull-request and DEMAND is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-pullreq)
       (magit-section-value-if 'pullreq)
-      (forge-get-pullreq :branch (magit-branch-at-point))
+      (forge-get-pullreq :branch)
       (and (derived-mode-p 'forge-topic-list-mode)
            (and-let* ((id (tabulated-list-get-id))
                       (topic (forge-get-topic id)))
