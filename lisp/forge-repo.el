@@ -130,7 +130,7 @@ then return that repository.
 Otherwise return the repository for `default-directory', if that
 exists and satisfies DEMAND.  If that fails too, then return nil
 or signal an error, depending on DEMAND."
-  (or (and-let* ((repo (or forge-buffer-repository
+  (or (and-let* ((repo (or (forge-buffer-repository)
                            (and forge-buffer-topic
                                 (forge-get-repository forge-buffer-topic)))))
         (forge-get-repository repo 'noerror demand))
@@ -314,6 +314,10 @@ an error."
            (and-let* ((id (tabulated-list-get-id)))
              (forge-get-repository :id id)))
       (and demand (user-error "No repository at point"))))
+
+(defun forge-buffer-repository ()
+  (and-let* ((id forge-buffer-repository))
+    (forge-get-repository id)))
 
 ;;;; List
 

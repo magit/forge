@@ -182,7 +182,7 @@ Must be set before `forge-list' is loaded.")
       (error "Cannot determine repository"))
     (with-current-buffer (setq buffer (forge-topic-get-buffer repo t))
       (setq default-directory dir)
-      (setq forge-buffer-repository repo)
+      (setq forge-buffer-repository (and repo (oref repo id)))
       (setq forge--tabulated-list-columns (or columns forge-topic-list-columns))
       (setq forge--tabulated-list-query
             (cond ((not (functionp fn))
