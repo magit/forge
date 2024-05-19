@@ -355,13 +355,6 @@ an error.  If NOT-THINGATPT is non-nil, then don't use
                     #'forge-get-topic)
                   repo (string-to-number (match-string-no-properties 1))))))
 
-(defun forge--repo-for-thingatpt ()
-  (or (magit-section-value-if 'forge-repo)
-      (and-let* ((topic (magit-section-value-if '(issue pullreq))))
-        (forge-get-repository topic))
-      (and (not forge-buffer-unassociated-p)
-           (forge-get-repository :known?))))
-
 (defun forge-region-topics ()
   (cond
    ((derived-mode-p 'forge-notifications-mode)

@@ -315,6 +315,13 @@ an error."
              (forge-get-repository :id id)))
       (and demand (user-error "No repository at point"))))
 
+(defun forge--repo-for-thingatpt ()
+  (or (magit-section-value-if 'forge-repo)
+      (and-let* ((topic (magit-section-value-if '(issue pullreq))))
+        (forge-get-repository topic))
+      (and (not forge-buffer-unassociated-p)
+           (forge-current-repository :known?))))
+
 (defun forge-buffer-repository ()
   (and-let* ((id forge-buffer-repository))
     (forge-get-repository id)))
