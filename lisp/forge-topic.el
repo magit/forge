@@ -1249,10 +1249,9 @@ This mode itself is never used directly."
                 (with-slots (slot inapt-if-not) obj
                   (if-let* ((topic (if inapt-if-not
                                        (funcall inapt-if-not)
-                                     (forge-current-topic))))
-                      (format "%s %s" slot
-                              (or (funcall (oref obj formatter) topic)
-                                  (propertize "none" 'face 'magit-dimmed)))
+                                     (forge-current-topic)))
+                            (value (funcall (oref obj formatter) topic)))
+                      (format "%s %s" slot value)
                     (format "%s" slot)))))))
 
 (cl-defmethod initialize-instance :after
