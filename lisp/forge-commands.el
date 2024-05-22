@@ -72,9 +72,10 @@ Takes the pull-request as only argument and must return a directory."
     ("f f" "all topics       " forge-pull)
     ("f t" "one topic        " forge-pull-topic)
     ("f n" "notifications    " forge-pull-notifications)]
-   ["API Commands"
+   ["Do"
     :if forge--get-repository:tracked?
-    (7 "M" "merge" forge-merge)]]
+    ("C" "configure"       forge-configure)
+    ("M" "merge w/api"     forge-merge :level 7)]]
   [:if forge--get-repository:tracked?
    ["Visit"
     ("v t" "topic"         forge-visit-topic)
@@ -88,14 +89,6 @@ Takes the pull-request as only argument and must return a directory."
     ("b r" "remote"        forge-browse-remote)
     ("b I" "issues"        forge-browse-issues)
     ("b P" "pull-requests" forge-browse-pullreqs)]]
-  [["Configure"
-    :if forge--get-repository:tracked?
-    ("a  " "add another repository to database" forge-add-some-repository)
-    ("R  " forge-add-pullreq-refspec)
-    ("s r" forge-forge.remote)
-    ("s l" forge-forge.graphqlItemLimit)
-    ("s s" forge-toggle-display-in-status-buffer)
-    ("s c" forge-toggle-closed-visibility)]]
   [[:description (lambda ()
                    (if (magit-gitdir)
                        "Forge doesn't know about this Git repository yet"
@@ -104,6 +97,18 @@ Takes the pull-request as only argument and must return a directory."
     ("a" "add repository to database" forge-add-repository)
     ("f" "fetch notifications"        forge-pull-notifications)
     ("l" "list notifications"         forge-list-notifications)]])
+
+;;;###autoload (autoload 'forge-configure "forge-commands" nil t)
+(transient-define-prefix forge-configure ()
+  "Configure current repository and global settings."
+  [["Configure"
+    :if forge--get-repository:tracked?
+    ("a  " "add another repository to database" forge-add-some-repository)
+    ("R  " forge-add-pullreq-refspec)
+    ("s r" forge-forge.remote)
+    ("s l" forge-forge.graphqlItemLimit)
+    ("s s" forge-toggle-display-in-status-buffer)
+    ("s c" forge-toggle-closed-visibility)]])
 
 ;;; Pull
 
