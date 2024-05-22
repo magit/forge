@@ -724,9 +724,9 @@ can be selected from the start."
                  (let* ((background (forge--sanitize-color color))
                         (foreground (forge--contrast-color background)))
                    (magit--propertize-face
-                    name `(forge-tablist-topic-label
-                           ( :background ,background
-                             :foreground ,foreground)))))
+                    name `(( :background ,background
+                             :foreground ,foreground)
+                           forge-tablist-topic-label))))
                labels " ")))
 
 (defun forge--format-topic-label-choices (repo)
