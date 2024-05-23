@@ -326,7 +326,7 @@ an error."
 
 (defun forge-buffer-repository ()
   (and-let* ((id forge-buffer-repository))
-    (forge-get-repository id)))
+    (forge-get-repository :id id)))
 
 ;;;; List
 
