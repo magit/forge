@@ -376,9 +376,8 @@
 
 (cl-defmethod forge--pull-notifications
   ((_class (subclass forge-github-repository)) githost &optional callback)
-  ;; The GraphQL API doesn't support notifications and also likes to
-  ;; timeout for handcrafted requests, forcing us to perform a major
-  ;; rain dance.
+  ;; The GraphQL API doesn't support notifications and support in the
+  ;; REST API is abysmal -- forcing us to perform a major rain dance.
   (let ((spec (forge--get-forge-host githost t)))
     (forge--msg nil t nil "Pulling notifications")
     (pcase-let*
@@ -395,6 +394,7 @@
                     (forge--ghub-get nil "/notifications"
                       `((all . t) ,@(and since `((since . ,since))))
                       :host apihost :unpaginate t)))
+         ;; Split into multiple requests to reduce risk of timeouts.
          (groups (-partition-all 50 notifs))
          (pages  (length groups))
          (page   0)
@@ -404,13 +404,40 @@
              (when data
                (setq topics (nconc topics (cdr data))))
              (if groups
-                 (progn (cl-incf page)
-                        (forge--msg nil t nil
-                                    "Pulling notifications (page %s/%s)"
-                                    page pages)
-                        (ghub--graphql-vacuum
-                         (cons 'query (seq-keep #'caddr (pop groups)))
-                         nil #'cb nil :auth 'forge :host apihost))
+                 (let* ((query (seq-keep #'caddr (pop groups)))
+                        (tries 3)
+                        (errorback nil)
+                        (vacuum (lambda ()
+                                  (ghub--graphql-vacuum
+                                   (cons 'query query) nil #'cb nil
+                                   :auth 'forge :host apihost
+                                   :errorback errorback))))
+                   ;; Github also returns notifications for issues
+                   ;; belonging to repositories for which issues
+                   ;; have been disabled.  Drop them and try again.
+                   (setq errorback
+                         (lambda (errors _headers _status _req)
+                           (if (zerop tries)
+                               (ghub--signal-error errors)
+                             (cl-decf tries)
+                             (if-let ((notfound
+                                       (seq-keep
+                                        (lambda (err)
+                                          (and (equal (cdr (assq 'type err))
+                                                      "NOT_FOUND")
+                                               (cadr (assq 'path err))
+                                               (intern (cadr (assq 'path err)))))
+                                        (cdr errors))))
+                                 (progn
+                                   (setq query (cl-delete-if
+                                                (lambda (e) (memq e notfound))
+                                                query :key #'caar))
+                                   (funcall vacuum))
+                               (ghub--signal-error errors)))))
+                   (cl-incf page)
+                   (forge--msg nil t nil
+                               "Pulling notifications (page %s/%s)" page pages)
+                   (funcall vacuum))
                (forge--msg nil t t   "Pulling notifications")
                (forge--msg nil t nil "Storing notifications")
                (forge--ghub-update-notifications notifs topics (not since))
@@ -462,21 +489,21 @@
   (closql-with-transaction (forge-db)
     (pcase-dolist (`(,alias ,id ,_ ,repo ,type ,data) notifs)
       (let-alist data
-        (let* ((topic (funcall (if (eq type 'issue)
-                                   #'forge--update-issue
-                                 #'forge--update-pullreq)
-                               repo
-                               (cdr (cadr (assq alias topics)))
-                               nil initial-pull))
-               (notif (or (forge-get-notification id)
-                          (closql-insert (forge-db)
-                                         (forge-notification
-                                          :id           id
-                                          :thread-id    .id
-                                          :repository   (oref repo id)
-                                          :type         type
-                                          :topic        (oref topic id)
-                                          :url          .subject.url)))))
+        (and-let*
+            ((topic-data (cdr (cadr (assq alias topics))))
+             (topic (funcall (if (eq type 'issue)
+                                 #'forge--update-issue
+                               #'forge--update-pullreq)
+                             repo topic-data nil initial-pull))
+             (notif (or (forge-get-notification id)
+                        (closql-insert (forge-db)
+                                       (forge-notification
+                                        :id           id
+                                        :thread-id    .id
+                                        :repository   (oref repo id)
+                                        :type         type
+                                        :topic        (oref topic id)
+                                        :url          .subject.url)))))
           (oset notif title     .subject.title)
           (oset notif reason    (intern (downcase .reason)))
           (oset notif last-read .last_read_at)
