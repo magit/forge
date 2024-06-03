@@ -228,9 +228,10 @@ Likewise those faces should not set `:weight' or `:slant'."
 ;;;; Labels
 
 (defface forge-topic-label
-  `((t :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
+  `((t :inherit secondary-selection
+       :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
               :style released-button)))
-  "Face used for topic labels."
+  "Face used for topic labels, marks and milestones."
   :group 'forge-faces)
 
 ;;;; Post Details
