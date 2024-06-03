@@ -70,10 +70,10 @@ Takes the pull-request as only argument and must return a directory."
     ("f f" "all topics"     forge-pull)
     ("f t" "one topic"      forge-pull-topic)
     ("f n" "notifications"  forge-pull-notifications)]
-   ["Do"
+   ["Misc"
     :if forge--get-repository:tracked?
-    ("C" "configure"        forge-configure)
-    ("M" "merge w/api"      forge-merge :level 7)]]
+    ("/C" "configure"       forge-configure)
+    ("/M" "merge w/api"     forge-merge :level 7)]]
   [:if forge--get-repository:tracked?
    ["Visit"
     ("v t" "topic"          forge-visit-topic)
