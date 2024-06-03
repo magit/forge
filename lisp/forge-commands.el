@@ -64,13 +64,13 @@ Takes the pull-request as only argument and must return a directory."
     ("c f" "fork or remote"    forge-fork)]]
   [:if forge--get-repository:tracked?
    ["List"
-    ("t" "topics...         "  forge-topics-menu        :transient replace)
-    ("n" "notifications...  "  forge-notifications-menu :transient replace)
-    ("r" "repositories...   "  forge-repositories-menu  :transient replace)]
+    ("t" "topics..."        forge-topics-menu        :transient replace)
+    ("n" "notifications..." forge-notifications-menu :transient replace)
+    ("r" "repositories..."  forge-repositories-menu  :transient replace)]
    ["Fetch"
-    ("f f" "all topics       " forge-pull)
-    ("f t" "one topic        " forge-pull-topic)
-    ("f n" "notifications    " forge-pull-notifications)]
+    ("f f" "all topics"     forge-pull)
+    ("f t" "one topic"      forge-pull-topic)
+    ("f n" "notifications"  forge-pull-notifications)]
    ["Do"
     :if forge--get-repository:tracked?
     ("C" "configure"       forge-configure)
