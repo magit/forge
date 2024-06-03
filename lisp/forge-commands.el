@@ -59,8 +59,7 @@ Takes the pull-request as only argument and must return a directory."
    ["Create"
     ("c i" "issue"             forge-create-issue)
     ("c p" "pull-request"      forge-create-pullreq)
-    ("c u" "pull-request from issue"
-     forge-create-pullreq-from-issue
+    ("c u" "pr from issue"     forge-create-pullreq-from-issue
      :if forge--get-github-repository)
     ("c f" "fork or remote"    forge-fork)]]
   [:if forge--get-repository:tracked?
