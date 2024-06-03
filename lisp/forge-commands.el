@@ -63,9 +63,9 @@ Takes the pull-request as only argument and must return a directory."
     ("c f" "fork or remote" forge-fork)]]
   [:if forge--get-repository:tracked?
    ["List"
-    ("t" "topics..."        forge-topics-menu        :transient replace)
-    ("n" "notifications..." forge-notifications-menu :transient replace)
-    ("r" "repositories..."  forge-repositories-menu  :transient replace)]
+    ("l t" "topics"         forge-topics-menu        :transient replace)
+    ("l n" "notifications"  forge-notifications-menu :transient replace)
+    ("l r" "repositories"   forge-repositories-menu  :transient replace)]
    ["Fetch"
     ("f f" "all topics"     forge-pull)
     ("f t" "one topic"      forge-pull-topic)
@@ -92,9 +92,9 @@ Takes the pull-request as only argument and must return a directory."
                        "Forge doesn't know about this Git repository yet"
                      "Not inside a Git repository"))
     :if-not forge--get-repository:tracked?
-    ("a" "add repository to database" forge-add-repository)
-    ("f" "fetch notifications"        forge-pull-notifications)
-    ("l" "list notifications"         forge-list-notifications)]])
+    ("a  " "add repository to database" forge-add-repository)
+    ("f n" "fetch notifications"        forge-pull-notifications)
+    ("l n" "list notifications"         forge-list-notifications)]])
 
 ;;;###autoload (autoload 'forge-configure "forge-commands" nil t)
 (transient-define-prefix forge-configure ()
