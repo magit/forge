@@ -59,8 +59,7 @@ Takes the pull-request as only argument and must return a directory."
    ["Create"
     ("c i" "issue"          forge-create-issue)
     ("c p" "pull-request"   forge-create-pullreq)
-    ("c u" "pr from issue"  forge-create-pullreq-from-issue
-     :if forge--get-github-repository)
+    ("c u" "pr from issue"  forge-create-pullreq-from-issue)
     ("c f" "fork or remote" forge-fork)]]
   [:if forge--get-repository:tracked?
    ["List"
@@ -449,9 +448,10 @@ with a prefix argument also closed topics."
   "Convert an existing ISSUE into a pull-request."
   :description "convert to pull-request"
   :if (lambda ()
-        (let ((issue (forge-current-issue)))
-          (and issue (eq (oref issue state) 'open)
-               issue)))
+        (and (forge--get-github-repository)
+             (let ((issue (forge-current-issue)))
+               (and issue (eq (oref issue state) 'open)
+                    issue))))
   (interactive (cons (forge-read-open-issue "Convert issue")
                      (forge-create-pullreq--read-args)))
   (setq issue (forge-get-issue issue))
