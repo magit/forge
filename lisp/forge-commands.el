@@ -82,8 +82,7 @@ Takes the pull-request as only argument and must return a directory."
    ["Browse"
     ("b t" "topic"          forge-browse-topic)
     ("b i" "issue"          forge-browse-issue)
-    ("b p" "pull-request"   forge-browse-pullreq)]
-   ["Browse"
+    ("b p" "pull-request"   forge-browse-pullreq)
     ("b r" "remote"         forge-browse-remote)
     ("b I" "issues"         forge-browse-issues)
     ("b P" "pull-requests"  forge-browse-pullreqs)]]
