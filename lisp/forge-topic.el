@@ -334,8 +334,7 @@ an error."
 (defun forge-topic-at-point (&optional demand)
   "Return the topic at point.
 If there is no such topic and DEMAND is non-nil, then signal
-an error.  If NOT-THINGATPT is non-nil, then don't use
-`thing-at-point'."
+an error."
   (or (thing-at-point 'forge-topic)
       (magit-section-value-if '(issue pullreq))
       (forge-get-pullreq :branch)
