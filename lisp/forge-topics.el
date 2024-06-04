@@ -175,7 +175,7 @@ Must be set before `forge-list' is loaded.")
                         (if-let* ((topic (forge-topic-at-point))
                                   (repo (forge-get-repository topic)))
                             repo
-                          (forge-get-repository :tracked?)))))
+                          (forge-current-repository :tracked?)))))
          (dir (or (and repo (forge-get-worktree repo)) "/"))
          (buffer nil))
     (unless (or repo global)
