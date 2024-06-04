@@ -1075,9 +1075,9 @@ This mode itself is never used directly."
    ("l m" forge-topic-set-marks)
    ("l n" forge-edit-topic-note)])
 
-;;;; Menus
-
 (defconst forge--topic-menus-column-widths '(19))
+
+;;;; Menus
 
 ;;;###autoload (autoload 'forge-topic-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-menu ()
