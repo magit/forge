@@ -880,10 +880,9 @@ the new branch using a new working tree.
 @end table
 
 @defopt forge-checkout-worktree-read-directory-function
-This function is used by @code{forge-checkout-worktree} to read read the
-new worktree directory where it checks out to pull-request.  It
-takes the pull-request as the only argument and must return a
-directory.
+This function is used by @code{forge-checkout-worktree} to read the new
+worktree directory where it checks out the pull-request.  It takes
+the pull-request as the only argument and must return a directory.
 @end defopt
 
 When you delete a pull-request branch, which was created using one of

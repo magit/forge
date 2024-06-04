@@ -631,10 +631,9 @@ and check out branches and work trees in a more generic fashion
 
 - User Option: forge-checkout-worktree-read-directory-function ::
 
-  This function is used by ~forge-checkout-worktree~ to read read the
-  new worktree directory where it checks out to pull-request.  It
-  takes the pull-request as the only argument and must return a
-  directory.
+  This function is used by ~forge-checkout-worktree~ to read the new
+  worktree directory where it checks out the pull-request.  It takes
+  the pull-request as the only argument and must return a directory.
 
 When you delete a pull-request branch, which was created using one of
 the above three commands, then ~magit-branch-delete~ usually offers to
