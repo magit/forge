@@ -410,7 +410,9 @@ with a prefix argument also closed topics."
       (transient-setup 'forge-topics-menu))
      (worktree
       (magit-status-setup-buffer worktree))
-     ((forge-list-topics repo)))))
+     ((forge-get-repository repo nil :tracked?)
+      (forge-list-topics repo))
+     ((user-error "Not tracked and location of clone is unknown")))))
 
 ;;; Create
 
