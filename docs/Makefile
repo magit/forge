@@ -1,8 +1,9 @@
 -include ../config.mk
 include ../default.mk
 
-docs: info html html-dir pdf
+docs: texi info html html-dir pdf
 
+texi: $(PKG).org
 info: $(PKG).info dir
 html: $(PKG).html
 pdf:  $(PKG).pdf
@@ -12,10 +13,9 @@ ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo
 
-.PHONY: texi
-texi:
-	@printf "Generating $(PKG).texi\n"
-	@$(EMACS) $(ORG_ARGS) $(PKG).org $(ORG_EVAL)
+%.texi: %.org
+	@printf "Generating $@\n"
+	@$(EMACS) $(ORG_ARGS) $< $(ORG_EVAL)
 
 %.info: %.texi
 	@printf "Generating $@\n"

@@ -10,7 +10,7 @@ help:
 	$(info make lisp         - generate byte-code and autoloads)
 	$(info make redo         - re-generate byte-code and autoloads)
 	$(info make docs         - generate most manual formats)
-	$(info make texi         - generate texi manual (see comments))
+	$(info make texi         - generate texi manual)
 	$(info make info         - generate info manual)
 	$(info make html         - generate html manual file)
 	$(info make html-dir     - generate html manual directory)
