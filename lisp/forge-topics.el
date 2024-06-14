@@ -120,7 +120,7 @@ Must be set before `forge-topics' is loaded.")
                         (if-let* ((topic (forge-topic-at-point))
                                   (repo (forge-get-repository topic)))
                             repo
-                          (forge-current-repository :tracked?)))))
+                          (forge-get-repository :tracked?)))))
          (dir (or (and repo (forge-get-worktree repo)) "/"))
          (buf (forge-topics-buffer-name repo))
          (buf (or (get-buffer buf) buf))

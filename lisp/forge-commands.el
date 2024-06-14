@@ -326,7 +326,7 @@ argument also offer closed pull-requests."
       (forge-current-topic)
       (and magit-buffer-revision
            (forge-get-url :commit magit-buffer-revision))
-      (forge-current-repository)))
+      (forge-get-repository :stub?)))
 
 ;;;; Urls
 

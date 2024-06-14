@@ -120,7 +120,7 @@
 (cl-defmethod forge-get-repository ((_(eql :id)) id)
   (closql-get (forge-db) (substring-no-properties id) 'forge-repository))
 
-(cl-defmethod forge-get-repository ((demand symbol) &optional remote)
+(cl-defmethod forge-get-repository ((demand symbol) &optional remote notatpt)
   "Return the current forge repository.
 
 First check if `forge-buffer-repository', or if that is nil, then
@@ -130,7 +130,10 @@ then return that repository.
 Otherwise return the repository for `default-directory', if that
 exists and satisfies DEMAND.  If that fails too, then return nil
 or signal an error, depending on DEMAND."
-  (or (and-let* ((repo (or (forge-buffer-repository)
+  (or (and-let* ((repo (and (not notatpt)
+                            (forge-repository-at-point))))
+        (forge-get-repository repo 'noerror demand))
+      (and-let* ((repo (or (forge-buffer-repository)
                            (and forge-buffer-topic
                                 (forge-get-repository forge-buffer-topic)))))
         (forge-get-repository repo 'noerror demand))
@@ -293,17 +296,6 @@ nil."
       (oset repo worktree nil)
       nil)))
 
-;;;; Current
-
-(defun forge-current-repository (&optional demand)
-  "Return the repository at point or being visited.
-If there is no such repository and DEMAND is non-nil, then signal
-an error."
-  (or (forge-repository-at-point)
-      (forge-buffer-repository)
-      (forge-get-repository :known?)
-      (and demand (user-error "No current repository"))))
-
 (defun forge-repository-at-point (&optional demand)
   "Return the repository at point.
 If there is no such repository and DEMAND is non-nil, then signal
@@ -322,7 +314,7 @@ an error."
         (forge-get-repository topic))
       (and (not forge-buffer-unassociated-p)
            (or (forge-buffer-repository)
-               (forge-get-repository :known?)))))
+               (forge-get-repository :known? nil 'notatpt)))))
 
 (defun forge-buffer-repository ()
   (and-let* ((id forge-buffer-repository))
@@ -422,7 +414,7 @@ forges and hosts."
                          (forge-sql [:select [githost owner name]
                                      :from repository]))
                  nil t nil nil
-                 (and-let* ((default (forge-current-repository)))
+                 (and-let* ((default (forge-get-repository :stub?)))
                    (format "%s/%s @%s"
                            (oref default owner)
                            (oref default name)
