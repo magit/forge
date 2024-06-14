@@ -397,10 +397,12 @@ lifts the limitation to active pull-requests."
   (forge-topic-setup-buffer (forge-get-pullreq pull-request)))
 
 ;;;###autoload
-(defun forge-visit-this-topic ()
-  "Visit the topic at point."
-  (interactive)
-  (forge-topic-setup-buffer (forge-topic-at-point)))
+(defun forge-visit-this-topic (&optional menu)
+  "Visit the topic at point.
+With prefix argument MENU, also show the topic menu."
+  (interactive (list current-prefix-arg))
+  (forge-topic-setup-buffer (forge-topic-at-point))
+  (when menu (transient-setup 'forge-topic-menu)))
 
 ;;;###autoload
 (defun forge-visit-this-repository ()
