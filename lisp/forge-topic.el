@@ -1077,33 +1077,33 @@ This mode itself is never used directly."
 
 (defconst forge--topic-set-state-group
   ["Set state"
-   ("s o" forge-topic-state-set-open)
-   ("s c" forge-issue-state-set-completed)
-   ("s u" forge-issue-state-set-unplanned)
-   ("s m" forge-pullreq-state-set-merged)
-   ("s r" forge-pullreq-state-set-rejected)
+   ("o" forge-topic-state-set-open)
+   ("c" forge-issue-state-set-completed)
+   ("x" forge-issue-state-set-unplanned)
+   ("c" forge-pullreq-state-set-merged)
+   ("x" forge-pullreq-state-set-rejected)
    ""])
 
 (defconst forge--topic-set-status-group
   ["Set status"
-   ("s i" forge-topic-status-set-unread)
-   ("s p" forge-topic-status-set-pending)
-   ("s d" forge-topic-status-set-done)])
+   ("u" forge-topic-status-set-unread)
+   ("p" forge-topic-status-set-pending)
+   ("d" forge-topic-status-set-done)])
 
 (defconst forge--topic-set-slots-group
   ["Set"
-   ("e t" forge-topic-set-title)
-   ("e m" forge-topic-set-milestone)
-   ("e l" forge-topic-set-labels)
-   ("e a" forge-topic-set-assignees)
-   ("e r" forge-topic-set-review-requests)
-   ("e d" forge-topic-toggle-draft)])
+   ("-t" forge-topic-set-title)
+   ("-m" forge-topic-set-milestone)
+   ("-l" forge-topic-set-labels)
+   ("-a" forge-topic-set-assignees)
+   ("-r" forge-topic-set-review-requests)
+   ("-d" forge-topic-toggle-draft)])
 
 (defconst forge--topic-set-local-group
   ["Set local"
-   ("l s" forge-topic-toggle-saved)
-   ("l m" forge-topic-set-marks)
-   ("l n" forge-edit-topic-note)])
+   ("-s" forge-topic-toggle-saved)
+   ("-x" forge-topic-set-marks)
+   ("-n" forge-edit-topic-note)])
 
 (defconst forge--topic-menus-column-widths '(19))
 
@@ -1120,11 +1120,8 @@ This mode itself is never used directly."
   [:hide always
    ("q" forge-menu-quit-list)]
   [["Actions"
-    ("f" forge-pull-this-topic)
-    ("b" forge-browse-this-topic)
-    ("k" forge-delete-comment)
-    ("p" forge-create-pullreq-from-issue)
-    ("m" "show more actions" forge-dispatch)]]
+    ("/f" forge-pull-this-topic)
+    ("/b" forge-browse-this-topic)]]
   [forge--topic-set-state-group
    forge--topic-set-slots-group]
   [forge--topic-set-status-group
