@@ -157,7 +157,9 @@ signal an error."
    [""""][""""]
    ["Display"
     ("-F" forge-notifications-style-flat)
-    ("-G" forge-notifications-style-nested)]]
+    ("-G" forge-notifications-style-nested)
+    ("-H" forge-toggle-topic-legend)]]
+  [forge--topic-legend-group]
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (forge-list-notifications))

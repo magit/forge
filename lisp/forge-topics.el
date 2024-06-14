@@ -254,14 +254,17 @@ Must be set before `forge-list' is loaded.")
     ("t i" forge-topics-filter-issues)
     ("t p" forge-topics-filter-pullreqs)]]
   [forge--lists-group
-   ["Filter"
+   ["Filter                                      "
     ("-m" forge-topics-filter-milestone)
     ("-l" forge-topics-filter-labels)
     ("-x" forge-topics-filter-marks)
     ("-c" forge-topics-filter-author)
     ("-a" forge-topics-filter-assignee)
     ("-r" forge-topics-filter-reviewer)
-    ("-s" forge-topics-filter-saved)]]
+    ("-s" forge-topics-filter-saved)]
+   ["Display"
+    ("-H" forge-toggle-topic-legend)]]
+  [forge--topic-legend-group]
   (interactive)
   (if (derived-mode-p 'forge-topics-mode 'magit-status-mode)
       (transient-setup 'forge-topics-menu)

@@ -56,6 +56,7 @@ Takes the pull-request as only argument and must return a directory."
 (transient-define-prefix forge-dispatch ()
   "Dispatch a forge command."
   :transient-non-suffix #'transient--do-call
+  :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
   [:if forge--get-repository:tracked?
    forge--topic-menus-group
@@ -84,7 +85,11 @@ Takes the pull-request as only argument and must return a directory."
     ("b r" "remote"         forge-browse-remote)
     ("b I" "issues"         forge-browse-issues)
     ("b P" "pull-requests"  forge-browse-pullreqs)
-    ""]]
+    ""]
+   ["Display"
+    ("-H" forge-toggle-topic-legend)]]
+  [:if forge--get-repository:tracked?
+   forge--topic-legend-group]
   [:if-not forge--get-repository:tracked?
    forge--topic-menus-group
    [:description (lambda ()

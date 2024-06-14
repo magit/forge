@@ -1269,6 +1269,30 @@ This mode itself is never used directly."
    ("p" forge-topic-status-set-pending)
    ("d" forge-topic-status-set-done)])
 
+(defconst forge--topic-legend-group
+  '(["Legend" :if-non-nil forge--show-topic-legend
+     (:info* (lambda () (propertize "open issue"       'face 'forge-issue-open)))
+     (:info* (lambda () (propertize "completed issue"  'face 'forge-issue-completed)))
+     (:info* (lambda () (propertize "unplanned issue"  'face 'forge-issue-unplanned)))]
+    ["" :if-non-nil forge--show-topic-legend
+     (:info* (lambda () (propertize "open pullreq"     'face 'forge-pullreq-open)))
+     (:info* (lambda () (propertize "merged pullreq"   'face 'forge-pullreq-merged)))
+     (:info* (lambda () (propertize "rejected pullreq" 'face 'forge-pullreq-rejected)))]
+    ["" :if-non-nil forge--show-topic-legend
+     (:info* (lambda () (propertize "unread"           'face 'forge-topic-unread)))
+     (:info* (lambda () (propertize "pending"          'face 'forge-topic-pending)))
+     (:info* (lambda () (propertize "done"             'face 'forge-topic-done)))]))
+
+(defvar forge--show-topic-legend t)
+
+(transient-define-suffix forge-toggle-topic-legend ()
+  "Toggle whether to show legend for faces used in topic menus."
+  :description (lambda () (if forge--show-topic-legend "hide legend" "show legend"))
+  :transient t
+  (interactive)
+  (customize-set-variable 'forge--show-topic-legend
+                          (not forge--show-topic-legend)))
+
 (defconst forge--topic-menus-column-widths '(21 21 21 21))
 
 ;;;; Menus
@@ -1299,7 +1323,10 @@ This mode itself is never used directly."
     ("-t" forge-topic-set-title)]
    ["Set"
     ("-s" forge-topic-toggle-saved)
-    ("-d" forge-topic-toggle-draft)]])
+    ("-d" forge-topic-toggle-draft)
+    """Display"
+    ("-H" forge-toggle-topic-legend)]]
+  [forge--topic-legend-group])
 
 (transient-augment-suffix forge-topic-menu
   :transient #'transient--do-replace
