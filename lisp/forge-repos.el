@@ -125,7 +125,7 @@ Must be set before `forge-list' is loaded.")
 (transient-define-prefix forge-repositories-menu ()
   "Control list of repositories displayed in the current buffer."
   :transient-suffix t
-  :transient-non-suffix 'call
+  :transient-non-suffix #'transient--do-call
   :transient-switch-frame nil
   :refresh-suffixes t
   [:hide always ("q" forge-menu-quit-list)]
