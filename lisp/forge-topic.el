@@ -35,36 +35,6 @@
 
 ;;; Options
 
-(defcustom forge-topic-list-order '(updated . string>)
-  "Order of topics listed in the status buffer.
-
-The value has the form (SLOT . PREDICATE), where SLOT is a
-slot of issue or pullreq objects, and PREDICATE is a function
-used to order the topics by that slot.  Reasonable values
-include (number . >) and (updated . string>)."
-  :package-version '(forge . "0.1.0")
-  :group 'forge
-  :type '(cons (symbol   :tag "Slot")
-               (function :tag "Predicate")))
-
-(defcustom forge-topic-list-limit '(60 . 5)
-  "Limit the number of topics listed in the status buffer.
-
-All unread topics are always shown.  If the value of this option
-has the form (OPEN . CLOSED), then the integer OPEN specifies the
-maximal number of topics and CLOSED specifies the maximal number
-of closed topics.  IF CLOSED is negative then show no closed
-topics until the command `forge-toggle-closed-visibility' changes
-the sign.
-
-The value can also be an integer, in which case it limits the
-number of closed topics only."
-  :package-version '(forge . "0.1.0")
-  :group 'forge
-  :type '(choice (number :tag "Maximal number of closed topics")
-                 (cons (number :tag "Maximal number of open topics")
-                       (number :tag "Maximal number of closed topics"))))
-
 (defcustom forge-limit-topic-choices t
   "Whether to initially limit completion candidates to active topics."
   :package-version '(forge . "0.4.0")
@@ -109,10 +79,6 @@ This variable has to be customized before `forge' is loaded."
              git-commit-setup-hook
              magit-mode-hook)
   :type '(list :convert-widget custom-hook-convert-widget))
-
-(defvar-local forge-display-in-status-buffer t
-  "Whether to display topics in the current Magit status buffer.")
-(put 'forge-display-in-status-buffer 'permanent-local t)
 
 (defvar forge-format-avatar-function nil
   "Function used to insert avatars in certain locations.
@@ -570,6 +536,9 @@ Limit list to topics for which a review by the given user was requested."
                     ('recently-updated  '(desc topic:updated))
                     ('anciently-updated '(asc  topic:updated)))]
       ,@(and limit `(:limit ,limit))]))
+
+(defvar forge-topic-list-order '(updated . string>))
+(defvar forge-topic-list-limit '(60 . 5))
 
 (defun forge-ls-recent-topics (repo table)
   (let* ((id (oref repo id))
@@ -1047,8 +1016,8 @@ can be selected from the start."
 
 (defun forge--assert-insert-topics-get-repository (&optional issues-p)
   (and (forge-db t)
-       (or forge-display-in-status-buffer
-           (not (eq major-mode 'magit-status-mode)))
+       (cl-intersection forge--buffer-topics-spec
+                        (list 'topic (if issues-p 'issue 'pullreq)))
        (and-let* ((repo (forge-get-repository :tracked?)))
          (and (or (not issues-p)
                   (oref repo issues-p))

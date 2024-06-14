@@ -42,6 +42,20 @@ listed in a given buffer, instead use \\`N m' (`forge-topics-menu')."
   :group 'forge
   :type 'object)
 
+(defcustom forge-status-buffer-default-topic-filters
+  (forge--topics-spec :type 'topic :active t :state 'open :order 'newest)
+  "Filters initially used to limit topics listed in status buffers.
+
+This option controls which topics are listed when initially creating
+a `magit-status-mode' buffer.  To temporarly change which topics are
+listed in a given buffer, instead use \\<forge-topics-mode-map> \
+\\[forge-topics-menu] (`forge-topics-menu').
+
+To initially list no topics, set the `type' slot to nil."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type 'object)
+
 (defcustom forge-topic-list-mode-hook '(hl-line-mode)
   "Hook run after entering Forge-Topic-List mode."
   :package-version '(forge . "0.1.0")
@@ -265,6 +279,7 @@ Must be set before `forge-list' is loaded.")
    ["Display"
     ("-O" forge-topics-set-order)
     ("-L" forge-topics-set-limit)
+    ("-S" forge-toggle-display-in-status-buffer)
     ("-H" forge-toggle-topic-legend)]]
   [forge--topic-legend-group]
   (interactive)

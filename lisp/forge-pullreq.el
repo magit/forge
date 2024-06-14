@@ -312,10 +312,15 @@ can be selected from the start."
   "<remap> <forge--item-menu>"   #'forge-topic-menu)
 
 (defun forge-insert-pullreqs ()
-  "Insert a list of mostly recent and/or open pull-requests.
-Also see option `forge-topic-list-limit'."
-  (forge--insert-pullreqs "Pull requests"
-                          #'forge--ls-recent-pullreqs))
+  "Insert a list of pull-requests."
+  (when-let (((forge-db t))
+             (repo (forge-get-repository :tracked?))
+             (spec forge--buffer-topics-spec)
+             ((memq (oref spec type) '(topic pullreq)))
+             (spec (clone spec)))
+    (oset spec type 'pullreq)
+    (forge--insert-topics 'pullreqs "Pull requests"
+                          (forge--list-topics spec repo))))
 
 (defun forge-insert-assigned-pullreqs ()
   "Insert a list of open pull-requests that are assigned to you."

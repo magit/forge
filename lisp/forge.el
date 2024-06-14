@@ -66,16 +66,17 @@
   "Whether to add Forge's sections to `magit-status-sections-hook'.
 
 If you want to disable this, then you must set this to nil before
-`forge' is loaded.
+`forge' is loaded.")
 
-If this is nil, then `forge-toggle-display-in-status-buffer' can
-no longer do its job.  It might be better to set the global value
-of `forge-display-in-status-buffer' to nil instead.  That way you
-can still display topics on demand in the status buffer.")
+(defun forge--init-buffer-topics-spec ()
+  (unless forge--buffer-topics-spec
+    (setq forge--buffer-topics-spec
+          (clone forge-status-buffer-default-topic-filters))))
 
 (when forge-add-default-sections
   (magit-add-section-hook 'magit-status-sections-hook #'forge-insert-pullreqs nil t)
-  (magit-add-section-hook 'magit-status-sections-hook #'forge-insert-issues   nil t))
+  (magit-add-section-hook 'magit-status-sections-hook #'forge-insert-issues   nil t)
+  (add-hook 'magit-status-mode-hook #'forge--init-buffer-topics-spec))
 
 ;;; Add Bindings
 

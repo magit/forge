@@ -87,6 +87,8 @@ Takes the pull-request as only argument and must return a directory."
     ("b P" "pull-requests"  forge-browse-pullreqs)
     ""]
    ["Display"
+    ("-T" forge-toggle-display-in-status-buffer
+     :inapt-if-not forge--buffer-with-topics-sections-p)
     ("-H" forge-toggle-topic-legend)]]
   [:if forge--get-repository:tracked?
    forge--topic-legend-group]
@@ -114,9 +116,7 @@ Takes the pull-request as only argument and must return a directory."
     ("a  " "add another repository to database" forge-add-some-repository)
     ("R  " forge-add-pullreq-refspec)
     ("s r" forge-forge.remote)
-    ("s l" forge-forge.graphqlItemLimit)
-    ("s s" forge-toggle-display-in-status-buffer)
-    ("s c" forge-toggle-closed-visibility)]])
+    ("s l" forge-forge.graphqlItemLimit)]])
 
 (transient-augment-suffix forge-configure
   :transient #'transient--do-replace
@@ -942,37 +942,22 @@ the upstream remotes of local branches accordingly."
 
 (transient-define-suffix forge-toggle-display-in-status-buffer ()
   "Toggle whether to display topics in the current status buffer."
-  :inapt-if-not (lambda ()
-                  (and (eq major-mode 'magit-status-mode)
-                       (forge-get-repository :known?)))
+  :if-mode 'magit-status-mode
+  :inapt-if-not #'forge--buffer-with-topics-sections-p
   :description (lambda ()
-                 (if forge-display-in-status-buffer
-                     "hide all topics"
+                 (if (and forge--buffer-topics-spec
+                          (oref forge--buffer-topics-spec type))
+                     "hide topics"
                    "display topics"))
-  :transient t
   (interactive)
-  (setq forge-display-in-status-buffer (not forge-display-in-status-buffer))
+  (oset forge--buffer-topics-spec type
+        (if (oref forge--buffer-topics-spec type) nil 'topic))
   (forge-refresh-buffer))
 
-(transient-define-suffix forge-toggle-closed-visibility ()
-  "Toggle whether to display recently closed topics.
-This only affect the current status buffer."
-  :inapt-if-not (lambda ()
-                  (and forge-display-in-status-buffer
-                       (eq major-mode 'magit-status-mode)
-                       (forge-get-repository :known?)))
-  :description (lambda ()
-                 (if (or (atom forge-topic-list-limit)
-                         (> (cdr forge-topic-list-limit) 0))
-                     "hide closed topics"
-                   "display recently closed topics"))
-  :transient t
-  (interactive)
-  (make-local-variable 'forge-topic-list-limit)
-  (if (atom forge-topic-list-limit)
-      (setq forge-topic-list-limit (cons forge-topic-list-limit 5))
-    (setcdr forge-topic-list-limit (* -1 (cdr forge-topic-list-limit))))
-  (forge-refresh-buffer))
+(defun forge--buffer-with-topics-sections-p ()
+  (and forge--buffer-topics-spec
+       (not (eq major-mode 'forge-topics-mode))
+       (forge-get-repository :tracked?)))
 
 ;;;###autoload (autoload 'forge-add-pullreq-refspec "forge-commands" nil t)
 (transient-define-suffix forge-add-pullreq-refspec ()

@@ -263,9 +263,16 @@ can be selected from the start."
   "<remap> <forge--item-menu>"   #'forge-topic-menu)
 
 (defun forge-insert-issues ()
-  "Insert a list of mostly recent and/or open issues.
-Also see option `forge-topic-list-limit'."
-  (forge--insert-issues "Issues" #'forge--ls-recent-issues))
+  "Insert a list of issues."
+  (when-let (((forge-db t))
+             (repo (forge-get-repository :tracked?))
+             ((oref repo issues-p))
+             (spec forge--buffer-topics-spec)
+             ((memq (oref spec type) '(topic issue)))
+             (spec (clone spec)))
+    (oset spec type 'issue)
+    (forge--insert-topics 'issues "Issues"
+                          (forge--list-topics spec repo))))
 
 (defun forge-insert-assigned-issues ()
   "Insert a list of open issues that are assigned to you."
