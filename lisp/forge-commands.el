@@ -369,24 +369,30 @@ argument also offer closed pull-requests."
 ;;;###autoload
 (defun forge-visit-topic (topic)
   "Read a TOPIC and visit it.
-By default only offer open topics for completion;
-with a prefix argument also closed topics."
+By default only offer active topics for completion.  With a prefix
+argument offer all topics.  While completion is in progress, \
+\\<forge-read-topic-minibuffer-map>\\[forge-read-topic-lift-limit] lifts
+the limitation to active topics."
   (interactive (list (forge-read-topic "View topic")))
   (forge-topic-setup-buffer (forge-get-topic topic)))
 
 ;;;###autoload
 (defun forge-visit-issue (issue)
   "Read an ISSUE and visit it.
-By default only offer open topics for completion;
-with a prefix argument also closed topics."
+By default only offer active issues for completion.  With a prefix
+argument offer all topics.  While completion is in progress, \
+\\<forge-read-topic-minibuffer-map>\\[forge-read-topic-lift-limit] lifts
+the limitation to active issues."
   (interactive (list (forge-read-issue "View issue")))
   (forge-topic-setup-buffer (forge-get-issue issue)))
 
 ;;;###autoload
 (defun forge-visit-pullreq (pull-request)
   "Read a PULL-REQUEST and visit it.
-By default only offer open topics for completion;
-with a prefix argument also closed topics."
+By default only offer active pull-requests for completion.  With a
+prefix argument offer all topics.  While completion is in progress,
+\\<forge-read-topic-minibuffer-map>\\[forge-read-topic-lift-limit] \
+lifts the limitation to active pull-requests."
   (interactive (list (forge-read-pullreq "View pull-request")))
   (forge-topic-setup-buffer (forge-get-pullreq pull-request)))
 
