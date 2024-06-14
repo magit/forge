@@ -100,8 +100,19 @@ This is a list of package names.  Used by the commands
 
 ;;; Faces
 
-(defface forge-suffix-active '((t :inherit transient-value))
+(defface forge-suffix-active
+  '((t :inherit transient-value :weight bold))
   "Face used for suffixes whose effects is currently active."
+  :group 'forge-faces)
+
+(defface forge-suffix-active-and-implied
+  '((t :inherit transient-value :weight semibold))
+  "Face used for suffixes whose effects is currently active and implied."
+  :group 'forge-faces)
+
+(defface forge--suffix-implied
+  '((t :inherit transient-value :weight normal))
+  "Face used for suffixes whose effects is currently implied."
   :group 'forge-faces)
 
 (defface forge-tablist-hl-line
@@ -168,8 +179,9 @@ Must be set before `forge-list' is loaded.")
         (get-buffer-create name)
       (get-buffer name))))
 
-(defun forge-topic-list-setup (type filter fn &optional repo global columns)
-  (let* ((repo (or repo
+(defun forge-topic-list-setup (&optional repo spec)
+  (let* ((global (oref spec global))
+         (repo (or repo
                    (and (not global)
                         (if-let* ((topic (forge-topic-at-point))
                                   (repo (forge-get-repository topic)))
@@ -182,19 +194,11 @@ Must be set before `forge-list' is loaded.")
     (with-current-buffer (setq buffer (forge-topic-get-buffer repo t))
       (setq default-directory dir)
       (setq forge-buffer-repository (and repo (oref repo id)))
-      (setq forge--tabulated-list-columns (or columns forge-topic-list-columns))
-      (setq forge--tabulated-list-query
-            (cond ((not (functionp fn))
-                   (lambda ()
-                     (cl-sort (mapcan (-cut funcall <> repo) fn)
-                              #'> :key (-cut oref <> number))))
-                  (repo (apply-partially fn repo))
-                  (fn)))
+      (setq forge--tabulated-list-columns forge-topic-list-columns)
+      (setq forge--tabulated-list-query #'forge--list-topics)
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
         (forge-topic-list-mode))
-      (setq forge--buffer-list-type type)
-      (setq forge--buffer-list-filter filter)
-      (setq forge--buffer-list-global global)
+      (setq forge--buffer-topics-spec spec)
       (forge--tablist-refresh)
       (add-hook 'tabulated-list-revert-hook #'forge--tablist-refresh nil t)
       (tabulated-list-print)
@@ -214,51 +218,34 @@ Must be set before `forge-list' is loaded.")
   :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
   [:hide always ("q" forge-menu-quit-list)]
-  [forge--topic-menus-group]
-  [["Filter"
-    :if (lambda () (and (not forge--buffer-list-global)
-                   (eq forge--buffer-list-type 'topic)))
-    ("l" "labeled"          forge-list-labeled-topics)
-    ("c" "created"          forge-list-authored-topics)
-    ("a" "assigned"         forge-list-assigned-topics)]
+  [forge--topic-menus-group
+   ["State"
+    ("a" forge-topics-filter-active)
+    ("o" forge-topics-filter-state-open)
+    ("c" forge-topics-filter-state-completed)
+    ("x" forge-topics-filter-state-unplanned)]
+   ["Status"
+    ("i" forge-topics-filter-status-inbox)
+    ("u" forge-topics-filter-status-unread)
+    ("p" forge-topics-filter-status-pending)
+    ("d" forge-topics-filter-status-done)]
+   ["Type"
+    ("t t" forge-topics-all-types)
+    ("t i" forge-topics-filter-issues)
+    ("t p" forge-topics-filter-pullreqs)]]
+  [forge--lists-group
    ["Filter"
-    :if (lambda () (and (not forge--buffer-list-global)
-                   (eq forge--buffer-list-type 'issue)))
-    ("l" "labeled"          forge-list-labeled-issues)
-    ("c" "created"          forge-list-authored-issues)
-    ("a" "assigned"         forge-list-assigned-issues)]
-   ["Filter"
-    :if (lambda () (and (not forge--buffer-list-global)
-                   (eq forge--buffer-list-type 'pullreq)))
-    ("l" "labeled"          forge-list-labeled-pullreqs)
-    ("c" "created"          forge-list-authored-pullreqs)
-    ("a" "assigned"         forge-list-assigned-pullreqs)
-    ("w" "awaiting review"  forge-list-requested-reviews)]]
-  [["Global lists"
-    ("o t" "owned topics"        forge-list-owned-topics)
-    ("o i" "owned issues"        forge-list-owned-issues)
-    ("o p" "owned pull-requests" forge-list-owned-pullreqs)]
-   ["Actions"
-    ("f" "fetch all topics"  forge-pull)
-    ("m" "show more actions" forge-dispatch)]]
+    ("-m" forge-topics-filter-milestone)
+    ("-l" forge-topics-filter-labels)
+    ("-x" forge-topics-filter-marks)
+    ("-c" forge-topics-filter-author)
+    ("-a" forge-topics-filter-assignee)
+    ("-r" forge-topics-filter-reviewer)
+    ("-s" forge-topics-filter-saved)]]
   (interactive)
-  (catch 'add-instead
-    (unless (derived-mode-p 'forge-topic-list-mode)
-      (let ((repo (forge-current-repository)))
-        (cond
-         ((or (not repo)
-              (forge-get-repository repo nil :tracked?)))
-         ((y-or-n-p (format "Add %s to database, so its topics can be listed?"
-                            (oref repo slug)))
-          (forge-add-repository (forge-get-url repo))
-          (throw 'add-instead t))
-         ((setq repo nil)))
-        (if-let ((buffer (forge-topic-get-buffer repo)))
-            (switch-to-buffer buffer)
-          (if repo
-              (forge-list-topics repo)
-            (forge-list-owned-topics)))))
-    (transient-setup 'forge-topics-menu)))
+  (if (derived-mode-p 'forge-topics-mode 'magit-status-mode)
+      (transient-setup 'forge-topics-menu)
+    (forge-list-topics)))
 
 (transient-augment-suffix forge-topics-menu
   :transient #'transient--do-replace
@@ -300,188 +287,271 @@ then display the respective menu, otherwise display no menu."
            (transient--pre-exit)
            (transient--stack-zap)))))
 
-;;;; Suffix Class
+;;;; List
 
-(defclass forge--topic-list-command (transient-suffix)
-  ((type       :initarg :type   :initform nil)
-   (filter     :initarg :filter :initform nil)
-   (global     :initarg :global :initform nil)
-   (inapt-if                    :initform 'forge--topic-list-inapt)
-   (inapt-face                  :initform nil)))
-
-(defun forge--topic-list-inapt ()
-  (with-slots (type filter global) transient--pending-suffix
-    (and (eq type   forge--buffer-list-type)
-         (eq filter forge--buffer-list-filter)
-         (eq global forge--buffer-list-global))))
-
-(cl-defmethod transient-format-description ((obj forge--topic-list-command))
-  (with-slots (description type filter global) obj
-    (if (and (eq   type   forge--buffer-list-type)
-             (memq filter (list nil forge--buffer-list-filter))
-             (eq   global forge--buffer-list-global))
-        (propertize description 'face 'forge-suffix-active)
-      description)))
-
-;;;; Topic
-
-(defun forge--topic-list-setup (filter fn &optional repo global columns)
-  (forge-topic-list-setup 'topic filter fn repo global columns))
+(defclass forge--topics-list-command (transient-suffix)
+  ((type :initarg :type)
+   (definition
+    :initform (lambda (&optional repo)
+                (interactive)
+                (forge-topic-list-setup
+                 repo
+                 (forge--topics-spec
+                  :type (oref (transient-suffix-object) type)
+                  :active t :state 'open))
+                (transient-setup 'forge-topics-menu)))))
 
 ;;;###autoload (autoload 'forge-list-topics "forge-topics" nil t)
-(transient-define-suffix forge-list-topics (&optional repository)
-  "List topics of the current repository.
-Non-interactively if optional REPOSITORY is non-nil, then list
-topics for that instead."
-  :class 'forge--topic-list-command :type 'topic
+(transient-define-suffix forge-list-topics ()
+  "List topics of the current repository."
+  :class 'forge--topics-list-command :type 'topic
+  :description "topics"
   :inapt-if-mode 'forge-topics-mode
   :inapt-face 'forge-suffix-active
-  (interactive)
-  (forge--topic-list-setup nil
-                           (list #'forge--ls-issues
-                                 #'forge--ls-pullreqs)
-                           repository))
-(put 'forge-list-topics 'interactive-only nil)
-
-;;;###autoload (autoload 'forge-list-labeled-topics "forge-topics" nil t)
-(transient-define-suffix forge-list-labeled-topics (label)
-  "List topics of the current repository that have LABEL."
-  :class 'forge--topic-list-command :type 'topic :filter 'labeled
-  (interactive (list (forge-read-topic-label)))
-  (forge--topic-list-setup 'labeled
-                           (list (-cut forge--ls-labeled-issues   <> label)
-                                 (-cut forge--ls-labeled-pullreqs <> label))))
-
-;;;###autoload (autoload 'forge-list-assigned-topics "forge-topics" nil t)
-(transient-define-suffix forge-list-assigned-topics ()
-  "List topics of the current repository that are assigned to you."
-  :class 'forge--topic-list-command :type 'topic :filter 'assigned
-  (interactive)
-  (forge--topic-list-setup 'assigned
-                           (list #'forge--ls-assigned-issues
-                                 #'forge--ls-assigned-pullreqs)))
-
-;;;###autoload (autoload 'forge-list-authored-topics "forge-topics" nil t)
-(transient-define-suffix forge-list-authored-topics ()
-  "List open topics from the current repository that are authored by you."
-  :class 'forge--topic-list-command :type 'topic :filter 'authored
-  (interactive)
-  (forge--topic-list-setup 'authored
-                           (list #'forge--ls-authored-issues
-                                 #'forge--ls-authored-pullreqs)))
-
-;;;###autoload (autoload 'forge-list-owned-topics "forge-topics" nil t)
-(transient-define-suffix forge-list-owned-topics ()
-  "List open pull-requests from all your Github repositories.
-Options `forge-owned-accounts' and `forge-owned-ignored'
-controls which repositories are considered to be owned by you.
-Only Github is supported for now."
-  :class 'forge--topic-list-command :type 'topic :filter 'owned :global t
-  (interactive)
-  (forge--topic-list-setup 'owned
-                           (list (lambda (_) (forge--ls-owned-issues))
-                                 (lambda (_) (forge--ls-owned-pullreqs)))
-                           nil t forge-global-topic-list-columns))
-(put 'forge-list-owned-topics 'interactive-only nil)
-
-;;;; Issue
-
-(defun forge--issue-list-setup (filter fn &optional repo global columns)
-  (forge-topic-list-setup 'issue filter fn repo global columns))
+  (declare (interactive-only nil)))
 
 ;;;###autoload (autoload 'forge-list-issues "forge-topics" nil t)
-(transient-define-suffix forge-list-issues (&optional menu)
-  "List issues of the current repository.
-With prefix argument MENU, also show the topics menu."
-  :class 'forge--topic-list-command :type 'issue
-  (interactive (list current-prefix-arg))
-  (forge--issue-list-setup nil #'forge--ls-issues)
-  (when menu (transient-setup 'forge-topics-menu)))
-
-;;;###autoload (autoload 'forge-list-labeled-issues "forge-topics" nil t)
-(transient-define-suffix forge-list-labeled-issues (label)
-  "List issues of the current repository that have LABEL."
-  :class 'forge--topic-list-command :type 'issue :filter 'labeled
-  (interactive (list (forge-read-topic-label)))
-  (forge--issue-list-setup 'labeled (-cut forge--ls-labeled-issues <> label)))
-
-;;;###autoload (autoload 'forge-list-assigned-issues "forge-topics" nil t)
-(transient-define-suffix forge-list-assigned-issues ()
-  "List issues of the current repository that are assigned to you."
-  :class 'forge--topic-list-command :type 'issue :filter 'assigned
-  (interactive)
-  (forge--issue-list-setup 'assigned #'forge--ls-assigned-issues))
-
-;;;###autoload (autoload 'forge-list-authored-issues "forge-topics" nil t)
-(transient-define-suffix forge-list-authored-issues ()
-  "List open issues from the current repository that are authored by you."
-  :class 'forge--topic-list-command :type 'issue :filter 'authored
-  (interactive)
-  (forge--issue-list-setup 'authored #'forge--ls-authored-issues))
-
-;;;###autoload (autoload 'forge-list-owned-issues "forge-topics" nil t)
-(transient-define-suffix forge-list-owned-issues ()
-  "List open issues from all your Github repositories.
-Options `forge-owned-accounts' and `forge-owned-ignored'
-controls which repositories are considered to be owned by you.
-Only Github is supported for now."
-  :class 'forge--topic-list-command :type 'issue :filter 'owned :global t
-  (interactive)
-  (forge--issue-list-setup 'owned #'forge--ls-owned-issues
-                           nil t forge-global-topic-list-columns))
-
-;;;; Pullreq
-
-(defun forge--pullreq-list-setup (filter fn &optional repo global columns)
-  (forge-topic-list-setup 'pullreq filter fn repo global columns))
+(transient-define-suffix forge-list-issues ()
+  "List issues of the current repository."
+  :class 'forge--topics-list-command :type 'issue
+  :description "issues"
+  (declare (interactive-only nil)))
 
 ;;;###autoload (autoload 'forge-list-pullreqs "forge-topics" nil t)
-(transient-define-suffix forge-list-pullreqs (&optional menu)
-  "List pull-requests of the current repository.
-With prefix argument MENU, also show the topics menu."
-  :class 'forge--topic-list-command :type 'pullreq
-  (interactive (list current-prefix-arg))
-  (forge--pullreq-list-setup nil #'forge--ls-pullreqs)
-  (when menu (transient-setup 'forge-topics-menu)))
+(transient-define-suffix forge-list-pullreqs ()
+  "List pull-requests of the current repository."
+  :class 'forge--topics-list-command :type 'pullreq
+  :description "pull-requests"
+  (declare (interactive-only nil)))
 
-;;;###autoload (autoload 'forge-list-labeled-pullreqs "forge-topics" nil t)
-(transient-define-suffix forge-list-labeled-pullreqs (label)
-  "List pull-requests of the current repository that have LABEL."
-  :class 'forge--topic-list-command :type 'pullreq :filter 'labeled
-  (interactive (list (forge-read-topic-label)))
-  (forge--pullreq-list-setup 'labeled (-cut forge--ls-labeled-pullreqs <> label)))
+;;;; Type
 
-;;;###autoload (autoload 'forge-list-assigned-pullreqs "forge-topics" nil t)
-(transient-define-suffix forge-list-assigned-pullreqs ()
-  "List pull-requests of the current repository that are assigned to you."
-  :class 'forge--topic-list-command :type 'pullreq :filter 'assigned
+(defclass forge--topics-filter-type-command (transient-suffix)
+  ((type :initarg :type)
+   (definition
+    :initform (lambda (&optional repo)
+                (interactive)
+                (oset forge--buffer-topics-spec type
+                      (oref (transient-suffix-object) type))
+                (forge-refresh-buffer)))
+   (inapt-face :initform 'forge-suffix-active)
+   (inapt-if
+    :initform (lambda ()
+                (eq (oref forge--buffer-topics-spec type)
+                    (oref (transient-suffix-object) type))))))
+
+(transient-define-suffix forge-topics-all-types ()
+  :class 'forge--topics-filter-type-command :type 'topic
+  :description "topics")
+
+(transient-define-suffix forge-topics-filter-issues ()
+  "List issues of the current repository."
+  :class 'forge--topics-filter-type-command :type 'issue
+  :description "issues")
+
+(transient-define-suffix forge-topics-filter-pullreqs ()
+  "List pull-requests of the current repository."
+  :class 'forge--topics-filter-type-command :type 'pullreq
+  :description "pull-requests")
+
+;;;; Active
+
+(transient-define-suffix forge-topics-filter-active ()
+  "Limit topic list to active topics."
+  :description "active"
+  :face (lambda ()
+          (and (oref forge--buffer-topics-spec active)
+               'forge-suffix-active))
   (interactive)
-  (forge--pullreq-list-setup 'assigned #'forge--ls-assigned-pullreqs))
+  (oset forge--buffer-topics-spec active
+        (not (oref forge--buffer-topics-spec active)))
+  (forge-refresh-buffer))
 
-;;;###autoload (autoload 'forge-list-requested-reviews "forge-topics" nil t)
-(transient-define-suffix forge-list-requested-reviews ()
-  "List pull-requests of the current repository that are awaiting your review."
-  :class 'forge--topic-list-command :type 'pullreq :filter 'review
-  (interactive)
-  (forge--pullreq-list-setup 'review #'forge--ls-requested-reviews))
+;;;; State
 
-;;;###autoload (autoload 'forge-list-authored-pullreqs "forge-topics" nil t)
-(transient-define-suffix forge-list-authored-pullreqs ()
-  "List open pull-requests from the current repository that are authored by you."
-  :class 'forge--topic-list-command :type 'pullreq :filter 'authored
-  (interactive)
-  (forge--pullreq-list-setup 'authored #'forge--ls-authored-pullreqs))
+(defclass forge--topics-filter-state-command (transient-suffix)
+  ((state :initarg :state)
+   (definition
+    :initform (lambda ()
+                (interactive)
+                (let ((want (oref (transient-suffix-object) state))
+                      (spec forge--buffer-topics-spec))
+                  (cond ((and (eq want 'open)
+                              (oref spec active))
+                         (oset spec active nil)
+                         (oset spec state want))
+                        ((equal (oref spec state) want)
+                         (oset spec state nil))
+                        ((oset spec state want))))
+                (forge-refresh-buffer)))
+   (description
+    :initform (lambda (suffix)
+                (let ((want (oref suffix state))
+                      (type (oref forge--buffer-topics-spec type)))
+                  (pcase type
+                    ((guard (atom want))
+                     (symbol-name want))
+                    ('topic   (apply #'format "%s/%s" want))
+                    ('issue   (symbol-name (car want)))
+                    ('pullreq (symbol-name (cadr want)))))))
+   (face
+    :initform (lambda (suffix)
+                (let ((want   (oref suffix state))
+                      (have   (oref forge--buffer-topics-spec state))
+                      (active (oref forge--buffer-topics-spec active)))
+                  (cond ((and (not active)
+                              (equal have want))
+                         'forge-suffix-active)
+                        ((and (or active
+                                  (eq have 'open))
+                              (eq want 'open))
+                         (if (eq have want)
+                             'forge-suffix-active-and-implied
+                           'forge--suffix-implied))))))))
 
-;;;###autoload (autoload 'forge-list-owned-pullreqs "forge-topics" nil t)
-(transient-define-suffix forge-list-owned-pullreqs ()
-  "List open pull-requests from all your Github repositories.
-Options `forge-owned-accounts' and `forge-owned-ignored'
-controls which repositories are considered to be owned by you.
-Only Github is supported for now."
-  :class 'forge--topic-list-command :type 'pullreq :filter 'owned :global t
-  (interactive)
-  (forge--pullreq-list-setup 'owned #'forge--ls-owned-pullreqs
-                             nil t forge-global-topic-list-columns))
+(transient-define-suffix forge-topics-filter-state-open ()
+  "Limit topic list to open topics."
+  :class 'forge--topics-filter-state-command :state 'open)
+
+(transient-define-suffix forge-topics-filter-state-completed ()
+  "Limit topic list to completed and merged topics."
+  :class 'forge--topics-filter-state-command :state '(completed merged))
+
+(transient-define-suffix forge-topics-filter-state-unplanned ()
+  "Limit topic list to unplanned and rejected topics."
+  :class 'forge--topics-filter-state-command :state '(unplanned rejected))
+
+;;;; Status
+
+(defclass forge--topics-filter-status-command (transient-suffix)
+  ((status :initarg :status)
+   (definition
+    :initform (lambda ()
+                (interactive)
+                (let* ((want   (oref (transient-suffix-object) status))
+                       (spec   forge--buffer-topics-spec)
+                       (have   (oref spec status))
+                       (active (oref spec active)))
+                  (cond (active
+                         (oset spec active nil)
+                         (oset spec status want))
+                        ((eq have want)
+                         (oset spec status nil))
+                        ((oset spec status want))))
+                (forge-refresh-buffer)))
+   (description
+    :initform (lambda (suffix) (symbol-name (oref suffix status))))
+   (face
+    :initform (lambda (suffix)
+                (let ((want   (oref suffix status))
+                      (have   (oref forge--buffer-topics-spec status))
+                      (active (oref forge--buffer-topics-spec active)))
+                  (cond ((and (not active)
+                              (equal have want))
+                         'forge-suffix-active)
+                        ((and (or active
+                                  (eq have 'inbox))
+                              (memq want '(inbox unread pending)))
+                         (if (eq have want)
+                             'forge-suffix-active-and-implied
+                           'forge--suffix-implied))))))))
+
+(transient-define-suffix forge-topics-filter-status-inbox ()
+  "Limit topic list to unread and pending topics."
+  :class 'forge--topics-filter-status-command :status 'inbox)
+
+(transient-define-suffix forge-topics-filter-status-unread ()
+  "Limit topic list to unread topics."
+  :class 'forge--topics-filter-status-command :status 'unread)
+
+(transient-define-suffix forge-topics-filter-status-pending ()
+  "Limit topic list to pending topics."
+  :class 'forge--topics-filter-status-command :status 'pending)
+
+(transient-define-suffix forge-topics-filter-status-done ()
+  "Limit topic list to done topics."
+  :class 'forge--topics-filter-status-command :status 'done)
+
+;;;; Filter
+
+(defclass forge--topics-filter-command (transient-suffix)
+  ((slot        :initarg :slot)
+   (reader      :initarg :reader)
+   (formatter   :initarg :formatter :initform nil)
+   (definition
+    :initform (lambda ()
+                (interactive)
+                (with-slots (slot reader) (transient-suffix-object)
+                  (eieio-oset forge--buffer-topics-spec slot
+                              (if (eieio-oref forge--buffer-topics-spec slot)
+                                  nil
+                                (funcall reader)))
+                  (forge-refresh-buffer))))
+   (description
+    :initform (lambda (obj)
+                (with-slots (slot formatter) obj
+                  (let ((value (eieio-oref forge--buffer-topics-spec slot)))
+                    (if value
+                        (format "%s %s" slot
+                                (if formatter
+                                    (funcall formatter value)
+                                  (propertize (format "%s" value)
+                                              'face 'forge-suffix-active)))
+                      (format "%s" slot))))))))
+
+(cl-defmethod initialize-instance :after
+  ((obj forge--topics-filter-command) &optional _slots)
+  (unless (slot-boundp obj 'reader)
+    (oset obj reader (intern (format "forge-read-topic-%s" (oref obj slot))))))
+
+(transient-define-suffix forge-topics-filter-milestone ()
+  "Read a milestone and limit topic list to topics with that milestone."
+  :class 'forge--topics-filter-command
+  :slot 'milestone
+  :formatter (lambda (m) (propertize m 'face 'forge-topic-label)))
+
+(transient-define-suffix forge-topics-filter-labels ()
+  "Read labels and limit topic list to topics with one of these labels."
+  :class 'forge--topics-filter-command
+  :slot 'labels)
+
+(transient-define-suffix forge-topics-filter-marks ()
+  "Read marks and limit topic list to topics with one of these marks."
+  :class 'forge--topics-filter-command
+  :slot 'marks
+  :formatter
+  (lambda (ms) (mapconcat (lambda (m) (propertize m 'face 'forge-topic-label)) ms " ")))
+
+(transient-define-suffix forge-topics-filter-saved ()
+  "Toggle whether to limit topic list to saved topics."
+  :class 'forge--topics-filter-command
+  :slot 'saved
+  :reader #'always
+  :description
+  (lambda () (forge--format-boolean 'saved "saved" forge--buffer-topics-spec)))
+
+(transient-define-suffix forge-topics-filter-author ()
+  "Read an author and limit topic list to topics created by that author."
+  :class 'forge--topics-filter-command
+  :slot 'author
+  :reader (lambda () (forge--read-filter-by-user "Author")))
+
+(transient-define-suffix forge-topics-filter-assignee ()
+  "Read an assignee and limit topic list to topics assignee to that person."
+  :class 'forge--topics-filter-command
+  :slot 'assignee
+  :reader (lambda () (forge--read-filter-by-user "Assignee")))
+
+(transient-define-suffix forge-topics-filter-reviewer ()
+  "Read a reviewer and limit topic list to reviews requested from that person."
+  :class 'forge--topics-filter-command
+  :slot 'reviewer
+  :reader (lambda () (forge--read-filter-by-user "Reviewer")))
+
+(defun forge--read-filter-by-user (prompt)
+  (let* ((repo (forge-get-repository :tracked))
+         (choices (mapcar #'cadr (oref repo assignees))))
+    (magit-completing-read prompt choices)))
 
 ;;; _
 (provide 'forge-topics)

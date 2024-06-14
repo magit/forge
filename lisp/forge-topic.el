@@ -672,12 +672,6 @@ can be selected from the start."
    nil t
    (and topic (forge--format-topic-milestone topic))))
 
-(defun forge-read-topic-label (&optional prompt repository)
-  (magit-completing-read (or prompt "Label")
-                         (forge--format-topic-label-choices
-                          (or repository (forge-get-repository :tracked)))
-                         nil t))
-
 (defun forge-read-topic-labels (&optional topic)
   (let* ((repo (forge-get-repository (or topic :tracked)))
          (crm-separator ","))
@@ -830,15 +824,6 @@ can be selected from the start."
                              :foreground ,foreground)
                            forge-tablist-topic-label))))
                labels " ")))
-
-(defun forge--format-topic-label-choices (repo)
-  (mapcar (pcase-lambda (`(,_id ,name ,color ,_description))
-            (let* ((background (forge--sanitize-color color))
-                   (foreground (forge--contrast-color background)))
-              (magit--propertize-face
-               name `( :background ,background
-                       :foreground ,foreground))))
-          (oref repo labels)))
 
 (defun forge--format-topic-marks (topic)
   (and-let* ((marks (closql--iref topic 'marks)))
