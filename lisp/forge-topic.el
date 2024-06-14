@@ -1130,18 +1130,12 @@ This mode itself is never used directly."
 ;;;###autoload (autoload 'forge-topic-state-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-state-menu ()
   "Set state of the current topic."
-  [("o" forge-topic-state-set-open)
-   ("c" forge-issue-state-set-completed)
-   ("u" forge-issue-state-set-unplanned)
-   ("m" forge-pullreq-state-set-merged)
-   ("r" forge-pullreq-state-set-rejected)])
+  [forge--topic-set-state-group])
 
 ;;;###autoload (autoload 'forge-topic-status-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-status-menu ()
   "Set status of the current topic."
-  [("i" forge-topic-status-set-unread)
-   ("p" forge-topic-status-set-pending)
-   ("d" forge-topic-status-set-done)])
+  [forge--topic-set-status-group])
 
 ;;;; State
 
