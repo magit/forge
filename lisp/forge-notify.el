@@ -115,9 +115,9 @@ signal an error."
 
 (defvar-keymap forge-notifications-mode-map
   :doc "Keymap for `forge-notifications-mode'."
-  :parent magit-mode-map
-  "<remap> <magit-refresh>" #'magit-refresh-buffer
-  "C-c C-m"                 #'forge-notifications-menu)
+  :parent (make-composed-keymap forge-common-map magit-mode-map)
+  "<remap> <magit-refresh>"    #'magit-refresh-buffer
+  "<remap> <forge--list-menu>" #'forge-notifications-menu)
 
 (define-derived-mode forge-notifications-mode magit-mode "Forge Notifications"
   "Mode for looking at forge notifications."

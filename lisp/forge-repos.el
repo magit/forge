@@ -62,13 +62,11 @@ and `:pad-right'."
 
 (defvar-keymap forge-repository-list-mode-map
   :doc "Local keymap for Forge-Repository-List mode buffers."
-  :parent tabulated-list-mode-map
-  "RET"      #'forge-visit-this-repository
-  "<return>" #'forge-visit-this-repository
-  "o"        #'forge-browse-this-repository
-  "C-c C-m"  #'forge-repositories-menu
-  "'"        #'forge-dispatch
-  "?"        #'magit-dispatch)
+  :parent (make-composed-keymap forge-common-map tabulated-list-mode-map)
+  "RET"                        #'forge-visit-this-repository
+  "<return>"                   #'forge-visit-this-repository
+  "o"                          #'forge-browse-this-repository
+  "<remap> <forge--list-menu>" #'forge-repositories-menu)
 
 (defvar forge-repository-list-buffer-name "*forge-repositories*"
   "Buffer name to use for displaying lists of repositories.")

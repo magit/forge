@@ -134,13 +134,12 @@ forges web interface."
 
 (defvar-keymap forge-topic-list-mode-map
   :doc "Local keymap for Forge-Topic-List mode buffers."
-  :parent tabulated-list-mode-map
-  "RET"      #'forge-visit-this-topic
-  "<return>" #'forge-visit-this-topic
-  "o"        #'forge-browse-this-topic
-  "C-c C-m"  #'forge-topics-menu
-  "'"        #'forge-dispatch
-  "?"        #'magit-dispatch)
+  :parent (make-composed-keymap forge-common-map tabulated-list-mode-map)
+  "RET"                        #'forge-visit-this-topic
+  "<return>"                   #'forge-visit-this-topic
+  "o"                          #'forge-browse-this-topic
+  "<remap> <forge--list-menu>" #'forge-topics-menu
+  "<remap> <forge--item-menu>" #'forge-topic-menu)
 
 (defvar forge-topic-list-mode-name
   '((:eval (capitalize

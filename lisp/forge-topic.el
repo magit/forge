@@ -879,14 +879,38 @@ can be selected from the start."
 
 ;;; Modes
 
+(defvar-keymap forge-common-map
+  :doc "Parent keymap of many of Forge's keymaps.
+Keymaps that use this keymap as the/a parent keymap, remap the
+place-holder commands `forge--list-menu' and/or `forge--item-menu'
+to the appropriate menu command.  To change the keys bound to menu
+commands in all Forge keymaps, one only has to change them here."
+  "C-c C-c"    #'forge--list-menu
+  "C-c RET"    #'forge--item-menu
+  "C-<return>" #'forge--item-menu)
+
+(defun forge--list-menu ()
+  "Place-holder menu command.  See `forge-common-map'."
+  (interactive)
+  (message "No list menu available here"))
+(put 'forge--list-menu 'completion-predicate #'ignore)
+
+(defun forge--item-menu ()
+  "Place-holder menu command.  See `forge-common-map'."
+  (interactive)
+  (message "No item menu available here"))
+(put 'forge--item-menu 'completion-predicate #'ignore)
+
 (defvar-keymap forge-post-section-map
   "<remap> <magit-edit-thing>"   #'forge-edit-post
   "C-c C-k"                      #'forge-delete-comment)
 
 (defvar-keymap forge-topic-mode-map
+  :parent (make-composed-keymap forge-common-map magit-mode-map)
   "<remap> <magit-visit-thing>"  #'markdown-follow-link-at-point
   "<mouse-2>"                    #'markdown-follow-link-at-point
-  "C-c C-m"                      #'forge-topic-menu
+  "<remap> <forge--item-menu>"   #'forge-topic-menu
+  "<remap> <forge--list-menu>"   #'forge-topic-menu
   "C-c C-n"                      #'forge-create-post
   "C-c C-r"                      #'forge-create-post)
 

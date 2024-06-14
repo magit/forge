@@ -299,13 +299,17 @@ can be selected from the start."
 ;;; Insert
 
 (defvar-keymap forge-pullreqs-section-map
+  :parent forge-common-map
   "<remap> <magit-browse-thing>" #'forge-browse-pullreqs
   "<remap> <magit-visit-thing>"  #'forge-list-pullreqs
+  "<remap> <forge--list-menu>"   #'forge-topics-menu
+  "<remap> <forge--item-menu>"   #'forge-topics-menu
   "C-c C-n"                      #'forge-create-pullreq)
 
 (defvar-keymap forge-pullreq-section-map
+  :parent forge-common-map
   "<remap> <magit-visit-thing>"  #'forge-visit-this-topic
-  "C-c C-m"                      #'forge-topic-menu)
+  "<remap> <forge--item-menu>"   #'forge-topic-menu)
 
 (defun forge-insert-pullreqs ()
   "Insert a list of mostly recent and/or open pull-requests.
