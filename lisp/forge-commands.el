@@ -56,26 +56,22 @@ Takes the pull-request as only argument and must return a directory."
 (transient-define-prefix forge-dispatch ()
   "Dispatch a forge command."
   :transient-non-suffix #'transient--do-call
+  :column-widths forge--topic-menus-column-widths
   [:if forge--get-repository:tracked?
+   forge--topic-menus-group
    ["Create"
     ("c i" "issue"          forge-create-issue)
     ("c p" "pull-request"   forge-create-pullreq)
     ("c u" "pr from issue"  forge-create-pullreq-from-issue)
-    ("c f" "fork or remote" forge-fork)]]
-  [:if forge--get-repository:tracked?
-   ["List"
-    ("l t" "topics"         forge-topics-menu        :transient replace)
-    ("l n" "notifications"  forge-notifications-menu :transient replace)
-    ("l r" "repositories"   forge-repositories-menu  :transient replace)]
+    ("c f" "fork or remote" forge-fork)]
    ["Fetch"
     ("f f" "all topics"     forge-pull)
     ("f t" "one topic"      forge-pull-topic)
     ("f n" "notifications"  forge-pull-notifications)]
    ["Misc"
-    :if forge--get-repository:tracked?
-    ("/C" "configure"       forge-configure)
     ("/M" "merge w/api"     forge-merge :level 7)]]
   [:if forge--get-repository:tracked?
+   forge--lists-group
    ["Visit"
     ("v t" "topic"          forge-visit-topic)
     ("v i" "issue"          forge-visit-issue)
@@ -86,20 +82,28 @@ Takes the pull-request as only argument and must return a directory."
     ("b p" "pull-request"   forge-browse-pullreq)
     ("b r" "remote"         forge-browse-remote)
     ("b I" "issues"         forge-browse-issues)
-    ("b P" "pull-requests"  forge-browse-pullreqs)]]
-  [[:description (lambda ()
+    ("b P" "pull-requests"  forge-browse-pullreqs)
+    ""]]
+  [:if-not forge--get-repository:tracked?
+   forge--topic-menus-group
+   [:description (lambda ()
                    (if (magit-gitdir)
                        "Forge doesn't know about this Git repository yet"
                      "Not inside a Git repository"))
-    :if-not forge--get-repository:tracked?
     ("a  " "add repository to database" forge-add-repository)
     ("f n" "fetch notifications"        forge-pull-notifications)
     ("l n" "list notifications"         forge-list-notifications)]])
 
+(transient-augment-suffix forge-dispatch
+  :transient #'transient--do-replace
+  :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-dispatch))
+  :inapt-face 'forge-suffix-active)
+
 ;;;###autoload (autoload 'forge-configure "forge-commands" nil t)
 (transient-define-prefix forge-configure ()
   "Configure current repository and global settings."
-  [["Configure"
+  [forge--topic-menus-group
+   ["Configure"
     :if forge--get-repository:tracked?
     ("a  " "add another repository to database" forge-add-some-repository)
     ("R  " forge-add-pullreq-refspec)
@@ -107,6 +111,11 @@ Takes the pull-request as only argument and must return a directory."
     ("s l" forge-forge.graphqlItemLimit)
     ("s s" forge-toggle-display-in-status-buffer)
     ("s c" forge-toggle-closed-visibility)]])
+
+(transient-augment-suffix forge-configure
+  :transient #'transient--do-replace
+  :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-configure))
+  :inapt-face 'forge-suffix-active)
 
 ;;; Pull
 

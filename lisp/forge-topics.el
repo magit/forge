@@ -213,21 +213,9 @@ Must be set before `forge-list' is loaded.")
   :transient-switch-frame nil
   :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
-  [:hide always
-   ("q" forge-menu-quit-list)]
-  [["Type"
-    (:info "topics"           :face forge-suffix-active)
-    ("n"   "notifications..." forge-notifications-menu :transient replace)
-    ("r"   "repositories..."  forge-repositories-menu  :transient replace)]
-   [:description (lambda ()
-                   (if forge--buffer-list-global
-                       "Per-repository lists"
-                     "Subtype"))
-    ("t" "topics"           forge-list-topics)
-    ("i" "issues"           forge-list-issues)
-    ("p" "pull-requests"    forge-list-pullreqs)
-    ""]
-   ["Filter"
+  [:hide always ("q" forge-menu-quit-list)]
+  [forge--topic-menus-group]
+  [["Filter"
     :if (lambda () (and (not forge--buffer-list-global)
                    (eq forge--buffer-list-type 'topic)))
     ("l" "labeled"          forge-list-labeled-topics)
@@ -271,6 +259,12 @@ Must be set before `forge-list' is loaded.")
               (forge-list-topics repo)
             (forge-list-owned-topics)))))
     (transient-setup 'forge-topics-menu)))
+
+(transient-augment-suffix forge-topics-menu
+  :transient #'transient--do-replace
+  :if-not-derived '(forge-notifications-mode forge-repository-list-mode)
+  :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-topics-menu))
+  :inapt-face 'forge-suffix-active)
 
 (defvar-local forge--quit-keep-topic-menu nil)
 
@@ -340,6 +334,8 @@ then display the respective menu, otherwise display no menu."
 Non-interactively if optional REPOSITORY is non-nil, then list
 topics for that instead."
   :class 'forge--topic-list-command :type 'topic
+  :inapt-if-mode 'forge-topics-mode
+  :inapt-face 'forge-suffix-active
   (interactive)
   (forge--topic-list-setup nil
                            (list #'forge--ls-issues

@@ -1075,14 +1075,30 @@ This mode itself is never used directly."
 ;;; Commands
 ;;;; Groups
 
+(defconst forge--lists-group
+  ["List"
+   ("l r" "repositories"  forge-list-repositories)
+   ("l n" "notifications" forge-list-notifications)
+   ("l t" "topics"        forge-list-topics)
+   """"])
+
+(defconst forge--topic-menus-group
+  ["Menu"
+   ("m s" "edit"      forge-topic-menu)
+   ("m f" "filter"    forge-topics-menu)
+   ("m f" "filter"    forge-notifications-menu)
+   ("m f" "filter"    forge-repositories-menu)
+   ("m d" "dispatch"  forge-dispatch)
+   ("m c" "configure" forge-configure)
+   ""])
+
 (defconst forge--topic-set-state-group
   ["Set state"
    ("o" forge-topic-state-set-open)
    ("c" forge-issue-state-set-completed)
    ("x" forge-issue-state-set-unplanned)
    ("c" forge-pullreq-state-set-merged)
-   ("x" forge-pullreq-state-set-rejected)
-   ""])
+   ("x" forge-pullreq-state-set-rejected)])
 
 (defconst forge--topic-set-status-group
   ["Set status"
@@ -1090,7 +1106,7 @@ This mode itself is never used directly."
    ("p" forge-topic-status-set-pending)
    ("d" forge-topic-status-set-done)])
 
-(defconst forge--topic-menus-column-widths '(19))
+(defconst forge--topic-menus-column-widths '(21 21 21 21))
 
 ;;;; Menus
 
@@ -1102,14 +1118,15 @@ This mode itself is never used directly."
   :transient-switch-frame nil
   :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
-  [:hide always
-   ("q" forge-menu-quit-list)]
-  [forge--topic-set-state-group
+  [:hide always ("q" forge-menu-quit-list)]
+  [forge--topic-menus-group
+   forge--topic-set-state-group
    forge--topic-set-status-group
    ["Actions"
     ("/f" forge-pull-this-topic)
     ("/b" forge-browse-this-topic)]]
-  [["Set"
+  [forge--lists-group
+   ["Set                                         "
     ("-m" forge-topic-set-milestone)
     ("-l" forge-topic-set-labels)
     ("-x" forge-topic-set-marks)
@@ -1117,9 +1134,17 @@ This mode itself is never used directly."
     ("-r" forge-topic-set-review-requests)
     ("-n" forge-edit-topic-note)
     ("-t" forge-topic-set-title)]
-   [""
+   ["Set"
     ("-s" forge-topic-toggle-saved)
     ("-d" forge-topic-toggle-draft)]])
+
+(transient-augment-suffix forge-topic-menu
+  :transient #'transient--do-replace
+  :inapt-if (lambda () (or (derived-mode-p 'forge-repository-list-mode)
+                      (eq (oref transient--prefix command) 'forge-topic-menu)))
+  :inapt-face (lambda () (if (derived-mode-p 'forge-repository-list-mode)
+                        'transient-inapt-suffix
+                      'forge-suffix-active)))
 
 ;;;###autoload (autoload 'forge-topic-state-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-state-menu ()
@@ -1279,7 +1304,8 @@ This mode itself is never used directly."
   "Edit the TITLE of the current topic."
   :class 'forge--topic-set-slot-command :slot 'title
   :formatter (lambda (topic)
-               (propertize (forge--format-topic-title topic)
+               (propertize (truncate-string-to-width
+                            (forge--format-topic-title topic) 34 nil ?\s t)
                            'face 'font-lock-string-face)))
 
 (transient-define-suffix forge-topic-set-milestone (milestone)

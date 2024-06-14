@@ -144,33 +144,40 @@ signal an error."
   :transient-switch-frame nil
   :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
-  [:hide always
-   ("q" forge-menu-quit-list)]
-  [["Type"
-    ("t"   "topics..."       forge-topics-menu       :transient replace)
-    (:info "notifications"   :face forge-suffix-active)
-    ("r"   "repositories..." forge-repositories-menu :transient replace)
-    ""]
+  [:hide always ("q" forge-menu-quit-list)]
+  [forge--topic-menus-group
+   forge--topic-set-state-group
+   forge--topic-set-status-group
    ["Selection"
     ("I" forge-notifications-display-inbox)
     ("S" forge-notifications-display-saved)
     ("D" forge-notifications-display-done)
     ("A" forge-notifications-display-all)]]
-  [forge--topic-set-state-group
-   ["Group"
-    ("f" forge-notifications-style-flat)
-    ("g" forge-notifications-style-nested)]]
-  [forge--topic-set-status-group]
+  [forge--lists-group
+   [""""][""""]
+   ["Display"
+    ("-F" forge-notifications-style-flat)
+    ("-G" forge-notifications-style-nested)]]
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
     (forge-list-notifications))
   (transient-setup 'forge-notifications-menu))
 
+(transient-augment-suffix forge-notifications-menu
+  :transient #'transient--do-replace
+  :if-mode 'forge-notifications-mode
+  :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-notifications-menu))
+  :inapt-face 'forge-suffix-active)
+
 ;;;###autoload
-(defun forge-list-notifications ()
+(transient-define-suffix forge-list-notifications ()
   "List notifications."
+  :inapt-if-mode 'forge-notifications-mode
+  :inapt-face 'forge-suffix-active
+  (declare (interactive-only nil))
   (interactive)
-  (forge-notifications-setup-buffer))
+  (forge-notifications-setup-buffer)
+  (transient-setup 'forge-notifications-menu))
 
 (transient-define-suffix forge-notifications-display-inbox ()
   "List unread and pending notifications."
@@ -218,7 +225,7 @@ signal an error."
 
 (transient-define-suffix forge-notifications-style-flat ()
   "Show a flat notification list."
-  :description "flat list"
+  :description "single list"
   :inapt-if (lambda () (eq forge-notifications-display-style 'flat))
   :inapt-face 'forge-suffix-active
   (interactive)
@@ -229,7 +236,7 @@ signal an error."
 
 (transient-define-suffix forge-notifications-style-nested ()
   "Group notifications by repository."
-  :description "by repository"
+  :description "group by repo"
   :inapt-if (lambda () (eq forge-notifications-display-style 'nested))
   :inapt-face 'forge-suffix-active
   (interactive)
