@@ -101,7 +101,9 @@ Takes the pull-request as only argument and must return a directory."
                      "Not inside a Git repository"))
     ("/ a" "add repository to database" forge-add-repository)
     ("f n" "fetch notifications"        forge-pull-notifications)
-    ("l n" "list notifications"         forge-list-notifications)]])
+    ("l n" "list notifications"         forge-list-notifications)]]
+  [:if-not forge--get-repository:tracked?
+   forge--lists-group])
 
 (transient-augment-suffix forge-dispatch
   :transient #'transient--do-replace
