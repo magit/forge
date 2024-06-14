@@ -69,6 +69,8 @@ and `:pad-right'."
   "o"                          #'forge-browse-this-repository
   "<remap> <forge--list-menu>" #'forge-repositories-menu)
 
+(defvar-local forge--buffer-list-filter nil)
+
 (defvar forge-repository-list-buffer-name "*forge-repositories*"
   "Buffer name to use for displaying lists of repositories.")
 
@@ -96,9 +98,7 @@ Must be set before `forge-list' is loaded.")
       (setq forge--tabulated-list-query fn)
       (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
         (forge-repository-list-mode))
-      (setq forge--buffer-list-type 'repo)
       (setq forge--buffer-list-filter filter)
-      (setq forge--buffer-list-global t)
       (forge--tablist-refresh)
       (add-hook 'tabulated-list-revert-hook #'forge--tablist-refresh nil t)
       (tabulated-list-print)

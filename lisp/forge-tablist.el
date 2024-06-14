@@ -26,10 +26,6 @@
 
 (require 'forge)
 
-(defvar-local forge--buffer-list-type nil)
-(defvar-local forge--buffer-list-filter nil)
-(defvar-local forge--buffer-list-global nil)
-
 (defconst forge--tablist-columns-type
   '(repeat
     (list :tag "Column"
