@@ -263,6 +263,8 @@ Must be set before `forge-list' is loaded.")
     ("-r" forge-topics-filter-reviewer)
     ("-s" forge-topics-filter-saved)]
    ["Display"
+    ("-O" forge-topics-set-order)
+    ("-L" forge-topics-set-limit)
     ("-H" forge-toggle-topic-legend)]]
   [forge--topic-legend-group]
   (interactive)
@@ -599,6 +601,35 @@ then display the respective menu, otherwise display no menu."
   (let* ((repo (forge-get-repository :tracked))
          (choices (mapcar #'cadr (oref repo assignees))))
     (magit-completing-read prompt choices)))
+
+;;;; Display
+
+(transient-define-suffix forge-topics-set-order (order)
+  "Select order used to display topics in topic list."
+  :description
+  (lambda ()
+    (format "order by %s"
+            (propertize (format "%s" (oref forge--buffer-topics-spec order))
+                        'face 'bold)))
+  (interactive
+   (list (magit-read-char-case "Order by: " t
+           (?n "[n]ewest"            'newest)
+           (?o "[o]ldest"            'oldest)
+           (?u "[r]ecently updated"  'recently-updated)
+           (?U "[a]nciently updated" 'anciently-updated))))
+  (oset forge--buffer-topics-spec order order)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-topics-set-limit (limit)
+  "Read maximal number of topics to be displayed in topic list."
+  :description
+  (lambda ()
+    (if-let ((limit (oref forge--buffer-topics-spec limit)))
+        (format "limit to %s" (propertize (format "%s" limit) 'face 'bold))
+      "no limit"))
+  (interactive (list (read-number "Limit number (0 for no limit): ")))
+  (oset forge--buffer-topics-spec limit (if (zerop limit) nil limit))
+  (forge-refresh-buffer))
 
 ;;; _
 (provide 'forge-topics)

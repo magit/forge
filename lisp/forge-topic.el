@@ -474,8 +474,13 @@ Limit list to topics for which a review by the given user was requested."
                 :custom string)
    (global      :initarg :global
                 :initform nil)
-   (order       :initarg :order
-                :initform nil)
+   (order       :documentation "Order in which topics are listed."
+                :initarg :order
+                :initform 'newest
+                :custom (choice (const newest)
+                                (const oldest)
+                                (const recently-updated)
+                                (const anciently-updated)))
    (limit       :documentation "Number of topics to list at most."
                 :initarg :limit
                 :initform 200
@@ -488,9 +493,14 @@ Limit list to topics for which a review by the given user was requested."
   (when (oref spec reviewer)
     (setq type 'pullreq))
   (if (eq type 'topic)
-      (cl-sort (nconc (forge--list-topics-1 spec repo 'issue)
-                      (forge--list-topics-1 spec repo 'pullreq))
-               #'> :key (lambda (obj) (oref obj number)))
+      (pcase-let ((`(,pred ,slot) (pcase (oref spec order)
+                                    ('newest             '(> number))
+                                    ('oldest             '(< number))
+                                    ('recently-updated   '(> updated))
+                                    ('anciently-updated  '(< updated)))))
+        (cl-sort (nconc (forge--list-topics-1 spec repo 'issue)
+                        (forge--list-topics-1 spec repo 'pullreq))
+                 pred :key (lambda (obj) (eieio-oref obj slot))))
     (forge--list-topics-1 spec repo type)))
 
 (defun forge--list-topics-1 (spec repo type)
@@ -501,7 +511,7 @@ Limit list to topics for which a review by the given user was requested."
 
 (defun forge--list-topics-2 (spec repo type)
   (pcase-let (((eieio active state status milestone labels marks
-                      saved author assignee reviewer global limit)
+                      saved author assignee reviewer global order limit)
                spec))
     (cond (active
            (setq state 'open)
@@ -554,7 +564,11 @@ Limit list to topics for which a review by the given user was requested."
        ,@(and author    `((= topic:author   ,author)))
        ,@(and assignee  `((= assignee:login ,assignee)))
        ,@(and reviewer  `((= assignee:login ,reviewer))))
-      :order-by [(desc topic:number)]
+      :order-by [,(pcase order
+                    ('newest            '(desc topic:number))
+                    ('oldest            '(asc  topic:number))
+                    ('recently-updated  '(desc topic:updated))
+                    ('anciently-updated '(asc  topic:updated)))]
       ,@(and limit `(:limit ,limit))]))
 
 (defun forge-ls-recent-topics (repo table)
