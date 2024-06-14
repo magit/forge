@@ -1241,8 +1241,9 @@ This mode itself is never used directly."
   ["List"
    ("l r" "repositories"  forge-list-repositories)
    ("l n" "notifications" forge-list-notifications)
+   ("l g" "global topics" forge-list-global-topics)
    ("l t" "topics"        forge-list-topics)
-   """"])
+   ""])
 
 (defconst forge--topic-menus-group
   ["Menu"

@@ -311,33 +311,60 @@ then display the respective menu, otherwise display no menu."
 
 (defclass forge--topics-list-command (transient-suffix)
   ((type :initarg :type :initform nil)
+   (global :initarg :global :initform nil)
    (definition
     :initform (lambda (&optional repo)
                 (interactive)
-                (forge-topic-list-setup
-                 repo nil :type (oref (transient-suffix-object) type))
+                (with-slots (type global) (transient-suffix-object)
+                  (forge-topic-list-setup
+                   repo nil :type type :global global))
                 (transient-setup 'forge-topics-menu)))))
 
 ;;;###autoload (autoload 'forge-list-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-topics ()
   "List topics of the current repository."
-  :class 'forge--topics-list-command :type nil
+  :class 'forge--topics-list-command :global nil :type nil
   :description "topics"
-  :inapt-if-mode 'forge-topics-mode
+  :inapt-if (lambda () (and (eq major-mode 'forge-topics-mode)
+                       (not (oref forge--buffer-topics-spec global))))
   :inapt-face 'forge-suffix-active
   (declare (interactive-only nil)))
 
 ;;;###autoload (autoload 'forge-list-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-issues ()
   "List issues of the current repository."
-  :class 'forge--topics-list-command :type 'issue
+  :class 'forge--topics-list-command :global nil :type 'issue
   :description "issues"
   (declare (interactive-only nil)))
 
 ;;;###autoload (autoload 'forge-list-pullreqs "forge-topics" nil t)
 (transient-define-suffix forge-list-pullreqs ()
   "List pull-requests of the current repository."
-  :class 'forge--topics-list-command :type 'pullreq
+  :class 'forge--topics-list-command :global nil :type 'pullreq
+  :description "pull-requests"
+  (declare (interactive-only nil)))
+
+;;;###autoload (autoload 'forge-list-global-topics "forge-topics" nil t)
+(transient-define-suffix forge-list-global-topics ()
+  "List topics across all tracked repository."
+  :class 'forge--topics-list-command :global t :type nil
+  :description "topics"
+  :inapt-if (lambda () (and (eq major-mode 'forge-topics-mode)
+                       (oref forge--buffer-topics-spec global)))
+  :inapt-face 'forge-suffix-active
+  (declare (interactive-only nil)))
+
+;;;###autoload (autoload 'forge-list-global-issues "forge-topics" nil t)
+(transient-define-suffix forge-list-global-issues ()
+  "List issues across all tracked repository."
+  :class 'forge--topics-list-command :global t :type 'issue
+  :description "issues"
+  (declare (interactive-only nil)))
+
+;;;###autoload (autoload 'forge-list-global-pullreqs "forge-topics" nil t)
+(transient-define-suffix forge-list-global-pullreqs ()
+  "List pull-requests across all tracked repository."
+  :class 'forge--topics-list-command :global t :type 'pullreq
   :description "pull-requests"
   (declare (interactive-only nil)))
 
