@@ -433,7 +433,11 @@ Limit list to topics for which a review by the given user was requested."
    (limit       :documentation "Number of topics to list at most."
                 :initarg :limit
                 :initform 200
-                :custom natnum)))
+                :custom natnum)
+   (grouped     :documentation "Whether to group topics by respository."
+                :initarg :grouped
+                :initform nil
+                :custom boolean)))
 
 (cl-defun forge--list-topics
     (&optional (spec forge--buffer-topics-spec)
@@ -731,8 +735,11 @@ can be selected from the start."
 
 (defun forge--format-topic-line (topic &optional width)
   (concat
-   (and (derived-mode-p 'forge-notifications-mode)
-        (eq forge-notifications-display-style 'flat)
+   (and (or (and (derived-mode-p 'forge-notifications-mode)
+                 (eq forge-notifications-display-style 'flat))
+            (and (derived-mode-p 'forge-topics-mode)
+                 (oref forge--buffer-topics-spec global)
+                 (not (oref forge--buffer-topics-spec grouped))))
         (concat (truncate-string-to-width
                  (oref (forge-get-repository topic) slug)
                  forge-topic-repository-slug-width

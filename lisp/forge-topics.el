@@ -146,10 +146,24 @@ Must be set before `forge-topics' is loaded.")
                  forge--buffer-topics-spec
                  (forge-get-repository :tracked?))))
     (magit-insert-section (topicbuf)
-      (if topics
-          (dolist (topic topics)
-            (forge--insert-topic topic 5))
-        (insert "No matching topics\n")))))
+      (cond
+       ((not topics)
+        (insert "No matching topics\n"))
+       ((not (oref forge--buffer-topics-spec grouped))
+        (dolist (topic topics)
+          (forge--insert-topic topic 5)))
+       ((pcase-dolist (`(,_ . ,topics)
+                       (--group-by (oref it repository) topics))
+          (let ((repo (forge-get-repository (car topics))))
+            (magit-insert-section (forge-repo repo)
+              (magit-insert-heading
+                (concat (propertize (format "%s/%s"
+                                            (oref repo owner)
+                                            (oref repo name))
+                                    'font-lock-face 'bold)
+                        (format " (%s)" (length topics))))
+              (dolist (topic topics)
+                (forge--insert-topic topic 5))))))))))
 
 (defun forge-topics-buffer-desc ()
   (capitalize (concat (symbol-name (oref forge--buffer-topics-spec type)) "s")))
@@ -198,6 +212,8 @@ Must be set before `forge-topics' is loaded.")
    ["Display"
     ("-O" forge-topics-set-order)
     ("-L" forge-topics-set-limit)
+    ("-F" forge-topics-ungroup)
+    ("-G" forge-topics-group)
     ("-S" forge-toggle-display-in-status-buffer)
     ("-H" forge-toggle-topic-legend)]]
   [forge--topic-legend-group]
@@ -563,6 +579,26 @@ then display the respective menu, otherwise display no menu."
       "no limit"))
   (interactive (list (read-number "Limit number (0 for no limit): ")))
   (oset forge--buffer-topics-spec limit (if (zerop limit) nil limit))
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-topics-group ()
+  "Group topics by repository."
+  :description "group by repo"
+  :if (lambda () (oref forge--buffer-topics-spec global))
+  :inapt-if (lambda () (oref forge--buffer-topics-spec grouped))
+  :inapt-face 'forge-suffix-active
+  (interactive)
+  (oset forge--buffer-topics-spec grouped t)
+  (forge-refresh-buffer))
+
+(transient-define-suffix forge-topics-ungroup ()
+  "Show a flat topic list."
+  :description "single list"
+  :if (lambda () (oref forge--buffer-topics-spec global))
+  :inapt-if-not (lambda () (oref forge--buffer-topics-spec grouped))
+  :inapt-face 'forge-suffix-active
+  (interactive)
+  (oset forge--buffer-topics-spec grouped nil)
   (forge-refresh-buffer))
 
 ;;; _
