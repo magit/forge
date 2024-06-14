@@ -113,6 +113,9 @@ Takes the pull-request as only argument and must return a directory."
 ;;;###autoload (autoload 'forge-configure "forge-commands" nil t)
 (transient-define-prefix forge-configure ()
   "Configure current repository and global settings."
+  :transient-non-suffix #'transient--do-call
+  :refresh-suffixes t
+  :column-widths forge--topic-menus-column-widths
   [forge--topic-menus-group
    ["Configure"
     :if forge--get-repository:tracked?
