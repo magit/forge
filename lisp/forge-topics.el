@@ -31,6 +31,17 @@
 
 ;;; Options
 
+(defcustom forge-list-buffer-default-topic-filters
+  (forge--topics-spec :type 'topic :active t :state 'open :order 'newest)
+  "Filters initially used to limit topics listed in list buffers.
+
+This option controls which topics are listed when initially creating
+a `forge-topics-mode' buffer.  To temporarly change which topics are
+listed in a given buffer, instead use \\`N m' (`forge-topics-menu')."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type 'object)
+
 (defcustom forge-topic-list-mode-hook '(hl-line-mode)
   "Hook run after entering Forge-Topic-List mode."
   :package-version '(forge . "0.1.0")
@@ -179,8 +190,9 @@ Must be set before `forge-list' is loaded.")
         (get-buffer-create name)
       (get-buffer name))))
 
-(defun forge-topic-list-setup (&optional repo spec)
-  (let* ((global (oref spec global))
+(defun forge-topic-list-setup (&optional repo spec &rest params)
+  (let* ((global (or (plist-get params :global)
+                     (and spec (oref spec global))))
          (repo (or repo
                    (and (not global)
                         (if-let* ((topic (forge-topic-at-point))
@@ -188,10 +200,18 @@ Must be set before `forge-list' is loaded.")
                             repo
                           (forge-current-repository :tracked?)))))
          (dir (or (and repo (forge-get-worktree repo)) "/"))
-         (buffer nil))
+         (buf (forge-topic-get-buffer repo))
+         (spec (cond (spec (clone spec))
+                     ((and (bufferp buf)
+                           (buffer-local-value 'forge--buffer-topics-spec buf)))
+                     ((clone forge-list-buffer-default-topic-filters)))))
+    (while-let ((key (pop params)))
+      (eieio-oset spec key (pop params)))
+    (unless (oref spec type)
+      (oset spec type 'topic))
     (unless (or repo global)
       (error "Cannot determine repository"))
-    (with-current-buffer (setq buffer (forge-topic-get-buffer repo t))
+    (with-current-buffer (or buf (setq buf (forge-topic-get-buffer repo t)))
       (setq default-directory dir)
       (setq forge-buffer-repository (and repo (oref repo id)))
       (setq forge--tabulated-list-columns forge-topic-list-columns)
@@ -204,7 +224,7 @@ Must be set before `forge-list' is loaded.")
       (tabulated-list-print)
       (when hl-line-mode
         (hl-line-highlight)))
-    (switch-to-buffer buffer)))
+    (switch-to-buffer buf)))
 
 ;;; Commands
 ;;;; Menu
@@ -290,21 +310,18 @@ then display the respective menu, otherwise display no menu."
 ;;;; List
 
 (defclass forge--topics-list-command (transient-suffix)
-  ((type :initarg :type)
+  ((type :initarg :type :initform nil)
    (definition
     :initform (lambda (&optional repo)
                 (interactive)
                 (forge-topic-list-setup
-                 repo
-                 (forge--topics-spec
-                  :type (oref (transient-suffix-object) type)
-                  :active t :state 'open))
+                 repo nil :type (oref (transient-suffix-object) type))
                 (transient-setup 'forge-topics-menu)))))
 
 ;;;###autoload (autoload 'forge-list-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-topics ()
   "List topics of the current repository."
-  :class 'forge--topics-list-command :type 'topic
+  :class 'forge--topics-list-command :type nil
   :description "topics"
   :inapt-if-mode 'forge-topics-mode
   :inapt-face 'forge-suffix-active

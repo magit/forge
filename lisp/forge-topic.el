@@ -23,6 +23,7 @@
 ;;; Code:
 
 (require 'bug-reference)
+(require 'eieio-custom)
 (require 'markdown-mode)
 (require 'parse-time)
 (require 'yaml)
@@ -384,21 +385,101 @@ an error."
 (put 'forge--buffer-topics-spec 'permanent-local t)
 
 (defclass forge--topics-spec ()
-  ((type       :initarg :type      :initform 'topic)
-   (active     :initarg :active    :initform t)
-   (state      :initarg :state     :initform 'open)
-   (status     :initarg :status    :initform nil)
-   (updated    :initarg :updated   :initform nil)
-   (milestone  :initarg :milestone :initform nil)
-   (labels     :initarg :labels    :initform nil)
-   (marks      :initarg :marks     :initform nil)
-   (saved      :initarg :saved     :initform nil)
-   (author     :initarg :author    :initform nil)
-   (assignee   :initarg :assignee  :initform nil)
-   (reviewer   :initarg :reviewer  :initform nil)
-   (global     :initarg :global    :initform nil)
-   (order      :initarg :order     :initform nil)
-   (limit      :initarg :limit     :initform 200)))
+  ((type        :documentation "\
+Limit list based on topic type."
+                :initarg :type
+                :initform 'topic
+                :custom (choice
+                         (const topic)
+                         (const issue)
+                         (const pullreq)
+                         (const :tag "disable topic sections (nil)" nil)))
+   (active      :documentation "\
+Limit list to active topics.
+
+A topic is \"active\" if its state (public condition) is open and/or
+its status (private condition) is unread or pending.
+
+When this is t, then the value of `state' and `status' are ignored."
+                :initarg :active
+                :initform t
+                :custom boolean)
+   (state       :documentation "\
+Limit list based on topic (public) state.
+
+State is the \"public condition\".  I.e., is the topic still open?"
+                :initarg :state
+                :initform 'open
+                :custom (choice
+                         (const open)
+                         (const (completed merged))
+                         (const (unplanned rejected))
+                         (const :tag "all (nil)" nil)))
+   (status      :documentation "\
+Limit list based on topic (private) status.
+
+Status is the \"private condition\".  I.e., have you decided yet
+that *you* are done with the topic, and have others made changes,
+which *you* have not seen yet?
+
+`inbox' means \"`unread' or `pending'\"."
+                :initarg :status
+                :initform nil
+                :custom (choice
+                         (const inbox)
+                         (const unread)
+                         (const pending)
+                         (const done)
+                         (const :tag "all (nil)" nil)))
+   (updated     :initarg :updated
+                :initform nil)
+   (milestone   :documentation "\
+Limit list to topics assigned to given milestone."
+                :initarg :milestone
+                :initform nil
+                :custom string)
+   (labels      :documentation "\
+Limit list to topics with at least one of the given labels."
+                :initarg :labels
+                :initform nil
+                :custom (repeat string))
+   (marks       :documentation "\
+Limit list to topics with at least one of the given marks.
+Marks are like labels, but they are private and local to the
+current Forge database."
+                :initarg :marks
+                :initform nil
+                :custom (repeat string))
+   (saved       :documentation "Limit list to saved topics."
+                :initarg :saved
+                :initform nil
+                :custom boolean)
+   (author      :documentation "\
+Limit list to topics created by given user."
+                :initarg :author
+                :initform nil
+                :label "Author (username)"
+                :custom string)
+   (assignee    :documentation "\
+Limit list to topics assigned to given user."
+                :initarg :assignee
+                :initform nil
+                :label "Assignee (username)"
+                :custom string)
+   (reviewer    :documentation "\
+Limit list to topics for which a review by the given user was requested."
+                :initarg :reviewer
+                :initform nil
+                :label "Reviewer (username)"
+                :custom string)
+   (global      :initarg :global
+                :initform nil)
+   (order       :initarg :order
+                :initform nil)
+   (limit       :documentation "Number of topics to list at most."
+                :initarg :limit
+                :initform 200
+                :custom natnum)))
 
 (cl-defun forge--list-topics
     (&optional (spec forge--buffer-topics-spec)
