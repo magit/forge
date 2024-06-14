@@ -63,6 +63,7 @@ and `:pad-right'."
 (defvar-keymap forge-repository-list-mode-map
   :doc "Local keymap for Forge-Repository-List mode buffers."
   :parent (make-composed-keymap forge-common-map tabulated-list-mode-map)
+  "n"                          #'forge-dispatch
   "RET"                        #'forge-visit-this-repository
   "<return>"                   #'forge-visit-this-repository
   "o"                          #'forge-browse-this-repository
