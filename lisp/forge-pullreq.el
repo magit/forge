@@ -322,25 +322,6 @@ can be selected from the start."
     (forge--insert-topics 'pullreqs "Pull requests"
                           (forge--list-topics spec repo))))
 
-(defun forge-insert-assigned-pullreqs ()
-  "Insert a list of open pull-requests that are assigned to you."
-  (forge--insert-pullreqs "Assigned pull requests"
-                          #'forge--ls-assigned-pullreqs))
-
-(defun forge-insert-requested-reviews ()
-  "Insert a list of pull-requests that are awaiting your review."
-  (forge--insert-pullreqs "Pull requests awaiting review"
-                          #'forge--ls-requested-reviews))
-
-(defun forge-insert-authored-pullreqs ()
-  "Insert a list of open pullreqs that are authored by you."
-  (forge--insert-pullreqs "Authored pullreqs"
-                          #'forge--ls-authored-pullreqs))
-
-(defun forge--insert-pullreqs (heading getter)
-  (when-let ((repo (forge--assert-insert-topics-get-repository)))
-    (forge--insert-topics 'pullreqs heading (funcall getter repo))))
-
 (defun forge--insert-pullreq-commits (pullreq &optional all)
   (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
     (if all

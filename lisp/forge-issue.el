@@ -274,18 +274,6 @@ can be selected from the start."
     (forge--insert-topics 'issues "Issues"
                           (forge--list-topics spec repo))))
 
-(defun forge-insert-assigned-issues ()
-  "Insert a list of open issues that are assigned to you."
-  (forge--insert-issues "Assigned issues" #'forge--ls-assigned-issues))
-
-(defun forge-insert-authored-issues ()
-  "Insert a list of open issues that are authored by you."
-  (forge--insert-issues "Authored issues" #'forge--ls-authored-issues))
-
-(defun forge--insert-issues (heading getter)
-  (when-let ((repo (forge--assert-insert-topics-get-repository t)))
-    (forge--insert-topics 'issues heading (funcall getter repo))))
-
 ;;; _
 (provide 'forge-issue)
 ;;; forge-issue.el ends here

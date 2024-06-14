@@ -1014,15 +1014,6 @@ can be selected from the start."
           (when description
             (overlay-put o 'help-echo description)))))))
 
-(defun forge--assert-insert-topics-get-repository (&optional issues-p)
-  (and (forge-db t)
-       (cl-intersection forge--buffer-topics-spec
-                        (list 'topic (if issues-p 'issue 'pullreq)))
-       (and-let* ((repo (forge-get-repository :tracked?)))
-         (and (or (not issues-p)
-                  (oref repo issues-p))
-              repo))))
-
 ;;; Modes
 
 (defvar-keymap forge-common-map
