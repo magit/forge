@@ -380,6 +380,102 @@ an error."
 
 ;;;; List
 
+(defvar-local forge--buffer-topics-spec nil)
+(put 'forge--buffer-topics-spec 'permanent-local t)
+
+(defclass forge--topics-spec ()
+  ((type       :initarg :type      :initform 'topic)
+   (active     :initarg :active    :initform t)
+   (state      :initarg :state     :initform 'open)
+   (status     :initarg :status    :initform nil)
+   (updated    :initarg :updated   :initform nil)
+   (milestone  :initarg :milestone :initform nil)
+   (labels     :initarg :labels    :initform nil)
+   (marks      :initarg :marks     :initform nil)
+   (saved      :initarg :saved     :initform nil)
+   (author     :initarg :author    :initform nil)
+   (assignee   :initarg :assignee  :initform nil)
+   (reviewer   :initarg :reviewer  :initform nil)
+   (global     :initarg :global    :initform nil)
+   (order      :initarg :order     :initform nil)
+   (limit      :initarg :limit     :initform 200)))
+
+(cl-defun forge--list-topics
+    (&optional (spec forge--buffer-topics-spec)
+               (repo (forge-get-repository :tracked?))
+               (type (oref spec type)))
+  (when (oref spec reviewer)
+    (setq type 'pullreq))
+  (if (eq type 'topic)
+      (cl-sort (nconc (forge--list-topics-1 spec repo 'issue)
+                      (forge--list-topics-1 spec repo 'pullreq))
+               #'> :key (lambda (obj) (oref obj number)))
+    (forge--list-topics-1 spec repo type)))
+
+(defun forge--list-topics-1 (spec repo type)
+  (mapcar (apply-partially #'closql--remake-instance
+                           (if (eq type 'issue) 'forge-issue 'forge-pullreq)
+                           (forge-db))
+          (forge-sql (forge--list-topics-2 spec repo type))))
+
+(defun forge--list-topics-2 (spec repo type)
+  (pcase-let (((eieio active state status milestone labels marks
+                      saved author assignee reviewer global limit)
+               spec))
+    (cond (active
+           (setq state 'open)
+           (setq status '(unread pending)))
+          ((eq status 'inbox)
+           (setq status '(unread pending))))
+    `[:select :distinct topic:*
+      :from [(as ,type topic)]
+      ,@(cond
+         (milestone
+          `[:join milestone :on (= milestone:title ,milestone)]))
+      ,@(cond
+         ((not labels) nil)
+         ((eq type 'issue)
+          [:join   issue-label :on (= issue-label:issue      topic:id)
+           :join         label :on (= label:id         issue-label:id)])
+         ([:join pullreq-label :on (= pullreq-label:pullreq  topic:id)
+           :join         label :on (= label:id       pullreq-label:id)]))
+      ,@(cond
+         ((not marks) nil)
+         ((eq type 'issue)
+          [:join   issue-mark :on (= issue-mark:issue      topic:id)
+           :join         mark :on (= mark:id         issue-mark:id)])
+         ([:join pullreq-mark :on (= pullreq-mark:pullreq  topic:id)
+           :join         mark :on (= mark:id       pullreq-mark:id)]))
+      ,@(cond
+         ((not assignee) nil)
+         ((eq type 'issue)
+          [:join   issue-assignee :on (= issue-assignee:issue      topic:id)
+           :join         assignee :on (= assignee:id      issue-assignee:id)])
+         ([:join pullreq-assignee :on (= pullreq-assignee:pullreq  topic:id)
+           :join         assignee :on (= assignee:id    pullreq-assignee:id)]))
+      ,@(cond
+         (reviewer
+          [:join (as pullreq-review-request r) :on (= r:pullreq  topic:id)
+           :join assignee                      :on (= assignee:id    r:id)]))
+      :where
+      (and
+       ,@(and (not global) repo `((= topic:repository ,(oref repo id))))
+       ,@(cond
+          ((and active state status)
+           `((or (in topic:state  ,(vconcat (ensure-list state)))
+                 (in topic:status ,(vconcat (ensure-list status))))))
+          (`(,@(and state  `((in topic:state  ,(vconcat (ensure-list state)))))
+             ,@(and status `((in topic:status ,(vconcat (ensure-list status))))))))
+       ,@(and milestone '((= topic:milestone milestone:id)))
+       ,@(and labels    `((or ,@(mapcar (lambda (l) `(= label:name ,l)) labels))))
+       ,@(and marks     `((or ,@(mapcar (lambda (m) `(=  mark:name ,m))  marks))))
+       ,@(and saved     '((= topic:saved-p  't)))
+       ,@(and author    `((= topic:author   ,author)))
+       ,@(and assignee  `((= assignee:login ,assignee)))
+       ,@(and reviewer  `((= assignee:login ,reviewer))))
+      :order-by [(desc topic:number)]
+      ,@(and limit `(:limit ,limit))]))
+
 (defun forge-ls-recent-topics (repo table)
   (let* ((id (oref repo id))
          (limit forge-topic-list-limit)
