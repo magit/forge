@@ -95,7 +95,8 @@ Takes the pull-request as only argument and must return a directory."
   [:if-not forge--get-repository:tracked?
    forge--topic-menus-group
    [:description (lambda ()
-                   (if (magit-gitdir)
+                   (if (or (magit-gitdir)
+                           (forge-repository-at-point))
                        "Forge doesn't know about this Git repository yet"
                      "Not inside a Git repository"))
     ("/ a" "add repository to database" forge-add-repository)
