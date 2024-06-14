@@ -301,7 +301,6 @@ can be selected from the start."
 (defvar-keymap forge-pullreqs-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-pullreqs
   "<remap> <magit-visit-thing>"  #'forge-list-pullreqs
-  "C-c C-m"                      #'forge-topics-menu
   "C-c C-n"                      #'forge-create-pullreq)
 
 (defvar-keymap forge-pullreq-section-map

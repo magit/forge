@@ -394,11 +394,13 @@ Only Github is supported for now."
   (forge-topic-list-setup 'issue filter fn repo global columns))
 
 ;;;###autoload (autoload 'forge-list-issues "forge-topics" nil t)
-(transient-define-suffix forge-list-issues ()
-  "List issues of the current repository."
+(transient-define-suffix forge-list-issues (&optional menu)
+  "List issues of the current repository.
+With prefix argument MENU, also show the topics menu."
   :class 'forge--topic-list-command :type 'issue
-  (interactive)
-  (forge--issue-list-setup nil #'forge--ls-issues))
+  (interactive (list current-prefix-arg))
+  (forge--issue-list-setup nil #'forge--ls-issues)
+  (when menu (transient-setup 'forge-topics-menu)))
 
 ;;;###autoload (autoload 'forge-list-labeled-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-labeled-issues (label)
@@ -438,11 +440,13 @@ Only Github is supported for now."
   (forge-topic-list-setup 'pullreq filter fn repo global columns))
 
 ;;;###autoload (autoload 'forge-list-pullreqs "forge-topics" nil t)
-(transient-define-suffix forge-list-pullreqs ()
-  "List pull-requests of the current repository."
+(transient-define-suffix forge-list-pullreqs (&optional menu)
+  "List pull-requests of the current repository.
+With prefix argument MENU, also show the topics menu."
   :class 'forge--topic-list-command :type 'pullreq
-  (interactive)
-  (forge--pullreq-list-setup nil #'forge--ls-pullreqs))
+  (interactive (list current-prefix-arg))
+  (forge--pullreq-list-setup nil #'forge--ls-pullreqs)
+  (when menu (transient-setup 'forge-topics-menu)))
 
 ;;;###autoload (autoload 'forge-list-labeled-pullreqs "forge-topics" nil t)
 (transient-define-suffix forge-list-labeled-pullreqs (label)

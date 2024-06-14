@@ -249,7 +249,6 @@ can be selected from the start."
 (defvar-keymap forge-issues-section-map
   "<remap> <magit-browse-thing>" #'forge-browse-issues
   "<remap> <magit-visit-thing>"  #'forge-list-issues
-  "C-c C-m"                      #'forge-topics-menu
   "C-c C-n"                      #'forge-create-issue)
 
 (defvar-keymap forge-issue-section-map
