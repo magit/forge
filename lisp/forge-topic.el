@@ -311,9 +311,6 @@ an error."
   (or (thing-at-point 'forge-topic)
       (magit-section-value-if '(issue pullreq))
       (forge-get-pullreq :branch)
-      (and (derived-mode-p 'forge-topic-list-mode)
-           (and-let* ((id (tabulated-list-get-id)))
-             (forge-get-topic id)))
       (and demand (user-error "No topic at point"))))
 
 (put 'forge-topic 'thing-at-point #'forge-thingatpt--topic)
@@ -329,21 +326,7 @@ an error."
                   repo (string-to-number (match-string-no-properties 1))))))
 
 (defun forge-region-topics ()
-  (cond
-   ((derived-mode-p 'forge-notifications-mode)
-    (magit-region-values '(issue pullreq)))
-   ((and (derived-mode-p 'forge-topic-list-mode)
-         (region-active-p))
-    (let ((beg (region-beginning))
-          (end (region-end))
-          (topics nil))
-      (save-excursion
-        (goto-char beg)
-        (while (< (point) end)
-          (when-let* ((id (tabulated-list-get-id)))
-            (push (forge-get-topic id) topics))
-          (forward-line 1))
-        (nreverse topics))))))
+  (magit-region-values '(issue pullreq)))
 
 ;;;; List
 
@@ -818,10 +801,6 @@ can be selected from the start."
            (`(forge-pullreq merged)    'forge-pullreq-merged)
            (`(forge-pullreq rejected)  'forge-pullreq-rejected)))))))
 
-(defun forge--format-topic-title+labels (topic)
-  (concat (forge--format-topic-title  topic) " "
-          (forge--format-topic-labels topic)))
-
 (defun forge--format-topic-milestone (topic)
   (and-let* ((id (oref topic milestone)))
     (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))))
@@ -834,14 +813,14 @@ can be selected from the start."
                    (magit--propertize-face
                     name `(( :background ,background
                              :foreground ,foreground)
-                           forge-tablist-topic-label))))
+                           forge-topic-label))))
                labels " ")))
 
 (defun forge--format-topic-marks (topic)
   (and-let* ((marks (closql--iref topic 'marks)))
     (mapconcat (pcase-lambda (`(,name ,face ,_description))
                  (magit--propertize-face
-                  name (list 'forge-tablist-topic-label face)))
+                  name (list 'forge-topic-label face)))
                marks " ")))
 
 (defun forge--format-topic-state (topic)
@@ -1666,8 +1645,8 @@ enable `bug-reference-mode' or `bug-reference-prog-mode' and
 modify `bug-reference-bug-regexp' if appropriate."
   (unless (or bug-reference-url-format
               (not (forge-db t))
-              ;; TODO Allow use in this mode again.
-              (derived-mode-p 'forge-notifications-mode))
+              ;; TODO Allow use in these modes again.
+              (derived-mode-p 'forge-topics-mode 'forge-notifications-mode))
     (magit--with-safe-default-directory nil
       (when-let ((repo (forge-get-repository :tracked?)))
         (if (>= emacs-major-version 28)

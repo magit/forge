@@ -344,10 +344,11 @@ parent object (determined using `forge-get-parent')."
 
 (defun forge-refresh-buffer (&optional buffer)
   "Refresh the current buffer, if it is a Magit or Forge buffer.
-Refresh the buffer if its major-mode derives from `magit-mode',
-`forge-topic-list-mode' or `forge-repository-list-mode'.  If
-optional BUFFER is non-nil, then refresh that buffer, provided
-it is alive and satisfies the mode requirement."
+Refresh the buffer if its major-mode derives from `magit-mode'
+or `forge-repository-list-mode'.  If optional BUFFER is non-nil,
+then refresh that buffer, provided it is alive and satisfies
+the mode requirement."
+  (interactive)
   (cond (buffer
          (when (buffer-live-p buffer)
            (with-current-buffer buffer
@@ -356,8 +357,11 @@ it is alive and satisfies the mode requirement."
          (magit-refresh-buffer))
         ((derived-mode-p 'magit-mode)
          (magit-refresh-buffer))
-        ((derived-mode-p 'forge-topic-list-mode
-                         'forge-repository-list-mode)
+        ((and (derived-mode-p 'forge-topic-mode)
+              (boundp 'forge--buffer-topics-spec)
+              (oref forge--buffer-topics-spec global))
+         (revert-buffer))
+        ((derived-mode-p 'forge-repository-list-mode)
          (revert-buffer))))
 
 (defun forge--sanitize-string (string)

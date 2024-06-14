@@ -328,6 +328,14 @@ an error."
   (and-let* ((id forge-buffer-repository))
     (forge-get-repository :id id)))
 
+(defun forge-set-buffer-repository ()
+  "Initialize the value of variable `forge-buffer-repository'."
+  (unless forge-buffer-repository
+    (and-let* ((repo (forge-get-repository :known?)))
+      (setq forge-buffer-repository (oref repo id)))))
+
+(add-hook 'magit-mode-hook #'forge-set-buffer-repository)
+
 ;;;; List
 
 (defun forge--ls-repos ()

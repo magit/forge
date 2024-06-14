@@ -434,7 +434,7 @@ With prefix argument MENU, also show the topic menu."
          (worktree (forge-get-worktree repo)))
     (cond
      ((eq transient-current-command 'forge-repositories-menu)
-      (if-let ((buffer (forge-topic-get-buffer repo)))
+      (if-let ((buffer (forge-topics-buffer-name repo)))
           (switch-to-buffer buffer)
         (forge-list-topics repo))
       (transient-setup 'forge-topics-menu))

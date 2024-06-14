@@ -125,11 +125,6 @@ If there is no such issue and DEMAND is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-issue)
       (magit-section-value-if 'issue)
-      (and (derived-mode-p 'forge-topic-list-mode)
-           (and-let* ((id (tabulated-list-get-id))
-                      (topic (forge-get-topic id)))
-             (and (forge-issue-p topic)
-                  topic)))
       (and demand (user-error "No issue at point"))))
 
 (put 'forge-issue 'thing-at-point #'forge-thingatpt--issue)

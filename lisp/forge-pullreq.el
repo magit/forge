@@ -149,11 +149,6 @@ an error."
   (or (thing-at-point 'forge-pullreq)
       (magit-section-value-if 'pullreq)
       (forge-get-pullreq :branch)
-      (and (derived-mode-p 'forge-topic-list-mode)
-           (and-let* ((id (tabulated-list-get-id))
-                      (topic (forge-get-topic id)))
-             (and (forge-pullreq-p topic)
-                  topic)))
       (and demand (user-error "No pull-request at point"))))
 
 (put 'forge-pullreq 'thing-at-point #'forge-thingatpt--pullreq)

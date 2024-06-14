@@ -22,12 +22,7 @@
 
 ;;; Code:
 
-(require 'hl-line)
-
 (require 'forge-topic)
-(require 'forge-tablist)
-
-(defvar x-stretch-cursor)
 
 ;;; Options
 
@@ -55,49 +50,6 @@ To initially list no topics, set the `type' slot to nil."
   :package-version '(forge . "0.4.0")
   :group 'forge
   :type 'object)
-
-(defcustom forge-topic-list-mode-hook '(hl-line-mode)
-  "Hook run after entering Forge-Topic-List mode."
-  :package-version '(forge . "0.1.0")
-  :group 'forge
-  :type 'hook
-  :options '(hl-line-mode))
-
-(defcustom forge-topic-list-columns
-  '(("#"     forge--format-topic-slug          5 nil nil)
-    ("Title" forge--format-topic-title+labels 35 nil nil))
-  "List of columns displayed when listing topics for a single repository.
-
-Each element has the form (HEADER SOURCE WIDTH SORT PROPS).
-
-HEADER is the string displayed in the header.  WIDTH is the width
-of the column.  SOURCE is used to get the value, it has to be the
-name of a slot of `forge-topic' or a function that takes such an
-object as argument.  SORT is a boolean or a function used to sort
-by this column.  Supported PROPS include `:right-align' and
-`:pad-right'."
-  :package-version '(forge . "0.4.0")
-  :group 'forge
-  :type forge--tablist-columns-type)
-
-(defcustom forge-global-topic-list-columns
-  '(("Owner" (repository owner)               15 nil nil)
-    ("Name"  (repository name)                20 nil nil)
-    ("#"     forge--format-topic-slug          5 nil nil)
-    ("Title" forge--format-topic-title+labels 35 nil nil))
-  "List of columns displayed when listing topics for all repositories.
-
-Each element has the form (HEADER SOURCE WIDTH SORT PROPS).
-
-HEADER is the string displayed in the header.  WIDTH is the width
-of the column.  SOURCE is used to get the value, it has to be the
-name of a slot of `forge-topic' or a function that takes such an
-object as argument.  SORT is a boolean or a function used to sort
-by this column.  Supported PROPS include `:right-align' and
-`:pad-right'."
-  :package-version '(forge . "0.4.0")
-  :group 'forge
-  :type forge--tablist-columns-type)
 
 (defcustom forge-owned-accounts nil
   "An alist of accounts that are owned by you.
@@ -140,71 +92,27 @@ This is a list of package names.  Used by the commands
   "Face used for suffixes whose effects is currently implied."
   :group 'forge-faces)
 
-(defface forge-tablist-hl-line
-  `((((class color) (background light))
-     ,@(and (>= emacs-major-version 27) '(:extend t))
-     :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
-            :color "grey25"
-            :style nil))
-    (((class color) (background dark))
-     ,@(and (>= emacs-major-version 27) '(:extend t))
-     :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
-            :color "grey75"
-            :style nil)))
-  "Face uses instead of `hl-line' in Forge's `tabulated-list-mode' buffers.
-It is recommended that you stick to using a box for this purpose,
-as using the background color would shadow the background colors
-used for labels."
-  :group 'forge-faces)
-
-(defface forge-tablist-topic-label
-  `((t :inherit forge-topic-label))
-  "Face used for topic labels in Forge's `tabulated-list-mode' buffers.
-This face can be used to control whether a box is added to labels
-and how that is styled.  The background colors used for any given
-label, cannot be changed independently of the color used in the
-forges web interface."
-  :group 'forge-faces)
-
 ;;; Mode
 
-(defvar-keymap forge-topic-list-mode-map
+(defvar-keymap forge-topics-mode-map
   :doc "Local keymap for Forge-Topic-List mode buffers."
-  :parent (make-composed-keymap forge-common-map tabulated-list-mode-map)
+  :parent (make-composed-keymap forge-common-map magit-mode-map)
   "RET"                        #'forge-visit-this-topic
   "<return>"                   #'forge-visit-this-topic
   "o"                          #'forge-browse-this-topic
   "<remap> <forge--list-menu>" #'forge-topics-menu
-  "<remap> <forge--item-menu>" #'forge-topic-menu)
+  "<remap> <forge--item-menu>" #'forge-topic-menu
+  "<remap> <magit-refresh>"    #'forge-refresh-buffer)
 
-(defvar forge-topic-list-mode-name
-  '((:eval (capitalize
-            (concat (if forge--buffer-list-filter
-                        (format "%s " forge--buffer-list-filter)
-                      "")
-                    (if forge--buffer-list-type
-                        (format "%ss" forge--buffer-list-type)
-                      "topics")))))
-  "Information shown in the mode-line for `forge-topic-list-mode'.
-Must be set before `forge-list' is loaded.")
+(defvar forge-topics-mode-name '((:eval (forge-topics-buffer-desc)))
+  "Information shown in the mode-line for `forge-topics-mode'.
+Must be set before `forge-topics' is loaded.")
 
-(define-derived-mode forge-topic-list-mode tabulated-list-mode
-  forge-topic-list-mode-name
+(define-derived-mode forge-topics-mode magit-mode forge-topics-mode-name
   "Major mode for browsing a list of topics."
-  (setq-local hl-line-face 'forge-tablist-hl-line)
-  (setq-local x-stretch-cursor nil)
-  (setq tabulated-list-padding 0)
-  (setq tabulated-list-sort-key (cons "#" nil)))
+  (hack-dir-local-variables-non-file-buffer))
 
-(defun forge-topic-get-buffer (&optional repo create)
-  (let ((name (if repo
-                  (format "*forge-topics: %s*" (oref repo slug))
-                "*forge-topics*")))
-    (if create
-        (get-buffer-create name)
-      (get-buffer name))))
-
-(defun forge-topic-list-setup (&optional repo spec &rest params)
+(defun forge-topics-setup-buffer (&optional repo spec &rest params)
   (let* ((global (or (plist-get params :global)
                      (and spec (oref spec global))))
          (repo (or repo
@@ -214,7 +122,8 @@ Must be set before `forge-list' is loaded.")
                             repo
                           (forge-current-repository :tracked?)))))
          (dir (or (and repo (forge-get-worktree repo)) "/"))
-         (buf (forge-topic-get-buffer repo))
+         (buf (forge-topics-buffer-name repo))
+         (buf (or (get-buffer buf) buf))
          (spec (cond (spec (clone spec))
                      ((and (bufferp buf)
                            (buffer-local-value 'forge--buffer-topics-spec buf)))
@@ -225,20 +134,30 @@ Must be set before `forge-list' is loaded.")
       (oset spec type 'topic))
     (unless (or repo global)
       (error "Cannot determine repository"))
-    (with-current-buffer (or buf (setq buf (forge-topic-get-buffer repo t)))
-      (setq default-directory dir)
-      (setq forge-buffer-repository (and repo (oref repo id)))
-      (setq forge--tabulated-list-columns forge-topic-list-columns)
-      (setq forge--tabulated-list-query #'forge--list-topics)
-      (cl-letf (((symbol-function #'tabulated-list-revert) #'ignore)) ; see #229
-        (forge-topic-list-mode))
-      (setq forge--buffer-topics-spec spec)
-      (forge--tablist-refresh)
-      (add-hook 'tabulated-list-revert-hook #'forge--tablist-refresh nil t)
-      (tabulated-list-print)
-      (when hl-line-mode
-        (hl-line-highlight)))
-    (switch-to-buffer buf)))
+    (magit-setup-buffer-internal #'forge-topics-mode nil
+                                 `((default-directory           ,dir)
+                                   (forge--buffer-topics-spec   ,spec)
+                                   (forge-buffer-unassociated-p ,global))
+                                 (get-buffer-create buf))))
+
+(defun forge-topics-refresh-buffer ()
+  (magit-set-header-line-format (forge-topics-buffer-desc))
+  (let ((topics (forge--list-topics
+                 forge--buffer-topics-spec
+                 (forge-get-repository :tracked?))))
+    (magit-insert-section (topicbuf)
+      (if topics
+          (dolist (topic topics)
+            (forge--insert-topic topic 5))
+        (insert "No matching topics\n")))))
+
+(defun forge-topics-buffer-desc ()
+  (capitalize (concat (symbol-name (oref forge--buffer-topics-spec type)) "s")))
+
+(defun forge-topics-buffer-name (&optional repo)
+  (if repo
+      (format "*forge-topics: %s*" (oref repo slug))
+    "*forge-topics*"))
 
 ;;; Commands
 ;;;; Menu
@@ -304,7 +223,7 @@ then display the respective menu, otherwise display no menu."
   (interactive)
   (let ((keep-topic-menu forge--quit-keep-topic-menu))
     (when (derived-mode-p 'forge-topic-mode
-                          'forge-topic-list-mode
+                          'forge-topics-mode
                           'forge-repository-list-mode
                           'forge-notifications-mode)
       (kill-local-variable 'forge--quit-keep-topic-menu)
@@ -312,7 +231,7 @@ then display the respective menu, otherwise display no menu."
     (cond ((derived-mode-p 'forge-topic-mode)
            (setq transient--exitp 'replace)
            (transient-setup (setq this-command 'forge-topic-menu)))
-          ((derived-mode-p 'forge-topic-list-mode)
+          ((derived-mode-p 'forge-topics-mode)
            (unless keep-topic-menu
              (setq transient--exitp 'replace)
              (transient-setup (setq this-command 'forge-topics-menu))))
@@ -336,7 +255,7 @@ then display the respective menu, otherwise display no menu."
     :initform (lambda (&optional repo)
                 (interactive)
                 (with-slots (type global) (transient-suffix-object)
-                  (forge-topic-list-setup
+                  (forge-topics-setup-buffer
                    repo nil :type type :global global))
                 (transient-setup 'forge-topics-menu)))))
 
