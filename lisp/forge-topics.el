@@ -207,7 +207,7 @@ Must be set before `forge-list' is loaded.")
 
 ;;;###autoload (autoload 'forge-topics-menu "forge-topics" nil t)
 (transient-define-prefix forge-topics-menu ()
-  "Control list of topics and the topic at point."
+  "Control list of topics displayed in the current buffer."
   :transient-suffix t
   :transient-non-suffix #'transient--do-call
   :transient-switch-frame nil
@@ -246,15 +246,13 @@ Must be set before `forge-list' is loaded.")
     ("c" "created"          forge-list-authored-pullreqs)
     ("a" "assigned"         forge-list-assigned-pullreqs)
     ("w" "awaiting review"  forge-list-requested-reviews)]]
-  [forge--topic-set-state-group
-   ["Global lists"
+  [["Global lists"
     ("o t" "owned topics"        forge-list-owned-topics)
     ("o i" "owned issues"        forge-list-owned-issues)
     ("o p" "owned pull-requests" forge-list-owned-pullreqs)]
    ["Actions"
     ("f" "fetch all topics"  forge-pull)
     ("m" "show more actions" forge-dispatch)]]
-  [forge--topic-set-status-group]
   (interactive)
   (catch 'add-instead
     (unless (derived-mode-p 'forge-topic-list-mode)
