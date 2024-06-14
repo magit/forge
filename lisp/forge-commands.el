@@ -588,17 +588,21 @@ point is currently on."
                   (propertize "none" 'face 'magit-dimmed)))
       "note"))
   (interactive)
-  (let* ((topic (forge-current-topic t))
-         (buf (forge--prepare-post-buffer
-               (forge--format topic "%i;note")
-               (forge--format topic "New note on #%i of %p"))))
-    (with-current-buffer buf
-      (setq forge--buffer-post-object topic)
-      (setq forge--submit-post-function #'forge--save-note)
-      (erase-buffer)
-      (when-let ((note (oref topic note)))
-        (save-excursion (insert note ?\n))))
-    (forge--display-post-buffer buf)))
+  (if-let* ((topic (forge-current-topic t))
+            (repo (forge-get-repository topic))
+            (default-directory (forge-get-worktree repo))
+            (buf (forge--prepare-post-buffer
+                  (forge--format topic "%i;note")
+                  (forge--format topic "New note on #%i of %p"))))
+      (progn
+        (with-current-buffer buf
+          (setq forge--buffer-post-object topic)
+          (setq forge--submit-post-function #'forge--save-note)
+          (erase-buffer)
+          (when-let ((note (oref topic note)))
+            (save-excursion (insert note ?\n))))
+        (forge--display-post-buffer buf))
+    (message "Cannot determine topic or worktree")))
 
 ;;; Delete
 
