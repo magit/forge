@@ -210,14 +210,12 @@ Must be set before `forge-list' is loaded.")
 (transient-define-prefix forge-topics-menu ()
   "Control list of topics and the topic at point."
   :transient-suffix t
-  :transient-non-suffix t
+  :transient-non-suffix #'transient--do-call
   :transient-switch-frame nil
   :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
   [:hide always
-   ("q"        forge-menu-quit-list)
-   ("RET"      forge-topic-menu)
-   ("<return>" forge-topic-menu)]
+   ("q" forge-menu-quit-list)]
   [["Type"
     (:info "topics"           :face forge-suffix-active)
     ("n"   "notifications..." forge-notifications-menu :transient replace)
@@ -277,6 +275,8 @@ Must be set before `forge-list' is loaded.")
             (forge-list-owned-topics)))))
     (transient-setup 'forge-topics-menu)))
 
+(defvar-local forge--quit-keep-topic-menu nil)
+
 (defun forge-menu-quit-list ()
   "From a transient menu, quit the list buffer and the menu.
 
@@ -284,27 +284,30 @@ If quitting the list buffer causes another topic, repository or
 notification list buffer to become current in the selected window,
 then display the respective menu, otherwise display no menu."
   (interactive)
-  (when (derived-mode-p 'forge-topic-mode
-                        'forge-topic-list-mode
-                        'forge-repository-list-mode
-                        'forge-notifications-mode)
-    (quit-window))
-  (cond ((derived-mode-p 'forge-topic-mode)
-         (setq transient--exitp 'replace)
-         (transient-setup (setq this-command 'forge-topic-menu)))
-        ((derived-mode-p 'forge-topic-list-mode)
-         (setq transient--exitp 'replace)
-         (transient-setup (setq this-command 'forge-topics-menu)))
-        ((derived-mode-p 'forge-repository-list-mode)
-         (setq transient--exitp 'replace)
-         (transient-setup (setq this-command 'forge-repositories-menu)))
-        ((derived-mode-p 'forge-notifications-mode)
-         (setq transient--exitp 'replace)
-         (transient-setup (setq this-command 'forge-notifications-menu)))
-        (t
-         (setq transient--exitp t)
-         (transient--pre-exit)
-         (transient--stack-zap))))
+  (let ((keep-topic-menu forge--quit-keep-topic-menu))
+    (when (derived-mode-p 'forge-topic-mode
+                          'forge-topic-list-mode
+                          'forge-repository-list-mode
+                          'forge-notifications-mode)
+      (kill-local-variable 'forge--quit-keep-topic-menu)
+      (quit-window))
+    (cond ((derived-mode-p 'forge-topic-mode)
+           (setq transient--exitp 'replace)
+           (transient-setup (setq this-command 'forge-topic-menu)))
+          ((derived-mode-p 'forge-topic-list-mode)
+           (unless keep-topic-menu
+             (setq transient--exitp 'replace)
+             (transient-setup (setq this-command 'forge-topics-menu))))
+          ((derived-mode-p 'forge-repository-list-mode)
+           (setq transient--exitp 'replace)
+           (transient-setup (setq this-command 'forge-repositories-menu)))
+          ((derived-mode-p 'forge-notifications-mode)
+           (setq transient--exitp 'replace)
+           (transient-setup (setq this-command 'forge-notifications-menu)))
+          (t
+           (setq transient--exitp t)
+           (transient--pre-exit)
+           (transient--stack-zap)))))
 
 ;;;; Suffix Class
 

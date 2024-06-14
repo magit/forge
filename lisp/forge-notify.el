@@ -140,14 +140,12 @@ signal an error."
 (transient-define-prefix forge-notifications-menu ()
   "Control list of notifications and notification at point."
   :transient-suffix t
-  :transient-non-suffix t
+  :transient-non-suffix #'transient--do-call
   :transient-switch-frame nil
   :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
   [:hide always
-   ("q"        forge-menu-quit-list)
-   ("RET"      forge-topic-menu)
-   ("<return>" forge-topic-menu)]
+   ("q" forge-menu-quit-list)]
   [["Type"
     ("t"   "topics..."       forge-topics-menu       :transient replace)
     (:info "notifications"   :face forge-suffix-active)

@@ -402,7 +402,13 @@ lifts the limitation to active pull-requests."
 With prefix argument MENU, also show the topic menu."
   (interactive (list current-prefix-arg))
   (forge-topic-setup-buffer (forge-topic-at-point))
-  (when menu (transient-setup 'forge-topic-menu)))
+  (cond
+   ((eq transient-current-command 'forge-topic-menu)
+    (setq forge--quit-keep-topic-menu t))
+   ((or menu
+        (memq transient-current-command
+              '(forge-topics-menu forge-notifications-menu)))
+    (transient-setup 'forge-topic-menu))))
 
 ;;;###autoload
 (defun forge-visit-this-repository ()

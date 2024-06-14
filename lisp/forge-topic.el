@@ -1089,7 +1089,7 @@ This mode itself is never used directly."
 (transient-define-prefix forge-topic-menu ()
   "Edit the topic at point."
   :transient-suffix t
-  :transient-non-suffix t
+  :transient-non-suffix #'transient--do-call
   :transient-switch-frame nil
   :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
@@ -1104,13 +1104,7 @@ This mode itself is never used directly."
   [forge--topic-set-state-group
    forge--topic-set-slots-group]
   [forge--topic-set-status-group
-   forge--topic-set-local-group]
-  (interactive)
-  (unless (derived-mode-p 'forge-topic-mode)
-    (if-let ((topic (forge-topic-at-point)))
-        (forge-topic-setup-buffer topic)
-      (user-error "No current topic")))
-  (transient-setup 'forge-topic-menu))
+   forge--topic-set-local-group])
 
 ;;;###autoload (autoload 'forge-topic-state-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-state-menu ()
