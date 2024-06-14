@@ -25,14 +25,6 @@
 (require 'forge)
 (require 'forge-topic)
 
-;;; Options
-
-(defcustom forge-notifications-repo-slug-width 28
-  "Width of repository slugs in `forge-notifications-mode' buffers."
-  :package-version '(forge . "0.4.0")
-  :group 'forge
-  :type (if (>= emacs-major-version 28) 'natnum 'number))
-
 ;;; Class
 
 (defclass forge-notification (forge-object)

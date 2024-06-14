@@ -88,6 +88,12 @@ The following %-sequences are supported:
   :group 'forge
   :type 'boolean)
 
+(defcustom forge-topic-repository-slug-width 28
+  "Width of repository slugs in `forge-notifications-mode' buffers."
+  :package-version '(forge . "0.4.0")
+  :group 'forge
+  :type (if (>= emacs-major-version 28) 'natnum 'number))
+
 (defcustom forge-bug-reference-hooks
   '(find-file-hook
     forge-post-mode-hook
@@ -644,7 +650,7 @@ can be selected from the start."
         (eq forge-notifications-display-style 'flat)
         (concat (truncate-string-to-width
                  (oref (forge-get-repository topic) slug)
-                 forge-notifications-repo-slug-width
+                 forge-topic-repository-slug-width
                  nil ?\s t)
                 " "))
    ;; MAYBE bring this back once we support discussions.
