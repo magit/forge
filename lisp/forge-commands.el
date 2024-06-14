@@ -433,7 +433,8 @@ With prefix argument MENU, also show the topic menu."
   (let* ((repo (forge-repository-at-point))
          (worktree (forge-get-worktree repo)))
     (cond
-     ((eq transient-current-command 'forge-repositories-menu)
+     ((and (eq transient-current-command 'forge-repositories-menu)
+           (forge-get-repository repo nil :tracked?))
       (if-let ((buffer (forge-topics-buffer-name repo)))
           (switch-to-buffer buffer)
         (forge-list-topics repo))
