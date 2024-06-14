@@ -55,6 +55,7 @@ Takes the pull-request as only argument and must return a directory."
 ;;;###autoload (autoload 'forge-dispatch "forge-commands" nil t)
 (transient-define-prefix forge-dispatch ()
   "Dispatch a forge command."
+  :transient-non-suffix #'transient--do-call
   [:if forge--get-repository:tracked?
    ["Create"
     ("c i" "issue"          forge-create-issue)
