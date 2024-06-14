@@ -537,59 +537,6 @@ Limit list to topics for which a review by the given user was requested."
                     ('anciently-updated '(asc  topic:updated)))]
       ,@(and limit `(:limit ,limit))]))
 
-(defvar forge-topic-list-order '(updated . string>))
-(defvar forge-topic-list-limit '(60 . 5))
-
-(defun forge-ls-recent-topics (repo table)
-  (let* ((id (oref repo id))
-         (limit forge-topic-list-limit)
-         (open-limit   (if (consp limit) (car limit) limit))
-         (closed-limit (if (consp limit) (cdr limit) limit))
-         (topics (forge-sql [:select * :from $i1
-                             :where (and (= repository $s2)
-                                         (= status 'unread))]
-                            table id)))
-    (mapc (lambda (row)
-            (cl-pushnew row topics :test #'equal))
-          (if (consp limit)
-              (forge-sql [:select * :from $i1
-                          :where (and (= repository $s2)
-                                      (isnull closed))
-                          :order-by [(desc updated)]
-                          :limit $s3]
-                         table id open-limit)
-            (forge-sql [:select * :from $i1
-                        :where (and (= repository $s2)
-                                    (isnull closed))]
-                       table id)))
-    (when (> closed-limit 0)
-      (mapc (lambda (row)
-              (cl-pushnew row topics :test #'equal))
-            (forge-sql [:select * :from $i1
-                        :where (and (= repository $s2)
-                                    (notnull closed))
-                        :order-by [(desc updated)]
-                        :limit $s3]
-                       table id closed-limit)))
-    (cl-sort (mapcar (let ((class (if (eq table 'pullreq)
-                                      'forge-pullreq
-                                    'forge-issue)))
-                       (lambda (row)
-                         (closql--remake-instance class (forge-db) row)))
-                     topics)
-             (cdr forge-topic-list-order)
-             :key (lambda (it) (eieio-oref it (car forge-topic-list-order))))))
-
-(defun forge--ls-topics (repo)
-  (cl-sort (nconc (forge--ls-issues repo)
-                  (forge--ls-pullreqs repo))
-           #'> :key (-cut oref <> number)))
-
-(defun forge--ls-active-topics (repo)
-  (cl-sort (nconc (forge--ls-active-issues repo)
-                  (forge--ls-active-pullreqs repo))
-           #'> :key (-cut oref <> number)))
-
 ;;; Read
 
 (defun forge-read-topic (prompt)
