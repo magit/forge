@@ -1090,21 +1090,6 @@ This mode itself is never used directly."
    ("p" forge-topic-status-set-pending)
    ("d" forge-topic-status-set-done)])
 
-(defconst forge--topic-set-slots-group
-  ["Set"
-   ("-t" forge-topic-set-title)
-   ("-m" forge-topic-set-milestone)
-   ("-l" forge-topic-set-labels)
-   ("-a" forge-topic-set-assignees)
-   ("-r" forge-topic-set-review-requests)
-   ("-d" forge-topic-toggle-draft)])
-
-(defconst forge--topic-set-local-group
-  ["Set local"
-   ("-s" forge-topic-toggle-saved)
-   ("-x" forge-topic-set-marks)
-   ("-n" forge-edit-topic-note)])
-
 (defconst forge--topic-menus-column-widths '(19))
 
 ;;;; Menus
@@ -1119,13 +1104,22 @@ This mode itself is never used directly."
   :column-widths forge--topic-menus-column-widths
   [:hide always
    ("q" forge-menu-quit-list)]
-  [["Actions"
+  [forge--topic-set-state-group
+   forge--topic-set-status-group
+   ["Actions"
     ("/f" forge-pull-this-topic)
     ("/b" forge-browse-this-topic)]]
-  [forge--topic-set-state-group
-   forge--topic-set-slots-group]
-  [forge--topic-set-status-group
-   forge--topic-set-local-group])
+  [["Set"
+    ("-m" forge-topic-set-milestone)
+    ("-l" forge-topic-set-labels)
+    ("-x" forge-topic-set-marks)
+    ("-a" forge-topic-set-assignees)
+    ("-r" forge-topic-set-review-requests)
+    ("-n" forge-edit-topic-note)
+    ("-t" forge-topic-set-title)]
+   [""
+    ("-s" forge-topic-toggle-saved)
+    ("-d" forge-topic-toggle-draft)]])
 
 ;;;###autoload (autoload 'forge-topic-state-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-state-menu ()
