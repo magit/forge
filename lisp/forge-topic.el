@@ -637,16 +637,16 @@ If `forge-limit-topic-choices' is nil, then all candidates
 can be selected from the start."
   (forge--read-topic prompt
                      #'forge-current-topic
-                     #'forge--ls-active-topics
-                     #'forge--ls-topics))
+                     (forge--topics-spec :type 'topic :active t)
+                     (forge--topics-spec :type 'topic :active nil)))
 
 (defun forge--read-topic (prompt current active all)
   (let* ((current (funcall current))
          (repo    (forge-get-repository (or current :tracked)))
          (default (and current (forge--format-topic-line current)))
          (alist   (forge--topic-collection
-                   (funcall (if forge-limit-topic-choices active all)
-                            repo)))
+                   (forge--list-topics (if forge-limit-topic-choices active all)
+                                       repo)))
          (choices (mapcar #'car alist))
          (choices (cond ((and forge-limit-topic-choices
                               default
@@ -674,7 +674,8 @@ can be selected from the start."
                        (forge-limit-topic-choices choices)
                        (t
                         (forge--replace-minibuffer-prompt (concat prompt ": "))
-                        (setq alist (forge--topic-collection (funcall all repo)))
+                        (setq alist (forge--topic-collection
+                                     (forge--list-topics all repo)))
                         (setq all-choices (mapcar #'car alist)))))))
                  nil t nil nil default))
             (magit-completing-read prompt choices nil t nil nil default))))

@@ -231,15 +231,18 @@ If `forge-limit-topic-choices' is nil, then all candidates
 can be selected from the start."
   (forge--read-topic prompt
                      #'forge-current-issue
-                     #'forge--ls-active-issues
-                     #'forge--ls-issues))
+                     (forge--topics-spec :type 'issue :active t)
+                     (forge--topics-spec :type 'issue :active nil)))
 
 (defun forge-read-open-issue (prompt)
   "Read an open issue with completion using PROMPT."
   (let* ((current (forge-current-issue))
          (repo    (forge-get-repository (or current :tracked)))
          (default (and current (forge--format-topic-line current)))
-         (alist   (forge--topic-collection (forge--ls-open-issues repo)))
+         (alist   (forge--topic-collection
+                   (forge--list-topics
+                    (forge--topics-spec :type 'issue :state 'open)
+                    repo)))
          (choices (mapcar #'car alist))
          (choice  (magit-completing-read prompt choices nil t nil nil default)))
     (cdr (assoc choice alist))))

@@ -262,8 +262,8 @@ If `forge-limit-topic-choices' is nil, then all candidates
 can be selected from the start."
   (forge--read-topic prompt
                      #'forge-current-pullreq
-                     #'forge--ls-active-pullreqs
-                     #'forge--ls-pullreqs))
+                     (forge--topics-spec :type 'pullreq :active t)
+                     (forge--topics-spec :type 'pullreq :active nil)))
 
 ;;; Utilities
 
