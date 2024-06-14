@@ -68,8 +68,9 @@ Takes the pull-request as only argument and must return a directory."
     ("f f" "all topics"     forge-pull)
     ("f t" "one topic"      forge-pull-topic)
     ("f n" "notifications"  forge-pull-notifications)]
-   ["Misc"
-    ("/M" "merge w/api"     forge-merge :level 7)]]
+   ["Actions"
+    ("/a" "add another repo"forge-add-repository)
+    ("/M" "merge with api"  forge-merge :level 7)]]
   [:if forge--get-repository:tracked?
    forge--lists-group
    ["Visit"
@@ -90,7 +91,7 @@ Takes the pull-request as only argument and must return a directory."
                    (if (magit-gitdir)
                        "Forge doesn't know about this Git repository yet"
                      "Not inside a Git repository"))
-    ("a  " "add repository to database" forge-add-repository)
+    ("/ a" "add repository to database" forge-add-repository)
     ("f n" "fetch notifications"        forge-pull-notifications)
     ("l n" "list notifications"         forge-list-notifications)]])
 
