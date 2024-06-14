@@ -271,14 +271,15 @@ signal an error."
          ((seq-set-equal-p status '(unread pending)) "Inbox")
          ((seq-set-equal-p status '(unread pending done)) "All notifications")
          ((format "Notifications %s" status))))
-      (if (eq forge-notifications-display-style 'flat)
-          (magit-insert-section-body
-            (if (not notifs)
-                (insert "(empty)\n")
-              (dolist (notif notifs)
-                (forge-insert-notification notif))
-              (insert ?\n)))
-        (pcase-dolist (`(,_ . ,notifs)
+      (cond
+       ((not notifs)
+        (insert "(empty)\n"))
+       ((eq forge-notifications-display-style 'flat)
+        (magit-insert-section-body
+          (dolist (notif notifs)
+            (forge-insert-notification notif))
+          (insert ?\n)))
+       ((pcase-dolist (`(,_ . ,notifs)
                        (--group-by (oref it repository) notifs))
           (let ((repo (forge-get-repository (car notifs))))
             (magit-insert-section (forge-repo repo)
@@ -291,7 +292,7 @@ signal an error."
               (magit-insert-section-body
                 (dolist (notif notifs)
                   (forge-insert-notification notif))
-                (insert ?\n)))))))))
+                (insert ?\n))))))))))
 
 (defun forge-insert-notification (notif)
   (with-slots (type title url) notif
