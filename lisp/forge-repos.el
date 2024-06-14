@@ -123,7 +123,7 @@ Must be set before `forge-list' is loaded.")
 
 ;;;###autoload (autoload 'forge-repositories-menu "forge-repos" nil t)
 (transient-define-prefix forge-repositories-menu ()
-  "Control list of repositories and repository at point."
+  "Control list of repositories displayed in the current buffer."
   :transient-suffix t
   :transient-non-suffix 'call
   :transient-switch-frame nil
