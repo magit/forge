@@ -285,17 +285,6 @@ See `forge-alist' for valid Git hosts."
 (defun forge--get-repository:tracked? ()
   (forge-get-repository :tracked?))
 
-(defun forge-get-worktree (repo)
-  "Validate and return the worktree recorded for REPO.
-If no worktree is recorded, return nil.  If a worktree is recorded but
-that doesn't exist anymore, then discard the recorded value and return
-nil."
-  (and-let* ((worktree (oref repo worktree)))
-    (if (file-directory-p worktree)
-        worktree
-      (oset repo worktree nil)
-      nil)))
-
 (defun forge-repository-at-point (&optional demand)
   "Return the repository at point.
 If there is no such repository and DEMAND is non-nil, then signal
@@ -327,6 +316,17 @@ an error."
       (setq forge-buffer-repository (oref repo id)))))
 
 (add-hook 'magit-mode-hook #'forge-set-buffer-repository)
+
+(defun forge-get-worktree (repo)
+  "Validate and return the worktree recorded for REPO.
+If no worktree is recorded, return nil.  If a worktree is recorded but
+that doesn't exist anymore, then discard the recorded value and return
+nil."
+  (and-let* ((worktree (oref repo worktree)))
+    (if (file-directory-p worktree)
+        worktree
+      (oset repo worktree nil)
+      nil)))
 
 ;;;; List
 
