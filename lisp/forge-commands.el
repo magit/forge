@@ -1050,6 +1050,7 @@ upstream remote.  Also fetch from REMOTE."
          ((magit-git-config-p "forge.autoPull" t))
          (remote  (oref repo remote))
          (refspec (oref repo pullreq-refspec))
+         (default-directory (forge-get-worktree repo))
          ((and (not (member refspec (magit-get-all "remote" remote "fetch")))
                (or (eq forge-add-pullreq-refspec t)
                    (and (eq forge-add-pullreq-refspec 'ask)
@@ -1061,7 +1062,9 @@ upstream remote.  Also fetch from REMOTE."
     (when (eq limit :selective)
       (oset repo selective-p t)
       (setq limit nil))
-    (forge--pull repo nil limit))))
+    (forge--pull repo
+                 (and (not (forge-get-worktree repo)) #'ignore)
+                 limit))))
 
 (defun forge-add-some-repository (url)
   "Read a repository and add it to the database."
