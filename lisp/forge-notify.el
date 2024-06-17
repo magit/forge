@@ -146,15 +146,12 @@ signal an error."
   :column-widths forge--topic-menus-column-widths
   [:hide always ("q" forge-menu-quit-list)]
   [forge--topic-menus-group
-   forge--topic-set-state-group
-   forge--topic-set-status-group
    ["Selection"
     ("I" forge-notifications-display-inbox)
     ("S" forge-notifications-display-saved)
     ("D" forge-notifications-display-done)
     ("A" forge-notifications-display-all)]]
   [forge--lists-group
-   [""""][""""]
    ["Display"
     ("-F" forge-notifications-style-flat)
     ("-G" forge-notifications-style-nested)
