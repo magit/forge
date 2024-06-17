@@ -130,7 +130,17 @@ signal an error."
                                (get-buffer-create "*forge-notifications*")))
 
 (defun forge-notifications-refresh-buffer ()
+  (magit-set-header-line-format (forge-notifications-buffer-desc))
   (forge-insert-notifications))
+
+(defun forge-notifications-buffer-desc ()
+  (let ((status forge-notifications-selection))
+    (cond
+     ((not (listp status))
+      (format "%s notifications" (capitalize (symbol-name status))))
+     ((seq-set-equal-p status '(unread pending)) "Inbox")
+     ((seq-set-equal-p status '(unread pending done)) "All notifications")
+     ((format "Notifications %s" status)))))
 
 (defvar forge-notifications-display-style 'flat)
 (defvar forge-notifications-selection '(unread pending))
@@ -258,16 +268,8 @@ signal an error."
   "<remap> <magit-visit-thing>"  #'forge-visit-this-repository)
 
 (defun forge-insert-notifications ()
-  (let* ((status forge-notifications-selection)
-         (notifs (forge--ls-notifications status)))
+  (let ((notifs (forge--ls-notifications forge-notifications-selection)))
     (magit-insert-section (notifications)
-      (magit-insert-heading
-        (cond
-         ((not (listp status))
-          (format "%s notifications" (capitalize (symbol-name status))))
-         ((seq-set-equal-p status '(unread pending)) "Inbox")
-         ((seq-set-equal-p status '(unread pending done)) "All notifications")
-         ((format "Notifications %s" status))))
       (cond
        ((not notifs)
         (insert "(empty)\n"))
