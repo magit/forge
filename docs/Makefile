@@ -3,7 +3,7 @@ include ../default.mk
 
 docs: texi info html html-dir pdf
 
-texi: $(PKG).org
+texi: $(PKG).texi
 info: $(PKG).info dir
 html: $(PKG).html
 pdf:  $(PKG).pdf
