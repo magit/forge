@@ -810,7 +810,9 @@ can be selected from the start."
 
 (defun forge--format-topic-milestone (topic)
   (and-let* ((id (oref topic milestone)))
-    (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))))
+    (magit--propertize-face
+     (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))
+     'forge-topic-label)))
 
 (defun forge--format-topic-labels (topic)
   (and-let* ((labels (closql--iref topic 'labels)))
