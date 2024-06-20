@@ -117,7 +117,6 @@ Takes the pull-request as only argument and must return a directory."
   :column-widths forge--topic-menus-column-widths
   [forge--topic-menus-group
    ["Configure"
-    :if forge--get-repository:tracked?
     ("R  " forge-add-pullreq-refspec)
     ("s r" forge-forge.remote)
     ("s l" forge-forge.graphqlItemLimit)]])
