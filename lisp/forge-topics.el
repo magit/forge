@@ -384,7 +384,9 @@ then display the respective menu, otherwise display no menu."
                          (oset spec state want))
                         ((equal (oref spec state) want)
                          (oset spec state nil))
-                        ((oset spec state want))))
+                        (t
+                         (oset spec active nil)
+                         (oset spec state want))))
                 (forge-refresh-buffer)))
    (description
     :initform (lambda (suffix)
