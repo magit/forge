@@ -58,30 +58,42 @@ Takes the pull-request as only argument and must return a directory."
   :transient-non-suffix #'transient--do-call
   :refresh-suffixes t
   :column-widths forge--topic-menus-column-widths
-  [:if forge--get-repository:tracked?
-   forge--topic-menus-group
-   ["Create"
-    ("c i" "issue"          forge-create-issue)
-    ("c p" "pull-request"   forge-create-pullreq)
-    ("c u" "pr from issue"  forge-create-pullreq-from-issue)
-    ("c f" "fork or remote" forge-fork)]
+  [forge--topic-menus-group
    ["Fetch"
     ("f f" "all topics"     forge-pull)
     ("f t" "one topic"      forge-pull-topic)
     ("f n" "notifications"  forge-pull-notifications)]
-   ["Actions"
-    ("/a" "add another repo"forge-add-repository)
-    ("/M" "merge with api"  forge-merge :level 7)]]
-  [:if forge--get-repository:tracked?
-   forge--lists-group
+   ["Create"
+    :if forge--get-repository:tracked?
+    ("c i" "issue"          forge-create-issue)
+    ("c p" "pull-request"   forge-create-pullreq)
+    ("c u" "pr from issue"  forge-create-pullreq-from-issue)
+    ("c f" "fork or remote" forge-fork)]
+   [:description (lambda ()
+                   (cond
+                    ((forge--get-repository:tracked?) "Actions")
+                    ((or (magit-gitdir) (forge-repository-at-point))
+                     "Forge does not yet track this repository")
+                    ("Not inside a Git repository")))
+    ("/ a" forge-add-repository
+     :description (lambda () (if (forge--get-repository:tracked?)
+                            "track some repo"
+                          "track this repository")))
+    ("/ M" "merge with api" forge-merge
+     :if forge--get-repository:tracked? :level 7)]]
+  [forge--lists-group
    ["Visit"
+    :inapt-if-not forge--get-repository:tracked?
     ("v t" "topic"          forge-visit-topic)
     ("v i" "issue"          forge-visit-issue)
     ("v p" "pull-request"   forge-visit-pullreq)]
    ["Browse"
-    ("b t" "topic"          forge-browse-topic)
-    ("b i" "issue"          forge-browse-issue)
-    ("b p" "pull-request"   forge-browse-pullreq)
+    ("b t" "topic"          forge-browse-topic
+     :inapt-if-not forge--get-repository:tracked?)
+    ("b i" "issue"          forge-browse-issue
+     :inapt-if-not forge--get-repository:tracked?)
+    ("b p" "pull-request"   forge-browse-pullreq
+     :inapt-if-not forge--get-repository:tracked?)
     ("b r" "remote"         forge-browse-remote)
     ("b I" "issues"         forge-browse-issues)
     ("b P" "pull-requests"  forge-browse-pullreqs)
@@ -90,20 +102,7 @@ Takes the pull-request as only argument and must return a directory."
     ("-T" forge-toggle-display-in-status-buffer
      :inapt-if-not forge--buffer-with-topics-sections-p)
     ("-H" forge-toggle-topic-legend)]]
-  [:if forge--get-repository:tracked?
-   forge--topic-legend-group]
-  [:if-not forge--get-repository:tracked?
-   forge--topic-menus-group
-   [:description (lambda ()
-                   (if (or (magit-gitdir)
-                           (forge-repository-at-point))
-                       "Forge doesn't know about this Git repository yet"
-                     "Not inside a Git repository"))
-    ("/ a" "add repository to database" forge-add-repository)
-    ("f n" "fetch notifications"        forge-pull-notifications)
-    ("l n" "list notifications"         forge-list-notifications)]]
-  [:if-not forge--get-repository:tracked?
-   forge--lists-group])
+  [forge--topic-legend-group])
 
 (transient-augment-suffix forge-dispatch
   :transient #'transient--do-replace
@@ -131,11 +130,13 @@ Takes the pull-request as only argument and must return a directory."
 
 ;;; Pull
 
-;;;###autoload
-(defun forge-pull ()
+;;;###autoload (autoload 'forge-pull "forge-commands" nil t)
+(transient-define-suffix forge-pull ()
   "Pull forge topics for the current repository if it is already tracked.
 If the current repository is still untracked locally, or the current
 repository cannot be determined, instead invoke `forge-add-repository'."
+  :inapt-if-not #'forge--get-repository:tracked?
+  (declare (interactive-only nil))
   (interactive)
   (if-let ((repo (forge-get-repository :tracked?)))
       (forge--pull repo)
@@ -190,7 +191,8 @@ repository cannot be determined, instead invoke `forge-add-repository'."
 ;;;###autoload (autoload 'forge-pull-topic "forge-commands" nil t)
 (transient-define-suffix forge-pull-topic (number)
   "Read a topic TYPE and NUMBER pull data about it from its forge."
-  :inapt-if-not #'forge--get-github-repository
+  :inapt-if-not (lambda () (and (forge--get-repository:tracked?)
+                           (forge--get-github-repository)))
   (interactive
    (list (read-number "Pull topic: "
                       (and-let* ((topic (forge-current-topic)))
@@ -868,8 +870,8 @@ is added anyway.  Currently this only supports Github and Gitlab."
                                                (oref repo name))
                       (list "--fetch"))))
 
-;;;###autoload
-(defun forge-merge (pullreq method)
+;;;###autoload (autoload 'forge-merge "forge-commands" nil t)
+(transient-define-suffix forge-merge (pullreq method)
   "Merge the current pull-request using METHOD using the forge's API.
 
 If there is no current pull-request or with a prefix argument,
