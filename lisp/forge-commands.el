@@ -118,7 +118,6 @@ Takes the pull-request as only argument and must return a directory."
   [forge--topic-menus-group
    ["Configure"
     :if forge--get-repository:tracked?
-    ("a  " "add another repository to database" forge-add-some-repository)
     ("R  " forge-add-pullreq-refspec)
     ("s r" forge-forge.remote)
     ("s l" forge-forge.graphqlItemLimit)]])
