@@ -324,15 +324,21 @@ an error."
 (add-hook 'magit-mode-hook #'forge-set-buffer-repository)
 
 (defun forge-get-worktree (repo)
-  "Validate and return the worktree recorded for REPO.
-If no worktree is recorded, return nil.  If a worktree is recorded but
-that doesn't exist anymore, then discard the recorded value and return
-nil."
-  (and-let* ((worktree (oref repo worktree)))
-    (if (file-directory-p worktree)
-        worktree
-      (oset repo worktree nil)
-      nil)))
+  "Validate, remember and return a worktree for REPO.
+If `default-directory' is within one of REPO's worktrees, record that
+location in its `worktree' slot and return it.  Otherwise, if a worktree
+has been recorded before, validate that.  If it still is a worktree of
+REPO, return it, else set the slot to nil and return nil."
+  (if-let (((forge-repository-equal
+             repo (forge-get-repository :dir default-directory)))
+           (current-tree (magit-toplevel)))
+      (oset repo worktree current-tree)
+    (and-let* ((saved-tree (oref repo worktree)))
+      (and (file-accessible-directory-p saved-tree)
+           (if (forge-repository-equal
+                repo (forge-get-repository :dir saved-tree))
+               saved-tree
+             (oset repo worktree nil))))))
 
 ;;;; List
 
