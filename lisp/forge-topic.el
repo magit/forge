@@ -1026,11 +1026,12 @@ This mode itself is never used directly."
 (defun forge-topic-setup-buffer (topic)
   (let* ((repo (forge-get-repository topic))
          (name (format "*forge: %s %s*" (oref repo slug) (oref topic slug)))
-         (magit-generate-buffer-name-function (lambda (_mode _value) name))
-         (default-directory (or (forge-get-worktree repo) "/")))
+         (magit-generate-buffer-name-function (lambda (_mode _value) name)))
     (magit-setup-buffer-internal
      (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode)
-     t `((forge-buffer-topic ,topic)) name)
+     t `((forge-buffer-topic ,topic)
+         (default-directory ,(or (forge-get-worktree repo) "/")))
+     name)
     (forge-topic-mark-read topic)))
 
 (defun forge-topic-refresh-buffer ()
