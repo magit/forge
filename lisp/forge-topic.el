@@ -809,10 +809,12 @@ can be selected from the start."
            (`(forge-pullreq rejected)  'forge-pullreq-rejected)))))))
 
 (defun forge--format-topic-milestone (topic)
-  (and-let* ((id (oref topic milestone)))
-    (magit--propertize-face
-     (caar (forge-sql [:select [title] :from milestone :where (= id $s1)] id))
-     'forge-topic-label)))
+  (and-let* ((id (oref topic milestone))
+             (str (caar (forge-sql [:select [title]
+                                    :from milestone
+                                    :where (= id $s1)]
+                                   id))))
+    (magit--propertize-face str 'forge-topic-label)))
 
 (defun forge--format-topic-labels (topic)
   (and-let* ((labels (closql--iref topic 'labels)))
