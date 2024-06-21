@@ -120,6 +120,12 @@
 (cl-defmethod forge-get-repository ((_(eql :id)) id)
   (closql-get (forge-db) (substring-no-properties id) 'forge-repository))
 
+(cl-defmethod forge-get-repository ((_(eql :dir)) dir)
+  (let ((default-directory dir)
+        (forge-buffer-repository nil)
+        (forge-buffer-topic nil))
+    (forge-get-repository :stub? nil 'notatpt)))
+
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote notatpt)
   "Return the current forge repository.
 
