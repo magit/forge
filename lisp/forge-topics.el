@@ -233,7 +233,7 @@ Must be set before `forge-topics' is loaded.")
 (defun forge-menu-quit-list ()
   "From a transient menu, quit the list buffer and the menu.
 
-If quitting the list buffer causes another topic, repository or
+If quitting the list buffer causes another topic, repository list or
 notification list buffer to become current in the selected window,
 then display the respective menu, otherwise display no menu."
   (interactive)
