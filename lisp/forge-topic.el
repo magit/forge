@@ -1027,11 +1027,7 @@ This mode itself is never used directly."
   (let* ((repo (forge-get-repository topic))
          (name (format "*forge: %s %s*" (oref repo slug) (oref topic slug)))
          (magit-generate-buffer-name-function (lambda (_mode _value) name))
-         (current-repo (forge-get-repository :known?))
-         (default-directory (if (forge-repository-equal current-repo repo)
-                                default-directory
-                              (or (forge-get-worktree repo)
-                                  default-directory))))
+         (default-directory (or (forge-get-worktree repo) "/")))
     (magit-setup-buffer-internal
      (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode)
      t `((forge-buffer-topic ,topic)) name)
