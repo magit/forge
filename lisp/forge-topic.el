@@ -892,7 +892,7 @@ can be selected from the start."
 (defun forge--insert-topics (type heading topics)
   (when topics
     (let ((width (apply #'max (--map (length (oref it slug)) topics))))
-      (magit-insert-section ((eval type) nil t)
+      (magit-insert-section ((eval type) heading t)
         (magit-insert-heading
           (concat (magit--propertize-face (concat heading " ")
                                           'magit-section-heading)

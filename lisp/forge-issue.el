@@ -180,16 +180,18 @@ can be selected from the start."
   "<remap> <magit-visit-thing>"  #'forge-visit-this-topic
   "<remap> <forge--item-menu>"   #'forge-topic-menu)
 
-(defun forge-insert-issues ()
-  "Insert a list of issues."
+(cl-defun forge-insert-issues (&optional (spec nil sspec) heading)
+  "Insert a list of issues, according to `forge--buffer-topics-spec'.
+Optional SPEC can be used to override that filtering specification,
+and optional HEADING to change the section heading."
   (when-let (((forge-db t))
              (repo (forge-get-repository :tracked?))
              ((oref repo issues-p))
-             (spec forge--buffer-topics-spec)
-             ((memq (oref spec type) '(topic issue)))
-             (spec (clone spec)))
+             (spec (if sspec spec (clone forge--buffer-topics-spec)))
+             ((memq (oref spec type) '(topic issue))))
     (oset spec type 'issue)
-    (forge--insert-topics 'issues "Issues"
+    (forge--insert-topics 'issues
+                          (or heading "Issues")
                           (forge--list-topics spec repo))))
 
 ;;; _

@@ -225,15 +225,17 @@ can be selected from the start."
   "<remap> <magit-visit-thing>"  #'forge-visit-this-topic
   "<remap> <forge--item-menu>"   #'forge-topic-menu)
 
-(defun forge-insert-pullreqs ()
-  "Insert a list of pull-requests."
+(cl-defun forge-insert-pullreqs (&optional (spec nil sspec) heading)
+  "Insert a list of pull-requests, according to `forge--buffer-topics-spec'.
+Optional SPEC can be used to override that filtering specification,
+and optional HEADING to change the section heading."
   (when-let (((forge-db t))
              (repo (forge-get-repository :tracked?))
-             (spec forge--buffer-topics-spec)
-             ((memq (oref spec type) '(topic pullreq)))
-             (spec (clone spec)))
+             (spec (if sspec spec (clone forge--buffer-topics-spec)))
+             ((memq (oref spec type) '(topic pullreq))))
     (oset spec type 'pullreq)
-    (forge--insert-topics 'pullreqs "Pull requests"
+    (forge--insert-topics 'pullreqs
+                          (or heading "Pull requests")
                           (forge--list-topics spec repo))))
 
 (defun forge--insert-pullreq-commits (pullreq &optional all)
