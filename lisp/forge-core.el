@@ -95,7 +95,7 @@ Each entry has the form (GITHOST APIHOST WEBHOST CLASS).
 - WEBHOST is the host used to access repositories on this forge using
   a browser.  The IDs used to identify repositories from the forge in
   the local database also derives from this value.
-  
+
 - CLASS is the class to be used for repositories from the forge.
 
 Complications:

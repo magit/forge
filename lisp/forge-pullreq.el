@@ -245,14 +245,14 @@ and optional HEADING to change the section heading."
         ;; pr range may be out of sync.  Just show them all.
         (magit-insert-section-body
           (magit--insert-log nil
-           (delq nil (list (concat "^" (or (oref pullreq base-rev)
-                                           (concat (forge--get-remote) "/"
-                                                   (oref pullreq base-ref))))
-                           (forge--pullreq-ref pullreq)
-                           (forge--pullreq-branch-active pullreq)
-                           (and-let* ((branch (oref pullreq head-ref)))
-                             (and (magit-local-branch-p branch) branch))))
-           (seq-uniq (cons "--graph" magit-buffer-log-args))))
+            (delq nil (list (concat "^" (or (oref pullreq base-rev)
+                                            (concat (forge--get-remote) "/"
+                                                    (oref pullreq base-ref))))
+                            (forge--pullreq-ref pullreq)
+                            (forge--pullreq-branch-active pullreq)
+                            (and-let* ((branch (oref pullreq head-ref)))
+                              (and (magit-local-branch-p branch) branch))))
+            (seq-uniq (cons "--graph" magit-buffer-log-args))))
       (when-let ((range (forge--pullreq-range pullreq)))
         (magit-insert-section-body
           (magit--insert-log nil range magit-buffer-log-args)
