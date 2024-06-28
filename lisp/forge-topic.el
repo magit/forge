@@ -1054,9 +1054,9 @@ This mode itself is never used directly."
           (insert (forge--fontify-markdown note) "\n\n")))
       (dolist (post (cons topic (oref topic posts)))
         (with-slots (author created body) post
-          (magit-insert-section section (post post)
-            (oset section heading-highlight-face
-                  'magit-diff-hunk-heading-highlight)
+          (magit-insert-section
+              ( post post nil
+                :heading-highlight-face 'magit-diff-hunk-heading-highlight)
             (let ((heading
                    (format-spec
                     forge-post-heading-format
