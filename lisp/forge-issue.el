@@ -47,20 +47,44 @@
    (locked-p             :initarg :locked-p)
    (milestone            :initarg :milestone)
    (body                 :initarg :body)
-   (assignees            :closql-table (issue-assignee assignee))
+   (assignees            :closql-tables (issue-assignee assignee))
    (project-cards) ; projectsCards
    (edits) ; userContentEdits
-   (labels               :closql-table (issue-label label))
+   (labels               :closql-tables (issue-label label))
    (participants)
    (posts                :closql-class forge-issue-post)
    (reactions)
    (timeline)
-   (marks                :closql-table (issue-mark mark))
+   (marks                :closql-tables (issue-mark mark))
    (note                 :initarg :note :initform nil)
    (their-id             :initarg :their-id)
    (slug                 :initarg :slug)
    (saved-p              :initarg :saved-p :initform nil)
    ))
+
+(cl-defmethod closql-dref ((obj forge-issue) (_(eql assignees)))
+  (forge-sql-cdr
+   [:select assignee:* :from assignee
+    :join issue-assignee :on (= issue-assignee:id assignee:id)
+    :where (= issue-assignee:issue $s1)
+    :order-by [(asc login)]]
+   (closql--oref obj 'id)))
+
+(cl-defmethod closql-dref ((obj forge-issue) (_(eql labels)))
+  (forge-sql-cdr
+   [:select label:* :from label
+    :join issue-label :on (= issue-label:id label:id)
+    :where (= issue-label:issue $s1)
+    :order-by [(asc name)]]
+   (closql--oref obj 'id)))
+
+(cl-defmethod closql-dref ((obj forge-issue) (_(eql marks)))
+  (forge-sql-cdr
+   [:select mark:* :from mark
+    :join issue-mark :on (= issue-mark:id mark:id)
+    :where (= issue-mark:issue $s1)
+    :order-by [(asc name)]]
+   (closql--oref obj 'id)))
 
 (defclass forge-issue-post (forge-post)
   ((closql-table         :initform 'issue-post)

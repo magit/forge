@@ -710,7 +710,7 @@
 
 (cl-defmethod forge--set-topic-assignees
   ((_repo forge-github-repository) topic assignees)
-  (let ((value (mapcar #'car (closql--iref topic 'assignees))))
+  (let ((value (mapcar #'cadr (oref topic assignees))))
     ;; FIXME Only refresh once.
     (when-let ((add (cl-set-difference assignees value :test #'equal)))
       (forge--ghub-post topic "/repos/:owner/:repo/issues/:number/assignees"
@@ -723,7 +723,7 @@
 
 (cl-defmethod forge--set-topic-review-requests
   ((_repo forge-github-repository) topic reviewers)
-  (let ((value (mapcar #'car (closql--iref topic 'review-requests))))
+  (let ((value (mapcar #'cadr (oref topic review-requests))))
     ;; FIXME Only refresh once.
     (when-let ((add (cl-set-difference reviewers value :test #'equal)))
       (forge--ghub-post topic

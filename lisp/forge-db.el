@@ -65,6 +65,9 @@
       (emacsql (forge-db) (apply #'format sql args))
     (apply #'emacsql (forge-db) sql args)))
 
+(defun forge-sql-cdr (sql &rest args)
+  (mapcar #'cdr (apply #'forge-sql sql args)))
+
 (defun forge-connect-database-once ()
   "Try to connect Forge database on first use of `magit-status' only."
   (remove-hook 'magit-status-mode-hook #'forge-connect-database-once)

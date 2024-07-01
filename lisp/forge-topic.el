@@ -678,18 +678,18 @@ can be selected from the start."
      "Labels: "
      (mapcar #'cadr (oref repo labels))
      nil t
-     (and topic (mapconcat #'car (closql--iref topic 'labels) ",")))))
+     (and topic (mapconcat #'cadr (oref topic labels) ",")))))
 
 (defun forge-read-topic-marks (&optional topic)
   (let ((marks (mapcar #'car (forge-sql [:select name :from mark])))
         (crm-separator ","))
     (magit-completing-read-multiple
      "Marks: " marks nil t
-     (and topic (mapconcat #'car (closql--iref topic 'marks) ",")))))
+     (and topic (mapconcat #'cadr (oref topic marks) ",")))))
 
 (defun forge-read-topic-assignees (&optional topic)
   (let* ((repo (forge-get-repository (or topic :tracked)))
-         (value (and topic (closql--iref topic 'assignees)))
+         (value (and topic (oref topic assignees)))
          (choices (mapcar #'cadr (oref repo assignees)))
          (crm-separator ","))
     (magit-completing-read-multiple
@@ -697,17 +697,17 @@ can be selected from the start."
      (if (forge--childp repo 'forge-gitlab-repository)
          t ; Selecting something else would fail later on.
        'confirm)
-     (mapconcat #'car value ","))))
+     (mapconcat #'cadr value ","))))
 
 (defun forge-read-topic-review-requests (&optional topic)
   (let* ((repo (forge-get-repository (or topic :tracked)))
-         (value (and topic (closql--iref topic 'review-requests)))
+         (value (and topic (oref topic review-requests)))
          (choices (mapcar #'cadr (oref repo assignees)))
          (crm-separator ","))
     (magit-completing-read-multiple
      "Request review from: " choices nil
      'confirm
-     (mapconcat #'car value ","))))
+     (mapconcat #'cadr value ","))))
 
 (defun forge--completing-read ( prompt collection &optional
                                 predicate require-match initial-input
@@ -817,8 +817,8 @@ can be selected from the start."
     (magit--propertize-face str 'forge-topic-label)))
 
 (defun forge--format-topic-labels (topic)
-  (and-let* ((labels (closql--iref topic 'labels)))
-    (mapconcat (pcase-lambda (`(,name ,color ,_description))
+  (and-let* ((labels (oref topic labels)))
+    (mapconcat (pcase-lambda (`(,_id ,name ,color ,_description))
                  (let* ((background (forge--sanitize-color color))
                         (foreground (forge--contrast-color background)))
                    (magit--propertize-face
@@ -828,8 +828,8 @@ can be selected from the start."
                labels " ")))
 
 (defun forge--format-topic-marks (topic)
-  (and-let* ((marks (closql--iref topic 'marks)))
-    (mapconcat (pcase-lambda (`(,name ,face ,_description))
+  (and-let* ((marks (oref topic marks)))
+    (mapconcat (pcase-lambda (`(,_id ,name ,face ,_description))
                  (magit--propertize-face
                   name (list 'forge-topic-label face)))
                marks " ")))
@@ -857,15 +857,15 @@ can be selected from the start."
        ('done    'forge-topic-done)))))
 
 (defun forge--format-topic-assignees (topic)
-  (and-let* ((assignees (closql--iref topic 'assignees)))
+  (and-let* ((assignees (oref topic assignees)))
     (mapconcat #'forge--format-person assignees ", ")))
 
 (defun forge--format-topic-review-requests (topic)
-  (and-let* ((review-requests (closql--iref topic 'review-requests)))
+  (and-let* ((review-requests (oref topic review-requests)))
     (mapconcat #'forge--format-person review-requests ", ")))
 
 (defun forge--format-person (person)
-  (pcase-let ((`(,login ,name) person))
+  (pcase-let ((`(,_id ,login ,name) person))
     (format "%s%s (@%s)"
             (forge--format-avatar login)
             name login)))
@@ -921,9 +921,9 @@ can be selected from the start."
         (forge--insert-pullreq-commits topic)))))
 
 (defun forge--insert-topic-labels (topic &optional separate)
-  (and-let* ((labels (closql--iref topic 'labels)))
+  (and-let* ((labels (oref topic labels)))
     (prog1 t
-      (pcase-dolist (`(,name ,color ,description) labels)
+      (pcase-dolist (`(,_id ,name ,color ,description) labels)
         (let* ((background (forge--sanitize-color color))
                (foreground (forge--contrast-color background)))
           (if separate (insert " ") (setq separate t))
@@ -939,9 +939,9 @@ can be selected from the start."
               (overlay-put o 'help-echo description))))))))
 
 (defun forge--insert-topic-marks (topic &optional separate)
-  (and-let* ((marks (closql--iref topic 'marks)))
+  (and-let* ((marks (oref topic marks)))
     (prog1 t
-      (pcase-dolist (`(,name ,face ,description) marks)
+      (pcase-dolist (`(,_id ,name ,face ,description) marks)
         (if separate (insert " ") (setq separate t))
         (insert name)
         (let ((o (make-overlay (- (point) (length name)) (point))))

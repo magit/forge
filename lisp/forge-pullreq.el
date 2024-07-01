@@ -55,18 +55,18 @@
    (head-repo            :initarg :head-repo)
    (milestone            :initarg :milestone)
    (body                 :initarg :body)
-   (assignees            :closql-table (pullreq-assignee assignee))
+   (assignees            :closql-tables (pullreq-assignee assignee))
    (project-cards) ; projectsCards
    (commits)
    (edits) ; userContentEdits
-   (labels               :closql-table (pullreq-label label))
+   (labels               :closql-tables (pullreq-label label))
    (participants)
    (posts                :closql-class forge-pullreq-post)
    (reactions)
-   (review-requests      :closql-table (pullreq-review-request assignee))
+   (review-requests      :closql-tables (pullreq-review-request assignee))
    (reviews)
    (timeline)
-   (marks                :closql-table (pullreq-mark mark))
+   (marks                :closql-tables (pullreq-mark mark))
    (note                 :initarg :note :initform nil)
    (base-rev             :initarg :base-rev)
    (head-rev             :initarg :head-rev)
@@ -75,6 +75,39 @@
    (slug                 :initarg :slug)
    (saved-p              :initarg :saved-p :initform nil)
    ))
+
+(cl-defmethod closql-dref ((obj forge-pullreq) (_(eql assignees)))
+  (forge-sql-cdr
+   [:select assignee:* :from assignee
+    :join pullreq-assignee :on (= pullreq-assignee:id assignee:id)
+    :where (= pullreq-assignee:pullreq $s1)
+    :order-by [(asc login)]]
+   (closql--oref obj 'id)))
+
+(cl-defmethod closql-dref ((obj forge-pullreq) (_(eql labels)))
+  (forge-sql-cdr
+   [:select label:* :from label
+    :join pullreq-label :on (= pullreq-label:id label:id)
+    :where (= pullreq-label:pullreq $s1)
+    :order-by [(asc name)]]
+   (closql--oref obj 'id)))
+
+(cl-defmethod closql-dref ((obj forge-pullreq) (_(eql review-requests)))
+  (forge-sql-cdr
+   [:select assignee:* :from assignee
+    :join pullreq-review-request
+    :on (= pullreq-review-request:id :id assignee:id)
+    :where (= pullreq-review-request:pullreq :pullreq $s1)
+    :order-by [(asc login)]]
+   (closql--oref obj 'id)))
+
+(cl-defmethod closql-dref ((obj forge-pullreq) (_(eql marks)))
+  (forge-sql-cdr
+   [:select mark:* :from mark
+    :join pullreq-mark :on (= pullreq-mark:id mark:id)
+    :where (= pullreq-mark:pullreq $s1)
+    :order-by [(asc name)]]
+   (closql--oref obj 'id)))
 
 (defclass forge-pullreq-post (forge-post)
   ((closql-table         :initform 'pullreq-post)
