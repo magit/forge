@@ -135,10 +135,10 @@ Must be set before `forge-topics' is loaded.")
     (unless (or repo global)
       (error "Cannot determine repository"))
     (magit-setup-buffer-internal #'forge-topics-mode nil
-                                 `((default-directory           ,dir)
-                                   (forge--buffer-topics-spec   ,spec)
+                                 `((forge--buffer-topics-spec   ,spec)
                                    (forge-buffer-unassociated-p ,global))
-                                 (get-buffer-create buf))))
+                                 (get-buffer-create buf)
+                                 dir)))
 
 (defun forge-topics-refresh-buffer ()
   (magit-set-header-line-format (forge-topics-buffer-desc))

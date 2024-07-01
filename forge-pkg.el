@@ -7,7 +7,7 @@
     (emacsql        "20240124")
     (ghub           "20240507")
     (let-alist      "1.0.6")
-    (magit          "20240428")
+    (magit          "20240701")
     (markdown-mode  "2.6")
     (seq            "2.24")
     (transient      "20240421")

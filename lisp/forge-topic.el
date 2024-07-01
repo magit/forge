@@ -1031,9 +1031,8 @@ This mode itself is never used directly."
          (magit-generate-buffer-name-function (lambda (_mode _value) name)))
     (magit-setup-buffer-internal
      (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode)
-     t `((forge-buffer-topic ,topic)
-         (default-directory ,(or (forge-get-worktree repo) "/")))
-     name)
+     t `((forge-buffer-topic ,topic))
+     name (or (forge-get-worktree repo) "/"))
     (forge-topic-mark-read topic)))
 
 (defun forge-topic-refresh-buffer ()
