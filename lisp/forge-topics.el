@@ -517,7 +517,8 @@ then display the respective menu, otherwise display no menu."
 (transient-define-suffix forge-topics-filter-labels ()
   "Read labels and limit topic list to topics with one of these labels."
   :class 'forge--topics-filter-command
-  :slot 'labels)
+  :slot 'labels
+  :formatter (lambda (labels) (and labels (forge--format-labels labels " "))))
 
 (transient-define-suffix forge-topics-filter-marks ()
   "Read marks and limit topic list to topics with one of these marks."
