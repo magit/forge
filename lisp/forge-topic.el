@@ -680,12 +680,12 @@ can be selected from the start."
      (and (forge-topic-p obj)
           (forge--format-labels obj crm-separator)))))
 
-(defun forge-read-topic-marks (&optional topic)
-  (let ((marks (mapcar #'car (forge-sql [:select name :from mark])))
-        (crm-separator ","))
+(defun forge-read-topic-marks (&optional obj)
+  (let ((crm-separator ","))
     (magit-completing-read-multiple
-     "Marks: " marks nil t
-     (and topic (mapconcat #'cadr (oref topic marks) ",")))))
+     "Marks: " (forge--format-marks) nil t
+     (and (forge-topic-p obj)
+          (forge--format-marks obj crm-separator)))))
 
 (defun forge-read-topic-assignees (&optional topic)
   (let* ((repo (forge-get-repository (or topic :tracked)))
@@ -851,12 +851,21 @@ can be selected from the start."
         (mapconcat format labels (if (stringp concat) concat " "))
       (mapcar format labels))))
 
-(defun forge--format-topic-marks (topic)
-  (and-let* ((marks (oref topic marks)))
-    (mapconcat (pcase-lambda (`(,_id ,name ,face ,_description))
-                 (magit--propertize-face
-                  name (list 'forge-topic-label face)))
-               marks " ")))
+(defun forge--format-marks (&optional arg concat)
+  (and-let* ((marks (if (forge-topic--eieio-childp arg)
+                        (oref arg marks)
+                      ;; Unlike labels, marks are not repo-specific.
+                      (when (forge-repository-p arg) (setq arg nil))
+                      (forge-sql-cdr `[:select * :from mark
+                                       ,@(and arg '(:where (in name $v1)))
+                                       :order-by [(asc name)]]
+                                     (vconcat arg))))
+             (format (pcase-lambda (`(,_id ,name ,face ,_description))
+                       (magit--propertize-face
+                        name (list face 'forge-topic-label)))))
+    (if concat
+        (mapconcat format marks (if (stringp concat) concat " "))
+      (mapcar format marks))))
 
 (defun forge--format-topic-state (topic)
   (with-slots (state) topic
@@ -1441,7 +1450,8 @@ This mode itself is never used directly."
 
 (transient-define-suffix forge-topic-set-marks (marks)
   "Edit the MARKS of the current topic."
-  :class 'forge--topic-set-slot-command :slot 'marks)
+  :class 'forge--topic-set-slot-command :slot 'marks
+  :formatter (lambda (topic) (forge--format-marks topic t)))
 
 (transient-define-suffix forge-topic-set-assignees (assignees)
   "Edit the ASSIGNEES of the current topic."

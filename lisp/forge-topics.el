@@ -524,8 +524,7 @@ then display the respective menu, otherwise display no menu."
   "Read marks and limit topic list to topics with one of these marks."
   :class 'forge--topics-filter-command
   :slot 'marks
-  :formatter
-  (lambda (ms) (mapconcat (lambda (m) (propertize m 'face 'forge-topic-label)) ms " ")))
+  :formatter (lambda (marks) (and marks (forge--format-marks marks " "))))
 
 (transient-define-suffix forge-topics-filter-saved ()
   "Toggle whether to limit topic list to saved topics."
