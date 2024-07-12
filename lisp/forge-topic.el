@@ -333,6 +333,12 @@ an error."
 (defvar-local forge--buffer-topics-spec nil)
 (put 'forge--buffer-topics-spec 'permanent-local t)
 
+(defun forge--init-buffer-topics-spec ()
+  (unless forge--buffer-topics-spec
+    (setq forge--buffer-topics-spec
+          (clone forge-status-buffer-default-topic-filters))))
+(add-hook 'magit-status-mode-hook #'forge--init-buffer-topics-spec)
+
 (defclass forge--topics-spec ()
   ((type        :documentation "\
 Limit list based on topic type."
