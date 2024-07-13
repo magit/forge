@@ -1,7 +1,7 @@
 (define-package "forge" "0.3.2.50-git"
   "Access Git forges from Magit."
   '((emacs          "27.1")
-    (compat         "29.1.4.5")
+    (compat         "30.0.0.0")
     (closql         "20240701")
     (dash           "2.19.1")
     (emacsql        "20240124")
