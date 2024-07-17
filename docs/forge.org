@@ -243,23 +243,6 @@ the key for ~git@github.com:magit/forge.git~ is ~github.com~.
     more repositories from a forge.  Changing GITHOST and/or APIHOST
     may be possible, but should seldom be necessary.
 
-** Caveats
-
-- Fetched information is stored in a database.  The table schemata of
-  that database have not been finalized yet.  Until that has happened
-  it will occasionally have to be discarded.  That isn't such a huge
-  deal because for now the database does not contain any information
-  that cannot simply be fetched again, see [[*Initial Pull]].
-
-- Fetching is implemented under the assumption that the API can be
-  asked to list the things that have changed since we last checked.
-  Unfortunately the APIs are not bug-free, so this is not always the
-  case.  If in doubt, then re-fetch an individual topic to ensure it
-  is up-to-date using the command ~forge-pull-topic~.
-
-- Some other, forge-specific, caveats are mentioned in [[*Supported
-  Forges and Hosts]].
-
 * Getting Started
 
 Much like Git stores information in a local repository and does not

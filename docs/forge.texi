@@ -72,7 +72,6 @@ Initial Setup
 * Token Creation::
 * Initial Pull::
 * Repository Detection::
-* Caveats::
 
 Getting Started
 
@@ -137,7 +136,6 @@ a user.
 * Token Creation::
 * Initial Pull::
 * Repository Detection::
-* Caveats::
 @end menu
 
 @node Loading Forge
@@ -373,28 +371,6 @@ more repositories from a forge.  Changing GITHOST and/or APIHOST
 may be possible, but should seldom be necessary.
 @end itemize
 @end defopt
-
-@node Caveats
-@section Caveats
-
-@itemize
-@item
-Fetched information is stored in a database.  The table schemata of
-that database have not been finalized yet.  Until that has happened
-it will occasionally have to be discarded.  That isn't such a huge
-deal because for now the database does not contain any information
-that cannot simply be fetched again, see @ref{Initial Pull}.
-
-@item
-Fetching is implemented under the assumption that the API can be
-asked to list the things that have changed since we last checked.
-Unfortunately the APIs are not bug-free, so this is not always the
-case.  If in doubt, then re-fetch an individual topic to ensure it
-is up-to-date using the command @code{forge-pull-topic}.
-
-@item
-Some other, forge-specific, caveats are mentioned in @ref{Supported Forges and Hosts}.
-@end itemize
 
 @node Getting Started
 @chapter Getting Started
