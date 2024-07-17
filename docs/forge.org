@@ -11,8 +11,8 @@
 
 #+setupfile: .orgconfig
 
-Forge allows you to work with Git forges, such as Github and Gitlab,
-from the comfort of Magit and the rest of Emacs.
+Forge allows you to work with Git forges, currently Github and Gitlab,
+from the comfort of Magit and Emacs.
 
 #+texinfo: @noindent
 This manual is for Forge version 0.3.2.50-git.
@@ -21,14 +21,12 @@ This manual is for Forge version 0.3.2.50-git.
 :END:
 * Introduction
 
-Forge allows you to work with Git forges, such as Github and Gitlab,
-from the comfort of Magit and the rest of Emacs.
+Forge allows you to work with Git forges, currently Github and Gitlab,
+from the comfort of Magit and Emacs.
 
 Forge fetches issues, pull-requests and other data using the forge's
-API and stores that in a local database.  Additionally it fetches the
-pull-request references using Git.  Forge implements various features
-that use this data but the database and pull-request refs can also be
-used by third-party packages.
+API and stores the retrieved information in a local database.
+Additionally it fetches pull-request references using Git.
 
 * Supported Forges and Hosts
 
@@ -211,13 +209,14 @@ less likely that I will every do it every time I look at it.
 
 - https://git.sr.ht
 
-* Getting Started
+* Initial Setup
 
-Initial setup turned out to more challenging for many users than I had
-hoped.  I am trying to counter that by providing detailed instructions
-that cover not just the happy path but also many of the issues users
-have ran into in the past.  The recommended reading is longer than one
-might wish, but skipping it does not necessarily save time.
+Initial setup turned out to be more challenging for many users than I
+had hoped.  I am trying to counter that by providing detailed
+instructions that cover not just the happy path but also many of the
+issues users have ran into in the past.  The recommended reading is
+longer than one might wish, but skipping it does not necessarily save
+time.
 
 Forge uses the Ghub package to access the APIs of supported forges.
 How this works and how to create and store a token is documented in
@@ -225,7 +224,7 @@ How this works and how to create and store a token is documented in
 back here and continuing with the subsections listed below.
 
 https://github.com/magit/forge/wiki lists additional resources;
-including a link to a much shorter quick-start guide provided by
+including a link to a much shorter quick-start guide, provided by
 a user.
 
 ** Loading Forge
@@ -245,6 +244,11 @@ Or if you use ~use-package~:
   (use-package forge
     :after magit)
 #+end_src
+
+By default Forge adds some bindings to Magit keymaps and menus, and
+sections to Magit buffers.  If you would like to prevent that, you
+have to set ~forge-add-default-bindings~ and ~forge-add-default-sections~
+to ~nil~ before ~magit~ (not just ~forge~) is loaded.
 
 ** Token Creation
 
@@ -437,13 +441,15 @@ the key for ~git@github.com:magit/forge.git~ is ~github.com~.
 - Some other, forge-specific, caveats are mentioned in [[*Supported
   Forges and Hosts]].
 
-* Usage
+* Getting Started
 
-Once information has been pulled from a repository's forge for the
-first time, Forge adds two additional sections, named "Pull requests"
-and "Issues" to Magit's status buffer.  It is also possible to add a
-repository to the local database without pulling all the data, which
-is useful if you want to create a single pull-request.
+Much like Git stores information in a local repository and does not
+require a constant internet connection, Forge retrieves additional
+information using a forge's API and stores that in a local database.
+
+Forges equivalent of ~git clone~ is ~forge-add-repository~, which has to
+be run, before most of Forges features become available in the local
+clone of a Git repository.
 
 - Key: N a (forge-add-repository) ::
 

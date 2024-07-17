@@ -44,8 +44,8 @@ General Public License for more details.
 @node Top
 @top Forge User and Developer Manual
 
-Forge allows you to work with Git forges, such as Github and Gitlab,
-from the comfort of Magit and the rest of Emacs.
+Forge allows you to work with Git forges, currently Github and Gitlab,
+from the comfort of Magit and Emacs.
 
 @noindent
 This manual is for Forge version 0.3.2.50-git.
@@ -56,8 +56,8 @@ This manual is for Forge version 0.3.2.50-git.
 @menu
 * Introduction::
 * Supported Forges and Hosts::
+* Initial Setup::
 * Getting Started::
-* Usage::
 * FAQ::
 * Keystroke Index::
 * Function and Command Index::
@@ -72,7 +72,7 @@ Supported Forges and Hosts
 * Partially Supported Forges::
 * Supported Semi-Forges::
 
-Getting Started
+Initial Setup
 
 * Loading Forge::
 * Token Creation::
@@ -80,7 +80,7 @@ Getting Started
 * Repository Detection::
 * Caveats::
 
-Usage
+Getting Started
 
 * Pulling::
 * Branching::
@@ -106,14 +106,12 @@ FAQ
 @node Introduction
 @chapter Introduction
 
-Forge allows you to work with Git forges, such as Github and Gitlab,
-from the comfort of Magit and the rest of Emacs.
+Forge allows you to work with Git forges, currently Github and Gitlab,
+from the comfort of Magit and Emacs.
 
 Forge fetches issues, pull-requests and other data using the forge's
-API and stores that in a local database.  Additionally it fetches the
-pull-request references using Git.  Forge implements various features
-that use this data but the database and pull-request refs can also be
-used by third-party packages.
+API and stores the retrieved information in a local database.
+Additionally it fetches pull-request references using Git.
 
 @node Supported Forges and Hosts
 @chapter Supported Forges and Hosts
@@ -364,14 +362,15 @@ log is just one click away from there).
 @uref{https://git.sr.ht}
 @end itemize
 
-@node Getting Started
-@chapter Getting Started
+@node Initial Setup
+@chapter Initial Setup
 
-Initial setup turned out to more challenging for many users than I had
-hoped.  I am trying to counter that by providing detailed instructions
-that cover not just the happy path but also many of the issues users
-have ran into in the past.  The recommended reading is longer than one
-might wish, but skipping it does not necessarily save time.
+Initial setup turned out to be more challenging for many users than I
+had hoped.  I am trying to counter that by providing detailed
+instructions that cover not just the happy path but also many of the
+issues users have ran into in the past.  The recommended reading is
+longer than one might wish, but skipping it does not necessarily save
+time.
 
 Forge uses the Ghub package to access the APIs of supported forges.
 How this works and how to create and store a token is documented in
@@ -379,7 +378,7 @@ How this works and how to create and store a token is documented in
 back here and continuing with the subsections listed below.
 
 @uref{https://github.com/magit/forge/wiki} lists additional resources;
-including a link to a much shorter quick-start guide provided by
+including a link to a much shorter quick-start guide, provided by
 a user.
 
 @menu
@@ -408,6 +407,11 @@ Or if you use @code{use-package}:
 (use-package forge
   :after magit)
 @end lisp
+
+By default Forge adds some bindings to Magit keymaps and menus, and
+sections to Magit buffers.  If you would like to prevent that, you
+have to set @code{forge-add-default-bindings} and @code{forge-add-default-sections}
+to @code{nil} before @code{magit} (not just @code{forge}) is loaded.
 
 @node Token Creation
 @section Token Creation
@@ -641,14 +645,16 @@ is up-to-date using the command @code{forge-pull-topic}.
 Some other, forge-specific, caveats are mentioned in @ref{Supported Forges and Hosts}.
 @end itemize
 
-@node Usage
-@chapter Usage
+@node Getting Started
+@chapter Getting Started
 
-Once information has been pulled from a repository's forge for the
-first time, Forge adds two additional sections, named "Pull requests"
-and "Issues" to Magit's status buffer.  It is also possible to add a
-repository to the local database without pulling all the data, which
-is useful if you want to create a single pull-request.
+Much like Git stores information in a local repository and does not
+require a constant internet connection, Forge retrieves additional
+information using a forge's API and stores that in a local database.
+
+Forges equivalent of @code{git clone} is @code{forge-add-repository}, which has to
+be run, before most of Forges features become available in the local
+clone of a Git repository.
 
 @table @asis
 @item @kbd{N a} (@code{forge-add-repository})
