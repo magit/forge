@@ -28,187 +28,6 @@ Forge fetches issues, pull-requests and other data using the forge's
 API and stores the retrieved information in a local database.
 Additionally it fetches pull-request references using Git.
 
-* Supported Forges and Hosts
-
-Currently Forge supports two forges and three more forges partially.
-Additionally it supports four semi-forges.  Support for more forges
-and semi-forges can and will be added.
-
-Both forges and semi-forges provide web interfaces for Git
-repositories.  Forges additionally support pull-requests and issues
-and make those and other information available using an API.
-
-When a forge is only partially supported, then that means that only
-the functionality that does not require the API is implemented, or
-in other words, that the forge is only supported as a semi-forge.
-
-A host is a particular instance of a forge.  For example the hosts
-https://gitlab.com and https://salsa.debian.org are both instances of
-the Gitlab forge.  Forge supports some well known hosts out of the box
-and additional hosts can easily be supported by adding entries to the
-option ~forge-alist~ (see [[*Repository Detection]]).
-
-For more details about the caveats mentioned below (and some others)
-also see [[*Getting Started]].
-
-** Supported Forges
-*** Github
-:PROPERTIES:
-:UNNUMBERED: notoc
-:END:
-
-Forge's support for Github can be considered the "reference
-  implementation".  Support for other forges can lag behind a bit.
-
-**** Github Caveats
-
-- Forge uses the Github GraphQL API when possible but has to fall
-  back to use the REST API in many cases because the former is still
-  rather incomplete.
-
-- The Github GraphQL API has a hard-coded timeout on queries. The only solution
-  is to reduce the number of entities we query at once, which can be done by
-  adjusting either the ~forge.graphqlItemLimit~ git variable or the field "GQL
-  entity limit" in a status buffer.
-
-- Forge depends on the ~updated_at~ field being updated when
-  appropriate.  For Github pull-requests at least, that is not always
-  done.
-
-**** Github Hosts
-
-- https://github.com
-
-*** Gitlab
-:PROPERTIES:
-:UNNUMBERED: notoc
-:END:
-**** Gitlab Caveats
-
-- Forge cannot provide notifications because the Gitlab API does not
-  expose those.
-
-**** Gitlab Hosts
-
-- https://gitlab.com
-- https://salsa.debian.org
-- https://framagit.org
-
-** Partially Supported Forges
-*** Gitea https://gitea.io
-:PROPERTIES:
-:UNNUMBERED: notoc
-:END:
-
-This is the next forge whose API will be supported.
-
-**** Gitea Hosts
-
-- https://codeberg.org
-
-*** Gogs https://gogs.io
-:PROPERTIES:
-:UNNUMBERED: notoc
-:END:
-
-Once Gitea is supported it should be fairly simple to support Gogs
-too, because the former is a fork of the latter and the APIs seem to
-still be very similar.
-
-**** Gogs Hosts
-
-- https://code.orgmode.org
-
-*** Bitbucket https://bitbucket.org
-:PROPERTIES:
-:UNNUMBERED: notoc
-:END:
-
-I don't plan to support Bitbucket's API any time soon, and it gets
-less likely that I will every do it every time I look at it.
-
-**** Bitbucket Caveats
-
-- The API documentation is poor and initial tests indicated that the
-  implementation is buggy.
-
-- Atlassian's offering contains two very distinct implementations
-  that are both called "Bitbucket".  Forge only supports the
-  implementation whose only instance is available at
-  https://bitbucket.org, because I only have access to that.
-
-- Unlike all other forges, Bitbucket does not expose pull-requests
-  as references in the upstream repository.  For that reason Forge
-  actually treats it as a semi-forge, not as forge whose API is not
-  supported yet.  This means that you cannot checkout pull-requests
-  locally.  There is little hope that this will ever get fixed; the
-  respective issue was opened six years ago and there has been no
-  progress since: https://bitbucket.org/site/master/issues/5814.
-
-**** Bitbucket Hosts
-
-- https://bitbucket.org
-
-** Supported Semi-Forges
-*** Gitweb https://git-scm.com/docs/gitweb
-:PROPERTIES:
-:UNNUMBERED: notoc
-:END:
-**** Gitweb Caveats
-
-- I could find only one public installation
-  (https://git.savannah.gnu.org), which gives users the choice
-  between Gitweb and Cgit.  The latter seems more popular (not
-  just on this site).
-
-*** Cgit https://git.zx2c4.com/cgit/about
-:PROPERTIES:
-:UNNUMBERED: notoc
-:END:
-**** Cgit Caveats
-
-- Different sites use different URL schemata and some of the bigger
-  sites use a fork.  For this reason Forge has to provide several
-  classes to support different variations of Cgit and you have to
-  look at their definitions to figure out which one is the correct
-  one for a particular installation.
-
-**** Cgit Hosts
-
-- https://git.savannah.gnu.org/cgit
-- https://git.kernel.org
-- https://repo.or.cz
-
-*** Stgit https://codemadness.org/git/stagit/file/README.html
-:PROPERTIES:
-:UNNUMBERED: notoc
-:END:
-**** Stgit Caveats
-
-- Stgit cannot show logs for branches beside "master".  For that
-  reason Forge takes users to a page listing the branches when they
-  request the log for a particular branch (even for "master" whose
-  log is just one click away from there).
-
-**** Stgit Hosts
-
-- https://git.suckless.org
-
-*** Srht https://meta.sr.ht
-:PROPERTIES:
-:UNNUMBERED: notoc
-:END:
-**** Srht Caveats
-
-- Srht cannot show logs for branches beside "master".  For that
-  reason Forge takes users to a page listing the branches when they
-  request the log for a particular branch (even for "master" whose
-  log is just one click away from there).
-
-**** Srht Hosts
-
-- https://git.sr.ht
-
 * Initial Setup
 
 Initial setup turned out to be more challenging for many users than I
@@ -1054,6 +873,190 @@ The following commands are available in buffers used to edit posts:
   This is useful after the database's table schemata have changed,
   which will happen a few times while the Forge functionality is still
   under heavy development.
+
+* Supported Forges and Hosts
+:PROPERTIES:
+:APPENDIX:   t
+:END:
+
+Currently Forge supports two forges and three more forges partially.
+Additionally it supports four semi-forges.  Support for more forges
+and semi-forges can and will be added.
+
+Both forges and semi-forges provide web interfaces for Git
+repositories.  Forges additionally support pull-requests and issues
+and make those and other information available using an API.
+
+When a forge is only partially supported, then that means that only
+the functionality that does not require the API is implemented, or
+in other words, that the forge is only supported as a semi-forge.
+
+A host is a particular instance of a forge.  For example the hosts
+https://gitlab.com and https://salsa.debian.org are both instances of
+the Gitlab forge.  Forge supports some well known hosts out of the box
+and additional hosts can easily be supported by adding entries to the
+option ~forge-alist~ (see [[*Repository Detection]]).
+
+For more details about the caveats mentioned below (and some others)
+also see [[*Getting Started]].
+
+** Supported Forges
+*** Github
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+Forge's support for Github can be considered the "reference
+  implementation".  Support for other forges can lag behind a bit.
+
+**** Github Caveats
+
+- Forge uses the Github GraphQL API when possible but has to fall
+  back to use the REST API in many cases because the former is still
+  rather incomplete.
+
+- The Github GraphQL API has a hard-coded timeout on queries. The only solution
+  is to reduce the number of entities we query at once, which can be done by
+  adjusting either the ~forge.graphqlItemLimit~ git variable or the field "GQL
+  entity limit" in a status buffer.
+
+- Forge depends on the ~updated_at~ field being updated when
+  appropriate.  For Github pull-requests at least, that is not always
+  done.
+
+**** Github Hosts
+
+- https://github.com
+
+*** Gitlab
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+**** Gitlab Caveats
+
+- Forge cannot provide notifications because the Gitlab API does not
+  expose those.
+
+**** Gitlab Hosts
+
+- https://gitlab.com
+- https://salsa.debian.org
+- https://framagit.org
+
+** Partially Supported Forges
+*** Gitea https://gitea.io
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+This is the next forge whose API will be supported.
+
+**** Gitea Hosts
+
+- https://codeberg.org
+
+*** Gogs https://gogs.io
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+Once Gitea is supported it should be fairly simple to support Gogs
+too, because the former is a fork of the latter and the APIs seem to
+still be very similar.
+
+**** Gogs Hosts
+
+- https://code.orgmode.org
+
+*** Bitbucket https://bitbucket.org
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+I don't plan to support Bitbucket's API any time soon, and it gets
+less likely that I will every do it every time I look at it.
+
+**** Bitbucket Caveats
+
+- The API documentation is poor and initial tests indicated that the
+  implementation is buggy.
+
+- Atlassian's offering contains two very distinct implementations
+  that are both called "Bitbucket".  Forge only supports the
+  implementation whose only instance is available at
+  https://bitbucket.org, because I only have access to that.
+
+- Unlike all other forges, Bitbucket does not expose pull-requests
+  as references in the upstream repository.  For that reason Forge
+  actually treats it as a semi-forge, not as forge whose API is not
+  supported yet.  This means that you cannot checkout pull-requests
+  locally.  There is little hope that this will ever get fixed; the
+  respective issue was opened six years ago and there has been no
+  progress since: https://bitbucket.org/site/master/issues/5814.
+
+**** Bitbucket Hosts
+
+- https://bitbucket.org
+
+** Supported Semi-Forges
+*** Gitweb https://git-scm.com/docs/gitweb
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+**** Gitweb Caveats
+
+- I could find only one public installation
+  (https://git.savannah.gnu.org), which gives users the choice
+  between Gitweb and Cgit.  The latter seems more popular (not
+  just on this site).
+
+*** Cgit https://git.zx2c4.com/cgit/about
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+**** Cgit Caveats
+
+- Different sites use different URL schemata and some of the bigger
+  sites use a fork.  For this reason Forge has to provide several
+  classes to support different variations of Cgit and you have to
+  look at their definitions to figure out which one is the correct
+  one for a particular installation.
+
+**** Cgit Hosts
+
+- https://git.savannah.gnu.org/cgit
+- https://git.kernel.org
+- https://repo.or.cz
+
+*** Stgit https://codemadness.org/git/stagit/file/README.html
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+**** Stgit Caveats
+
+- Stgit cannot show logs for branches beside "master".  For that
+  reason Forge takes users to a page listing the branches when they
+  request the log for a particular branch (even for "master" whose
+  log is just one click away from there).
+
+**** Stgit Hosts
+
+- https://git.suckless.org
+
+*** Srht https://meta.sr.ht
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+**** Srht Caveats
+
+- Srht cannot show logs for branches beside "master".  For that
+  reason Forge takes users to a page listing the branches when they
+  request the log for a particular branch (even for "master" whose
+  log is just one click away from there).
+
+**** Srht Hosts
+
+- https://git.sr.ht
 
 * FAQ
 :PROPERTIES:
