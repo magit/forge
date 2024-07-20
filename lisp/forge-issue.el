@@ -211,7 +211,7 @@ and optional HEADING to change the section heading."
   (when-let (((forge-db t))
              (repo (forge-get-repository :tracked?))
              ((oref repo issues-p))
-             (spec (if sspec spec (clone forge--buffer-topics-spec)))
+             (spec (if sspec spec (forge--clone-buffer-topics-spec)))
              ((memq (oref spec type) '(topic issue))))
     (oset spec type 'issue)
     (forge--insert-topics 'issues

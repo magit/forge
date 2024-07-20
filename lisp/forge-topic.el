@@ -339,6 +339,10 @@ an error."
           (clone forge-status-buffer-default-topic-filters))))
 (add-hook 'magit-status-mode-hook #'forge--init-buffer-topics-spec)
 
+(defun forge--clone-buffer-topics-spec ()
+  (forge--init-buffer-topics-spec)
+  (clone forge--buffer-topics-spec))
+
 (defclass forge--topics-spec ()
   ((type        :documentation "\
 Limit list based on topic type."

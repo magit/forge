@@ -264,7 +264,7 @@ Optional SPEC can be used to override that filtering specification,
 and optional HEADING to change the section heading."
   (when-let (((forge-db t))
              (repo (forge-get-repository :tracked?))
-             (spec (if sspec spec (clone forge--buffer-topics-spec)))
+             (spec (if sspec spec (forge--clone-buffer-topics-spec)))
              ((memq (oref spec type) '(topic pullreq))))
     (oset spec type 'pullreq)
     (forge--insert-topics 'pullreqs
