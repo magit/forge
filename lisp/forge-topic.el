@@ -1262,7 +1262,8 @@ This mode itself is never used directly."
    forge--topic-set-status-group
    ["Actions"
     ("/f" forge-pull-this-topic)
-    ("/b" forge-browse-this-topic)]]
+    ("/b" forge-browse-this-topic)
+    ("/c" forge-checkout-this-pullreq)]]
   [forge--lists-group
    ["Set                                         "
     ("-m" forge-topic-set-milestone)

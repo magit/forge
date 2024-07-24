@@ -766,6 +766,16 @@ Please see the manual for more information."
   (magit--checkout (forge--branch-pullreq (forge-get-pullreq pullreq)))
   (forge-refresh-buffer))
 
+;;;###autoload (autoload 'forge-checkout-this-pullreq "forge-commands" nil t)
+(transient-define-suffix forge-checkout-this-pullreq ()
+  "Checkout the current pull-request.
+If the branch for that pull-request does not exist yet, then create and
+configure it first."
+  :description "checkout"
+  :inapt-if-not #'forge-current-pullreq
+  (interactive)
+  (forge-checkout-pullreq (forge-current-topic t)))
+
 ;;;###autoload
 (defun forge-checkout-worktree (path pullreq)
   "Create, configure and checkout a new worktree from a pull-request.
