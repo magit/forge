@@ -133,8 +133,10 @@ Takes the pull-request as only argument and must return a directory."
   "Pull forge topics for the current repository if it is already tracked.
 If the current repository is still untracked locally, or the current
 repository cannot be determined, instead invoke `forge-add-repository'."
-  :description "forge topics"
-  :inapt-if-not #'forge--get-repository:tracked?
+  :description (lambda ()
+                 (if (forge-get-repository :tracked?)
+                     "forge topics"
+                   "new forge repository"))
   (declare (interactive-only nil))
   (interactive)
   (if-let ((repo (forge-get-repository :tracked?)))
