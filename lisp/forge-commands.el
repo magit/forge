@@ -133,6 +133,7 @@ Takes the pull-request as only argument and must return a directory."
   "Pull forge topics for the current repository if it is already tracked.
 If the current repository is still untracked locally, or the current
 repository cannot be determined, instead invoke `forge-add-repository'."
+  :description "forge topics"
   :inapt-if-not #'forge--get-repository:tracked?
   (declare (interactive-only nil))
   (interactive)
@@ -174,9 +175,10 @@ repository cannot be determined, instead invoke `forge-add-repository'."
             (magit-inhibit-refresh t))
         (magit-git-fetch (oref repo remote) (magit-fetch-arguments))))))
 
-;;;###autoload
-(defun forge-pull-notifications ()
+;;;###autoload (autoload 'forge-pull-notifications "forge-commands" nil t)
+(transient-define-suffix forge-pull-notifications ()
   "Fetch notifications for all repositories from the current forge."
+  :description "forge notifications"
   (interactive)
   (if-let ((repo (forge-get-repository :stub?)))
       (let ((class (eieio-object-class repo)))
