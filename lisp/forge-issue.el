@@ -196,12 +196,13 @@ can be selected from the start."
   "<remap> <magit-browse-thing>" #'forge-browse-issues
   "<remap> <magit-visit-thing>"  #'forge-list-issues
   "<remap> <forge--list-menu>"   #'forge-topics-menu
-  "<remap> <forge--item-menu>"   #'forge-topics-menu
+  "<remap> <forge--item-menu>"   #'forge-topic-menu
   "C-c C-n"                      #'forge-create-issue)
 
 (defvar-keymap forge-issue-section-map
   :parent forge-common-map
   "<remap> <magit-visit-thing>"  #'forge-visit-this-topic
+  "<remap> <forge--list-menu>"   #'forge-topics-menu
   "<remap> <forge--item-menu>"   #'forge-topic-menu)
 
 (cl-defun forge-insert-issues (&optional (spec nil sspec) heading)

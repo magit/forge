@@ -250,12 +250,13 @@ can be selected from the start."
   "<remap> <magit-browse-thing>" #'forge-browse-pullreqs
   "<remap> <magit-visit-thing>"  #'forge-list-pullreqs
   "<remap> <forge--list-menu>"   #'forge-topics-menu
-  "<remap> <forge--item-menu>"   #'forge-topics-menu
+  "<remap> <forge--item-menu>"   #'forge-topic-menu
   "C-c C-n"                      #'forge-create-pullreq)
 
 (defvar-keymap forge-pullreq-section-map
   :parent forge-common-map
   "<remap> <magit-visit-thing>"  #'forge-visit-this-topic
+  "<remap> <forge--list-menu>"   #'forge-topics-menu
   "<remap> <forge--item-menu>"   #'forge-topic-menu)
 
 (cl-defun forge-insert-pullreqs (&optional (spec nil sspec) heading)
