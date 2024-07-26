@@ -371,7 +371,7 @@ Much like Git stores information in a local repository and does not
 require a constant internet connection, Forge retrieves additional
 information using a forge's API and stores that in a local database.
 
-Forges equivalent of @code{git clone} is @code{forge-add-repository}, which has to
+Forge's equivalent of @code{git clone} is @code{forge-add-repository}, which has to
 be run, before most of Forges features become available in the local
 clone of a Git repository.
 
@@ -379,28 +379,52 @@ clone of a Git repository.
 @item @kbd{N / a} (@code{forge-add-repository})
 @kindex N / a
 @findex forge-add-repository
-This command adds a repository to the database.
+This command guides the user through the process of adding a
+repository to the local database.
 
-It offers to either pull topics (now and in the future) or to only
-pull individual topics when the user invokes @code{forge-pull-topic}.
+Note that it is possible to add a repository to the local database,
+without pulling all the data, which is useful if you just want to
+create a single issue or pull-request in a repository, but are not
+interested in existing topics, e.g., because you do not regularly
+contribute to that repository.
+
+Also note that you can add a repository to the local database, even
+if no local Git clone exists.
 @end table
 
-Some of Forge's commands are only bound when point is within one of
-these sections but other commands are also available elsewhere in
-Magit's status buffer and/or from Magit's transient commands.
+Like with Git, you have to explicitly pull remote changes, at your
+leisure, using @code{forge-pull}.
+
+@table @asis
+@item @kbd{f n} (@code{forge-pull})
+@itemx @kbd{N f f}
+@kindex f n
+@kindex N f f
+@findex forge-pull
+This command uses a forge's API to fetch topics and other
+information about the current repository, and stores the fetched
+information in the database.
+
+If the current repository isn't being tracked in the local database
+yet, then this command pivots to behave like @code{forge-add-repository}.
+@end table
+
+Forge adds two additional sections to Magit's status buffer, which
+list open and/or pending issues and pull-requests.  Typing @code{RET}, while
+the cursor is on a topic section, shows more information about that
+topic in a separate buffer.  Typing @code{RET} on a topic list section, shows
+that list in a separate buffer, where you can apply different filters.
+
+The other main entry point to the functionality provided by Forge is
+the @code{forge-dispatch} menu.
 
 @table @asis
 @item @kbd{N} (@code{forge-dispatch})
 @kindex N
 @findex forge-dispatch
-This prefix command is available in any Magit buffer and provides
-access to several of the available Forge commands.  Most of these
-commands are also bound elsewhere, but some are not.  See the
-following sections for information about the available commands.
-
-Throughout this manual you will find many bindings that begin with
-@code{N}, but if you prefer to continue to use @code{forge-dispatch}'s older
-binding you can substitute @code{'} for that.
+This prefix command is available in all Magit buffers and provides
+access to most of the available Forge commands.  See the following
+sections for information about the available commands.
 @end table
 
 @node Pulling
