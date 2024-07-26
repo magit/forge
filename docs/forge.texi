@@ -380,8 +380,8 @@ be run, before most of Forges features become available in the local
 clone of a Git repository.
 
 @table @asis
-@item @kbd{N a} (@code{forge-add-repository})
-@kindex N a
+@item @kbd{N / a} (@code{forge-add-repository})
+@kindex N / a
 @findex forge-add-repository
 This command adds a repository to the database.
 

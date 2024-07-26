@@ -249,7 +249,7 @@ Forges equivalent of ~git clone~ is ~forge-add-repository~, which has to
 be run, before most of Forges features become available in the local
 clone of a Git repository.
 
-- Key: N a (forge-add-repository) ::
+- Key: N / a (forge-add-repository) ::
 
   This command adds a repository to the database.
 
