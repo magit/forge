@@ -271,7 +271,7 @@ Magit's status buffer and/or from Magit's transient commands.
   ~N~, but if you prefer to continue to use ~forge-dispatch~'s older
   binding you can substitute ~'~ for that.
 
-** Pulling
+* Pulling
 
 The commands that fetch forge data are available from the same
 transient prefix command (~magit-fetch~ on ~f~) that is used to fetch Git
@@ -329,7 +329,7 @@ that you know exists but haven't actually pulled yet.
   case.  If in doubt, then re-fetch an individual topic to ensure it
   is up-to-date using the command ~forge-pull-topic~.
 
-** Branching
+* Branching
 
 Forge provides commands for creating and checking out a new branch or
 work tree from a pull-request.  These commands are available from the
@@ -449,12 +449,12 @@ Note that you have to delete the local branch (e.g., "feature") for
 this to work.  If you delete the tracking branch (e.g., "fork/feature"),
 then the remote is never removed.
 
-** Working with Topics
+* Working with Topics
 
 We call both issues and pull-requests "topics".  The contributions to
 the conversation are called "posts".
 
-*** Visiting Topics
+** Visiting Topics
 
 Magit's status buffer contains lists of issues and pull-requests.
 Topics are ordered by last modification time.  All open issues and
@@ -500,7 +500,7 @@ on a commit or branch section.
   and the key binding is defined by remapping ~magit-visit-thing~ (as
   defined in ~magit-mode-map~).
 
-*** Listing Topics and Notifications
+** Listing Topics and Notifications
 
 By default Forge lists a subset of topics directly in the Magit status
 buffer.  It also provides commands to list topics and notifications in
@@ -560,7 +560,7 @@ dedicated buffers:
   owned by you even though they would have been considered to be owned
   by you based on ~forge-owned-accounts~.
 
-*** Creating Topics
+** Creating Topics
 
 - Key: N c p (forge-create-pullreq) ::
 - Key: C-c C-n [on "Pull requests" section] ::
@@ -572,7 +572,7 @@ dedicated buffers:
 
   This command creates a new issue for the current repository.
 
-*** Editing Topics and Posts
+** Editing Topics and Posts
 
 We call both issues and pull-requests "topics".  The contributions to
 the conversation are called "posts".  The post that initiated the
@@ -690,7 +690,7 @@ The following commands are available in buffers used to edit posts:
   This command toggles whether the pull-request being created is a
   draft.
 
-** Miscellaneous
+* Miscellaneous
 
 - Key: N c f (forge-fork) ::
 

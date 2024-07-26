@@ -57,6 +57,10 @@ This manual is for Forge version 0.3.2.50-git.
 * Introduction::
 * Initial Setup::
 * Getting Started::
+* Pulling::
+* Branching::
+* Working with Topics::
+* Miscellaneous::
 * Supported Forges and Hosts::
 * FAQ::
 * Keystroke Index::
@@ -73,20 +77,12 @@ Initial Setup
 * Initial Pull::
 * Repository Detection::
 
-Getting Started
-
-* Pulling::
-* Branching::
-* Working with Topics::
-* Miscellaneous::
-
 Working with Topics
 
 * Visiting Topics::
 * Listing Topics and Notifications::
 * Creating Topics::
 * Editing Topics and Posts::
-
 
 Supported Forges and Hosts
 
@@ -407,15 +403,8 @@ Throughout this manual you will find many bindings that begin with
 binding you can substitute @code{'} for that.
 @end table
 
-@menu
-* Pulling::
-* Branching::
-* Working with Topics::
-* Miscellaneous::
-@end menu
-
 @node Pulling
-@section Pulling
+@chapter Pulling
 
 The commands that fetch forge data are available from the same
 transient prefix command (@code{magit-fetch} on @code{f}) that is used to fetch Git
@@ -483,7 +472,7 @@ is up-to-date using the command @code{forge-pull-topic}.
 @end table
 
 @node Branching
-@section Branching
+@chapter Branching
 
 Forge provides commands for creating and checking out a new branch or
 work tree from a pull-request.  These commands are available from the
@@ -625,7 +614,7 @@ this to work.  If you delete the tracking branch (e.g., "fork/feature"),
 then the remote is never removed.
 
 @node Working with Topics
-@section Working with Topics
+@chapter Working with Topics
 
 We call both issues and pull-requests "topics".  The contributions to
 the conversation are called "posts".
@@ -638,7 +627,7 @@ the conversation are called "posts".
 @end menu
 
 @node Visiting Topics
-@subsection Visiting Topics
+@section Visiting Topics
 
 Magit's status buffer contains lists of issues and pull-requests.
 Topics are ordered by last modification time.  All open issues and
@@ -710,7 +699,7 @@ defined in @code{magit-mode-map}).
 @end table
 
 @node Listing Topics and Notifications
-@subsection Listing Topics and Notifications
+@section Listing Topics and Notifications
 
 By default Forge lists a subset of topics directly in the Magit status
 buffer.  It also provides commands to list topics and notifications in
@@ -781,7 +770,7 @@ by you based on @code{forge-owned-accounts}.
 @end defopt
 
 @node Creating Topics
-@subsection Creating Topics
+@section Creating Topics
 
 @table @asis
 @item @kbd{N c p} (@code{forge-create-pullreq})
@@ -800,7 +789,7 @@ This command creates a new issue for the current repository.
 @end table
 
 @node Editing Topics and Posts
-@subsection Editing Topics and Posts
+@section Editing Topics and Posts
 
 We call both issues and pull-requests "topics".  The contributions to
 the conversation are called "posts".  The post that initiated the
@@ -941,7 +930,7 @@ draft.
 @end table
 
 @node Miscellaneous
-@section Miscellaneous
+@chapter Miscellaneous
 
 @table @asis
 @item @kbd{N c f} (@code{forge-fork})
