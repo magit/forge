@@ -75,11 +75,7 @@ Forge uses the Ghub package to access the APIs of supported Git
 forges.  How this works and how to create and store a token is
 documented in [[info:ghub#Getting Started]].
 
-Ghub used to provide a setup wizard, but that had to be removed for
-reasons given in the manual just mentioned.  Nowadays there is no way
-around reading the documentation and doing this manually I am afraid.
-
-  Forge requires the following token scopes.
+Forge requires the following token scopes.
 
 - For Github these scopes are required.
 
@@ -521,50 +517,6 @@ Forge adds the following functions to ~magit-status-sections-hook~:
 
   This function inserts a list of the most recent and/or open issues.
 
-- User Option: forge-topic-list-limit ::
-
-  This option limits the number of topics listed by the above
-  functions.
-
-  All unread topics are always shown.  If the value of this option has
-  the form ~(OPEN . CLOSED)~, then the integer ~OPEN~ specifies the
-  maximal number of topics and ~CLOSED~ specifies the maximal number of
-  closed topics.  IF ~CLOSED~ is negative then show no closed topics
-  until the command ~forge-toggle-closed-visibility~ changes the sign.
-
-- Command: forge-toggle-closed-visibility ::
-
-  This command toggles whether the above two functions list recently
-  closed issues in the current buffer.
-
-The following functions are also suitable for
-~magit-status-sections-hook~:
-
-- Function: forge-insert-assigned-pullreqs ::
-
-  This function inserts a list of open pull-requests that are assigned
-  to you.
-
-- Function: forge-insert-requested-reviews ::
-
-  This function inserts a list of open pull-requests that are awaiting
-  your review.
-
-- Function: forge-insert-authored-pullreqs ::
-
-  This function inserts a list of open pull-requests that are authored
-  by you.
-
-- Function: forge-insert-assigned-issues ::
-
-  This function inserts a list of open issues that are assigned to
-  you.
-
-- Function: forge-insert-authored-issues ::
-
-  This function inserts a list of open issues that are authored by
-  you.
-
 The following commands list repositories, notifications and topics in
 dedicated buffers:
 
@@ -585,55 +537,6 @@ dedicated buffers:
 
   This command lists the current repository's issues in a separate
   buffer.
-
-- Command: forge-list-labeled-pullreqs ::
-
-  This command lists the current repository's open pull-requests that
-  are labeled with a label read from the user.
-
-- Command: forge-list-labeled-issues ::
-
-  This command lists the current repository's open issues that are
-  labeled with a label read from the user.
-
-- Command: forge-list-assigned-pullreqs ::
-
-  This command lists the current repository's open pull-requests that
-  are assigned to you in a separate buffer.
-
-- Command: forge-list-assigned-issues ::
-
-  This command lists the current repository's open issues that are
-  assigned to you in a separate buffer.
-
-- Command: forge-list-requested-reviews ::
-
-  This command lists pull-requests of the current repository that are
-  awaiting your review in a separate buffer.
-
-- Command: forge-list-authored-pullreqs ::
-
-  This command lists the current repository's open pull-requests that
-  are authored by you in a separate buffer.
-
-- Command: forge-list-authored-issues ::
-
-  This command lists the current repository's open issues that are
-  authored by you in a separate buffer.
-
-- Command: forge-list-owned-pullreqs ::
-
-  This command lists open pull-requests from all the repositories that
-  you own.  Options ~forge-owned-accounts~ and ~forge-owned-ignored~
-  controls which repositories are considered to be owned by you.  Only
-  Github is supported for now.
-
-- Command: forge-list-owned-issues ::
-
-  This command lists open issues from all the repositories that
-  you own.  Options ~forge-owned-accounts~ and ~forge-owned-ignored~
-  controls which repositories are considered to be owned by you.  Only
-  Github is supported for now.
 
 - User Option: forge-owned-accounts ::
 

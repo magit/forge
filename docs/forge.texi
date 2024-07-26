@@ -169,10 +169,6 @@ Forge uses the Ghub package to access the APIs of supported Git
 forges.  How this works and how to create and store a token is
 documented in @ref{Getting Started,,,ghub,}.
 
-Ghub used to provide a setup wizard, but that had to be removed for
-reasons given in the manual just mentioned.  Nowadays there is no way
-around reading the documentation and doing this manually I am afraid.
-
 Forge requires the following token scopes.
 
 @itemize
@@ -731,50 +727,6 @@ pull-requests.
 This function inserts a list of the most recent and/or open issues.
 @end defun
 
-@defopt forge-topic-list-limit
-This option limits the number of topics listed by the above
-functions.
-
-All unread topics are always shown.  If the value of this option has
-the form @code{(OPEN . CLOSED)}, then the integer @code{OPEN} specifies the
-maximal number of topics and @code{CLOSED} specifies the maximal number of
-closed topics.  IF @code{CLOSED} is negative then show no closed topics
-until the command @code{forge-toggle-closed-visibility} changes the sign.
-@end defopt
-
-@deffn Command forge-toggle-closed-visibility
-This command toggles whether the above two functions list recently
-closed issues in the current buffer.
-@end deffn
-
-The following functions are also suitable for
-@code{magit-status-sections-hook}:
-
-@defun forge-insert-assigned-pullreqs
-This function inserts a list of open pull-requests that are assigned
-to you.
-@end defun
-
-@defun forge-insert-requested-reviews
-This function inserts a list of open pull-requests that are awaiting
-your review.
-@end defun
-
-@defun forge-insert-authored-pullreqs
-This function inserts a list of open pull-requests that are authored
-by you.
-@end defun
-
-@defun forge-insert-assigned-issues
-This function inserts a list of open issues that are assigned to
-you.
-@end defun
-
-@defun forge-insert-authored-issues
-This function inserts a list of open issues that are authored by
-you.
-@end defun
-
 The following commands list repositories, notifications and topics in
 dedicated buffers:
 
@@ -802,55 +754,6 @@ separate buffer.
 This command lists the current repository's issues in a separate
 buffer.
 @end table
-
-@deffn Command forge-list-labeled-pullreqs
-This command lists the current repository's open pull-requests that
-are labeled with a label read from the user.
-@end deffn
-
-@deffn Command forge-list-labeled-issues
-This command lists the current repository's open issues that are
-labeled with a label read from the user.
-@end deffn
-
-@deffn Command forge-list-assigned-pullreqs
-This command lists the current repository's open pull-requests that
-are assigned to you in a separate buffer.
-@end deffn
-
-@deffn Command forge-list-assigned-issues
-This command lists the current repository's open issues that are
-assigned to you in a separate buffer.
-@end deffn
-
-@deffn Command forge-list-requested-reviews
-This command lists pull-requests of the current repository that are
-awaiting your review in a separate buffer.
-@end deffn
-
-@deffn Command forge-list-authored-pullreqs
-This command lists the current repository's open pull-requests that
-are authored by you in a separate buffer.
-@end deffn
-
-@deffn Command forge-list-authored-issues
-This command lists the current repository's open issues that are
-authored by you in a separate buffer.
-@end deffn
-
-@deffn Command forge-list-owned-pullreqs
-This command lists open pull-requests from all the repositories that
-you own.  Options @code{forge-owned-accounts} and @code{forge-owned-ignored}
-controls which repositories are considered to be owned by you.  Only
-Github is supported for now.
-@end deffn
-
-@deffn Command forge-list-owned-issues
-This command lists open issues from all the repositories that
-you own.  Options @code{forge-owned-accounts} and @code{forge-owned-ignored}
-controls which repositories are considered to be owned by you.  Only
-Github is supported for now.
-@end deffn
 
 @defopt forge-owned-accounts
 This is an alist of accounts that are owned by you.  This should
