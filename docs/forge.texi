@@ -954,17 +954,6 @@ access to.
 
 Currently this only supports Github and Gitlab.
 
-@item @kbd{N a} (@code{forge-add-repository})
-@kindex N a
-@findex forge-add-repository
-This command reads a repository from the user and adds it to the
-database.  The repository can be provided as a URL, a name, or in
-the form OWNER/NAME@.  This is subject to @code{magit-clone-name-alist}.
-
-This command offers to either pull topics (now and in the future) or
-to only pull individual topics when the user invokes
-@code{forge-pull-topic}.
-
 @item @kbd{N t t} (@code{forge-toggle-display-in-status-buffer})
 @kindex N t t
 @findex forge-toggle-display-in-status-buffer

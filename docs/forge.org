@@ -701,16 +701,6 @@ The following commands are available in buffers used to edit posts:
 
   Currently this only supports Github and Gitlab.
 
-- Key: N a (forge-add-repository) ::
-
-  This command reads a repository from the user and adds it to the
-  database.  The repository can be provided as a URL, a name, or in
-  the form OWNER/NAME.  This is subject to ~magit-clone-name-alist~.
-
-  This command offers to either pull topics (now and in the future) or
-  to only pull individual topics when the user invokes
-  ~forge-pull-topic~.
-
 - Key: N t t (forge-toggle-display-in-status-buffer) ::
 
   This command toggles whether any topics are displayed in the current
