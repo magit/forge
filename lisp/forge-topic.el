@@ -360,7 +360,8 @@ Limit list to active topics.
 A topic is \"active\" if its state (public condition) is open and/or
 its status (private condition) is unread or pending.
 
-When this is t, then the value of `state' and `status' are ignored."
+When this is t, then the value of the `state' and `status' slots are
+ignored."
                 :initarg :active
                 :initform t
                 :type boolean
@@ -394,7 +395,9 @@ which *you* have not seen yet?
                          (const pending)
                          (const done)
                          (const :tag "all (nil)" nil)))
-   (updated     :initarg :updated
+   (updated     :documentation "\
+Date when topic was last updated."
+                :initarg :updated
                 :initform nil
                 :type (or string null))
    (milestone   :documentation "\
@@ -443,7 +446,8 @@ Limit list to topics for which a review by the given user was requested."
                 :label "Reviewer (username)"
                 :type (or string null)
                 :custom string)
-   (global      :initarg :global
+   (global      :documentation "Whether to list topics for all repositories."
+                :initarg :global
                 :initform nil
                 :type boolean)
    (order       :documentation "Order in which topics are listed."
