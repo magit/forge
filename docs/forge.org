@@ -293,23 +293,32 @@ the ~forge-dispatch~ menu.
 
 * Pulling
 
-The commands that fetch forge data are available from the same
-transient prefix command (~magit-fetch~ on ~f~) that is used to fetch Git
-data.  If option ~magit-pull-or-fetch~ is non-nil, then they are also
-available from the ~magit-pull~ transient (on ~F~).
+The commands that fetch forge data are available the Forge's main menu
+(~forge-dispatch~ on ~N~) and from the same menu (~magit-fetch~ on ~f~) that
+is used to fetch Git data.  If ~magit-pull-or-fetch~ is non-nil, then
+they are also available from the ~magit-pull~ menu (on ~F~).
+
+With Git you have to explicitly pull Git data to make it available in
+the local repository.  Forge works the same; you have to explicitly
+pull to pull data using the forge's API and storing in the local
+database.  This is less disruptive, more reliable, familiar and easier
+to understand than if Forge pulled by itself at random intervals.  It
+might however mean that you occasionally invoke a command expecting
+the most recent data to be available and then have to abort and pull
+first.  The same can happen with Git, e.g., you might attempt to merge
+a branch that you know exists but haven't actually pulled yet.
 
 - Key: f n (forge-pull) ::
 - Key: N f f ::
 
   This command uses a forge's API to fetch topics and other
   information about the current repository and stores the fetched
-  information in the database.  It also fetches notifications for all
-  repositories from the same forge host.  (Currently this is limited
-  to Github.)  Finally it fetches pull-request references using Git.
+  information in the database.
 
-  After using this command for the first time in a given repository
-  the status buffer for that repository always lists the pull-requests
-  and issues.  See [[*Initial Pull]].
+  If the current repository is still untracked locally, or the current
+  repository cannot be determined, this command instead behaves like
+  ~forge-add-repository~, i.e., it adds the repository to the database
+  and then performs the initial pull.
 
 - Key: f N (forge-pull-notifications) ::
 - Key: N f n ::
@@ -318,36 +327,14 @@ available from the ~magit-pull~ transient (on ~F~).
   forge, including, but not limited to, the notifications for the
   current repository.
 
-  Fetching all notifications fetches associated topics even if you
-  have not started fetching *all* topics for the respective repositories
-  (using ~forge-pull~), but it does not cause the topics to be listed in
-  the status buffer of such "uninitialized" repositories.
-
-Note how pulling data from a forge's API works the same way as pulling
-Git data does; you do it explicitly when you want to see the work done
-by others.
-
-This is less disruptive, more reliable, and easier to understand than
-if Forge did the pulling by itself at random intervals.  It might
-however mean that you occasionally invoke a command expecting the most
-recent data to be available and then have to abort to pull first.
-The same can happen with Git, e.g., you might attempt to merge a branch
-that you know exists but haven't actually pulled yet.
+  Fetching notifications fetches associated topics even for repositories
+  that you have not yet explicitly added to the local database.
 
 - Key: N f t (forge-pull-topic) ::
 
   This command uses a forge's API to fetch a single pull-request and
-  stores it in the database.
-
-  Normally you wouldn't want to pull a single pull-request by itself,
-  but due to a bug in the Github API you might sometimes have to do
-  so.
-
-  Fetching is implemented under the assumption that the API can be
-  asked to list the things that have changed since we last checked.
-  Unfortunately the APIs are not bug-free, so this is not always the
-  case.  If in doubt, then re-fetch an individual topic to ensure it
-  is up-to-date using the command ~forge-pull-topic~.
+  stores it in the database.  This is useful if you chose to not fetch
+  all topics when you added the repository using ~forge-add-repository~.
 
 * Branching
 
