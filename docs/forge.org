@@ -32,8 +32,8 @@ Additionally it fetches pull-request references using Git.
 
 Initial setup turned out to be more challenging for many users than I
 had hoped.  I am trying to counter that by providing detailed
-instructions that cover not just the happy path but also many of the
-issues users have ran into in the past.  The recommended reading is
+instructions, which cover not just the happy path but also many of the
+issues, users have ran into in the past.  The recommended reading is
 longer than one might wish, but skipping it does not necessarily save
 time.
 
@@ -42,7 +42,7 @@ How this works and how to create and store a token is documented in
 [[info:ghub#Getting Started]].  Please read that in full before coming
 back here and continuing with the subsections listed below.
 
-https://github.com/magit/forge/wiki lists additional resources;
+https://github.com/magit/forge/wiki lists additional resources,
 including a link to a much shorter quick-start guide, provided by
 a user.
 
@@ -115,13 +115,13 @@ Git variable ~remote.<remote>.fetch~, which fetches all pull-requests.
 ~forge-pull~ then fetches topics and other information using the forge's
 API and pull-request references using Git.
 
-The initial fetch can take a while but most of that is done
+The initial fetch can take a while but most of the work is done
 asynchronously.  Storing the information in the database is done
 synchronously though, so there can be a noticeable hang at the end.
 Subsequent fetches are much faster.
 
 Fetching issues from Github is much faster than fetching from other
-forges because making a handful of GraphQL requests is much faster
+forges, because making a handful of GraphQL requests, is much faster
 than making hundreds of REST requests.
 
 ** Repository Detection
@@ -129,11 +129,11 @@ than making hundreds of REST requests.
 Ghub does *not* associate a given local repository with a repository on
 a forge.  The Forge package itself takes care of this.  In doing so it
 ignores the Git variable ~ghub.host~ and other ~*.host~ variables used by
-Ghub.  (But ~github.user~ and other variables used to specify the user
+Ghub.  (But ~github.user~, and other variables used to specify the user,
 are honored).
 
-Forge associates the local repository with a forge repository by first
-determining which remote is associated with the upstream repository
+Forge associates the local repository with a forge repository, by first
+determining which remote is associated with the upstream repository,
 and then looking that up in ~forge-alist~.
 
 If only one remote exists, then Forge uses that unconditionally.  To
@@ -153,8 +153,8 @@ Note, however, that even though a surprising number of people do just
 that, it does not make any sense to use the name "origin" to refer to
 a fork; not even to your own fork.  A fork is a *copy* of the original,
 "copy" is an antonym for "original", and the word "origin" is not only
-closely related to but even contained in the word "original".  Naming
-a fork the "origin" is at best extremely confusing.
+closely related to but is even contained in the word "original".
+Naming a fork the "origin" is at best extremely confusing.
 
 - copy :: a thing made to be similar or identical to another.
 
@@ -205,12 +205,12 @@ which case "upstream" must be preferred).
   the current repository.
 
 If this variable is set, then Forge uses the remote by that name, if
-it exists, the same way it may have used ~origin~ if the the variable
-were undefined.  I.e., it does not fall through to try ~origin~ if no
-remote by your chosen name exists.
+it exists, the same way it may have used ~origin~ if the variable were
+undefined.  I.e., it does not fall through to try ~origin~ if no remote
+by your chosen name exists.
 
 Once the upstream remote has been determined, Forge looks it up in
-~forge-alist~, using the host part of the URL as the key.  For example
+~forge-alist~, using the host part of the URL as the key.  For example,
 the key for ~git@github.com:magit/forge.git~ is ~github.com~.
 
 - User Option: forge-alist ::
@@ -299,8 +299,8 @@ available from the ~magit-pull~ transient (on ~F~).
 - Key: N f n ::
 
   This command uses a forge's API to fetch all notifications from that
-  forge including, but not limited to, the notifications for the current
-  repository.
+  forge, including, but not limited to, the notifications for the
+  current repository.
 
   Fetching all notifications fetches associated topics even if you
   have not started fetching *all* topics for the respective repositories
@@ -337,7 +337,7 @@ that you know exists but haven't actually pulled yet.
 
 Forge provides commands for creating and checking out a new branch or
 work tree from a pull-request.  These commands are available from the
-same transient prefix commands as the suffix commands used to create
+same transient prefix commands as the suffix commands, used to create
 and check out branches and work trees in a more generic fashion
 (~magit-branch~ on ~b~ and ~magit-worktree~ on ~%~).
 
@@ -435,11 +435,11 @@ and check out branches and work trees in a more generic fashion
 
   This command creates and configures a new branch from a pull-request
   the same way ~forge-branch-pullreq~ does.  Additionally it checks out
-  the new branch using a new working tree.
+  the new branch, using a new working tree.
 
 - User Option: forge-checkout-worktree-read-directory-function ::
 
-  This function is used by ~forge-checkout-worktree~ to read the new
+  This function is used by ~forge-checkout-worktree~, to read the new
   worktree directory where it checks out the pull-request.  It takes
   the pull-request as the only argument and must return a directory.
 
@@ -881,7 +881,7 @@ and additional hosts can easily be supported by adding entries to the
 option ~forge-alist~ (see [[*Repository Detection]]).
 
 For more details about the caveats mentioned below (and some others)
-also see [[*Getting Started]].
+see also [[*Getting Started]].
 
 ** Supported Forges
 *** Github
@@ -890,7 +890,7 @@ also see [[*Getting Started]].
 :END:
 
 Forge's support for Github can be considered the "reference
-  implementation".  Support for other forges can lag behind a bit.
+implementation".  Support for other forges can lag behind a bit.
 
 **** Github Caveats
 
@@ -1046,7 +1046,7 @@ less likely that I will every do it every time I look at it.
 :APPENDIX:   t
 :END:
 
-This section lists some frequently asked questions.  Please also see
+This section lists some frequently asked questions.  Please see also
 https://github.com/magit/forge/wiki/FAQ for an extended list of common
 issues.
 
