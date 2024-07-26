@@ -348,6 +348,7 @@ an error."
 Limit list based on topic type."
                 :initarg :type
                 :initform 'topic
+                :type (member topic issue pullreq nil)
                 :custom (choice
                          (const topic)
                          (const issue)
@@ -362,6 +363,7 @@ its status (private condition) is unread or pending.
 When this is t, then the value of `state' and `status' are ignored."
                 :initarg :active
                 :initform t
+                :type boolean
                 :custom boolean)
    (state       :documentation "\
 Limit list based on topic (public) state.
@@ -369,6 +371,7 @@ Limit list based on topic (public) state.
 State is the \"public condition\".  I.e., is the topic still open?"
                 :initarg :state
                 :initform 'open
+                :type (member open (completed merged) (unplanned rejected) nil)
                 :custom (choice
                          (const open)
                          (const (completed merged))
@@ -384,6 +387,7 @@ which *you* have not seen yet?
 `inbox' means \"`unread' or `pending'\"."
                 :initarg :status
                 :initform nil
+                :type (member inbox unread pending done nil)
                 :custom (choice
                          (const inbox)
                          (const unread)
@@ -391,16 +395,19 @@ which *you* have not seen yet?
                          (const done)
                          (const :tag "all (nil)" nil)))
    (updated     :initarg :updated
-                :initform nil)
+                :initform nil
+                :type (or string null))
    (milestone   :documentation "\
 Limit list to topics assigned to given milestone."
                 :initarg :milestone
                 :initform nil
+                :type (or string null)
                 :custom string)
    (labels      :documentation "\
 Limit list to topics with at least one of the given labels."
                 :initarg :labels
                 :initform nil
+                :type (list-of string)
                 :custom (repeat string))
    (marks       :documentation "\
 Limit list to topics with at least one of the given marks.
@@ -408,34 +415,41 @@ Marks are like labels, but they are private and local to the
 current Forge database."
                 :initarg :marks
                 :initform nil
+                :type (list-of string)
                 :custom (repeat string))
    (saved       :documentation "Limit list to saved topics."
                 :initarg :saved
                 :initform nil
+                :type boolean
                 :custom boolean)
    (author      :documentation "\
 Limit list to topics created by given user."
                 :initarg :author
                 :initform nil
                 :label "Author (username)"
+                :type (or string null)
                 :custom string)
    (assignee    :documentation "\
 Limit list to topics assigned to given user."
                 :initarg :assignee
                 :initform nil
                 :label "Assignee (username)"
+                :type (or string null)
                 :custom string)
    (reviewer    :documentation "\
 Limit list to topics for which a review by the given user was requested."
                 :initarg :reviewer
                 :initform nil
                 :label "Reviewer (username)"
+                :type (or string null)
                 :custom string)
    (global      :initarg :global
-                :initform nil)
+                :initform nil
+                :type boolean)
    (order       :documentation "Order in which topics are listed."
                 :initarg :order
                 :initform 'newest
+                :type (member newest oldest recently-updated anciently-updated)
                 :custom (choice (const newest)
                                 (const oldest)
                                 (const recently-updated)
@@ -443,10 +457,12 @@ Limit list to topics for which a review by the given user was requested."
    (limit       :documentation "Number of topics to list at most."
                 :initarg :limit
                 :initform 200
+                :type integer
                 :custom natnum)
    (grouped     :documentation "Whether to group topics by respository."
                 :initarg :grouped
                 :initform nil
+                :type boolean
                 :custom boolean)))
 
 (cl-defun forge--list-topics
