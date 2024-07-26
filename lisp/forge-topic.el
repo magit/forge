@@ -952,6 +952,34 @@ can be selected from the start."
 
 ;;; Insert
 
+(defun forge-insert-topics (type heading prepare)
+  "Insert a list of topics, according to PREPARE.
+
+This function is not intended to be added to section hooks directly.
+Instead create a function, which calls this function, and add wrapper
+to the section hook.
+
+PREPARE is a function which takes one arguments the repository object,
+and must return an filter object of type `forge--topics-spec' or nil.
+Insert no topics if PREPARE returns nil, or if the current repository
+isn't tracked or Forge hasn't been fully setup yet (in the latter two
+cases don't even call PREPARE).
+
+The filter object can be created either using `forge--topics-spec' or
+by `clone'ing the object returned by `forge--init-buffer-topics-spec',
+to share some settings with other topic lists in the same buffer. See
+`forge--topics-spec' for the valid slots and their values.
+
+HEADING is used as the heading of the list section and TYPE is used as
+its type.  TYPE should be a symbol of the form `SUBSET-KIND', where KIND
+is one of `topics', `issues' or `pullreqs', and SUBSET should describe
+what subset of KIND is being listed."
+  (declare (indent defun))
+  (when-let (((forge-db t))
+             (repo (forge-get-repository :tracked?))
+             (spec (funcall prepare repo)))
+    (forge--insert-topics type heading (forge--list-topics spec repo))))
+
 (defun forge--insert-topics (type heading topics)
   (when topics
     (let ((width (apply #'max (--map (length (oref it slug)) topics))))
