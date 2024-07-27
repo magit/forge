@@ -25,13 +25,17 @@
 (require 'ghub)
 
 (require 'forge)
+(require 'forge-discussion)
 (require 'forge-issue)
 (require 'forge-pullreq)
 
 ;;; Class
 
 (defclass forge-github-repository (forge-repository)
-  ((issues-url-format          :initform "https://%h/%o/%n/issues")
+  ((discussions-url-format     :initform "https://%h/%o/%n/discussions")
+   (discussion-url-format      :initform "https://%h/%o/%n/discussions/%i")
+   (discussion-post-url-format :initform "https://%h/%o/%n/discussions/%i#discussioncomment-%I")
+   (issues-url-format          :initform "https://%h/%o/%n/issues")
    (issue-url-format           :initform "https://%h/%o/%n/issues/%i")
    (issue-post-url-format      :initform "https://%h/%o/%n/issues/%i#issuecomment-%I")
    (pullreqs-url-format        :initform "https://%h/%o/%n/pulls")
@@ -72,6 +76,8 @@
            (forge--update-forks       repo .forks)
            (forge--update-labels      repo .labels)
            (forge--update-milestones  repo .milestones)
+           (forge--update-discussion-categories repo .discussionCategories)
+           (forge--update-discussions repo .discussions t)
            (forge--update-issues      repo .issues t)
            (forge--update-pullreqs    repo .pullRequests t)
            (forge--update-revnotes    repo .commitComments))
@@ -102,6 +108,7 @@
     (oset repo mirror-p       .isMirror)
     (oset repo private-p      .isPrivate)
     (oset repo issues-p       .hasIssuesEnabled)
+    (oset repo discussions-p  .hasDiscussionsEnabled)
     (oset repo wiki-p         .hasWikiEnabled)
     (oset repo stars          .stargazers.totalCount)
     (oset repo watchers       .watchers.totalCount)
@@ -177,6 +184,18 @@
                             .description)))
                   (delete-dups data)))))
 
+(cl-defmethod forge--update-discussion-categories ((repo forge-github-repository) data)
+  (oset repo discussion-categories
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      (list (forge--object-id id .id)
+                            .name
+                            .emoji
+                            .isAnswerable
+                            .description)))
+                  (delete-dups data)))))
+
 ;;;; Topics
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
@@ -244,6 +263,82 @@
                (until (eieio-oref repo slot)))
           (when (or (not until) (string> updated until))
             (eieio-oset repo slot updated)))))))
+
+;;;; Discussions
+
+(cl-defmethod forge--update-discussions ((repo forge-github-repository) data bump)
+  (closql-with-transaction (forge-db)
+    (mapc (lambda (e) (forge--update-discussion repo e bump)) data)))
+
+(cl-defmethod forge--update-discussion ((repo forge-github-repository) data
+                                        &optional bump initial-pull)
+  (let ((repo-id (oref repo id))
+        discussion-id discussion)
+    (let-alist data
+      (closql-with-transaction (forge-db)
+        (setq discussion-id (forge--object-id 'forge-discussion repo .number))
+        (setq discussion (or (forge-get-discussion repo .number)
+                             (closql-insert
+                              (forge-db)
+                              (forge-discussion :id         discussion-id
+                                                :repository repo-id
+                                                :number     .number))))
+        (oset discussion their-id   .id)
+        (oset discussion slug       (format "#%s" .number))
+        (oset discussion author     .author.login)
+        (oset discussion title      .title)
+        (oset discussion created    .createdAt)
+        (oset discussion closed     .closedAt)
+        (oset discussion locked-p   .locked)
+        (oset discussion body       (forge--sanitize-string .body))
+        (oset discussion answer
+              (and .answer.id
+                   (forge--object-id discussion-id .answer.id)))
+        (oset discussion state
+              (pcase-exhaustive .stateReason
+                ("DUPLICATE" 'closed)
+                ("OUTDATED"  'closed)
+                ("RESOLVED"  'closed)
+                ("REOPENED"  'open)
+                ('nil        'open)))
+        ;; (oset discussion state-reason
+        ;;       (pcase-exhaustive .stateReason
+        ;;         ("DUPLICATE" 'duplicated)
+        ;;         ("OUTDATED"  'outdated)
+        ;;         ("RESOLVED"  'resolved)
+        ;;         ("REOPENED"  'reopened)
+        ;;         ('nil        'new)))
+        (dolist (p .comments)
+          (let-alist p
+            (let ((post-id (forge--object-id discussion-id .databaseId)))
+              (closql-insert
+               (forge-db)
+               (forge-discussion-post
+                :id         post-id
+                :number     .databaseId
+                :discussion discussion-id
+                :author     .author.login
+                :created    .createdAt
+                :updated    .updatedAt
+                :body       (forge--sanitize-string .body))
+               t)
+              (dolist (reply-data .replies)
+                (let-alist reply-data
+                  (closql-insert
+                   (forge-db)
+                   (forge-discussion-reply
+                    :id         (forge--object-id discussion-id .databaseId)
+                    :number     .databaseId
+                    :post       post-id
+                    :discussion discussion-id
+                    :author     .author.login
+                    :created    .createdAt
+                    :updated    .updatedAt
+                    :body       (forge--sanitize-string .body))
+                   t))))))
+        (forge--update-status repo discussion data bump initial-pull))
+      (forge--set-connections repo discussion 'labels .labels)
+      discussion)))
 
 ;;;; Issues
 
@@ -561,6 +656,8 @@
     (funcall cb)))
 
 ;;; Mutations
+
+(cl-defmethod forge--submit-create-discussion ((_ forge-github-repository) _repo)) ; TODO
 
 (cl-defmethod forge--submit-create-issue ((_ forge-github-repository) repo)
   (let-alist (forge--topic-parse-buffer)

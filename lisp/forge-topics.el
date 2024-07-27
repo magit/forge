@@ -304,6 +304,15 @@ then display the respective menu, otherwise display no menu."
   (forge-topics-setup-buffer repo nil :type 'pullreq)
   (transient-setup 'forge-topics-menu))
 
+;;;###autoload(autoload 'forge-list-discussions "forge-topics" nil t)
+(transient-define-suffix forge-list-discussions (&optional repo)
+  "List discussions of the current repository."
+  :description "discussions"
+  (declare (interactive-only nil))
+  (interactive)
+  (forge-topics-setup-buffer repo nil :type 'discussion)
+  (transient-setup 'forge-topics-menu))
+
 ;;;###autoload(autoload 'forge-list-global-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-global-topics (&optional repo)
   "List topics across all tracked repository."
@@ -333,6 +342,8 @@ then display the respective menu, otherwise display no menu."
   (interactive)
   (forge-topics-setup-buffer repo nil :global t :type 'pullreq)
   (transient-setup 'forge-topics-menu))
+
+;; MAYBE (transient-define-suffix forge-list-global-discussions (&optional repo)
 
 ;;;; Type
 

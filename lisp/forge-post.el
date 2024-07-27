@@ -154,9 +154,15 @@ an error."
         (when (and (not resume) (string-prefix-p "new" filename))
           (let-alist (forge--topic-template
                       (forge-get-repository :tracked)
-                      (if source 'forge-pullreq 'forge-issue))
+                      (pcase filename
+                        ("newdiscussion" 'forge-discussion)
+                        ("newissue"      'forge-issue)
+                        ("newpullreq"    'forge-pullreq)))
             (cond
              (.url
+              ;; TODO If appropriate, instead switch from newissue to
+              ;; newdiscussion.  But that conflicts with resume handling
+              ;; above.
               (browse-url .url)
               (forge-post-cancel)
               (setq buf nil)
