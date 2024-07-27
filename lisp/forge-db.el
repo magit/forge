@@ -122,6 +122,9 @@
       (milestones :default eieio-unbound)
       issues-until
       pullreqs-until
+      (discussion-categories :default eieio-unbound)
+      (discussions           :default eieio-unbound)
+      discussions-p
       ])
 
     (assignee
@@ -132,6 +135,103 @@
       forge-id] ; Needed for Gitlab.
      (:foreign-key
       [repository] :references repository [id]
+      :on-delete :cascade))
+
+    (discussion
+     [(class :not-null)
+      (id :not-null :primary-key)
+      fid
+      number
+      repository
+      answer
+      state
+      state-reason
+      author
+      title
+      created
+      updated
+      closed
+      unread-p
+      done-p
+      locked-p
+      body
+      note
+      (edits        :default eieio-unbound)
+      (labels       :default eieio-unbound)
+      (posts        :default eieio-unbound)
+      (reactions    :default eieio-unbound)
+      (timeline     :default eieio-unbound)
+      (marks        :default eieio-unbound)]
+     (:foreign-key
+      [repository] :references repository [id]
+      :on-delete :cascade))
+
+    (discussion-category
+     [(repository :not-null)
+      (id :not-null :primary-key)
+      name
+      emoji
+      answerable-p
+      description]
+     (:foreign-key
+      [repository] :references repository [id]
+      :on-delete :cascade))
+
+    (discussion-label
+     [(discussion :not-null)
+      (id :not-null)]
+     (:foreign-key
+      [discussion] :references discussion [id]
+      :on-delete :cascade)
+     (:foreign-key
+      [id] :references label [id]
+      :on-delete :cascade))
+
+    (discussion-mark
+     [(discussion :not-null)
+      (id :not-null)]
+     (:foreign-key
+      [discussion] :references discussion [id]
+      :on-delete :cascade)
+     (:foreign-key
+      [id] :references mark [id]
+      :on-delete :cascade))
+
+    (discussion-post ; aka top-level answer
+     [(class :not-null)
+      (id :not-null :primary-key)
+      fid
+      number
+      discussion
+      author
+      created
+      updated
+      body
+      (edits        :default eieio-unbound)
+      (reactions    :default eieio-unbound)
+      (replies      :default eieio-unbound)]
+     (:foreign-key
+      [discussion] :references discussion [id]
+      :on-delete :cascade))
+
+    (discussion-reply ; aka nested reply to top-level answer
+     [(class :not-null)
+      (id :not-null :primary-key)
+      fid
+      number
+      post
+      discussion
+      author
+      created
+      updated
+      body
+      (edits        :default eieio-unbound)
+      (reactions    :default eieio-unbound)]
+     (:foreign-key
+      [post] :references discussion-post [id]
+      :on-delete :cascade)
+     (:foreign-key
+      [discussion] :references discussion [id]
       :on-delete :cascade))
 
     (fork
@@ -534,6 +634,20 @@
            id))
         (closql--db-set-version db (setq version 13))
         (message "Upgrading Forge database from version 12 to 13...done"))
+      (when nil ; TODO (= version 13)
+        (message "Upgrading Forge database from version 13 to 14...")
+        (emacsql db [:create-table discussion $S1]
+                 (cdr (assq 'discussion forge--db-table-schemata)))
+        (emacsql db [:create-table discussion-label $S1]
+                 (cdr (assq 'discussion-label forge--db-table-schemata)))
+        (emacsql db [:create-table discussion-mark $S1]
+                 (cdr (assq 'discussion-mark forge--db-table-schemata)))
+        (emacsql db [:create-table discussion-post $S1]
+                 (cdr (assq 'discussion-post forge--db-table-schemata)))
+        (emacsql db [:create-table discussion-reply $S1]
+                 (cdr (assq 'discussion-reply forge--db-table-schemata)))
+        (closql--db-set-version db (setq version 14))
+        (message "Upgrading Forge database from version 13 to 14...done"))
       )
     (cl-call-next-method)))
 
