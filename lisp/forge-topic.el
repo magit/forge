@@ -275,6 +275,8 @@ Likewise those faces should not set `:weight' or `:slant'."
 (cl-defmethod forge-get-topic ((topic forge-topic))
   topic)
 
+;; TODO forge-get-topic Support discussions
+
 (cl-defmethod forge-get-topic ((repo forge-repository) number-or-id)
   (if (numberp number-or-id)
       (if (< number-or-id 0)
@@ -291,7 +293,8 @@ Likewise those faces should not set `:weight' or `:slant'."
         (forge-get-pullreq number))))
 
 (cl-defmethod forge-get-topic ((id string))
-  (or (forge-get-issue id)
+  (or (forge-get-discussion id)
+      (forge-get-issue id)
       (forge-get-pullreq id)))
 
 ;;;; Current
@@ -309,7 +312,7 @@ an error."
 If there is no such topic and DEMAND is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-topic)
-      (magit-section-value-if '(issue pullreq))
+      (magit-section-value-if '(discussion issue pullreq))
       (forge-get-pullreq :branch)
       (and demand (user-error "No topic at point"))))
 
@@ -326,7 +329,7 @@ an error."
                   repo (string-to-number (match-string-no-properties 1))))))
 
 (defun forge-region-topics ()
-  (magit-region-values '(issue pullreq)))
+  (magit-region-values '(discussion issue pullreq)))
 
 ;;;; List
 
@@ -681,11 +684,15 @@ can be selected from the start."
                                         'pullreq)
                                       (oref repo id))
                          (forge-sql [:select [number title updated]
-                                     :from pullreq
+                                     :from discussion
                                      :where (= repository $s1)
                                      :union
                                      :select [number title updated]
                                      :from issue
+                                     :where (= repository $s1)
+                                     :union
+                                     :select [number title updated]
+                                     :from pullreq
                                      :where (= repository $s1)
                                      :order-by [(desc updated)]]
                                     (oref repo id))))
@@ -1086,6 +1093,16 @@ This mode itself is never used directly."
   (setq-local markdown-translate-filename-function
               #'forge--markdown-translate-filename-function))
 
+(define-derived-mode forge-discussion-mode forge-topic-mode "Discussion"
+  "Mode for looking at a Forge discussion.")
+(defalias 'forge-discussion-setup-buffer   #'forge-topic-setup-buffer)
+(defalias 'forge-discussion-refresh-buffer #'forge-topic-refresh-buffer)
+(defvar forge-discussion-headers-hook
+  '(forge-insert-topic-title
+    forge-insert-topic-state
+    forge-insert-topic-labels
+    forge-insert-topic-marks))
+
 (define-derived-mode forge-issue-mode forge-topic-mode "Issue"
   "Mode for looking at a Forge issue.")
 (defalias 'forge-issue-setup-buffer   #'forge-topic-setup-buffer)
@@ -1121,7 +1138,10 @@ This mode itself is never used directly."
          (name (format "*forge: %s %s*" (oref repo slug) (oref topic slug)))
          (magit-generate-buffer-name-function (lambda (_mode _value) name)))
     (magit-setup-buffer-internal
-     (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode)
+     (pcase-exhaustive (eieio-object-class topic)
+       ('forge-discussion #'forge-discussion-mode)
+       ('forge-issue      #'forge-issue-mode)
+       ('forge-pullreq    #'forge-pullreq-mode))
      t `((forge-buffer-topic ,topic))
      name (or (forge-get-worktree repo) "/"))
     (forge-topic-mark-read topic)))
@@ -1164,10 +1184,54 @@ This mode itself is never used directly."
                'font-lock-face 'magit-diff-hunk-heading heading)
               (magit-insert-heading heading))
             (insert (forge--fontify-markdown body) "\n\n"))))
+      (forge-insert-post topic nil)
+      (dolist (post (oref topic posts))
+        (forge-insert-post post topic))
       (when (and (display-images-p)
                  (fboundp 'markdown-display-inline-images))
         (let ((markdown-display-remote-images t))
           (markdown-display-inline-images))))))
+
+(defun forge-insert-post (post topic)
+  (magit-insert-section (post post)
+    (forge-insert-post-heading post)
+    (forge-insert-post-content post)
+    (when (forge-discussion-p topic)
+      (dolist (reply (oref post replies))
+        (magit-insert-section (post reply) ;TODO type 'reply?
+          (forge-insert-post-heading reply)
+          (forge-insert-post-content reply))))))
+
+(defun forge-insert-post-heading (post)
+  (oset magit-insert-section--current
+        heading-highlight-face
+        'magit-diff-hunk-heading-highlight)
+  (let* ((author  (oref post author))
+         (created (oref post created))
+         (heading
+          (format-spec
+           forge-post-heading-format
+           `((?a . ,(propertize (concat (forge--format-avatar author)
+                                        (or author "(ghost)"))
+                                'font-lock-face 'forge-post-author))
+             (?c . ,(propertize created 'font-lock-face 'forge-post-date))
+             (?C . ,(propertize (apply #'format "%s %s ago"
+                                       (magit--age
+                                        (float-time
+                                         (date-to-time created))))
+                                'font-lock-face 'forge-post-date))))))
+    (when (forge-discussion-reply-p post)
+      (setq heading (concat "    " heading)))
+    (font-lock-append-text-property
+     0 (length heading)
+     'font-lock-face (if (forge-discussion-reply-p post)
+                         '(magit-dimmed magit-diff-hunk-heading)
+                       'magit-diff-hunk-heading)
+     heading)
+    (magit-insert-heading heading)))
+
+(defun forge-insert-post-content (post)
+  (insert (forge--fontify-markdown (oref post body)) "\n\n"))
 
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
   (oref forge-buffer-topic slug))
@@ -1695,12 +1759,18 @@ alist, containing just `text' and `position'.")
 
 (cl-defmethod forge--topic-template ((repo forge-repository)
                                      (class (subclass forge-topic)))
-  (let ((choices (forge--topic-templates-data repo class)))
+  (let ((choices (if (eq class 'forge-discussion)
+                     ;; TODO Format discussion types from api like it
+                     ;; came from template files, or maybe handle this
+                     ;; differently and elsewhere.
+                     nil
+                   (forge--topic-templates-data repo class))))
     (if (cdr choices)
         (let ((c (magit-completing-read
-                  (if (eq class 'forge-pullreq)
-                      "Select pull-request template"
-                    "Select issue template")
+                  (pcase class
+                    ('forge-discussion "Select discussion type")
+                    ('forge-issue      "Select issue template")
+                    ('forge-pullreq    "Select pull-request template"))
                   (--map (alist-get 'prompt it) choices)
                   nil t)))
           (--first (equal (alist-get 'prompt it) c) choices))
