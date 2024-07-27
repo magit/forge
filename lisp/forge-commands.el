@@ -88,6 +88,7 @@ Takes the pull-request as only argument and must return a directory."
    ["Visit"
     :inapt-if-not forge--get-repository:tracked?
     ("v t" "topic"          forge-visit-topic)
+    ("v d" "discussion"     forge-visit-discussion)
     ("v i" "issue"          forge-visit-issue)
     ("v p" "pull-request"   forge-visit-pullreq)]
    ["Browse"
@@ -222,6 +223,13 @@ repository cannot be determined, instead invoke `forge-add-repository'."
 ;;; Browse
 
 ;;;###autoload
+(defun forge-browse-discussions ()
+  "Visit the current repository's discussions using a browser."
+  (interactive)
+  (browse-url (forge--format (forge-get-repository 'stub)
+                             'discussions-url-format)))
+
+;;;###autoload
 (defun forge-browse-issues ()
   "Visit the current repository's issues using a browser."
   (interactive)
@@ -242,6 +250,14 @@ By default only offer open topics but with a prefix argument
 also offer closed topics."
   (interactive (list (forge-read-topic "Browse topic")))
   (forge--browse-topic topic))
+
+;;;###autoload
+(defun forge-browse-discussion (discussion)
+  "Read an DISCUSSION and visit it using a browser.
+By default only offer open discussions but with a prefix argument
+also offer closed issues."
+  (interactive (list (forge-read-issue "Browse discussion" t)))
+  (forge--browse-topic discussion))
 
 ;;;###autoload
 (defun forge-browse-issue (issue)
@@ -348,6 +364,9 @@ argument also offer closed pull-requests."
 (cl-defgeneric forge-get-url (obj)
   "Return the URL for a forge object.")
 
+(cl-defmethod forge-get-url ((discussion forge-discussion))
+  (forge--format discussion 'discussion-url-format))
+
 (cl-defmethod forge-get-url ((issue forge-issue))
   (forge--format issue 'issue-url-format))
 
@@ -385,7 +404,9 @@ argument also offer closed pull-requests."
 
 (cl-defmethod forge-get-url ((post forge-post))
   (forge--format post (let ((topic (forge-get-parent post)))
-                        (cond ((forge--childp topic 'forge-issue)
+                        (cond ((forge--childp topic 'forge-discussion)
+                               'discussion-post-url-format)
+                              ((forge--childp topic 'forge-issue)
                                'issue-post-url-format)
                               ((forge--childp topic 'forge-pullreq)
                                'pullreq-post-url-format)))))
@@ -404,6 +425,14 @@ argument offer all topics.  While completion is in progress, \
 the limitation to active topics."
   (interactive (list (forge-read-topic "View topic")))
   (forge-topic-setup-buffer (forge-get-topic topic)))
+
+;;;###autoload
+(defun forge-visit-discussion (discussion)
+  "Read a DISCUSSION and visit it.
+By default only offer open topics for completion;
+with a prefix argument also closed topics."
+  (interactive (list (forge-read-discussion "View discussion" t)))
+  (forge-topic-setup-buffer (forge-get-discussion discussion)))
 
 ;;;###autoload
 (defun forge-visit-issue (issue)
@@ -459,6 +488,19 @@ With prefix argument MENU, also show the topic menu."
      ((user-error "Not tracked and location of clone is unknown")))))
 
 ;;; Create
+
+(defun forge-create-discussion ()
+  "Create a new discussion for the current repository."
+  (interactive)
+  (let* ((repo (forge-get-repository t))
+         (buf (forge--prepare-post-buffer
+               "new-discussion" ;TODO
+               (forge--format repo "Create new discussion on %p"))))
+    (when buf
+      (with-current-buffer buf
+        (setq forge--buffer-post-object repo)
+        (setq forge--submit-post-function #'forge--submit-create-discussion))
+      (forge--display-post-buffer buf))))
 
 (defun forge-create-issue ()
   "Create a new issue for the current repository."
