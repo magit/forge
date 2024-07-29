@@ -95,9 +95,8 @@
 (cl-defmethod closql-dref ((obj forge-pullreq) (_(eql review-requests)))
   (forge-sql-cdr
    [:select assignee:* :from assignee
-    :join pullreq-review-request
-    :on (= pullreq-review-request:id :id assignee:id)
-    :where (= pullreq-review-request:pullreq :pullreq $s1)
+    :join pullreq-review-request :on (= pullreq-review-request:id assignee:id)
+    :where (= pullreq-review-request:pullreq $s1)
     :order-by [(asc login)]]
    (closql--oref obj 'id)))
 
