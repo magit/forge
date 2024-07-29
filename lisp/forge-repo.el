@@ -486,11 +486,10 @@ forges and hosts."
      topic
      :callback (lambda ()
                  (forge-refresh-buffer)
-                 (when (and transient--showp
-                            (memq transient-current-command
-                                  '(forge-topic-menu
-                                    forge-topics-menu
-                                    forge-notifications-menu)))
+                 (when (transient-active-prefix
+                        '(forge-topic-menu
+                          forge-topics-menu
+                          forge-notifications-menu))
                    (transient--refresh-transient))))))
 
 (defvar forge--mode-line-buffer nil)
