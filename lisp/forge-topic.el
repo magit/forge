@@ -1080,14 +1080,14 @@ commands in all Forge keymaps, one only has to change them here."
   "C-c C-r"                      #'forge-create-post)
 
 (define-derived-mode forge-topic-mode magit-mode "Topic"
-  "Parent mode of `forge-{issue,pullreq}-mode'.
+  "Parent major mode of `forge-{issue,pullreq}-mode'.
 This mode itself is never used directly."
   (face-remap-add-relative 'header-line 'forge-topic-header-line)
   (setq-local markdown-translate-filename-function
               #'forge--markdown-translate-filename-function))
 
 (define-derived-mode forge-issue-mode forge-topic-mode "Issue"
-  "Mode for looking at a Forge issue.")
+  "Major mode for looking at a Forge issue.")
 (defalias 'forge-issue-setup-buffer   #'forge-topic-setup-buffer)
 (defalias 'forge-issue-refresh-buffer #'forge-topic-refresh-buffer)
 (defvar forge-issue-headers-hook
@@ -1099,7 +1099,7 @@ This mode itself is never used directly."
     forge-insert-topic-assignees))
 
 (define-derived-mode forge-pullreq-mode forge-topic-mode "Pull-request"
-  "Mode for looking at a Forge pull-request.")
+  "Major mode for looking at a Forge pull-request.")
 (defalias 'forge-pullreq-setup-buffer   #'forge-topic-setup-buffer)
 (defalias 'forge-pullreq-refresh-buffer #'forge-topic-refresh-buffer)
 (defvar forge-pullreq-headers-hook
