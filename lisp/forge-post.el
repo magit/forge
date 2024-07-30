@@ -99,7 +99,8 @@ an error."
   "<remap> <iswitchb-kill-buffer>"         #'forge-post-cancel
   "<remap> <evil-quit>"                    #'forge-post-cancel)
 
-(define-derived-mode forge-post-mode gfm-mode "Forge-Post" "")
+(define-derived-mode forge-post-mode gfm-mode "Forge-Post"
+  "Major mode for editing topic posts.")
 
 (defvar-local forge--buffer-base-branch nil)
 (defvar-local forge--buffer-head-branch nil)
