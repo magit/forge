@@ -86,6 +86,7 @@ Must be set before `forge-list' is loaded.")
 (define-derived-mode forge-repository-list-mode tabulated-list-mode
   forge-repository-list-mode-name
   "Major mode for browsing a list of repositories."
+  :interactive nil
   (setq-local x-stretch-cursor nil)
   (setq tabulated-list-padding 0)
   (setq tabulated-list-sort-key (cons "Owner" nil)))

@@ -110,6 +110,7 @@ Must be set before `forge-topics' is loaded.")
 
 (define-derived-mode forge-topics-mode magit-mode forge-topics-mode-name
   "Major mode for browsing a list of topics."
+  :interactive nil
   (hack-dir-local-variables-non-file-buffer))
 
 (defun forge-topics-setup-buffer (&optional repo spec &rest params)

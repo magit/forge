@@ -100,7 +100,8 @@ an error."
   "<remap> <evil-quit>"                    #'forge-post-cancel)
 
 (define-derived-mode forge-post-mode gfm-mode "Forge-Post"
-  "Major mode for editing topic posts.")
+  "Major mode for editing topic posts."
+  :interactive nil)
 
 (defvar-local forge--buffer-base-branch nil)
 (defvar-local forge--buffer-head-branch nil)
