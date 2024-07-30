@@ -163,7 +163,7 @@ an error."
   "Read an active issue with completion using PROMPT.
 
 Open, unread and pending issues are considered active.
-Default to the current issue even if it isn't active.
+Default to the current issue, even if it isn't active.
 
 \\<forge-read-topic-minibuffer-map>While completion is in \
 progress, \\[forge-read-topic-lift-limit] lifts the limit, extending

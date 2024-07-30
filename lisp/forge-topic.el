@@ -560,7 +560,7 @@ Limit list to topics for which a review by the given user was requested."
   "Read an active topic with completion using PROMPT.
 
 Open, unread and pending topics are considered active.
-Default to the current topic even if it isn't active.
+Default to the current topic, even if it isn't active.
 
 \\<forge-read-topic-minibuffer-map>While completion is in \
 progress, \\[forge-read-topic-lift-limit] lifts the limit, extending
