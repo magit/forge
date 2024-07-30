@@ -571,7 +571,7 @@ can be selected from the start."
   (forge--read-topic prompt
                      #'forge-current-topic
                      (forge--topics-spec :type 'topic :active t)
-                     (forge--topics-spec :type 'topic :active nil)))
+                     (forge--topics-spec :type 'topic :active nil :state nil)))
 
 (defun forge--read-topic (prompt current active all)
   (let* ((current (funcall current))
