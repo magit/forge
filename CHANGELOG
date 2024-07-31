@@ -1,66 +1,178 @@
 # -*- mode: org -*-
-* v0.3.3    UNRELEASED
+* v0.4.0    UNRELEASED
 
-- Added ~forge-browse-remote~ to ~forge-dispatch~.  #477
+This is the biggest Forge release so far, consisting of more than 650 commits
+created over the course of more than two years.  I am not able to load all that
+into working memory, and many parts of the code have received several rounds of
+improvements, so this changelog entry uses broader strokes than usual.
 
-- Depend on the Compat package, allowing me to use convenient features that were
-  added to Emacs over the last few years, without having to wait another few
-  years until everybody has updated to a reasonably recent Emacs release.
-  453c43f1e
+- This release pays off a large amount of technical debt.  Many of the changes
+  and additions below were only possible thanks to that effort, as are upcoming
+  additions.
 
-- Added support for visiting the topic reference at point.  #488
+- Which topics are displayed in the current buffer can now be changed, using
+  the new prefix command ~forge-topics-menu~, available on ~N m f~.  This command
+  is available in any buffer that lists topics, including the status buffer.
 
-- Added ~forge-visit-topic~ to ~git-commit-mode-map~.  05529a2a0
+  Previously topic filtering relied on dedicated commands (which listed a
+  hard-coded subset in a separate buffer) and functions (which inserted a
+  hard-coded subset in a separate section in the status buffer).  Most of
+  these commands and functions have been removed.
 
-- Added new ~forge-post-dispatch~ prefix command, on ~C-c C-e~, when editing posts.
-  #497
+  The default filters can be customized using the new
+  ~forge-list-buffer-default-topic-filters~ and
+  ~forge-status-buffer-default-topic-filters~ options.  If you really want to
+  insert additional hard-coded sets of topics in dedicated section in the status
+  buffer, you can still define them yourself, with the help of the new helper
+  function ~forge-insert-topics~.
 
-- In topic buffers commits are now listed for merged pull-requests as well.
-  a3cf64de6
+- Dedicated buffers used to list topics now use a major mode derived from
+  ~magit-mode~, instead of from ~tabulated-list-mode~.  This makes it possible to
+  remove a lot of duplication (because these buffers now use the same code as
+  the topic list sections displayed in the status buffer), and makes adding new
+  features more feasible.
 
-- In topic buffers it is now shown whether a pull-requests is still a draft.
-  573e24156
+- ~forge-dispatch~ and the newly added menu commands (such as the already
+  mentioned ~transient-topics-menu~) now provide bindings to switch to any of the
+  other menus.  Similarly they provide bindings to switch to list buffers.
 
-- Added new command ~forge-edit-topic-draft~, which toggles whether a pull-request
-  is considered a draft, and new command ~forge-buffer-draft-p~, which controls
-  whether newly created pull-requests start out as drafts.  #112, #517
+  This should make it easy to discover the new commands, and reduces the need
+  to memorize new key bindings.  It is sufficient to remember that ~N~ invokes
+  ~forge-dispach~, and to then browse the other menus from there.  That being
+  said, more efficient but harder to remember, bindings are also available,
+  such as:
 
-- Added new hook ~forge-create-pullreq-hook~.  #512
+- The new prefix command ~forge-topic-menu~, now provides the most convenient way
+  to edit an existing topic.  When point is on a topic, it can be invoked using
+  ~C-<return>~.  As is always the case in Magit, ~RET~ visits the thing at point in
+  a separate buffer.  In the case of topics ~C-u RET~ does both; it displays the
+  buffer and the menu.
 
-- Remove support for obsolete libsqlite3 backend and broken sqlite3 backends.
-  45b06b801
+- The parts of the Github API that one has to use when syncing the private
+  topic status are truly abysmal.  When I first created Forge, I figured that
+  something so fundamentally broken would surely be fixed within a few months
+  and decided to wait until that was done.
 
-- When checking out the branch corresponding to a pull-request, and that has
-  already been created earlier, then it is now just check it out as-is.  #519
+  I was wrong, five years later nothing has changed, and I had no choice but to
+  put in a lot of effort to implement workarounds, to achieve something that is
+  worse than what could be trivially achieved if the API were merely bad.
 
-- Added new command ~forge-rename-default-branch~.  81e2bcd86
+  Most frustratingly the ternary unread/pending/done is represented in API
+  responses using a boolean.  That obviously puts limits on the accuracy one
+  can achieve in a third-party client.  While that is the worst defect, it is
+  just the tip of the iceberg.
 
-- Update the database before upgrading to a new schemata version.
-  2dc0a623c et al.
+- All the possible values for the public "state" and the private "status" of
+  topics are now fully supported.
 
-- Added new Git variable ~forge-forge.graphqlItemLimit~, to limit the number of
-  items per page, for Forge specifically.  #543
+  The public state basically answers the question whether a topic has been
+  closed yet, and if so for what reason.  The state can be one of ~open~,
+  ~completed~ and ~unplanned~ for issues, and ~open~, ~merged~ and ~rejected~ for
+  pull-requests.
 
-- Pull-requests that have been deleted, but whose ref has been fetched, can be
-  checked out now.  e8523844d
+  The private status answers the questions whether /you/ have seen the latest
+  changes yet, that someone else made to it, and when that is the case, whether
+  you have additionally decided that you are "done" with that topic.
 
-- EmacSQL now automatically uses the best available backend (which allows for
-  the removed option ~forge-database-connector~).  af9358dca
+  Due to the defects of the Github API mentioned above, the distinction between
+  the ~pending~ and ~done~ statuses of a topic cannot be synchronized with Github,
+  so if you use both Forge and the web interface, you will sadly have to perform
+  the "mark as done" action twice.
 
-Bug fixes:
+- By default Forge now lists "active" topics, i.e., topics whose public state is
+  ~open~ and/or whose private status is ~unread~ or ~pending~.  In other words ~active~
+  topics are those that might still require your attention.
 
-- d8773c8de, 0ca0ca8ac Fix handling of JSON and YAML booleans
-- 44f01370f #481 Deal with yaml frontmatter missing title
-- d04ab8f43 #482 forge-forge.remote: Show the dynamic fallback value
-- 0ebd444a1 #485 forge--fetch-pullreq-target-repo: Fix copy-paste error
-- 29fc13023 #494 Fix :initform form for sqlite-builtin and sqlite-module backends
-- ec5f1656d..623be04aa Fix various Gitlab issues
-- 422881e55 #549 Prevent post heading face from clobbering author & date faces
-- 398ca3a17 Fix how Magit is kept usable when Forge database is inaccessible
-- dc777b64a #588 Use color-values instead of deprecated x-color-values
+- At least Emacs 27.1 is required now.  Several dependencies have bumped their
+  respective minimal requirement, so I had no choice in the matter, but to be
+  honest, I am not unhappy about it.
 
-Also contains various documentation updates, code clean-ups and build
-improvements.
+- EmacSQL 4.0.0 is required now, which automatically uses the best available SQL
+  backend.  The new backend, which utilizes the built-in support, added in Emacs
+  29.1, is preferred.  When using an older Emacs version, or when Emacs unwisely
+  was compiled without SQLite support, then a different new backend is used.
+  That backend uses the C module provided by the ~sqlite3~ package, which you have
+  to install explicitly.  If the module also isn't available, the legacy backend
+  is used as a last resort.  That backend is less reliable and much slower than
+  the newer alternatives, and is going to be removed from EmacSQL in a not so
+  distant future.
+
+- It is now possible to add repositories to the local database, without first
+  cloning the respective Git repositories, using the same command used to add
+  the current Git repository.  That command, ~forge-add-repository~, now also
+  offers to fetch only individual topics, or all topics that were modified
+  since a cut-off date of the user's choosing, instead of all topics.
+
+- A project's topics can now be listed, visited and modified even if no local
+  clone of the respective Git repository exists.  One way to navigate to such
+  a project's topics is to list all repositories using ~N l r~ and then press
+  ~RET~, while point is on the repository in question.
+
+- Added new transient menu commands ~forge-topic-menu~, ~forge-topics-menu~,
+  ~forge-topic-state-menu~, ~forge-topic-status-menu~, ~forge-repositories-menu~,
+  ~forge-configure~, ~forge-post-dispatch~ and ~forge-notifications-menu~, and
+  converted ~forge-add-repository~ to a menu command.
+
+- Added new commands ~forge-add-some-repository~, ~forge-browse~,
+  ~forge-browse-this-repository~, ~forge-browse-this-topic~,
+  ~forge-checkout-this-pullreq~, ~forge-forge.graphqlItemLimit~,
+  ~forge-issue-state-set-completed~, ~forge-issue-state-set-unplanned~,
+  ~forge-list-global-issues~, ~forge-list-global-pullreqs~,
+  ~forge-list-global-topics~, ~forge-menu-quit-list~,
+  ~forge-notifications-display-all~, ~forge-notifications-display-done~,
+  ~forge-notifications-display-inbox~, ~forge-notifications-display-saved~,
+  ~forge-notifications-style-flat~, ~forge-notifications-style-nested~,
+  ~forge-post-toggle-draft~, ~forge-pull-this-topic~,
+  ~forge-pullreq-state-set-merged~, ~forge-pullreq-state-set-rejected~,
+  ~forge-read-topic-lift-limit~, ~forge-refresh-buffer~,
+  ~forge-rename-default-branch~, ~forge-toggle-topic-legend~,
+  ~forge-edit-topic-state~, ~forge-topic-state-set-open~,
+  ~forge-topic-status-set-done~, ~forge-topic-status-set-pending~,
+  ~forge-topic-status-set-unread~, ~forge-topic-toggle-draft~,
+  ~forge-topic-toggle-saved~, ~forge-topics-all-types~, ~forge-topics-filter-active~,
+  ~forge-topics-filter-assignee~, ~forge-topics-filter-author~,
+  ~forge-topics-filter-issues~, ~forge-topics-filter-labels~,
+  ~forge-topics-filter-marks~, ~forge-topics-filter-milestone~,
+  ~forge-topics-filter-pullreqs~, ~forge-topics-filter-reviewer~,
+  ~forge-topics-filter-saved~, ~forge-topics-filter-state-completed~,
+  ~forge-topics-filter-state-open~, ~forge-topics-filter-state-unplanned~,
+  ~forge-topics-filter-status-done~, ~forge-topics-filter-status-inbox~,
+  ~forge-topics-filter-status-pending~, ~forge-topics-filter-status-unread~,
+  ~forge-topics-group~, ~forge-topics-set-limit~, ~forge-topics-set-order~,
+  ~forge-topics-ungroup~, ~forge-visit-this-repository~ and ~forge-visit-this-topic~.
+
+- Added new options ~forge-buffer-draft-p~, ~forge-limit-topic-choices~,
+  ~forge-list-buffer-default-topic-filters~, ~forge-repository-list-columns~,
+  ~forge-repository-list-mode-hook~, ~forge-status-buffer-default-topic-filters~
+  and ~forge-topic-repository-slug-width~; and remove old options
+  ~forge-database-connector~, ~forge-topic-list-mode-hook~, ~forge-topic-list-order~,
+  ~forge-topic-list-limit~ and forge-pull-notifications.
+
+- Added new faces ~forge-dimmed~, ~forge-issue-completed~, ~forge-issue-open~,
+  ~forge-issue-unplanned~, ~forge-pullreq-merged~, ~forge-pullreq-open~,
+  ~forge-suffix-active-and-implied~, ~forge-suffix-active~, ~forge-suffix-implied~,
+  ~forge-topic-done~, ~forge-topic-header-line~, ~forge-topic-pending~,
+  ~forge-topic-slug-completed~, ~forge-topic-slug-open~, ~forge-topic-slug-saved~,
+  ~forge-topic-slug-unplanned~, ~forge-topic-slug-unread~ and
+  ~forge-pullreq-rejected~.  Some of them are approximate replacements for the
+  removed faces ~forge-topic-closed~, ~forge-topic-merged~, ~forge-topic-open~ and
+  ~forge-topic-unmerged~.
+
+- Added new Git variable ~forge.graphqlItemLimit~.  Ghub now fetches fewer items
+  at once by default, but if you repeatedly get ~HTTP Error 502, "Bad gateway"~
+  when pulling API data for some repository, then limiting this to below 50
+  is likely to help (but results in more requests and slows down pulling.)
+
+- If Forge cannot access its database, it disables itself, to keep Magit usable.
+
+- The essential function ~forge-get-repository~ has undergone several rounds of
+  improvements and now much better serves the diverse needs of its callers.
+
+- When the user has to select a topic using completion, they are initially only
+  offered open topics to select from, but by pressing ~+~ the choices can be
+  extended to include all topics.
+
+Also included are many other new features, improvements and bugfixes.
 
 * v0.3.2    2022-03-07
 
