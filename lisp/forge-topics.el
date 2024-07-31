@@ -87,7 +87,7 @@ This is a list of package names.  Used by the commands
   "Face used for suffixes whose effects is currently active and implied."
   :group 'forge-faces)
 
-(defface forge--suffix-implied
+(defface forge-suffix-implied
   '((t :inherit transient-value :weight normal))
   "Face used for suffixes whose effects is currently implied."
   :group 'forge-faces)
@@ -412,7 +412,7 @@ then display the respective menu, otherwise display no menu."
                               (eq want 'open))
                          (if (eq have want)
                              'forge-suffix-active-and-implied
-                           'forge--suffix-implied))))))))
+                           'forge-suffix-implied))))))))
 
 (transient-define-suffix forge-topics-filter-state-open ()
   "Limit topic list to open topics."
@@ -459,7 +459,7 @@ then display the respective menu, otherwise display no menu."
                               (memq want '(inbox unread pending)))
                          (if (eq have want)
                              'forge-suffix-active-and-implied
-                           'forge--suffix-implied))))))))
+                           'forge-suffix-implied))))))))
 
 (transient-define-suffix forge-topics-filter-status-inbox ()
   "Limit topic list to unread and pending topics."
