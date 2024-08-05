@@ -144,7 +144,7 @@ repository.  (Forge repositories are also Git repositories, but not the
 other way around.)
 
 A `:known' repository has an entry in the local database.  All other
-repositories are unknown.  `:known' repositories are devided into two
+repositories are unknown.  `:known' repositories are divided into two
 subgroups: `:tracked' and \"untracked\" repositories.
 
 A `:tracked' repository was previously explicitly added to the database

@@ -463,7 +463,7 @@ Limit list to topics for which a review by the given user was requested."
                 :initform 200
                 :type integer
                 :custom natnum)
-   (grouped     :documentation "Whether to group topics by respository."
+   (grouped     :documentation "Whether to group topics by repository."
                 :initarg :grouped
                 :initform nil
                 :type boolean
