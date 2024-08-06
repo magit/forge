@@ -354,22 +354,38 @@ dedicated buffers:
 
 * Visiting Topics
 
-Magit's status buffer contains lists of issues and pull-requests.
-Topics are ordered by last modification time.  All open issues and
-some recently edited and closed topics are listed.
+By default Magit's status buffer lists open and/or pending issues and
+pull-requests.
 
 Forge provides some commands that act on the listed topics.  These
 commands can also be used in other contexts, such as when point is
 on a commit or branch section.
 
-- Key: C-c C-w (forge-browse-TYPE) ::
-- Key: C-c C-w (forge-browse-dwim) ::
-- Key: N b r (forge-browse-remote) ::
-- Key: N b I (forge-browse-issues) ::
-- Key: N b P (forge-browse-pullreqs) ::
+- Key: RET [on topic] (forge-visit-this-topic) ::
+- Key: RET [on repository] (forge-visit-this-repository) ::
+
+  These commands visit the topic or repository at point in a separate
+  buffer.
+
+  These commands are bound by remapping ~magit-visit-thing~ as defined
+  in ~magit-mode-map~.
+
+- Key: N v t (forge-visit-topic) ::
+- Key: N v i (forge-visit-issue) ::
+- Key: N v p (forge-visit-pullreq) ::
+
+  These commands read a topic, issue or pull-request and visit it in a
+  separate buffer.
+
+- Key: o [on topic] (forge-browse-this-topic) ::
+- Key: o [on repository] (forge-browse-this-repository) ::
+
 - Key: N b t (forge-browse-topic) ::
 - Key: N b i (forge-browse-issue) ::
 - Key: N b p (forge-browse-pullreq) ::
+- Key: N b r (forge-browse-remote) ::
+- Key: N b I (forge-browse-issues) ::
+- Key: N b P (forge-browse-pullreqs) ::
 
   These commands visit the topic, issue(s), pull-request(s), post,
   branch, commit, or remote at point in a browser.
@@ -379,24 +395,6 @@ on a commit or branch section.
   defined in ~magit-mode-map)~.  For commit sections this key is bound
   to ~forge-browse-dwim~, which prefers a topic over a branch and a
   branch over a commit.
-
-- Key: RET (forge-visit-TYPE) ::
-- Key: C-c C-v (forge-visit-topic) ::
-- Key: N v t (forge-visit-topic) ::
-- Key: N v i (forge-visit-issue) ::
-- Key: N v p (forge-visit-pullreq) ::
-
-  These commands visit the pull-request(s), issue(s), or repository in
-  a separate buffer.
-
-  The ~RET~ binding is only available when point is on a issue or
-  pull-request section because that key is already bound to something
-  else for most of Magit's own sections.  ~C-c C-v~ however is also
-  available on regular commit (e.g., in a log) and branch sections.
-
-  This is implemented using various commands named ~forge-visit-TYPE~
-  and the key binding is defined by remapping ~magit-visit-thing~ (as
-  defined in ~magit-mode-map~).
 
 * Creating Topics
 
