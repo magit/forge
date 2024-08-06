@@ -967,8 +967,8 @@ cases don't even call PREPARE).
 
 The filter object can be created either using `forge--topics-spec' or
 by `clone'ing the object returned by `forge--init-buffer-topics-spec',
-to share some settings with other topic lists in the same buffer. See
-`forge--topics-spec' for the valid slots and their values.
+to share some settings with other topic lists in the same buffer.
+See `forge--topics-spec' for the valid slots and their values.
 
 HEADING is used as the heading of the list section and TYPE is used as
 its type.  TYPE should be a symbol of the form `SUBSET-KIND', where KIND
