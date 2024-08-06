@@ -118,11 +118,6 @@ issues, users have ran into in the past.  The recommended reading is
 longer than one might wish, but skipping it does not necessarily save
 time.
 
-Forge uses the Ghub package to access the APIs of supported forges.
-How this works and how to create and store a token is documented in
-@ref{Getting Started,,,ghub,}.  Please read that in full before coming
-back here and continuing with the subsections listed below.
-
 @uref{https://github.com/magit/forge/wiki} lists additional resources,
 including a link to a much shorter quick-start guide, provided by
 a user.
@@ -161,9 +156,10 @@ to @code{nil} before @code{magit} (not just @code{forge}) is loaded.
 @node Token Creation
 @section Token Creation
 
-Forge uses the Ghub package to access the APIs of supported Git
-forges.  How this works and how to create and store a token is
-documented in @ref{Getting Started,,,ghub,}.
+Forge uses the Ghub package to access the APIs of supported forges.
+How this works and how to create and store a token is documented in
+@ref{Getting Started,,,ghub,}.  Please read that now, before you continue
+below.
 
 Forge requires the following token scopes.
 
@@ -194,22 +190,22 @@ at all is required, then it is all or nothing.
 @node Initial Pull
 @section Initial Pull
 
-To start using Forge in a certain repository visit the Magit status
-buffer for that repository and type @code{f n} (@code{forge-pull}).  Alternatively,
-you can use @code{M-x forge-add-repository}, which makes it possible to add a
-forge repository without pulling all topics and even without having to
-clone the respective Git repository.
+(You must specify the host and your username and setup a token @strong{before}
+you can add the first repository.)
 
-You must set up a token @strong{before} you can add the first repository.
-See @ref{Token Creation}.
+To start using Forge in a certain repository, visit the Magit status
+buffer for that repository and type @code{N / a} (@code{forge-add-repository}).  You
+are given a choice to pull all topics, all topics that were updated
+after a certain date, or only individual topics.
 
-The first time @code{forge-pull} is run in a repository, an entry for that
-repository is added to the database and a new value is added to the
-Git variable @code{remote.<remote>.fetch}, which fetches all pull-requests.
-(@code{+refs/pull/*/head:refs/pullreqs/*} for Github)
+Beside adding the repository to the database, this also adds a new
+value to the Git variable @code{remote.<remote>.fetch}, which causes all
+pull-request refs (@code{+refs/pull/*/head:refs/pullreqs/*} for Github)
+to be fetched by Git.
 
-@code{forge-pull} then fetches topics and other information using the forge's
-API and pull-request references using Git.
+Note that it is possible to use the same command to add any repository
+from a supported forge to the database, without cloning the Git
+repository first.
 
 The initial fetch can take a while but most of the work is done
 asynchronously.  Storing the information in the database is done
