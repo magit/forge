@@ -99,7 +99,7 @@ Takes the pull-request as only argument and must return a directory."
     ("b P" "pull-requests"  forge-browse-pullreqs)
     ""]
    ["Display"
-    ("-T" forge-toggle-display-in-status-buffer
+    ("-S" forge-toggle-display-in-status-buffer
      :inapt-if-not forge--buffer-with-topics-sections-p)
     ("-H" forge-toggle-topic-legend)]]
   [forge--topic-legend-group])
