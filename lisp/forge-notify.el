@@ -122,7 +122,7 @@ signal an error."
 (define-derived-mode forge-notifications-mode magit-mode "Forge Notifications"
   "Major mode for looking at forge notifications."
   :interactive nil
-  (hack-dir-local-variables-non-file-buffer))
+  (magit-hack-dir-local-variables))
 
 (defun forge-notifications-setup-buffer ()
   (magit-setup-buffer-internal #'forge-notifications-mode nil
