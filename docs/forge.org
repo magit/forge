@@ -776,6 +776,65 @@ then the remote is never removed.
   which will happen a few times while the Forge functionality is still
   under heavy development.
 
+* Miscellaneous Options
+
+- User Option: forge-database-file ::
+
+  This option specifies the file used to store the forge database.
+
+- User Option: forge-topic-repository-slug-width ::
+
+  This option specifies the width of repository slugs (i.e.,
+  "OWNER/NAME").
+
+- User Option: forge-buffer-draft-p ::
+
+  This option controls whether new pull-requests start out as drafts
+  by default.
+
+  The buffer-local value of this variable is used to keep track of the
+  draft status of the current pull-request.
+
+- User Option: forge-repository-list-columns ::
+
+  This option specifies the list of columns displayed when listing
+  repositories.
+
+  Each element has the form ~(HEADER SOURCE WIDTH SORT PROPS)~.
+
+  HEADER is the string displayed in the header.  WIDTH is the width
+  of the column.  SOURCE is used to get the value, it has to be the
+  name of a slot of ~forge-repository~ or a function that takes
+  such an object as argument.  SORT is a boolean or a function used
+  to sort by this column.  Supported PROPS include ~:right-align~
+  and ~:pad-right~.
+
+- User Option: forge-limit-topic-choices ::
+
+  This option controls whether to initially limit completion
+  candidates to active topics.
+
+- User Option: forge-post-heading-format ::
+
+  This option specifies the format for post headings in topic view.
+
+  The following ~%~-sequences are supported:
+
+  - ~%a~ The forge nickname of the author.
+  - ~%c~ The absolute creation date.
+  - ~%C~ The relative creation date.
+
+- User Option: forge-post-fill-region ::
+
+  This option controls whether to call ~fill-region~ before displaying
+  forge posts.
+
+- User Option: forge-bug-reference-hooks ::
+
+  This option lists the hooks to which ~forge-bug-reference-setup~ is
+  added.  It has to be customized before ~forge~ is loaded, or it won't
+  take effect.
+
 * Supported Forges and Hosts
 :PROPERTIES:
 :APPENDIX:   t

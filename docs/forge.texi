@@ -65,6 +65,7 @@ This manual is for Forge version 0.3.2.50-git.
 * Pulling::
 * Branching::
 * Miscellaneous Commands::
+* Miscellaneous Options::
 * Supported Forges and Hosts::
 * FAQ::
 * Keystroke Index::
@@ -1020,6 +1021,71 @@ This is useful after the database's table schemata have changed,
 which will happen a few times while the Forge functionality is still
 under heavy development.
 @end deffn
+
+@node Miscellaneous Options
+@chapter Miscellaneous Options
+
+@defopt forge-database-file
+This option specifies the file used to store the forge database.
+@end defopt
+
+@defopt forge-topic-repository-slug-width
+This option specifies the width of repository slugs (i.e.,
+"OWNER/NAME").
+@end defopt
+
+@defopt forge-buffer-draft-p
+This option controls whether new pull-requests start out as drafts
+by default.
+
+The buffer-local value of this variable is used to keep track of the
+draft status of the current pull-request.
+@end defopt
+
+@defopt forge-repository-list-columns
+This option specifies the list of columns displayed when listing
+repositories.
+
+Each element has the form @code{(HEADER SOURCE WIDTH SORT PROPS)}.
+
+HEADER is the string displayed in the header.  WIDTH is the width
+of the column.  SOURCE is used to get the value, it has to be the
+name of a slot of @code{forge-repository} or a function that takes
+such an object as argument.  SORT is a boolean or a function used
+to sort by this column.  Supported PROPS include @code{:right-align}
+and @code{:pad-right}.
+@end defopt
+
+@defopt forge-limit-topic-choices
+This option controls whether to initially limit completion
+candidates to active topics.
+@end defopt
+
+@defopt forge-post-heading-format
+This option specifies the format for post headings in topic view.
+
+The following @code{%}-sequences are supported:
+
+@itemize
+@item
+@code{%a} The forge nickname of the author.
+@item
+@code{%c} The absolute creation date.
+@item
+@code{%C} The relative creation date.
+@end itemize
+@end defopt
+
+@defopt forge-post-fill-region
+This option controls whether to call @code{fill-region} before displaying
+forge posts.
+@end defopt
+
+@defopt forge-bug-reference-hooks
+This option lists the hooks to which @code{forge-bug-reference-setup} is
+added.  It has to be customized before @code{forge} is loaded, or it won't
+take effect.
+@end defopt
 
 @node Supported Forges and Hosts
 @appendix Supported Forges and Hosts
