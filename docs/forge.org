@@ -377,9 +377,16 @@ on a commit or branch section.
   These commands read a topic, issue or pull-request and visit it in a
   separate buffer.
 
-- Key: o [on topic] (forge-browse-this-topic) ::
-- Key: o [on repository] (forge-browse-this-repository) ::
+- Key: C-c C-o (forge-browse) ::
+- Key: o [on topic in topic list] (forge-browse-this-topic) ::
+- Key: o [on repository in repository list] (forge-browse-this-repository) ::
 
+  These commands visit the topic, issue(s), pull-request(s), post,
+  branch, commit, remote or repository at point in a browser.
+
+- Command: forge-browse-commit ::
+- Command: forge-browse-branch ::
+- Command: forge-browse-repository ::
 - Key: N b t (forge-browse-topic) ::
 - Key: N b i (forge-browse-issue) ::
 - Key: N b p (forge-browse-pullreq) ::
@@ -387,14 +394,8 @@ on a commit or branch section.
 - Key: N b I (forge-browse-issues) ::
 - Key: N b P (forge-browse-pullreqs) ::
 
-  These commands visit the topic, issue(s), pull-request(s), post,
-  branch, commit, or remote at point in a browser.
-
-  This is implemented using various commands named ~forge-browse-TYPE~,
-  and the key binding is defined by remapping ~magit-browse-thing~ (as
-  defined in ~magit-mode-map)~.  For commit sections this key is bound
-  to ~forge-browse-dwim~, which prefers a topic over a branch and a
-  branch over a commit.
+  These commands read a topic, issue(s), pull-request(s), branch,
+  commit, remote or repository, and open it in a browser.
 
 * Creating Topics
 
@@ -691,7 +692,7 @@ Note that you have to delete the local branch (e.g., "feature") for
 this to work.  If you delete the tracking branch (e.g., "fork/feature"),
 then the remote is never removed.
 
-* Miscellaneous
+* Miscellaneous Commands
 
 - Key: N c f (forge-fork) ::
 
@@ -702,15 +703,39 @@ then the remote is never removed.
 
   Currently this only supports Github and Gitlab.
 
-- Key: N t t (forge-toggle-display-in-status-buffer) ::
+- Key: N - H (forge-toggle-topic-legend) ::
+
+  This command toggle whether to show a legend for faces used in topic
+  menus and lists.
+
+- Key: N - S (forge-toggle-display-in-status-buffer) ::
 
   This command toggles whether any topics are displayed in the current
   Magit status buffer.
 
-- Key: N t c (forge-toggle-closed-visibility) ::
+- Key: C-c C-w (forge-copy-url-at-point-as-kill) ::
 
-  This command toggles whether closed topics are shown in the Magit
-  status buffer.
+  This command copies the url for the topic, issue(s),
+  pull-request(s), post, branch, commit, remote or repository to the
+  kill-ring.
+
+  This determines the url the same way as ~forge-browse~ does, but then
+  adds it to the kill-ring, instead of visiting it in a browser.
+
+- Key: M b r (forge-rename-default-branch) ::
+
+  This command rename the default branch to a new name read from the
+  user.
+
+  This changes the name on the upstream remotely and locally, and
+  update the upstream remotes of local branches accordingly.
+
+- Command: forge-add-pullreq-refspec ::
+
+  This command configures Git to fetch all pull-requests.
+
+  This is done by adding ~+refs/pull/*/head:refs/pullreqs/*~ to the
+  value of ~remote.REMOTE.fetch~, where REMOTE is the upstream remote.
 
 - Command: forge-add-user-repositories ::
 
