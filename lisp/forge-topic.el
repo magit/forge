@@ -60,7 +60,7 @@ The following %-sequences are supported:
   :type 'boolean)
 
 (defcustom forge-topic-repository-slug-width 28
-  "Width of repository slugs in `forge-notifications-mode' buffers."
+  "Width of repository slugs (i.e., \"OWNER/NAME\")."
   :package-version '(forge . "0.4.0")
   :group 'forge
   :type (if (>= emacs-major-version 28) 'natnum 'number))
@@ -1290,7 +1290,7 @@ This mode itself is never used directly."
 (defvar forge--show-topic-legend t)
 
 (transient-define-suffix forge-toggle-topic-legend ()
-  "Toggle whether to show legend for faces used in topic menus."
+  "Toggle whether to show legend for faces used in topic menus and lists."
   :description (lambda () (if forge--show-topic-legend "hide legend" "show legend"))
   :transient t
   (interactive)

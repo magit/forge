@@ -916,8 +916,8 @@ as merged."
 ;;;###autoload
 (defun forge-rename-default-branch ()
   "Rename the default branch to NEWNAME.
-Change the name on the upstream remote and locally, and update
-the upstream remotes of local branches accordingly."
+Change the name on the upstream remotely and locally, and update the
+upstream remotes of local branches accordingly."
   (interactive)
   (let* ((repo (forge-get-repository :tracked?))
          (_ (unless (forge-github-repository-p repo)
@@ -989,7 +989,7 @@ the upstream remotes of local branches accordingly."
   "Configure Git to fetch all pull-requests.
 This is done by adding \"+refs/pull/*/head:refs/pullreqs/*\"
 to the value of `remote.REMOTE.fetch', where REMOTE is the
-upstream remote.  Also fetch from REMOTE."
+upstream remote."
   :if-not 'forge--pullreq-refspec
   :description "add pull-request refspec"
   (interactive)

@@ -41,7 +41,7 @@
 (defcustom forge-buffer-draft-p nil
   "Whether new pull-requests start out as drafts by default.
 
-The buffer-local value is use to keep track of the draft status
+The buffer-local value is used to keep track of the draft status
 of the current pull-request."
   :package-version '(forge . "0.4.0")
   :group 'forge
