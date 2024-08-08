@@ -7,7 +7,7 @@
 #+texinfo_dir_category: Emacs
 #+texinfo_dir_title: Forge: (forge).
 #+texinfo_dir_desc: Access Git Forges from Magit
-#+subtitle: for version 0.3.2.50-git
+#+subtitle: for version 0.4.0
 
 #+setupfile: .orgconfig
 
@@ -15,7 +15,7 @@ Forge allows you to work with Git forges, currently Github and Gitlab,
 from the comfort of Magit and Emacs.
 
 #+texinfo: @noindent
-This manual is for Forge version 0.3.2.50-git.
+This manual is for Forge version 0.4.0.
 
 #+texinfo: @insertcopying
 :END:
