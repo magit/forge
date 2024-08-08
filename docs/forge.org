@@ -30,18 +30,18 @@ Additionally it fetches pull-request references using Git.
 
 * Initial Setup
 
-Initial setup turned out to be more challenging for many users than I
-had hoped.  I am trying to counter that by providing detailed
-instructions, which cover not just the happy path but also many of the
-issues, users have ran into in the past.  The recommended reading is
-longer than one might wish, but skipping it does not necessarily save
-time.
+Please first do the common setup below and then carefully follow the
+instructions for your forge instance.  Once you have completed the
+setup, you can start tracking repositories (see [[*Initial Pull]]).
 
-https://github.com/magit/forge/wiki lists additional resources,
-including a link to a much shorter quick-start guide, provided by
-a user.
+If you run into difficulties during setup or the initial pull, then
+please also see [[*How Forge Detection Works]] and [[info:ghub#Getting
+Started]].
 
-** Loading Forge
+** Common Setup
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
 
 Loading Magit doesn't cause Forge to be loaded automatically.  Adding
 something like this to your init file takes care of that:
@@ -60,38 +60,394 @@ Or if you use ~use-package~:
 #+end_src
 
 By default Forge adds some bindings to Magit keymaps and menus, and
-sections to Magit buffers.  If you would like to prevent that, you
-have to set ~forge-add-default-bindings~ and ~forge-add-default-sections~
-to ~nil~ before ~magit~ (not just ~forge~) is loaded.
+some sections to Magit buffers.  If you would like to prevent that,
+you have to set ~forge-add-default-bindings~ and/or
+~forge-add-default-sections~ to ~nil~, before ~magit~ (not just ~forge~) is
+loaded.
 
-** Token Creation
+** Setup for Github.com
+*** Set your Username
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
 
-Forge uses the Ghub package to access the APIs of supported forges.
-How this works and how to create and store a token is documented in
-[[info:ghub#Getting Started]].  Please read that now, before you continue
-below.
+First inform Forge about your https://github.com username:
 
-Forge requires the following token scopes.
+#+begin_src shell
+  git config --global github.user USERNAME
+#+end_src
 
-- For Github these scopes are required.
+If you need to identify as another user in a particular repository,
+then you have to set that variable locally:
 
-  - ~repo~ grants full read/write access to private and public
-    repositories.
-  - ~user~ grants access to profile information.
-  - ~read:org~ grants read-only access to organization membership.
+#+begin_src shell
+  cd /path/to/repo
+  git config --local github.user USERNAME
+#+end_src
 
-  More information about these and other scopes can be found at
-  https://docs.github.com/en/developers/apps/scopes-for-oauth-apps.
+*** Create and Store an Access Token
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
 
-- For Gitlab instances ~api~ is the only required scope.  It gives read
-  and write access to everything.  The Gitlab API provides more
-  fine-grained scopes for read-only access, but when any write access
-  at all is required, then it is all or nothing.
+Visit https://github.com/settings/tokens in a browser to generate
+a new "classic" token using the ~repo~, ~user~ and ~repo:org~ scopes.
+Do not close the browser window just yet, because the token will
+only be shown once.
 
-** Initial Pull
+The built-in Auth-Source ([[info:auth]]) package is used to store the
+token generated in the previous step.  The ~auth-sources~ variable
+controls how and where Auth-Source keeps its secrets.  The default
+value is a list of three files: ~("~/.authinfo" "~/.authinfo.gpg"
+"~/.netrc")~, but that can lead to confusing behavior, so you should
+make sure that only one of these files exists, and then you should
+also adjust the value of the variable to only ever use that file,
+for example:
 
-(You must specify the host and your username and setup a token *before*
-you can add the first repository.)
+#+begin_src emacs-lisp
+  (setq auth-sources '("~/.authinfo"))
+#+end_src
+
+In ~~/.authinfo~ secrets are stored in plain text.  If you don't want
+that, then you should use the encrypted ~~/.authinfo.gpg~ instead:
+
+#+begin_src emacs-lisp
+  (setq auth-sources '("~/.authinfo.gpg"))
+#+end_src
+
+Make sure you put one of these forms in your init file *and* to evaluate
+it in the current Emacs instance as well, by placing the cursor after
+the final closing parenthesis and typing ~C-x C-e~ (~eval-last-sexp~).
+
+Next add a line like the following to the chosen file:
+
+#+begin_src example
+  machine api.github.com login USERNAME^forge password TOKEN
+#+end_src
+
+- The value of ~machine~ must be ~api.github.com~.  Variations of this
+  won't work.
+
+- USERNAME must be the same as the value used for the ~github.user~ Git
+  variable above.  You *must* append ~^forge~ to that, without any space
+  in between.
+
+- TOKEN is the token you generated earlier.
+
+Finish by typing ~M-x auth-source-forget-all-cached RET~.  If you don't
+do this, then Auth-Source may fail to look up the token.
+
+** Setup for Another Github Instance
+
+Before you setup a Github instance that is not https://github.com,
+please set that up first.  The setup for https://github.com is easier
+and if that works, but the setup for the other Github instance fails,
+then we can tentatively narrow the issue down to the parts that differ
+between https://github.com and other instances.
+
+*** Tell Forge about the Instance
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+While Forge knows about https://github.com, it does not know about
+your other Github instances.  Forge instances are configured using
+the option ~forge-alist~ (also see its docstring).  The entry for
+https://github.com in that variable looks like this:
+
+#+begin_src emacs-list
+  ("github.com"                       ; GITHOST
+   "api.github.com"                   ; APIHOST
+   "github.com"                       ; WEBHOST and INSTANCE-ID
+    forge-github-repository)          ; CLASS
+#+end_src
+
+You have to add an entry for your instance.  For example, assuming
+you company uses https://example.com, this might be correct:
+
+#+begin_src emacs-list
+  (push '("example.com"               ; GITHOST
+          "api.example.com"           ; APIHOST
+          "example.com"               ; WEBHOST and INSTANCE-ID
+          forge-github-repository)    ; CLASS
+        forge-alist)
+#+end_src
+
+You company may use hostnames that follow a different format.  You
+should be able to easily determine and verify GITHOST and WEBHOST,
+but determining APIHOST is more difficult; you might have to ask a
+coworker.  APIHOST could be something like ~api.example.com~, but it
+could also be something like ~example.com/api~.
+
+If the REST API's end point is ~/v3~ and the GraphQL API's end point is
+~/graphql~, then use something like ~example.com/v3~ as APIHOST.  This is
+a historic accident.  See https://github.com/magit/forge/issues/174.
+
+We will use INSTANCE-ID (aka WEBHOST) and APIHOST below.
+
+*** Set your Username
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+Inform Forge about your username for the Github instance in question:
+
+#+begin_src shell
+  git config --global github.INSTANCE-ID.user USERNAME
+#+end_src
+
+So if INSTANCE-ID is ~example.com~ and USERNAME is ~tarsius~ then use:
+
+#+begin_src shell
+  git config --global github.example.com.user tarsius
+#+end_src
+
+*** Create and Store an Access Token
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+Visit your forge in a browser.  Follow a link to "Settings", from
+there to "Developer settings", from there to "Personal access tokens",
+and finally to "Tokens (classic)".  On that page generate a new token
+using the ~repo~, ~user~ and ~repo:org~ scopes.  Do not close the browser
+window just yet, because the token will only be shown once.
+
+The built-in Auth-Source ([[info:auth]]) package is used to store the
+token generated in the previous step.  The ~auth-sources~ variable
+controls how and where Auth-Source keeps its secrets.  The default
+value is a list of three files: ~("~/.authinfo" "~/.authinfo.gpg"
+"~/.netrc")~, but that can lead to confusing behavior, so you should
+make sure that only one of these files exists, and then you should
+also adjust the value of the variable to only ever use that file,
+for example:
+
+#+begin_src emacs-lisp
+  (setq auth-sources '("~/.authinfo"))
+#+end_src
+
+In ~~/.authinfo~ secrets are stored in plain text.  If you don't want
+that, then you should use the encrypted ~~/.authinfo.gpg~ instead:
+
+#+begin_src emacs-lisp
+  (setq auth-sources '("~/.authinfo.gpg"))
+#+end_src
+
+Make sure you put one of these forms in your init file *and* to evaluate
+it in the current Emacs instance as well, by placing the cursor after
+the final closing parenthesis and typing ~C-x C-e~ (~eval-last-sexp~).
+
+Next add a line like the following to the chosen file:
+
+#+begin_src example
+  machine APIHOST login USERNAME^forge password TOKEN
+#+end_src
+
+- APIHOST must be the same as the second element of the entry we added
+  to ~forge-alist~.  In the above example that would be ~api.example.com~.
+  Do *not* instead use GITHOST or INSTANCE-ID (aka WEBHOST).
+
+- USERNAME must be the same username you used above as the value of
+  the Git variable.  You *must* append ~^forge~ to that, without any space
+  in between.
+
+- TOKEN is the token you generated earlier.
+
+Finish by typing ~M-x auth-source-forget-all-cached RET~.  If you don't
+do this, then Auth-Source may fail to look up the token.
+
+** Setup for Gitlab.com
+*** Set your Username
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+First inform Forge about your https://gitlab.com username:
+
+#+begin_src shell
+  git config --global gitlab.user USERNAME
+#+end_src
+
+If you need to identify as another user in a particular repository,
+then you have to set that variable locally:
+
+#+begin_src shell
+  cd /path/to/repo
+  git config --local gitlab.user USERNAME
+#+end_src
+
+*** Create and Store an Access Token
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+Visit https://gitlab.com/-/profile/personal_access_tokens in a browser
+to generate a new token using the ~api~, ~read_api~ and ~read_user~ scopes.
+Do not close the browser window just yet, because the token will
+only be shown once.
+
+The built-in Auth-Source ([[info:auth]]) package is used to store the
+token generated in the previous step.  The ~auth-sources~ variable
+controls how and where Auth-Source keeps its secrets.  The default
+value is a list of three files: ~("~/.authinfo" "~/.authinfo.gpg"
+"~/.netrc")~, but that can lead to confusing behavior, so you should
+make sure that only one of these files exists, and then you should
+also adjust the value of the variable to only ever use that file,
+for example:
+
+#+begin_src emacs-lisp
+  (setq auth-sources '("~/.authinfo"))
+#+end_src
+
+In ~~/.authinfo~ secrets are stored in plain text.  If you don't want
+that, then you should use the encrypted ~~/.authinfo.gpg~ instead:
+
+#+begin_src emacs-lisp
+  (setq auth-sources '("~/.authinfo.gpg"))
+#+end_src
+
+Make sure you put one of these forms in your init file *and* to evaluate
+it in the current Emacs instance as well, by placing the cursor after
+the final closing parenthesis and typing ~C-x C-e~ (~eval-last-sexp~).
+
+Next add a line like the following to the chosen file:
+
+#+begin_src example
+  machine gitlab.com/api/v4 login USERNAME^forge password TOKEN
+#+end_src
+
+- The value of ~machine~ must be ~gitlab.com/api/v4~.  Variations of this
+  won't work.
+
+- USERNAME must be the same as the value used for the ~gitlab.user~ Git
+  variable above.  You *must* append ~^forge~ to that, without any space
+  in between.
+
+- TOKEN is the token you generated earlier.
+
+Finish by typing ~M-x auth-source-forget-all-cached RET~.  If you don't
+do this, then Auth-Source may fail to look up the token.
+
+** Setup for Another Gitlab Instance
+
+Before you setup a Gitlab instance that is not https://gitlab.com,
+please set that up first.  The setup for https://gitlab.com is easier
+and if that works, but the setup for the other Gitlab instance fails,
+then we can tentatively narrow the issue down to the parts that differ
+between https://gitlab.com and other instances.
+
+*** Tell Forge about the Instance
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+While Forge knows about https://gitlab.com (and a few other well-known
+instances, see its value) it has to be taught about other Gitlab
+instances.  Forge instances are configured using the option
+~forge-alist~ (also see its docstring).  The entry for
+https://gitlab.com in that variable looks like this:
+
+#+begin_src emacs-list
+  ("gitlab.com"                       ; GITHOST
+   "gitlab.com/api/v4"                ; APIHOST
+   "gitlab.com"                       ; WEBHOST and INSTANCE-ID
+   forge-gitlab-repository)           ; CLASS
+#+end_src
+
+For historic reasons, APIHOST actually has to be a host followed by
+a path.
+
+You have to add an entry for your instance.  For example, assuming you
+company/organisation uses https://example.com, this might be correct:
+
+#+begin_src emacs-list
+  (push '("example.com"               ; GITHOST
+          "example.com/api/v4"        ; APIHOST
+          "example.com"               ; WEBHOST and INSTANCE-ID
+          forge-gitlab-repository)    ; CLASS
+        forge-alist)
+#+end_src
+
+You company may use hostnames that follow a different format.  You
+should be able to easily determine and verify GITHOST and WEBHOST,
+but determining APIHOST is more difficult; you might have to ask a
+colleague.
+
+We will use INSTANCE-ID (aka WEBHOST) and APIHOST below.
+
+*** Set your Username
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+Inform Forge about your username for the Gitlab instance in question:
+
+#+begin_src shell
+  git config --global gitlab.INSTANCE-ID.user USERNAME
+#+end_src
+
+So if INSTANCE-ID is ~example.com~ and USERNAME is ~tarsius~ then use:
+
+#+begin_src shell
+  git config --global gitlab.example.com.user tarsius
+#+end_src
+
+*** Create and Store an Access Token
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+Visit your forge in a browser.  Follow a link to "Preferences" and
+from there to "Access Tokens".  On that page generate a new "Personal
+access token" using the ~repo~, ~user~ and ~repo:org~ scopes.  Do not close
+the browser window just yet, because the token will only be shown
+once.
+
+The built-in Auth-Source ([[info:auth]]) package is used to store the
+token generated in the previous step.  The ~auth-sources~ variable
+controls how and where Auth-Source keeps its secrets.  The default
+value is a list of three files: ~("~/.authinfo" "~/.authinfo.gpg"
+"~/.netrc")~, but that can lead to confusing behavior, so you should
+make sure that only one of these files exists, and then you should
+also adjust the value of the variable to only ever use that file,
+for example:
+
+#+begin_src emacs-lisp
+  (setq auth-sources '("~/.authinfo"))
+#+end_src
+
+In ~~/.authinfo~ secrets are stored in plain text.  If you don't want
+that, then you should use the encrypted ~~/.authinfo.gpg~ instead:
+
+#+begin_src emacs-lisp
+  (setq auth-sources '("~/.authinfo.gpg"))
+#+end_src
+
+Make sure you put one of these forms in your init file *and* to evaluate
+it in the current Emacs instance as well, by placing the cursor after
+the final closing parenthesis and typing ~C-x C-e~ (~eval-last-sexp~).
+
+Next add a line like the following to the chosen file:
+
+#+begin_src example
+  machine APIHOST login USERNAME^forge password TOKEN
+#+end_src
+
+- APIHOST must be the same as the second element of the entry we added
+  to ~forge-alist~.  In the above example that would be
+  ~example.com/api/v4~.  Do *not* instead use GITHOST or INSTANCE-ID (aka
+  WEBHOST).
+
+- USERNAME must be the same username you used above as the value of
+  the Git variable.  You *must* append ~^forge~ to that, without any space
+  in between.
+
+- TOKEN is the token you generated earlier.
+
+Finish by typing ~M-x auth-source-forget-all-cached RET~.  If you don't
+do this, then Auth-Source may fail to look up the token.
+
+* Initial Pull
 
 To start using Forge in a certain repository, visit the Magit status
 buffer for that repository and type ~N / a~ (~forge-add-repository~).  You
@@ -115,125 +471,6 @@ Subsequent fetches are much faster.
 Fetching issues from Github is much faster than fetching from other
 forges, because making a handful of GraphQL requests, is much faster
 than making hundreds of REST requests.
-
-** Repository Detection
-
-Ghub does *not* associate a given local repository with a repository on
-a forge.  The Forge package itself takes care of this.  In doing so it
-ignores the Git variable ~ghub.host~ and other ~*.host~ variables used by
-Ghub.  (But ~github.user~, and other variables used to specify the user,
-are honored).
-
-Forge associates the local repository with a forge repository, by first
-determining which remote is associated with the upstream repository,
-and then looking that up in ~forge-alist~.
-
-If only one remote exists, then Forge uses that unconditionally.  To
-reduce the number of support requests, this is even the case if the
-Git variable ~forge.remote~ names another, non-existent, remote.
-
-If several remotes exist, then a remote may be selected based on its
-name.  Almost always we want to fetch the data associated with the
-upstream repository, so that is what the logic described here tries to
-achieve.  The convention is to name the upstream remote "origin", and
-if that convention were universally followed, then things would be
-trivial.  However many people name the upstream remote "upstream",
-which also makes sense.
-
-#+begin_quote
-Note, however, that even though a surprising number of people do just
-that, it does not make any sense to use the name "origin" to refer to
-a fork; not even to your own fork.  A fork is a *copy* of the original,
-"copy" is an antonym for "original", and the word "origin" is not only
-closely related to but is even contained in the word "original".
-Naming a fork the "origin" is at best extremely confusing.
-
-- copy :: a thing made to be similar or identical to another.
-
-- original :: the earliest form of something, from which copies may be
-  made.
-
-- origin :: the point or place where something begins, arises, or is
-  derived.
-#+end_quote
-
-If several remotes exist, then the following remote names are tried in
-order and the first remote thus named that exists in the repository is
-used.
-
-1. The value of the Git variable ~forge.remote~, if set.  If the
-   variable has a value but no remote by the specified name exists,
-   then a warning is shown, but otherwise this conflict is ignored.
-   This behavior is arguably odd, but due to historic and pragmatic
-   reasons it is the least painful path forward.
-
-2. The remote named ~upstream~, if it exists.
-
-3. The remote named ~origin~, if it exists.
-
-The remote named "upstream" is preferred over the remote named
-"origin" because the existence of the former strongly suggests that
-the latter is either not used in this repository (in which case the
-order does not matter) or else it is abused as the name of a fork (in
-which case "upstream" must be preferred).
-
-- Variable: forge.remote ::
-
-  The value of this variable specifies the remote from which Forge
-  fetches data.  It is usually best to leave this unspecified and to
-  rely on the behavior described above.
-
-  If the remote has to be specified explicitly, then this should be
-  done locally, for a single repository.
-
-  Only ever set this globally, if you consistently use a certain name
-  to refer to the upstream repository and it isn't one of "upstream"
-  or "origin", and you *never* use that name to refer to a repository
-  that does *not* refer to the upstream repository.
-
-- Key: N r (forge-forge.remote) ::
-
-  This command changes the value of the ~forge.remote~ Git variable in
-  the current repository.
-
-If this variable is set, then Forge uses the remote by that name, if
-it exists, the same way it may have used ~origin~ if the variable were
-undefined.  I.e., it does not fall through to try ~origin~ if no remote
-by your chosen name exists.
-
-Once the upstream remote has been determined, Forge looks it up in
-~forge-alist~, using the host part of the URL as the key.  For example,
-the key for ~git@github.com:magit/forge.git~ is ~github.com~.
-
-- User Option: forge-alist ::
-
-  This option defines forge hosts known to Forge.
-
-  Each entry has the form ~(GITHOST APIHOST WEBHOST CLASS)~.
-
-  - GITHOST is the host used to access repositories on the forge using
-    Git.
-
-  - APIHOST is the host used to access the forge's API.  For some forges
-    the isn't just a host, but a host followed by the path to the API's
-    endpoint.
-
-  - WEBHOST is the host used to access repositories on this forge using
-    a browser.  The IDs used to identify repositories from the forge in
-    the local database also derives from this value.
-  
-  - CLASS is the class to be used for repositories from the forge.
-
-  Complications:
-
-  - When connecting to a Github Enterprise edition whose REST API's
-    end point is "<host>/v3" and whose GraphQL API's end point is
-    "<host>/graphql", then use "<host>/v3" as APIHOST.  This is
-    a historic accident.  See issue #174.
-
-  - WEBHOST and CLASS cannot be changed once you have added one or
-    more repositories from a forge.  Changing GITHOST and/or APIHOST
-    may be possible, but should seldom be necessary.
 
 * Getting Started
 
@@ -835,6 +1072,131 @@ then the remote is never removed.
   added.  It has to be customized before ~forge~ is loaded, or it won't
   take effect.
 
+* How Forge Detection Works
+:PROPERTIES:
+:APPENDIX:   t
+:END:
+
+Forge uses the Ghub package to communicate with forge APIs.  For more
+information about Ghub, see [[info:ghub]].
+
+Ghub does *not* associate a given local repository with a repository on
+a forge.  The Forge package itself takes care of this.  In doing so it
+ignores the Git variable ~ghub.host~ and other ~*.host~ variables used by
+Ghub.  (But ~github.user~, and other variables used to specify the user,
+are honored).
+
+Forge associates the local repository with a forge repository, by first
+determining which remote is associated with the upstream repository,
+and then looking that up in ~forge-alist~.
+
+If only one remote exists, then Forge uses that unconditionally.  To
+reduce the number of support requests, this is even the case if the
+Git variable ~forge.remote~ names another, non-existent, remote.
+
+If several remotes exist, then a remote may be selected based on its
+name.  Almost always we want to fetch the data associated with the
+upstream repository, so that is what the logic described here tries to
+achieve.  The convention is to name the upstream remote "origin", and
+if that convention were universally followed, then things would be
+trivial.  However many people name the upstream remote "upstream",
+which also makes sense.
+
+#+begin_quote
+Note, however, that even though a surprising number of people do just
+that, it does not make any sense to use the name "origin" to refer to
+a fork; not even to your own fork.  A fork is a *copy* of the original,
+"copy" is an antonym for "original", and the word "origin" is not only
+closely related to but is even contained in the word "original".
+Naming a fork the "origin" is at best extremely confusing.
+
+- copy :: a thing made to be similar or identical to another.
+
+- original :: the earliest form of something, from which copies may be
+  made.
+
+- origin :: the point or place where something begins, arises, or is
+  derived.
+#+end_quote
+
+If several remotes exist, then the following remote names are tried in
+order and the first remote thus named that exists in the repository is
+used.
+
+1. The value of the Git variable ~forge.remote~, if set.  If the
+   variable has a value but no remote by the specified name exists,
+   then a warning is shown, but otherwise this conflict is ignored.
+   This behavior is arguably odd, but due to historic and pragmatic
+   reasons it is the least painful path forward.
+
+2. The remote named ~upstream~, if it exists.
+
+3. The remote named ~origin~, if it exists.
+
+The remote named "upstream" is preferred over the remote named
+"origin" because the existence of the former strongly suggests that
+the latter is either not used in this repository (in which case the
+order does not matter) or else it is abused as the name of a fork (in
+which case "upstream" must be preferred).
+
+- Variable: forge.remote ::
+
+  The value of this variable specifies the remote from which Forge
+  fetches data.  It is usually best to leave this unspecified and to
+  rely on the behavior described above.
+
+  If the remote has to be specified explicitly, then this should be
+  done locally, for a single repository.
+
+  Only ever set this globally, if you consistently use a certain name
+  to refer to the upstream repository and it isn't one of "upstream"
+  or "origin", and you *never* use that name to refer to a repository
+  that does *not* refer to the upstream repository.
+
+- Key: N r (forge-forge.remote) ::
+
+  This command changes the value of the ~forge.remote~ Git variable in
+  the current repository.
+
+If this variable is set, then Forge uses the remote by that name, if
+it exists, the same way it may have used ~origin~ if the variable were
+undefined.  I.e., it does not fall through to try ~origin~ if no remote
+by your chosen name exists.
+
+Once the upstream remote has been determined, Forge looks it up in
+~forge-alist~, using the host part of the URL as the key.  For example,
+the key for ~git@github.com:magit/forge.git~ is ~github.com~.
+
+- User Option: forge-alist ::
+
+  This option defines forge hosts known to Forge.
+
+  Each entry has the form ~(GITHOST APIHOST WEBHOST CLASS)~.
+
+  - GITHOST is the host used to access repositories on the forge using
+    Git.
+
+  - APIHOST is the host used to access the forge's API.  For some forges
+    the isn't just a host, but a host followed by the path to the API's
+    endpoint.
+
+  - WEBHOST is the host used to access repositories on this forge using
+    a browser.  The IDs used to identify repositories from the forge in
+    the local database also derives from this value.
+  
+  - CLASS is the class to be used for repositories from the forge.
+
+  Complications:
+
+  - When connecting to a Github Enterprise edition whose REST API's
+    end point is "<host>/v3" and whose GraphQL API's end point is
+    "<host>/graphql", then use "<host>/v3" as APIHOST.  This is
+    a historic accident.  See issue #174.
+
+  - WEBHOST and CLASS cannot be changed once you have added one or
+    more repositories from a forge.  Changing GITHOST and/or APIHOST
+    may be possible, but should seldom be necessary.
+
 * Supported Forges and Hosts
 :PROPERTIES:
 :APPENDIX:   t
@@ -856,7 +1218,7 @@ A host is a particular instance of a forge.  For example the hosts
 https://gitlab.com and https://salsa.debian.org are both instances of
 the Gitlab forge.  Forge supports some well known hosts out of the box
 and additional hosts can easily be supported by adding entries to the
-option ~forge-alist~ (see [[*Repository Detection]]).
+option ~forge-alist~ (see [[*How Forge Detection Works]]).
 
 For more details about the caveats mentioned below (and some others)
 see also [[*Getting Started]].
