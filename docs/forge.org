@@ -524,55 +524,157 @@ the ~forge-dispatch~ menu.
   access to most of the available Forge commands.  See the following
   sections for information about the available commands.
 
-* Working with Topics
+* Lists and Menus
 
-We call both issues and pull-requests "topics".  The contributions to
-the conversation are called "posts".
+Topics are listed in two sections in Magit's status buffer, but can
+also be listed in dedicated buffers.  Likewise individual topics can
+be visited in separate buffers.  In both cases this can be done by
+placing the cursor on the respective section in the status buffer and
+typing ~RET~, or by invoking the appropriate command from Forge's main
+menu, on ~N~ (~forge-dispatch~).
 
-* Listing Topics and Notifications
+List commands and corresponding menu commands exist for topics,
+notifications and repositories, but there isn't always an exclusive
+mapping from menu to buffer.  The main menu (~forge-dispatch~), the
+configuration menu (~forge-configure~), the menu which controls the
+current topic or the topic at point (~forge-topic-menu~), and the
+menu which controls the topics listed in the current buffer
+(~forge-topics-menu~), are useful in more than one major mode.
 
-By default Forge lists a subset of topics directly in the Magit status
-buffer.  It also provides commands to list topics and notifications in
-separate buffers.
+All of these menus feature bindings to directly switch to the other
+appropriate menus.  So it is enough to remember that ~N~ always brings
+up the dispatch menu; you can always navigate to another menu from
+there.
 
-Forge adds the following functions to ~magit-status-sections-hook~:
+~C-c C-c~ brings up the most appropriate menu for the current buffer.
+In Magit's status buffer the most appropriate menu is Magit's own
+dispatch menu (~magit-dispatch~), so here the quickest way to invoke
+Forge's dispatch menu is ~N~.  Even in Magit's status buffer, when the
+cursor is an individual topic or on a topic list section, ~C-c C-c~
+opens the respective menu (~forge-topics-menu~ or ~forge-topic-menu~).
 
-- Function: forge-insert-pullreqs ::
+The following sections describe most of the available menu and list
+commands.  For ~forge-topic-menu~, see [[*Editing Topics]].
 
-  This function inserts a list of the most recent and/or open
-  pull-requests.
+** Dispatch and configuration menus
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
 
-- Function: forge-insert-issues ::
+- Key: N (forge-dispatch) ::
 
-  This function inserts a list of the most recent and/or open issues.
+  This prefix menu command is available in all Magit buffers and
+  provides access to most of the available Forge commands.  See the
+  following sections for information about the available commands.
 
-The following commands list repositories, notifications and topics in
-dedicated buffers:
+- Key: N m c (forge-configure) ::
 
-- Key: N l r (forge-list-repositories) ::
+  This command displays a menu used to configure the current
+  repository and some global settings as well.
 
-  This command lists all known repositories in a separate buffer.
+** Topic menu and list commands
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+- Key: N m f (forge-topics-menu) ::
+- Key: C-c C-c [in topics list buffer/section] ::
+
+  This command displays a menu used to control the list of topics
+  displayed in the current buffer.
+
+  Note that this command can not only be used in buffers dedicated
+  to listing topics, but also in Magit's status buffer.
+
+- Key: N l t (forge-list-topics) ::
+
+  This command lists the current repository's issues in a separate
+  buffer.  If the list buffer already exists, this command only
+  ensures that all types of topics are listed.  If any other filters
+  are in effect, they are left intact.
+  TODO fix preserving type
+
+- Key: RET [on "Issues" status section] (forge-list-issues) ::
+
+  This command lists the current repository's issues in a separate
+  buffer.  If the list buffer already exists, this command limits the
+  list to issues.  If any other filters are in effect, they are left
+  intact.
+
+- Key: RET [on "Pull requests" status section] (forge-list-pullreqs) ::
+
+  This command lists the current repository's pull-requests in a
+  separate buffer.  If the list buffer already exists, this command
+  limits the list to pull-requests.  If any other filters are in
+  effect, they are left intact.
+
+- Key: N l g (forge-list-global-topics) ::
+
+  This command lists topics across all tracked repository.  If the
+  list buffer already exists, filters except for the type filter are
+  left in effect.
+
+- Command: forge-list-global-issues ::
+
+  This command lists issues across all tracked repository.  If the
+  list buffer already exists, filters except for the type filter are
+  left in effect.
+
+- Command: forge-list-global-pullreqs ::
+
+  This command lists pull-requests across all tracked repository.  If
+  the list buffer already exists, filters except for the type filter
+  are in effect.
+
+** Notification menu and list commands
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+- Key: N m n (forge-notifications-menu) ::
+- Key: C-c C-c ::
+
+  This command displays a menu used to control the list of
+  notifications displayed in the current buffer.
 
 - Key: N l n (forge-list-notifications) ::
 
   This command lists all notifications for all forges in a separate
   buffer.
 
-- Key: N l p (forge-list-pullreqs) ::
-  This command lists the current repository's pull-requests in a
-  separate buffer.
+** Repository menu and list commands
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
 
-- Key: N l i (forge-list-issues) ::
+- Key: N m r (forge-repositories-menu) ::
+- Key: C-c C-c ::
 
-  This command lists the current repository's issues in a separate
-  buffer.
+  This command displays a menu used to control the list of
+  repositories displayed in the current buffer.
+
+- Key: N l r (forge-list-repositories) ::
+
+  This command lists all known repositories in a separate buffer.
+  Here "known" means that an entry exists in the local database.
+
+- Key: RET [on repository] (forge-visit-this-repository) ::
+
+  This commands visits the repository at point in a separate buffer.
+
+- Key: o [in forge-repositories-menu] (forge-list-owned-repositories) ::
+
+  This command lists all known repositories that belong to the user in
+  a separate buffer.  Here "known" means that an entry exists in the
+  local database.  Only Github is supported for now.
+
+The below options controls which repositories are considered to be
+owned by the user.  They are additionally used by ~forge-fork~.
 
 - User Option: forge-owned-accounts ::
 
   This is an alist of accounts that are owned by you.  This should
   include your username as well as any organization that you own.
-  Used by the commands ~forge-list-owned-issues~,
-  ~forge-list-owned-pullreqs~ and ~forge-fork~.
 
   Each element has the form ~(ACCOUNT . PLIST)~.  The following
   properties are currently being used:
@@ -586,26 +688,97 @@ dedicated buffers:
 - User Option: forge-owned-ignored ::
 
   This is a list of repository names that are considered to not be
-  owned by you even though they would have been considered to be owned
-  by you based on ~forge-owned-accounts~.
+  owned by you, even though they would have been considered to be
+  owned by you based on ~forge-owned-accounts~.
+
+** Exiting menus and lists
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+To exit a menu, type ~C-g~.  If the menu was invoked from another menu
+and that menu is useful in the current buffer, then that menu becomes
+active again.  If that happens and you actually want to quit all
+menus, then just type ~C-g~ again.  You can also directly exit all menus
+by using ~C-q~, instead of ~C-g~.
+
+Type ~q~ to quit not only the menu, but also the list or topic detail
+buffer.  That binding is also available when no menu is active, in
+which case it will simply quit the buffer.  When invoked from a menu,
+then this binding may return to another list buffer, in which case
+some menu may also remain active.
+
+** Default topic filters
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+- User Option: forge-status-buffer-default-topic-filters ::
+
+  This option specifies the filters initially used to limit topics
+  listed in topic list buffers.
+
+- User Option: forge-status-buffer-default-topic-filters ::
+
+  This option specifies the filters initially used to limit topics
+  listed in Magit status buffers.
+
+  Also see [[*Topic sections in Magit status buffers]].
+
+** Topic sections in Magit status buffers
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+Forge arranges for certain issues and pull-requests to be list in
+Magit status buffers, by adding the following functions to
+~magit-status-sections-hook~.
+
+Which topics are listed initially is customizable using option
+~forge-status-buffer-default-topic-filters~ and can be changed
+temporarily for the current buffer, using ~N m f~ (`forge-topics-menu').
+
+- Function: forge-insert-issues ::
+
+  This function inserts a list of issues, by default a list of "active"
+  issues.
+
+- Function: forge-insert-pullreqs ::
+
+  This function inserts a list of pull-requests, by default a list of
+  "active" pull-requests.
+
+Forge used to provide additional functions to insert hard-coded topic
+subsets, but they were removed in favor of the more flexible approach
+described above.  If you miss the removed sections, you can use the
+new ~forge-insert-topics~ helper function to define your own section
+inserter functions.  See its docstring for more information.
+
+If you don't want any topic list sections to be displayed in Magit
+status buffers, set ~forge-add-default-sections~ to ~nil~ before ~magit~ is
+loaded.
 
 * Visiting Topics
 
-By default Magit's status buffer lists open and/or pending issues and
-pull-requests.
+The commands, accessible from ~forge-topic-menu~ (on ~C-return~), act on
+the topic at point; so this menu is useful in buffers dedicated to
+listing topics and notifications (which correspond to topics), but
+also in the status buffer (which also lists topics).  In buffers
+dedicated to showing details about a single topic, these commands act
+on that topic; so this menu can be used there too.
 
-Forge provides some commands that act on the listed topics.  These
-commands can also be used in other contexts, such as when point is
-on a commit or branch section.
+To switch to this menu from another menu use ~m s~.  If the cursor is on
+a topic or the current buffer visits a topic.
+
+To display details about a topic in a separate buffer and at the same
+time display the topic menu, invoke ~forge-topic-menu~ with a prefix
+argument, i.e., ~C-u RET~.
 
 - Key: RET [on topic] (forge-visit-this-topic) ::
-- Key: RET [on repository] (forge-visit-this-repository) ::
 
-  These commands visit the topic or repository at point in a separate
-  buffer.
-
-  These commands are bound by remapping ~magit-visit-thing~ as defined
-  in ~magit-mode-map~.
+  This commands visits the topic at point in a separate buffer.
+  When invoked with a prefix argument then it not only visits the
+  topic in a separate buffer, it at the same time displays
 
 - Key: N v t (forge-visit-topic) ::
 - Key: N v i (forge-visit-issue) ::
@@ -634,7 +807,18 @@ on a commit or branch section.
   These commands read a topic, issue(s), pull-request(s), branch,
   commit, remote or repository, and open it in a browser.
 
-* Creating Topics
+* Creating Topics and Posts
+
+We call both issues and pull-requests "topics".  The contributions to
+the conversation are called "posts".  The initial topic description is
+also called a post.
+
+Creating a new topic or post and editing an existing post work
+similarly to now creating a new commit or editing the message of an
+existing commit works in Magit.  In both cases the message has to be
+written in a separate buffer and then the process has to be finished
+or canceled using a separate command.  The following commands drop you
+into such a buffer.
 
 - Key: N c p (forge-create-pullreq) ::
 - Key: C-c C-n [on "Pull requests" section] ::
@@ -646,100 +830,15 @@ on a commit or branch section.
 
   This command creates a new issue for the current repository.
 
-* Editing Topics and Posts
-
-We call both issues and pull-requests "topics".  The contributions to
-the conversation are called "posts".  The post that initiated the
-conversation is also called a post.
-
-These commands are available only from the topic buffer (i.e., from
-the buffer that shows the posts on a topic).  Other commands that also
-work in other buffers are available here also.  For example ~C-c C-w~ on
-a post visits that post in a browser.
-
 - Key: C-c C-n (forge-create-post) ::
 - Key: C-c C-r ::
 
-  This command allows users to create a new post on an existing topic.
-  It opens a buffer in which the user can write the post.  When the
-  post is done, then the user has to submit using ~C-c C-c~.
+  This command creates a new post on an existing topic.  It is only
+  available in buffers that visit an existing topic.
 
   If the region is active and marks part of an existing post, then
-  that part of the post is quoted.  Otherwise, or if a prefix argument
-  is used, then the complete post that point is currently on is quoted.
-
-- Key: C-c C-e [on a post section] (forge-edit-post) ::
-
-  This command visits an existing post in a separate buffer.  When the
-  changes to the post are done, then the user has to submit using ~C-c
-  C-c~.
-
-- Key: C-c C-e [on "Title" section] (forge-edit-topic-title) ::
-
-  This command reads a new title for an existing topic in the
-  minibuffer.
-
-- Key: C-c C-e [on "State" section] (forge-edit-topic-state) ::
-
-  This command toggles the state of an existing topic between "open"
-  and "closed".
-
-- Key: C-c C-e [on "Draft" section] (forge-edit-topic-draft) ::
-
-  This command toggles whether an existing topic is a draft or not.
-
-- Key: C-c C-e [on "Labels" section] (forge-edit-topic-labels) ::
-
-  This command reads a list of labels for an existing topic in the
-  minibuffer.
-
-- Key: C-c C-e [on "Marks" section] (forge-edit-topic-marks) ::
-
-  This command reads a list of marks for an existing topic in the
-  minibuffer.
-
-  Marks are like labels except that they are not shared with anyone
-  else.  To create a mark that topics can subsequently be marked with
-  use the command ~forge-create-mark~.  Existing marks can be edited
-  using the command ~forge-edit-mark~.
-
-- Key: C-c C-e [on "Assignees" section] (forge-edit-topic-assignees) ::
-
-  This command reads a list of assignees for an existing topic in the
-  minibuffer.
-
-- Key: C-c C-e [on "Review-Requests" section] (forge-edit-topic-review-requests) ::
-
-  This command reads a list of people who you would like to review an
-  existing topic in the minibuffer.
-
-- Key: C-c C-e [on "Note" section] ::
-- Key: M-x forge-edit-topic-note ::
-
-  This lets you edit your private note about a topic.
-
-- Key: C-c C-k [on a comment section] (forge-delete-comment) ::
-
-  This command deletes the comment at point.
-
-- Key: m M [if enabled] (forge-merge) ::
-- Key: N M [if enabled] ::
-
-  This command merges the current pull-request using the forge's API.
-  If there is no current pull-request or with a prefix argument, then
-  it reads a pull-request to visit instead.
-
-  The "merge method" to be used is read from the user.
-
-  Use of this command is discouraged.  Unless the remote repository is
-  configured to disallow that, you should instead merge locally and
-  then push the target branch.  Forges detect that you have done that
-  and respond by automatically marking the pull-request as merged.
-
-Creating a new post and editing an existing post are similar to
-creating a new commit and editing the message of an existing commit.
-In both cases the message has to be written in a separate buffer and then
-the process has to be finished or canceled using a separate command.
+  that part of the post is quoted.  When a prefix argument is used,
+  then the complete post, which point is currently on, is quoted.
 
 The following commands are available in buffers used to edit posts:
 
@@ -763,6 +862,43 @@ The following commands are available in buffers used to edit posts:
 
   This command toggles whether the pull-request being created is a
   draft.
+
+* Editing Topics
+
+Many details about a topic can be changed from the buffer that visits
+that topic, but also from topic lists, if the cursor is placed on the
+topic to be edited.  However, to edit the posts on a topic, the topic
+has to be visited in its own buffer.
+
+- Key: C-c C-e [on a post section] (forge-edit-post) ::
+
+  This command visits an existing post in a separate buffer, it can
+  only be invoked from a topic buffer, when the cursor is on the post
+  to be edited.
+
+  Editing an existing post is similar to creating a new post, as
+  described in the previous section.
+
+- Key: C-c C-k [on a post section] (forge-delete-comment) ::
+
+  This command deletes the post the cursor is on.  The initial message
+  that was written when the topic was created, cannot be deleted, only
+  replies to that.
+
+- Key: N m s (forge-topic-menu) ::
+- Key: C-<return> [on a topic section] ::
+
+  This command displays a menu used to edit details about the topic
+  the cursor is on or that is being visited in the current buffer.
+  E.g., it can be used to change the status of the topic or to apply
+  labels to it.  Additionally it features a few commands that act on
+  that topic.
+
+Details about a topic, such as its status and labels, can
+alternatively be edited by visiting the topic in its own buffer,
+navigating to the header that displays the detail and then typing ~C-c
+C-e~.  This older approach is still available, but it is usually much
+faster to use the menu.
 
 * Pulling
 
@@ -930,6 +1066,20 @@ this to work.  If you delete the tracking branch (e.g., "fork/feature"),
 then the remote is never removed.
 
 * Miscellaneous Commands
+
+- Key: N M (forge-merge) ::
+- Key: m M [if enabled] ::
+
+  This command merges the current pull-request using the forge's API.
+  If there is no current pull-request or with a prefix argument, then
+  it reads a pull-request to visit instead.
+
+  The "merge method" to be used is read from the user.
+
+  Use of this command is discouraged.  Unless the remote repository is
+  configured to disallow that, you should instead merge locally and
+  then push the target branch.  Forges detect that you have done that
+  and respond by automatically marking the pull-request as merged.
 
 - Key: N c f (forge-fork) ::
 

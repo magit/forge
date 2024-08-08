@@ -58,11 +58,10 @@ This manual is for Forge version 0.3.2.50-git.
 * Initial Setup::
 * Initial Pull::
 * Getting Started::
-* Working with Topics::
-* Listing Topics and Notifications::
+* Lists and Menus::
 * Visiting Topics::
-* Creating Topics::
-* Editing Topics and Posts::
+* Creating Topics and Posts::
+* Editing Topics::
 * Pulling::
 * Branching::
 * Miscellaneous Commands::
@@ -626,63 +625,173 @@ access to most of the available Forge commands.  See the following
 sections for information about the available commands.
 @end table
 
-@node Working with Topics
-@chapter Working with Topics
+@node Lists and Menus
+@chapter Lists and Menus
 
-We call both issues and pull-requests "topics".  The contributions to
-the conversation are called "posts".
+Topics are listed in two sections in Magit's status buffer, but can
+also be listed in dedicated buffers.  Likewise individual topics can
+be visited in separate buffers.  In both cases this can be done by
+placing the cursor on the respective section in the status buffer and
+typing @code{RET}, or by invoking the appropriate command from Forge's main
+menu, on @code{N} (@code{forge-dispatch}).
 
-@node Listing Topics and Notifications
-@chapter Listing Topics and Notifications
+List commands and corresponding menu commands exist for topics,
+notifications and repositories, but there isn't always an exclusive
+mapping from menu to buffer.  The main menu (@code{forge-dispatch}), the
+configuration menu (@code{forge-configure}), the menu which controls the
+current topic or the topic at point (@code{forge-topic-menu}), and the
+menu which controls the topics listed in the current buffer
+(@code{forge-topics-menu}), are useful in more than one major mode.
 
-By default Forge lists a subset of topics directly in the Magit status
-buffer.  It also provides commands to list topics and notifications in
-separate buffers.
+All of these menus feature bindings to directly switch to the other
+appropriate menus.  So it is enough to remember that @code{N} always brings
+up the dispatch menu; you can always navigate to another menu from
+there.
 
-Forge adds the following functions to @code{magit-status-sections-hook}:
+@code{C-c C-c} brings up the most appropriate menu for the current buffer.
+In Magit's status buffer the most appropriate menu is Magit's own
+dispatch menu (@code{magit-dispatch}), so here the quickest way to invoke
+Forge's dispatch menu is @code{N}.  Even in Magit's status buffer, when the
+cursor is an individual topic or on a topic list section, @code{C-c C-c}
+opens the respective menu (@code{forge-topics-menu} or @code{forge-topic-menu}).
 
-@defun forge-insert-pullreqs
-This function inserts a list of the most recent and/or open
-pull-requests.
-@end defun
+The following sections describe most of the available menu and list
+commands.  For @code{forge-topic-menu}, see @ref{Editing Topics}.
 
-@defun forge-insert-issues
-This function inserts a list of the most recent and/or open issues.
-@end defun
-
-The following commands list repositories, notifications and topics in
-dedicated buffers:
+@anchor{Dispatch and configuration menus}
+@heading Dispatch and configuration menus
 
 @table @asis
-@item @kbd{N l r} (@code{forge-list-repositories})
-@kindex N l r
-@findex forge-list-repositories
-This command lists all known repositories in a separate buffer.
+@item @kbd{N} (@code{forge-dispatch})
+@kindex N
+@findex forge-dispatch
+This prefix menu command is available in all Magit buffers and
+provides access to most of the available Forge commands.  See the
+following sections for information about the available commands.
+
+@item @kbd{N m c} (@code{forge-configure})
+@kindex N m c
+@findex forge-configure
+This command displays a menu used to configure the current
+repository and some global settings as well.
+@end table
+
+@anchor{Topic menu and list commands}
+@heading Topic menu and list commands
+
+@table @asis
+@item @kbd{N m f} (@code{forge-topics-menu})
+@itemx @kbd{C-c C-c [in topics list buffer/section]}
+@kindex N m f
+@kindex C-c C-c [in topics list buffer/section]
+@findex forge-topics-menu
+This command displays a menu used to control the list of topics
+displayed in the current buffer.
+
+Note that this command can not only be used in buffers dedicated
+to listing topics, but also in Magit's status buffer.
+
+@item @kbd{N l t} (@code{forge-list-topics})
+@kindex N l t
+@findex forge-list-topics
+This command lists the current repository's issues in a separate
+buffer.  If the list buffer already exists, this command only
+ensures that all types of topics are listed.  If any other filters
+are in effect, they are left intact.
+TODO fix preserving type
+
+@item @kbd{@key{RET} [on "Issues" status section]} (@code{forge-list-issues})
+@kindex RET [on "Issues" status section]
+@findex forge-list-issues
+This command lists the current repository's issues in a separate
+buffer.  If the list buffer already exists, this command limits the
+list to issues.  If any other filters are in effect, they are left
+intact.
+
+@item @kbd{@key{RET} [on "Pull requests" status section]} (@code{forge-list-pullreqs})
+@kindex RET [on "Pull requests" status section]
+@findex forge-list-pullreqs
+This command lists the current repository's pull-requests in a
+separate buffer.  If the list buffer already exists, this command
+limits the list to pull-requests.  If any other filters are in
+effect, they are left intact.
+
+@item @kbd{N l g} (@code{forge-list-global-topics})
+@kindex N l g
+@findex forge-list-global-topics
+This command lists topics across all tracked repository.  If the
+list buffer already exists, filters except for the type filter are
+left in effect.
+@end table
+
+@deffn Command forge-list-global-issues
+This command lists issues across all tracked repository.  If the
+list buffer already exists, filters except for the type filter are
+left in effect.
+@end deffn
+
+@deffn Command forge-list-global-pullreqs
+This command lists pull-requests across all tracked repository.  If
+the list buffer already exists, filters except for the type filter
+are in effect.
+@end deffn
+
+@anchor{Notification menu and list commands}
+@heading Notification menu and list commands
+
+@table @asis
+@item @kbd{N m n} (@code{forge-notifications-menu})
+@itemx @kbd{C-c C-c}
+@kindex N m n
+@kindex C-c C-c
+@findex forge-notifications-menu
+This command displays a menu used to control the list of
+notifications displayed in the current buffer.
 
 @item @kbd{N l n} (@code{forge-list-notifications})
 @kindex N l n
 @findex forge-list-notifications
 This command lists all notifications for all forges in a separate
 buffer.
-
-@item @kbd{N l p} (@code{forge-list-pullreqs})
-@kindex N l p
-@findex forge-list-pullreqs
-This command lists the current repository's pull-requests in a
-separate buffer.
-
-@item @kbd{N l i} (@code{forge-list-issues})
-@kindex N l i
-@findex forge-list-issues
-This command lists the current repository's issues in a separate
-buffer.
 @end table
+
+@anchor{Repository menu and list commands}
+@heading Repository menu and list commands
+
+@table @asis
+@item @kbd{N m r} (@code{forge-repositories-menu})
+@itemx @kbd{C-c C-c}
+@kindex N m r
+@kindex C-c C-c
+@findex forge-repositories-menu
+This command displays a menu used to control the list of
+repositories displayed in the current buffer.
+
+@item @kbd{N l r} (@code{forge-list-repositories})
+@kindex N l r
+@findex forge-list-repositories
+This command lists all known repositories in a separate buffer.
+Here "known" means that an entry exists in the local database.
+
+@item @kbd{@key{RET} [on repository]} (@code{forge-visit-this-repository})
+@kindex RET [on repository]
+@findex forge-visit-this-repository
+This commands visits the repository at point in a separate buffer.
+
+@item @kbd{o [in forge-repositories-menu]} (@code{forge-list-owned-repositories})
+@kindex o [in forge-repositories-menu]
+@findex forge-list-owned-repositories
+This command lists all known repositories that belong to the user in
+a separate buffer.  Here "known" means that an entry exists in the
+local database.  Only Github is supported for now.
+@end table
+
+The below options controls which repositories are considered to be
+owned by the user.  They are additionally used by @code{forge-fork}.
 
 @defopt forge-owned-accounts
 This is an alist of accounts that are owned by you.  This should
 include your username as well as any organization that you own.
-Used by the commands @code{forge-list-owned-issues},
-@code{forge-list-owned-pullreqs} and @code{forge-fork}.
 
 Each element has the form @code{(ACCOUNT . PLIST)}.  The following
 properties are currently being used:
@@ -699,32 +808,95 @@ Example: @code{(("tarsius") ("emacsmirror" remote-name "mirror"))}.
 
 @defopt forge-owned-ignored
 This is a list of repository names that are considered to not be
-owned by you even though they would have been considered to be owned
-by you based on @code{forge-owned-accounts}.
+owned by you, even though they would have been considered to be
+owned by you based on @code{forge-owned-accounts}.
 @end defopt
+
+@anchor{Exiting menus and lists}
+@heading Exiting menus and lists
+
+To exit a menu, type @code{C-g}.  If the menu was invoked from another menu
+and that menu is useful in the current buffer, then that menu becomes
+active again.  If that happens and you actually want to quit all
+menus, then just type @code{C-g} again.  You can also directly exit all menus
+by using @code{C-q}, instead of @code{C-g}.
+
+Type @code{q} to quit not only the menu, but also the list or topic detail
+buffer.  That binding is also available when no menu is active, in
+which case it will simply quit the buffer.  When invoked from a menu,
+then this binding may return to another list buffer, in which case
+some menu may also remain active.
+
+@anchor{Default topic filters}
+@heading Default topic filters
+
+@defopt forge-status-buffer-default-topic-filters
+This option specifies the filters initially used to limit topics
+listed in topic list buffers.
+@end defopt
+
+@defopt forge-status-buffer-default-topic-filters
+This option specifies the filters initially used to limit topics
+listed in Magit status buffers.
+
+Also see @ref{Topic sections in Magit status buffers}.
+@end defopt
+
+@anchor{Topic sections in Magit status buffers}
+@heading Topic sections in Magit status buffers
+
+Forge arranges for certain issues and pull-requests to be list in
+Magit status buffers, by adding the following functions to
+@code{magit-status-sections-hook}.
+
+Which topics are listed initially is customizable using option
+@code{forge-status-buffer-default-topic-filters} and can be changed
+temporarily for the current buffer, using @code{N m f} (`forge-topics-menu').
+
+@defun forge-insert-issues
+This function inserts a list of issues, by default a list of "active"
+issues.
+@end defun
+
+@defun forge-insert-pullreqs
+This function inserts a list of pull-requests, by default a list of
+"active" pull-requests.
+@end defun
+
+Forge used to provide additional functions to insert hard-coded topic
+subsets, but they were removed in favor of the more flexible approach
+described above.  If you miss the removed sections, you can use the
+new @code{forge-insert-topics} helper function to define your own section
+inserter functions.  See its docstring for more information.
+
+If you don't want any topic list sections to be displayed in Magit
+status buffers, set @code{forge-add-default-sections} to @code{nil} before @code{magit} is
+loaded.
 
 @node Visiting Topics
 @chapter Visiting Topics
 
-By default Magit's status buffer lists open and/or pending issues and
-pull-requests.
+The commands, accessible from @code{forge-topic-menu} (on @code{C-return}), act on
+the topic at point; so this menu is useful in buffers dedicated to
+listing topics and notifications (which correspond to topics), but
+also in the status buffer (which also lists topics).  In buffers
+dedicated to showing details about a single topic, these commands act
+on that topic; so this menu can be used there too.
 
-Forge provides some commands that act on the listed topics.  These
-commands can also be used in other contexts, such as when point is
-on a commit or branch section.
+To switch to this menu from another menu use @code{m s}.  If the cursor is on
+a topic or the current buffer visits a topic.
+
+To display details about a topic in a separate buffer and at the same
+time display the topic menu, invoke @code{forge-topic-menu} with a prefix
+argument, i.e., @code{C-u RET}.
 
 @table @asis
 @item @kbd{@key{RET} [on topic]} (@code{forge-visit-this-topic})
-@itemx @kbd{@key{RET} [on repository]} (@code{forge-visit-this-repository})
 @kindex RET [on topic]
-@kindex RET [on repository]
 @findex forge-visit-this-topic
-@findex forge-visit-this-repository
-These commands visit the topic or repository at point in a separate
-buffer.
-
-These commands are bound by remapping @code{magit-visit-thing} as defined
-in @code{magit-mode-map}.
+This commands visits the topic at point in a separate buffer.
+When invoked with a prefix argument then it not only visits the
+topic in a separate buffer, it at the same time displays
 
 @item @kbd{N v t} (@code{forge-visit-topic})
 @itemx @kbd{N v i} (@code{forge-visit-issue})
@@ -780,8 +952,19 @@ These commands read a topic, issue(s), pull-request(s), branch,
 commit, remote or repository, and open it in a browser.
 @end table
 
-@node Creating Topics
-@chapter Creating Topics
+@node Creating Topics and Posts
+@chapter Creating Topics and Posts
+
+We call both issues and pull-requests "topics".  The contributions to
+the conversation are called "posts".  The initial topic description is
+also called a post.
+
+Creating a new topic or post and editing an existing post work
+similarly to now creating a new commit or editing the message of an
+existing commit works in Magit.  In both cases the message has to be
+written in a separate buffer and then the process has to be finished
+or canceled using a separate command.  The following commands drop you
+into such a buffer.
 
 @table @asis
 @item @kbd{N c p} (@code{forge-create-pullreq})
@@ -797,119 +980,19 @@ This command creates a new pull-request for the current repository.
 @kindex C-c C-n [on "Issues" section]
 @findex forge-create-issue
 This command creates a new issue for the current repository.
-@end table
 
-@node Editing Topics and Posts
-@chapter Editing Topics and Posts
-
-We call both issues and pull-requests "topics".  The contributions to
-the conversation are called "posts".  The post that initiated the
-conversation is also called a post.
-
-These commands are available only from the topic buffer (i.e., from
-the buffer that shows the posts on a topic).  Other commands that also
-work in other buffers are available here also.  For example @code{C-c C-w} on
-a post visits that post in a browser.
-
-@table @asis
 @item @kbd{C-c C-n} (@code{forge-create-post})
 @itemx @kbd{C-c C-r}
 @kindex C-c C-n
 @kindex C-c C-r
 @findex forge-create-post
-This command allows users to create a new post on an existing topic.
-It opens a buffer in which the user can write the post.  When the
-post is done, then the user has to submit using @code{C-c C-c}.
+This command creates a new post on an existing topic.  It is only
+available in buffers that visit an existing topic.
 
 If the region is active and marks part of an existing post, then
-that part of the post is quoted.  Otherwise, or if a prefix argument
-is used, then the complete post that point is currently on is quoted.
-
-@item @kbd{C-c C-e [on a post section]} (@code{forge-edit-post})
-@kindex C-c C-e [on a post section]
-@findex forge-edit-post
-This command visits an existing post in a separate buffer.  When the
-changes to the post are done, then the user has to submit using @code{C-c
-  C-c}.
-
-@item @kbd{C-c C-e [on "Title" section]} (@code{forge-edit-topic-title})
-@kindex C-c C-e [on "Title" section]
-@findex forge-edit-topic-title
-This command reads a new title for an existing topic in the
-minibuffer.
-
-@item @kbd{C-c C-e [on "State" section]} (@code{forge-edit-topic-state})
-@kindex C-c C-e [on "State" section]
-@findex forge-edit-topic-state
-This command toggles the state of an existing topic between "open"
-and "closed".
-
-@item @kbd{C-c C-e [on "Draft" section]} (@code{forge-edit-topic-draft})
-@kindex C-c C-e [on "Draft" section]
-@findex forge-edit-topic-draft
-This command toggles whether an existing topic is a draft or not.
-
-@item @kbd{C-c C-e [on "Labels" section]} (@code{forge-edit-topic-labels})
-@kindex C-c C-e [on "Labels" section]
-@findex forge-edit-topic-labels
-This command reads a list of labels for an existing topic in the
-minibuffer.
-
-@item @kbd{C-c C-e [on "Marks" section]} (@code{forge-edit-topic-marks})
-@kindex C-c C-e [on "Marks" section]
-@findex forge-edit-topic-marks
-This command reads a list of marks for an existing topic in the
-minibuffer.
-
-Marks are like labels except that they are not shared with anyone
-else.  To create a mark that topics can subsequently be marked with
-use the command @code{forge-create-mark}.  Existing marks can be edited
-using the command @code{forge-edit-mark}.
-
-@item @kbd{C-c C-e [on "Assignees" section]} (@code{forge-edit-topic-assignees})
-@kindex C-c C-e [on "Assignees" section]
-@findex forge-edit-topic-assignees
-This command reads a list of assignees for an existing topic in the
-minibuffer.
-
-@item @kbd{C-c C-e [on "Review-Requests" section]} (@code{forge-edit-topic-review-requests})
-@kindex C-c C-e [on "Review-Requests" section]
-@findex forge-edit-topic-review-requests
-This command reads a list of people who you would like to review an
-existing topic in the minibuffer.
-
-@item @kbd{C-c C-e [on "Note" section]}
-@itemx @kbd{M-x forge-edit-topic-note}
-@kindex C-c C-e [on "Note" section]
-@findex forge-edit-topic-note
-This lets you edit your private note about a topic.
-
-@item @kbd{C-c C-k [on a comment section]} (@code{forge-delete-comment})
-@kindex C-c C-k [on a comment section]
-@findex forge-delete-comment
-This command deletes the comment at point.
-
-@item @kbd{m M [if enabled]} (@code{forge-merge})
-@itemx @kbd{N M [if enabled]}
-@kindex m M [if enabled]
-@kindex N M [if enabled]
-@findex forge-merge
-This command merges the current pull-request using the forge's API@.
-If there is no current pull-request or with a prefix argument, then
-it reads a pull-request to visit instead.
-
-The "merge method" to be used is read from the user.
-
-Use of this command is discouraged.  Unless the remote repository is
-configured to disallow that, you should instead merge locally and
-then push the target branch.  Forges detect that you have done that
-and respond by automatically marking the pull-request as merged.
+that part of the post is quoted.  When a prefix argument is used,
+then the complete post, which point is currently on, is quoted.
 @end table
-
-Creating a new post and editing an existing post are similar to
-creating a new commit and editing the message of an existing commit.
-In both cases the message has to be written in a separate buffer and then
-the process has to be finished or canceled using a separate command.
 
 The following commands are available in buffers used to edit posts:
 
@@ -939,6 +1022,50 @@ suffix commands will likely be added in the future.
 This command toggles whether the pull-request being created is a
 draft.
 @end table
+
+@node Editing Topics
+@chapter Editing Topics
+
+Many details about a topic can be changed from the buffer that visits
+that topic, but also from topic lists, if the cursor is placed on the
+topic to be edited.  However, to edit the posts on a topic, the topic
+has to be visited in its own buffer.
+
+@table @asis
+@item @kbd{C-c C-e [on a post section]} (@code{forge-edit-post})
+@kindex C-c C-e [on a post section]
+@findex forge-edit-post
+This command visits an existing post in a separate buffer, it can
+only be invoked from a topic buffer, when the cursor is on the post
+to be edited.
+
+Editing an existing post is similar to creating a new post, as
+described in the previous section.
+
+@item @kbd{C-c C-k [on a post section]} (@code{forge-delete-comment})
+@kindex C-c C-k [on a post section]
+@findex forge-delete-comment
+This command deletes the post the cursor is on.  The initial message
+that was written when the topic was created, cannot be deleted, only
+replies to that.
+
+@item @kbd{N m s} (@code{forge-topic-menu})
+@itemx @kbd{C-<return> [on a topic section]}
+@kindex N m s
+@kindex C-<return> [on a topic section]
+@findex forge-topic-menu
+This command displays a menu used to edit details about the topic
+the cursor is on or that is being visited in the current buffer.
+E.g., it can be used to change the status of the topic or to apply
+labels to it.  Additionally it features a few commands that act on
+that topic.
+@end table
+
+Details about a topic, such as its status and labels, can
+alternatively be edited by visiting the topic in its own buffer,
+navigating to the header that displays the detail and then typing @code{C-c
+C-e}.  This older approach is still available, but it is usually much
+faster to use the menu.
 
 @node Pulling
 @chapter Pulling
@@ -1139,6 +1266,22 @@ then the remote is never removed.
 @chapter Miscellaneous Commands
 
 @table @asis
+@item @kbd{N M} (@code{forge-merge})
+@itemx @kbd{m M [if enabled]}
+@kindex N M
+@kindex m M [if enabled]
+@findex forge-merge
+This command merges the current pull-request using the forge's API@.
+If there is no current pull-request or with a prefix argument, then
+it reads a pull-request to visit instead.
+
+The "merge method" to be used is read from the user.
+
+Use of this command is discouraged.  Unless the remote repository is
+configured to disallow that, you should instead merge locally and
+then push the target branch.  Forges detect that you have done that
+and respond by automatically marking the pull-request as merged.
+
 @item @kbd{N c f} (@code{forge-fork})
 @kindex N c f
 @findex forge-fork
