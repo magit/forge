@@ -219,9 +219,12 @@ Must be set before `forge-topics' is loaded.")
     ("-H" forge-toggle-topic-legend)]]
   [forge--topic-legend-group]
   (interactive)
-  (if (derived-mode-p 'forge-topics-mode 'magit-status-mode)
-      (transient-setup 'forge-topics-menu)
-    (forge-list-topics)))
+  (cond ((derived-mode-p 'forge-topics-mode 'magit-status-mode)
+         (transient-setup 'forge-topics-menu))
+        ((derived-mode-p 'forge-notifications-mode)
+         (setq this-command 'forge-notifications-menu)
+         (transient-setup 'forge-notifications-menu))
+        ((forge-list-topics))))
 
 (transient-augment-suffix forge-topics-menu
   :transient #'transient--do-replace
