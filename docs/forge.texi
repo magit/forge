@@ -172,7 +172,7 @@ git config --local github.user USERNAME
 @subheading Create and Store an Access Token
 
 Visit @uref{https://github.com/settings/tokens} in a browser to generate
-a new "classic" token using the @code{repo}, @code{user} and @code{repo:org} scopes.
+a new "classic" token using the @code{repo}, @code{user} and @code{read:org} scopes.
 Do not close the browser window just yet, because the token will
 only be shown once.
 
@@ -291,7 +291,7 @@ git config --global github.example.com.user tarsius
 Visit your forge in a browser.  Follow a link to "Settings", from
 there to "Developer settings", from there to "Personal access tokens",
 and finally to "Tokens (classic)".  On that page generate a new token
-using the @code{repo}, @code{user} and @code{repo:org} scopes.  Do not close the browser
+using the @code{repo}, @code{user} and @code{read:org} scopes.  Do not close the browser
 window just yet, because the token will only be shown once.
 
 The built-in Auth-Source (@ref{Top,,,auth,}) package is used to store the
@@ -483,9 +483,9 @@ git config --global gitlab.example.com.user tarsius
 
 Visit your forge in a browser.  Follow a link to "Preferences" and
 from there to "Access Tokens".  On that page generate a new "Personal
-access token" using the @code{repo}, @code{user} and @code{repo:org} scopes.  Do not close
-the browser window just yet, because the token will only be shown
-once.
+access token" using the @code{api}, @code{read_api} and @code{read_user} scopes.  Do not
+close the browser window just yet, because the token will only be
+shown once.
 
 The built-in Auth-Source (@ref{Top,,,auth,}) package is used to store the
 token generated in the previous step.  The @code{auth-sources} variable

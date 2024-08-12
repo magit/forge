@@ -91,7 +91,7 @@ then you have to set that variable locally:
 :END:
 
 Visit https://github.com/settings/tokens in a browser to generate
-a new "classic" token using the ~repo~, ~user~ and ~repo:org~ scopes.
+a new "classic" token using the ~repo~, ~user~ and ~read:org~ scopes.
 Do not close the browser window just yet, because the token will
 only be shown once.
 
@@ -210,7 +210,7 @@ So if INSTANCE-ID is ~example.com~ and USERNAME is ~tarsius~ then use:
 Visit your forge in a browser.  Follow a link to "Settings", from
 there to "Developer settings", from there to "Personal access tokens",
 and finally to "Tokens (classic)".  On that page generate a new token
-using the ~repo~, ~user~ and ~repo:org~ scopes.  Do not close the browser
+using the ~repo~, ~user~ and ~read:org~ scopes.  Do not close the browser
 window just yet, because the token will only be shown once.
 
 The built-in Auth-Source ([[info:auth]]) package is used to store the
@@ -399,9 +399,9 @@ So if INSTANCE-ID is ~example.com~ and USERNAME is ~tarsius~ then use:
 
 Visit your forge in a browser.  Follow a link to "Preferences" and
 from there to "Access Tokens".  On that page generate a new "Personal
-access token" using the ~repo~, ~user~ and ~repo:org~ scopes.  Do not close
-the browser window just yet, because the token will only be shown
-once.
+access token" using the ~api~, ~read_api~ and ~read_user~ scopes.  Do not
+close the browser window just yet, because the token will only be
+shown once.
 
 The built-in Auth-Source ([[info:auth]]) package is used to store the
 token generated in the previous step.  The ~auth-sources~ variable
