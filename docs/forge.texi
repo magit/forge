@@ -240,25 +240,25 @@ your other Github instances.  Forge instances are configured using
 the option @code{forge-alist} (also see its docstring).  The entry for
 @uref{https://github.com} in that variable looks like this:
 
-@example
+@lisp
 ("github.com"                       ; GITHOST
  "api.github.com"                   ; APIHOST
  "github.com"                       ; WEBHOST and INSTANCE-ID
   forge-github-repository)          ; CLASS
-@end example
+@end lisp
 
 You have to add an entry for your instance.  For example, assuming
 you company uses @uref{https://example.com}, this might be correct:
 
-@example
+@lisp
 (push '("example.com"               ; GITHOST
         "api.example.com"           ; APIHOST
         "example.com"               ; WEBHOST and INSTANCE-ID
         forge-github-repository)    ; CLASS
       forge-alist)
-@end example
+@end lisp
 
-You company may use hostnames that follow a different format.  You
+Your company may use hostnames that follow a different format.  You
 should be able to easily determine and verify GITHOST and WEBHOST,
 but determining APIHOST is more difficult; you might have to ask a
 coworker.  APIHOST could be something like @code{api.example.com}, but it
@@ -435,12 +435,12 @@ instances.  Forge instances are configured using the option
 @code{forge-alist} (also see its docstring).  The entry for
 @uref{https://gitlab.com} in that variable looks like this:
 
-@example
+@lisp
 ("gitlab.com"                       ; GITHOST
  "gitlab.com/api/v4"                ; APIHOST
  "gitlab.com"                       ; WEBHOST and INSTANCE-ID
  forge-gitlab-repository)           ; CLASS
-@end example
+@end lisp
 
 For historic reasons, APIHOST actually has to be a host followed by
 a path.
@@ -448,15 +448,15 @@ a path.
 You have to add an entry for your instance.  For example, assuming you
 company/organisation uses @uref{https://example.com}, this might be correct:
 
-@example
+@lisp
 (push '("example.com"               ; GITHOST
         "example.com/api/v4"        ; APIHOST
         "example.com"               ; WEBHOST and INSTANCE-ID
         forge-gitlab-repository)    ; CLASS
       forge-alist)
-@end example
+@end lisp
 
-You company may use hostnames that follow a different format.  You
+Your company may use hostnames that follow a different format.  You
 should be able to easily determine and verify GITHOST and WEBHOST,
 but determining APIHOST is more difficult; you might have to ask a
 colleague.
