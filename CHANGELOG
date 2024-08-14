@@ -1,4 +1,25 @@
 # -*- mode: org -*-
+* v0.4.1    UNRELEASED
+
+- ~forge-add-repository~ now guides the user to set ~forge.remote~ and provides
+  pointers to the relevant documentation, when additional configuration is
+  required, before a repository can be added to the database.  834c81492 et al.
+
+- ~forge-add-repository~ and ~forge-pull~ used to error for repository not hosted
+  on a known host or when called outside any Git repository.
+
+- Ssh host aliases did not get resolved as intended.  #689
+
+- In ~forge-notifications-mode~ buffers ~C-c C-c~ used to error.  7bcdffc75
+
+- The "dwim" value displayed for ~forge.remote~ was inaccurate.  6ec5ad186
+
+- Added new "Setup a Partially Supported Host" section to manual and fixed
+  various typos.  4f6e58b4c
+
+- Fixed inaccurate information and typos in the manual and usage messages.
+  aa72a4d13 et al.
+
 * v0.4.0    2024-08-08
 
 This is the biggest Forge release so far, consisting of more than 650 commits
