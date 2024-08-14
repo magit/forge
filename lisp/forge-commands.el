@@ -1020,18 +1020,16 @@ upstream remote."
   [:class transient-subgroups
 
    ;; Already tracked.
-   [:if (lambda ()
-          (and-let* ((repo (transient-scope)))
-            (forge-get-repository repo nil :tracked?)))
+   [:if (lambda () (forge--scope :tracked))
     (:info*
      (lambda ()
        (format
         (propertize "%s is already being tracked" 'face 'transient-heading)
-        (propertize (forge-get-url (transient-scope)) 'face 'bold)))
+        (propertize (forge--scope 'url) 'face 'bold)))
      :format "%d")]
 
    ;; Nothing to tracked.
-   [:if (lambda () (and (not (transient-scope)) (not (magit-toplevel))))
+   [:if-not (lambda () (forge--scope 'topdir))
     (:info*
      (lambda ()
        (format
@@ -1040,27 +1038,26 @@ upstream remote."
      :format "%d")]
 
    ;; Track it!
-   [:if (lambda ()
-          (and-let* ((repo (transient-scope)))
-            (not (forge-get-repository repo nil :tracked?))))
+   [:if (lambda () (forge--scope :untracked))
     :description
     (lambda ()
       (format
        (propertize "Adding %s to database," 'face 'transient-heading)
-       (propertize (forge-get-url (transient-scope)) 'face 'bold)))
+       (propertize (forge--scope 'url) 'face 'bold)))
+    ("r" forge-forge.remote :format " %k from %d %v," :face 'bold)
     ("a" "pulling all topics"
      (lambda (repo)
-       (interactive (list (transient-scope)))
+       (interactive (list (forge--scope 'repo)))
        (forge-add-repository repo)))
     ("s" "pulling only topics since <date>"
      (lambda (repo date)
        (interactive
-        (list (transient-scope)
+        (list (forge--scope 'repo)
               (forge-read-date "Limit pulling to topics updated since: ")))
        (forge-add-repository repo date)))
     ("i" "to allow pulling of individual topics"
      (lambda (repo)
-       (interactive (list (transient-scope)))
+       (interactive (list (forge--scope 'repo)))
        (forge-add-repository repo :selective)))]
 
    ;; Pivot.
@@ -1074,10 +1071,10 @@ upstream remote."
   (cond
    ((not repo)
     (transient-setup 'forge-add-repository nil nil
-                     :scope (forge-get-repository :stub?)))
+                     :scope (forge-add-repository--scope)))
    ((stringp repo)
     (transient-setup 'forge-add-repository nil nil
-                     :scope (forge-get-repository repo nil :stub?)))
+                     :scope (forge-add-repository--scope repo)))
    (t
     (when-let*
         (((not (eq limit :selective)))
@@ -1099,6 +1096,27 @@ upstream remote."
     (forge--pull repo
                  (and (not (forge-get-worktree repo)) #'ignore)
                  limit))))
+
+(defun forge-add-repository--scope (&optional directory)
+  (let* ((repo      (if directory
+                        (forge-get-repository directory nil :stub?)
+                      (forge-get-repository :stub?)))
+         (wtree     (and repo (forge-get-worktree repo)))
+         (condition (and repo (oref repo condition)))
+         (val
+          `((repo       . ,repo)
+            (wtree      . ,wtree)
+            (condition  . ,condition)
+            (:tracked   . ,(eq condition :tracked))
+            (:untracked . ,(memq condition '(:known :stub)))
+            (topdir     . ,(or wtree (magit-toplevel)))
+            (url        . ,(and repo (forge-get-url repo))))))
+    val))
+
+(defun forge--scope (&optional key)
+  ;; `transient-scope' itself probably offer optional KEY.
+  (let ((scope (transient-scope)))
+    (if key (alist-get key scope) scope)))
 
 (defun forge-add-some-repository (url)
   "Read a repository and add it to the database."
