@@ -104,9 +104,10 @@
 
 (defconst forge--signal-no-entry '(:tracked :stub :insert!))
 
-(defun forge--get-remote (&optional warn)
+(defun forge--get-remote (&optional warn ignore-variable)
   (let* ((remotes (magit-list-remotes))
-         (config (magit-get "forge.remote"))
+         (config (and (not ignore-variable)
+                      (magit-get "forge.remote")))
          (remote (if (cdr remotes)
                      (or (car (member config remotes))
                          (car (member "upstream" remotes))

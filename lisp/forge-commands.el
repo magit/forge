@@ -956,7 +956,7 @@ upstream remotes of local branches accordingly."
   :class 'magit--git-variable:choices
   :variable "forge.remote"
   :choices #'magit-list-remotes
-  :default (lambda (_) (forge--get-remote t)))
+  :default (lambda (_) (forge--get-remote t t))
 
 (transient-define-infix forge-forge.graphqlItemLimit ()
   "Change the maximum number of GraphQL entities to pull at once."
