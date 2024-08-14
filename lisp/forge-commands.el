@@ -951,12 +951,21 @@ upstream remotes of local branches accordingly."
 
 ;;; Configuration
 
-(transient-define-infix forge-forge.remote ()
+(transient-define-suffix forge-forge.remote ()
   "Change the local value of the `forge.remote' Git variable."
   :class 'magit--git-variable:choices
   :variable "forge.remote"
   :choices #'magit-list-remotes
   :default (lambda (_) (forge--get-remote t t))
+  (interactive)
+  (let ((obj (transient-suffix-object)))
+    (transient-infix-set obj (transient-infix-read obj)))
+  (if (and transient--prefix
+           (eq (oref transient--prefix command) 'forge-add-repository))
+      ;; Improvements to Transient will make this hack unnecessary.
+      (let ((scope (forge-add-repository--scope)))
+        (oset (transient-prefix-object) scope scope))
+    (transient--show)))
 
 (transient-define-infix forge-forge.graphqlItemLimit ()
   "Change the maximum number of GraphQL entities to pull at once."
@@ -1017,6 +1026,7 @@ upstream remote."
 ;;;###autoload (autoload 'forge-add-repository "forge-commands" nil t)
 (transient-define-prefix forge-add-repository (&optional repo limit)
   "Add a repository to the database."
+  :refresh-suffixes t
   [:class transient-subgroups
 
    ;; Already tracked.
@@ -1036,6 +1046,29 @@ upstream remote."
         (propertize "%s is not inside a Git repository" 'face 'transient-heading)
         (propertize default-directory 'face 'bold)))
      :format "%d")]
+
+   ;; Cannot track.
+   [:if (lambda () (and (not (forge--scope 'repo)) (forge--scope 'topdir)))
+    :description
+    (lambda ()
+      (concat
+       (format (propertize "Cannot determine forge host for %s\n"
+                           'face 'transient-heading)
+               (propertize (forge--scope 'topdir) 'face 'bold))
+       (if-let* ((remote (forge--get-remote))
+                 (url (magit-git-string "remote" "get-url" remote)))
+             (format (propertize "because %s is not on a host known to Forge."
+                                 'face 'transient-heading)
+                     (propertize url 'face 'bold))
+           (propertize "because no suitable remote was detected."
+                       'face 'transient-heading))))
+    ("r" forge-forge.remote :format " %k Try another %d %v" :face 'bold)
+    ("h" "Learn how to configure another Github host"
+     (lambda () (interactive) (info "(forge)Setup for Another Github Instance")))
+    ("l" "Learn how to configure another Gitlab host"
+     (lambda () (interactive) (info "(forge)Setup for Another Gitlab Instance")))
+    ("p" "Learn how to configure partially supported host"
+     (lambda () (interactive) (info "(forge)Setup a Partially Supported Host")))]
 
    ;; Track it!
    [:if (lambda () (forge--scope :untracked))
