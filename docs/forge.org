@@ -447,6 +447,83 @@ Next add a line like the following to the chosen file:
 Finish by typing ~M-x auth-source-forget-all-cached RET~.  If you don't
 do this, then Auth-Source may fail to look up the token.
 
+** Setup a Partially Supported Host
+
+Forge currently only supports the Github and Gitlab APIs.
+
+It does however partially support a few additional forge types (see
+[[*Partially Supported Forges]]) and other lighter weight software used
+to host Git repositories, which also provide a web interfaces (see
+[[*Supported Semi-Forges]]).  Forge doesn't use the APIs of such forges,
+but registring the host and adding repositories to the local database
+at least enables the use of commands such as ~forge-browse~.
+
+*** Tell Forge about the Instance
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+A few hosts, which use partially supported forge types, are available
+out-of-the-box, because they have an entry in the default value of
+option ~forge-alist~ (also see its docstring).  For example, the entry
+for https://github.com in that variable looks like this:
+
+#+begin_src emacs-lisp
+  ("codeberg.org"                     ; GITHOST
+   "codeberg.org/api/v1"              ; APIHOST
+   "codeberg.org"                     ; WEBHOST and INSTANCE-ID
+   forge-gitea-repository)            ; CLASS
+#+end_src
+
+To be able to add repositories from a, so far, unknown forge instance
+to your local database, you have to add an entry for that instance to
+~forge-alist~.  For example, assuming you use another Gitea instance,
+hosted at https://example.com, this might be correct:
+
+#+begin_src emacs-lisp
+  (push '("example.com"               ; GITHOST
+          "example.com/api/v1"        ; APIHOST
+          "example.com"               ; WEBHOST and INSTANCE-ID
+          forge-gitea-repository)     ; CLASS
+        forge-alist)
+#+end_src
+
+Look at ~forge-alist~ entries of other hosts using the same forge type
+as the instance you are configuring, to see what format *might* be
+appropriate.  You should be able to easily determine and verify
+GITHOST and WEBHOST, but determining APIHOST is more difficult; you
+might have to ask a colleague.  APIHOST could be something like
+~example.com/api/vi~, but it could also be something like
+~api.example.com~.
+
+*** Add Support for Additional Forge Types
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+For each fully or partially supported forge type, Forge defines at
+least a class.  The following example is taken from ~forge-semi.el~:
+
+#+begin_src emacs-lisp
+(defclass forge-cgit-repository (forge-noapi-repository)
+  ((commit-url-format :initform "https://%h/%p.git/commit/?id=%r")
+   (branch-url-format :initform "https://%h/%p.git/log/?h=%r")
+   (remote-url-format :initform "https://%h/%p.git/about"))
+  "Cgit from https://git.zx2c4.com/cgit/about.
+Different hosts use different url schemata, so we need multiple
+classes.  See their definitions in \"forge-semi.el\".")
+#+end_src
+
+Once you add a host using that class to ~forge-alist~ and then a
+repository from that host to the local database, you will be able
+to use commands such as ~forge-browse-branch~ (but not much more).
+
+If you want to add a repository from another host, which happens to
+use another software or another URL schemata, then you might have to
+define an additional class first.  See ~forge-semi.el~ for simple
+examples and grep for ~defclass forge-.*-repository~ for more complex
+ones.
+
 * Initial Pull
 
 To start using Forge in a certain repository, visit the Magit status

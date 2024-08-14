@@ -82,6 +82,7 @@ Initial Setup
 * Setup for Another Github Instance::
 * Setup for Gitlab.com: Setup for Gitlabcom. 
 * Setup for Another Gitlab Instance::
+* Setup a Partially Supported Host::
 
 Supported Forges and Hosts
 
@@ -121,6 +122,7 @@ please also see @ref{How Forge Detection Works} and @ref{Getting Started,,,ghub,
 * Setup for Another Github Instance::
 * Setup for Gitlab.com: Setup for Gitlabcom. 
 * Setup for Another Gitlab Instance::
+* Setup a Partially Supported Host::
 @end menu
 
 @anchor{Common Setup}
@@ -535,6 +537,80 @@ TOKEN is the token you generated earlier.
 
 Finish by typing @code{M-x auth-source-forget-all-cached RET}.  If you don't
 do this, then Auth-Source may fail to look up the token.
+
+@node Setup a Partially Supported Host
+@section Setup a Partially Supported Host
+
+Forge currently only supports the Github and Gitlab APIs.
+
+It does however partially support a few additional forge types (see
+@ref{Partially Supported Forges}) and other lighter weight software used
+to host Git repositories, which also provide a web interfaces (see
+@ref{Supported Semi-Forges}).  Forge doesn't use the APIs of such forges,
+but registring the host and adding repositories to the local database
+at least enables the use of commands such as @code{forge-browse}.
+
+@anchor{Tell Forge about the Instance (2)}
+@subheading Tell Forge about the Instance
+
+A few hosts, which use partially supported forge types, are available
+out-of-the-box, because they have an entry in the default value of
+option @code{forge-alist} (also see its docstring).  For example, the entry
+for @uref{https://github.com} in that variable looks like this:
+
+@lisp
+("codeberg.org"                     ; GITHOST
+ "codeberg.org/api/v1"              ; APIHOST
+ "codeberg.org"                     ; WEBHOST and INSTANCE-ID
+ forge-gitea-repository)            ; CLASS
+@end lisp
+
+To be able to add repositories from a, so far, unknown forge instance
+to your local database, you have to add an entry for that instance to
+@code{forge-alist}.  For example, assuming you use another Gitea instance,
+hosted at @uref{https://example.com}, this might be correct:
+
+@lisp
+(push '("example.com"               ; GITHOST
+        "example.com/api/v1"        ; APIHOST
+        "example.com"               ; WEBHOST and INSTANCE-ID
+        forge-gitea-repository)     ; CLASS
+      forge-alist)
+@end lisp
+
+Look at @code{forge-alist} entries of other hosts using the same forge type
+as the instance you are configuring, to see what format @strong{might} be
+appropriate.  You should be able to easily determine and verify
+GITHOST and WEBHOST, but determining APIHOST is more difficult; you
+might have to ask a colleague.  APIHOST could be something like
+@code{example.com/api/vi}, but it could also be something like
+@code{api.example.com}.
+
+@anchor{Add Support for Additional Forge Types}
+@subheading Add Support for Additional Forge Types
+
+For each fully or partially supported forge type, Forge defines at
+least a class.  The following example is taken from @code{forge-semi.el}:
+
+@lisp
+(defclass forge-cgit-repository (forge-noapi-repository)
+  ((commit-url-format :initform "https://%h/%p.git/commit/?id=%r")
+   (branch-url-format :initform "https://%h/%p.git/log/?h=%r")
+   (remote-url-format :initform "https://%h/%p.git/about"))
+  "Cgit from https://git.zx2c4.com/cgit/about.
+Different hosts use different url schemata, so we need multiple
+classes.  See their definitions in \"forge-semi.el\".")
+@end lisp
+
+Once you add a host using that class to @code{forge-alist} and then a
+repository from that host to the local database, you will be able
+to use commands such as @code{forge-browse-branch} (but not much more).
+
+If you want to add a repository from another host, which happens to
+use another software or another URL schemata, then you might have to
+define an additional class first.  See @code{forge-semi.el} for simple
+examples and grep for @code{defclass forge-.*-repository} for more complex
+ones.
 
 @node Initial Pull
 @chapter Initial Pull
