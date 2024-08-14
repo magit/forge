@@ -1018,14 +1018,31 @@ upstream remote."
 (transient-define-prefix forge-add-repository (&optional repo limit)
   "Add a repository to the database."
   [:class transient-subgroups
-   [:if (lambda () (forge-get-repository (transient-scope) nil :tracked?))
-    (:info
+
+   ;; Already tracked.
+   [:if (lambda ()
+          (and-let* ((repo (transient-scope)))
+            (forge-get-repository repo nil :tracked?)))
+    (:info*
      (lambda ()
        (format
         (propertize "%s is already being tracked" 'face 'transient-heading)
         (propertize (forge-get-url (transient-scope)) 'face 'bold)))
      :format "%d")]
-   [:if-not (lambda () (forge-get-repository (transient-scope) nil :tracked?))
+
+   ;; Nothing to tracked.
+   [:if (lambda () (and (not (transient-scope)) (not (magit-toplevel))))
+    (:info*
+     (lambda ()
+       (format
+        (propertize "%s is not inside a Git repository" 'face 'transient-heading)
+        (propertize default-directory 'face 'bold)))
+     :format "%d")]
+
+   ;; Track it!
+   [:if (lambda ()
+          (and-let* ((repo (transient-scope)))
+            (not (forge-get-repository repo nil :tracked?))))
     :description
     (lambda ()
       (format
@@ -1045,6 +1062,8 @@ upstream remote."
      (lambda (repo)
        (interactive (list (transient-scope)))
        (forge-add-repository repo :selective)))]
+
+   ;; Pivot.
    [("o" "Add another repository" forge-add-some-repository)
     (7 "U" "Add all source repositories belonging to a user"
        forge-add-user-repositories)
