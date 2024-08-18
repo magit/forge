@@ -455,7 +455,7 @@ It does however partially support a few additional forge types (see
 [[*Partially Supported Forges]]) and other lighter weight software used
 to host Git repositories, which also provide a web interfaces (see
 [[*Supported Semi-Forges]]).  Forge doesn't use the APIs of such forges,
-but registring the host and adding repositories to the local database
+but registering the host and adding repositories to the local database
 at least enables the use of commands such as ~forge-browse~.
 
 *** Tell Forge about the Instance
