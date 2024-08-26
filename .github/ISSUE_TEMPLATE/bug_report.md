@@ -17,4 +17,10 @@ Please include a backtrace in your report.  In most cases doing:
 
 and then going through the steps again should result in a backtrace.
 
+Also post the output of:
+
+    M-x magit-version RET
+
+Before reporting a defect please try to reproduce it using an Emacs instance in which only Magit and its dependencies have been loaded. Other packages or your configuration should not be loaded. This makes it easier to determine whether the issue lays with Magit or something else.
+
 ---- now delete this line and everything above ----
