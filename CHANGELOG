@@ -1,4 +1,8 @@
 # -*- mode: org -*-
+* v0.4.2    UNRELEASED
+
+- Updated tooling.
+
 * v0.4.1    2024-08-14
 
 - ~forge-add-repository~ now guides the user to set ~forge.remote~ and provides
