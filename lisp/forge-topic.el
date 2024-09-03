@@ -372,7 +372,11 @@ Limit list based on topic (public) state.
 State is the \"public condition\".  I.e., is the topic still open?"
                 :initarg :state
                 :initform 'open
-                :type (member open (completed merged) (unplanned rejected) nil)
+                :type (satisfies (lambda (val)
+                                   (member val '(open
+                                                 (completed merged)
+                                                 (unplanned rejected)
+                                                 nil))))
                 :custom (choice
                          (const open)
                          (const (completed merged))
