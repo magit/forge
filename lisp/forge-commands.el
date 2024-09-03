@@ -445,10 +445,10 @@ With prefix argument MENU, also show the topic menu."
     (cond
      ((and (eq transient-current-command 'forge-repositories-menu)
            (forge-get-repository repo nil :tracked?))
-      (if-let ((buffer (forge-topics-buffer-name repo)))
-          (switch-to-buffer buffer)
-        (forge-list-topics repo))
-      (transient-setup 'forge-topics-menu))
+      (if-let ((buffer (get-buffer (forge-topics-buffer-name repo))))
+          (progn (switch-to-buffer buffer)
+                 (transient-setup 'forge-topics-menu))
+        (forge-list-topics repo)))
      (worktree
       (magit-status-setup-buffer worktree))
      ((forge-get-repository repo nil :tracked?)
