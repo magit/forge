@@ -169,7 +169,8 @@ repository cannot be determined, instead invoke `forge-add-repository'."
   (if (and (buffer-live-p buffer)
            (with-current-buffer buffer
              (and (derived-mode-p 'magit-mode)
-                  (forge-repository-equal (forge-get-repository :stub?) repo))))
+                  (forge-repository-equal (forge-get-repository :stub?) repo)
+                  (magit-toplevel))))
       (with-current-buffer buffer
         (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
     (when-let ((worktree (forge-get-worktree repo)))
