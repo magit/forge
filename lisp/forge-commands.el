@@ -166,13 +166,13 @@ repository cannot be determined, instead invoke `forge-add-repository'."
   (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
 
 (defun forge--maybe-git-fetch (repo &optional buffer)
-  (if (and (buffer-live-p buffer)
-           (with-current-buffer buffer
-             (and (derived-mode-p 'magit-mode)
-                  (forge-repository-equal (forge-get-repository :stub?) repo)
-                  (magit-toplevel))))
+  (if (buffer-live-p buffer)
       (with-current-buffer buffer
-        (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
+        (if (and (derived-mode-p 'magit-mode)
+                 (forge-repository-equal (forge-get-repository :stub?) repo)
+                 (magit-toplevel))
+            (magit-git-fetch (oref repo remote) (magit-fetch-arguments))
+          (magit-refresh-buffer)))
     (when-let ((worktree (forge-get-worktree repo)))
       (let ((default-directory worktree)
             (magit-inhibit-refresh t))
