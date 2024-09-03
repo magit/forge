@@ -137,13 +137,12 @@ repository cannot be determined, instead invoke `forge-add-repository'."
                  (if (forge-get-repository :tracked?)
                      "forge topics"
                    "new forge repository"))
-  :inapt-if-not #'forge--get-repository:tracked?
   (declare (interactive-only nil))
   (interactive)
   (if-let ((repo (forge-get-repository :tracked?)))
       (forge--pull repo)
     (transient-setup 'forge-add-repository nil nil
-                     :scope (forge-get-repository :stub?))))
+                     :scope (forge-add-repository--scope))))
 
 (defun forge-read-date (prompt)
   (require (quote org) nil)
