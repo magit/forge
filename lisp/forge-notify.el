@@ -284,10 +284,7 @@ signal an error."
           (let ((repo (forge-get-repository (car notifs))))
             (magit-insert-section (forge-repo repo)
               (magit-insert-heading
-                (concat (propertize (format "%s/%s"
-                                            (oref repo owner)
-                                            (oref repo name))
-                                    'font-lock-face 'bold)
+                (concat (propertize (oref repo slug) 'font-lock-face 'bold)
                         (format " (%s)" (length notifs))))
               (magit-insert-section-body
                 (dolist (notif notifs)
