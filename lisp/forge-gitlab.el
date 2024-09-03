@@ -538,9 +538,7 @@
      `(mutation (mergeRequestSetDraft
                  [(input $input MergeRequestSetDraftInput!)]
                  (mergeRequest iid draft)))
-     `((input (projectPath . ,(format "%s/%s"
-                                      (oref repo owner)
-                                      (oref repo name)))
+     `((input (projectPath . ,(oref repo slug))
               (iid . ,(number-to-string (oref topic number)))
               (draft . ,value)))
      :host (oref (forge-get-repository topic) apihost)
