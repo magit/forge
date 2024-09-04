@@ -1,4 +1,15 @@
 # -*- mode: org -*-
+* v0.4.3    2024-09-04
+
+- Fixed tracking a new repository using ~forge-pull~.  a839eaeaa
+
+- Fixed type of ~forge--topics-spec~'s ~state~ slot.  5ee14bfbd
+
+- Fixed several issues with ~forge--topics-list-command~.  1b4eaaedb, e94f6a37d
+
+- When pulling API data outside a Git repository, do not try pull Git data,
+  and make sure the buffer is refreshed regardless.  #695
+
 * v0.4.2    2024-09-01
 
 - Updated tooling.
