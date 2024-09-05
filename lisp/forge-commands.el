@@ -76,9 +76,11 @@ Takes the pull-request as only argument and must return a directory."
                      "Forge does not yet track this repository")
                     ("Not inside a Git repository")))
     ("/a" forge-add-repository
-     :description (lambda () (if (forge--get-repository:tracked?)
+     :description (lambda () (let ((repo (forge-get-repository :stub?)))
+                          (if (or (not repo)
+                                  (eq (oref repo condition) :tracked))
                             "track some repo"
-                          "track this repository")))
+                          "track this repository"))))
     ("/M" "merge with api" forge-merge
      :if forge--get-repository:tracked? :level 7)]]
   [forge--lists-group
