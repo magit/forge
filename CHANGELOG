@@ -29,6 +29,8 @@
 
 - Fixed visiting commit in a browser.  8f9e94949
 
+- Added new variable ~forge-bug-reference-remote-files~.  #703
+
 * v0.4.4    2024-10-01
 
 Thoughts and whitespace.
