@@ -1720,6 +1720,9 @@ enable `bug-reference-mode' or `bug-reference-prog-mode' and
 modify `bug-reference-bug-regexp' if appropriate."
   (unless (or bug-reference-url-format
               (not (forge-db t))
+              (and (not auto-revert-remote-files) ; see magit's #5422
+                   buffer-file-name
+                   (file-remote-p buffer-file-name))
               ;; TODO Allow use in these modes again.
               (derived-mode-p 'forge-topics-mode 'forge-notifications-mode))
     (magit--with-safe-default-directory nil
