@@ -123,7 +123,7 @@ Must be set before `forge-list' is loaded.")
 ;;; Commands
 ;;;; Menu
 
-;;;###autoload (autoload 'forge-repositories-menu "forge-repos" nil t)
+;;;###autoload(autoload 'forge-repositories-menu "forge-repos" nil t)
 (transient-define-prefix forge-repositories-menu ()
   "Control list of repositories displayed in the current buffer."
   :transient-suffix t
@@ -161,7 +161,7 @@ Must be set before `forge-list' is loaded.")
    (filter     :initarg :filter :initform nil)
    (global     :initarg :global :initform nil)))
 
-;;;###autoload (autoload 'forge-list-repositories "forge-repos" nil t)
+;;;###autoload(autoload 'forge-list-repositories "forge-repos" nil t)
 (transient-define-suffix forge-list-repositories ()
   "List known repositories in a separate buffer.
 Here \"known\" means that an entry exists in the local database."
@@ -173,7 +173,7 @@ Here \"known\" means that an entry exists in the local database."
   (forge-repository-list-setup nil #'forge--ls-repos)
   (transient-setup 'forge-repositories-menu))
 
-;;;###autoload (autoload 'forge-list-owned-repositories "forge-repos" nil t)
+;;;###autoload(autoload 'forge-list-owned-repositories "forge-repos" nil t)
 (transient-define-suffix forge-list-owned-repositories ()
   "List your own known repositories in a separate buffer.
 Here \"known\" means that an entry exists in the local database

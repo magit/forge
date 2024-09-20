@@ -1305,7 +1305,7 @@ This mode itself is never used directly."
 
 ;;;; Menus
 
-;;;###autoload (autoload 'forge-topic-menu "forge-topic" nil t)
+;;;###autoload(autoload 'forge-topic-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-menu ()
   "Edit the topic at point."
   :transient-suffix t
@@ -1345,12 +1345,12 @@ This mode itself is never used directly."
                         'transient-inapt-suffix
                       'forge-suffix-active)))
 
-;;;###autoload (autoload 'forge-topic-state-menu "forge-topic" nil t)
+;;;###autoload(autoload 'forge-topic-state-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-state-menu ()
   "Set state of the current topic."
   [forge--topic-set-state-group])
 
-;;;###autoload (autoload 'forge-topic-status-menu "forge-topic" nil t)
+;;;###autoload(autoload 'forge-topic-status-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-status-menu ()
   "Set status of the current topic."
   [forge--topic-set-status-group])

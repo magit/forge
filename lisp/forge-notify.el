@@ -179,7 +179,7 @@ signal an error."
   :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-notifications-menu))
   :inapt-face 'forge-suffix-active)
 
-;;;###autoload (autoload 'forge-list-notifications "forge-notify" nil t)
+;;;###autoload(autoload 'forge-list-notifications "forge-notify" nil t)
 (transient-define-suffix forge-list-notifications ()
   "List notifications."
   :inapt-if-mode 'forge-notifications-mode

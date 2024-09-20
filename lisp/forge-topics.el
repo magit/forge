@@ -178,7 +178,7 @@ Must be set before `forge-topics' is loaded.")
 ;;; Commands
 ;;;; Menu
 
-;;;###autoload (autoload 'forge-topics-menu "forge-topics" nil t)
+;;;###autoload(autoload 'forge-topics-menu "forge-topics" nil t)
 (transient-define-prefix forge-topics-menu ()
   "Control list of topics displayed in the current buffer."
   :transient-suffix t
@@ -269,7 +269,7 @@ then display the respective menu, otherwise display no menu."
 
 ;;;; List
 
-;;;###autoload (autoload 'forge-list-topics "forge-topics" nil t)
+;;;###autoload(autoload 'forge-list-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-topics (&optional repo)
   "List topics of the current repository."
   :description "topics"
@@ -284,7 +284,7 @@ then display the respective menu, otherwise display no menu."
   (forge-topics-setup-buffer repo)
   (transient-setup 'forge-topics-menu))
 
-;;;###autoload (autoload 'forge-list-issues "forge-topics" nil t)
+;;;###autoload(autoload 'forge-list-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-issues (&optional repo)
   "List issues of the current repository."
   :description "issues"
@@ -293,7 +293,7 @@ then display the respective menu, otherwise display no menu."
   (forge-topics-setup-buffer repo nil :type 'issue)
   (transient-setup 'forge-topics-menu))
 
-;;;###autoload (autoload 'forge-list-pullreqs "forge-topics" nil t)
+;;;###autoload(autoload 'forge-list-pullreqs "forge-topics" nil t)
 (transient-define-suffix forge-list-pullreqs (&optional repo)
   "List pull-requests of the current repository."
   :description "pull-requests"
@@ -302,7 +302,7 @@ then display the respective menu, otherwise display no menu."
   (forge-topics-setup-buffer repo nil :type 'pullreq)
   (transient-setup 'forge-topics-menu))
 
-;;;###autoload (autoload 'forge-list-global-topics "forge-topics" nil t)
+;;;###autoload(autoload 'forge-list-global-topics "forge-topics" nil t)
 (transient-define-suffix forge-list-global-topics (&optional repo)
   "List topics across all tracked repository."
   :description "topics"
@@ -314,7 +314,7 @@ then display the respective menu, otherwise display no menu."
   (forge-topics-setup-buffer repo nil :global t)
   (transient-setup 'forge-topics-menu))
 
-;;;###autoload (autoload 'forge-list-global-issues "forge-topics" nil t)
+;;;###autoload(autoload 'forge-list-global-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-global-issues (&optional repo)
   "List issues across all tracked repository."
   :description "issues"
@@ -323,7 +323,7 @@ then display the respective menu, otherwise display no menu."
   (forge-topics-setup-buffer repo nil :global t :type 'issue)
   (transient-setup 'forge-topics-menu))
 
-;;;###autoload (autoload 'forge-list-global-pullreqs "forge-topics" nil t)
+;;;###autoload(autoload 'forge-list-global-pullreqs "forge-topics" nil t)
 (transient-define-suffix forge-list-global-pullreqs (&optional repo)
   "List pull-requests across all tracked repository."
   :description "pull-requests"
