@@ -1754,7 +1754,7 @@ expose those.
 @appendixsec Partially Supported Forges
 
 @anchor{Gitea https//giteaio}
-@appendixsubsec Gitea https://gitea.io
+@appendixsubsec Gitea @uref{https://gitea.io}
 
 This is the next forge whose API will be supported.
 
@@ -1767,7 +1767,7 @@ This is the next forge whose API will be supported.
 @end itemize
 
 @anchor{Gogs https//gogsio}
-@appendixsubsec Gogs https://gogs.io
+@appendixsubsec Gogs @uref{https://gogs.io}
 
 Once Gitea is supported it should be fairly simple to support Gogs
 too, because the former is a fork of the latter and the APIs seem to
@@ -1782,7 +1782,7 @@ still be very similar.
 @end itemize
 
 @anchor{Bitbucket https//bitbucketorg}
-@appendixsubsec Bitbucket https://bitbucket.org
+@appendixsubsec Bitbucket @uref{https://bitbucket.org}
 
 I don't plan to support Bitbucket's API any time soon, and it gets
 less likely that I will every do it every time I look at it.
@@ -1823,7 +1823,7 @@ progress since: @uref{https://bitbucket.org/site/master/issues/5814}.
 @appendixsec Supported Semi-Forges
 
 @anchor{Gitweb https//git-scmcom/docs/gitweb}
-@appendixsubsec Gitweb https://git-scm.com/docs/gitweb
+@appendixsubsec Gitweb @uref{https://git-scm.com/docs/gitweb}
 
 @anchor{Gitweb Caveats}
 @appendixsubsubsec Gitweb Caveats
@@ -1837,7 +1837,7 @@ just on this site).
 @end itemize
 
 @anchor{Cgit https//gitzx2c4com/cgit/about}
-@appendixsubsec Cgit https://git.zx2c4.com/cgit/about
+@appendixsubsec Cgit @uref{https://git.zx2c4.com/cgit/about}
 
 @anchor{Cgit Caveats}
 @appendixsubsubsec Cgit Caveats
@@ -1864,7 +1864,7 @@ one for a particular installation.
 @end itemize
 
 @anchor{Stgit https//codemadnessorg/git/stagit/file/READMEhtml}
-@appendixsubsec Stgit https://codemadness.org/git/stagit/file/README.html
+@appendixsubsec Stgit @uref{https://codemadness.org/git/stagit/file/README.html}
 
 @anchor{Stgit Caveats}
 @appendixsubsubsec Stgit Caveats
@@ -1886,7 +1886,7 @@ log is just one click away from there).
 @end itemize
 
 @anchor{Srht https//metasrht}
-@appendixsubsec Srht https://meta.sr.ht
+@appendixsubsec Srht @uref{https://meta.sr.ht}
 
 @anchor{Srht Caveats}
 @appendixsubsubsec Srht Caveats
