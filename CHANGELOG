@@ -1,4 +1,8 @@
 # -*- mode: org -*-
+* v0.4.4    2024-10-01
+
+Thoughts and whitespace.
+
 * v0.4.3    2024-09-04
 
 - Fixed tracking a new repository using ~forge-pull~.  a839eaeaa
