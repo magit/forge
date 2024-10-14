@@ -367,10 +367,10 @@ git config --local gitlab.user USERNAME
 @anchor{Create and Store an Access Token (2)}
 @subheading Create and Store an Access Token
 
-Visit @uref{https://gitlab.com/-/profile/personal_access_tokens} in a browser
-to generate a new token using the @code{api}, @code{read_api} and @code{read_user} scopes.
-Do not close the browser window just yet, because the token will
-only be shown once.
+Visit @uref{https://gitlab.com/-/user_settings/personal_access_tokens} in a
+browser to generate a new token using the @code{api}, @code{read_api} and @code{read_user}
+scopes.  Do not close the browser window just yet, because the token
+will only be shown once.
 
 The built-in Auth-Source (@ref{Top,,,auth,}) package is used to store the
 token generated in the previous step.  The @code{auth-sources} variable

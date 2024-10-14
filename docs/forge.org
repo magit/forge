@@ -281,10 +281,10 @@ then you have to set that variable locally:
 :UNNUMBERED: notoc
 :END:
 
-Visit https://gitlab.com/-/profile/personal_access_tokens in a browser
-to generate a new token using the ~api~, ~read_api~ and ~read_user~ scopes.
-Do not close the browser window just yet, because the token will
-only be shown once.
+Visit https://gitlab.com/-/user_settings/personal_access_tokens in a
+browser to generate a new token using the ~api~, ~read_api~ and ~read_user~
+scopes.  Do not close the browser window just yet, because the token
+will only be shown once.
 
 The built-in Auth-Source ([[info:auth]]) package is used to store the
 token generated in the previous step.  The ~auth-sources~ variable
