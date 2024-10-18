@@ -57,6 +57,7 @@ Takes the pull-request as only argument and must return a directory."
   "Dispatch a forge command."
   :transient-non-suffix #'transient--do-call
   :refresh-suffixes t
+  :environment #'forge--menu-environment
   :column-widths forge--topic-menus-column-widths
   [forge--topic-menus-group
    ["Fetch"
@@ -116,6 +117,7 @@ Takes the pull-request as only argument and must return a directory."
   "Configure current repository and global settings."
   :transient-non-suffix #'transient--do-call
   :refresh-suffixes t
+  :environment #'forge--menu-environment
   :column-widths forge--topic-menus-column-widths
   [forge--topic-menus-group
    ["Configure"

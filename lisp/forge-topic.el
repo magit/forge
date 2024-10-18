@@ -1312,6 +1312,7 @@ This mode itself is never used directly."
   :transient-non-suffix #'transient--do-call
   :transient-switch-frame nil
   :refresh-suffixes t
+  :environment #'forge--menu-environment
   :column-widths forge--topic-menus-column-widths
   [:hide always ("q" forge-menu-quit-list)]
   [forge--topic-menus-group
@@ -1348,12 +1349,18 @@ This mode itself is never used directly."
 ;;;###autoload(autoload 'forge-topic-state-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-state-menu ()
   "Set state of the current topic."
+  :environment #'forge--menu-environment
   [forge--topic-set-state-group])
 
 ;;;###autoload(autoload 'forge-topic-status-menu "forge-topic" nil t)
 (transient-define-prefix forge-topic-status-menu ()
   "Set status of the current topic."
+  :environment #'forge--menu-environment
   [forge--topic-set-status-group])
+
+(defun forge--menu-environment (fn)
+  (let ((magit--refresh-cache (list (cons 0 0))))
+    (funcall fn)))
 
 ;;;; State
 

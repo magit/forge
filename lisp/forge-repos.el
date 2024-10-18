@@ -130,6 +130,7 @@ Must be set before `forge-list' is loaded.")
   :transient-non-suffix #'transient--do-call
   :transient-switch-frame nil
   :refresh-suffixes t
+  :environment #'forge--menu-environment
   :column-widths forge--topic-menus-column-widths
   [:hide always ("q" forge-menu-quit-list)]
   [forge--topic-menus-group
