@@ -1091,6 +1091,7 @@ This mode itself is never used directly."
   (setq-local markdown-translate-filename-function
               #'forge--markdown-translate-filename-function))
 
+(defvar-keymap forge-issue-mode-map :parent forge-topic-mode-map)
 (define-derived-mode forge-issue-mode forge-topic-mode "Issue"
   "Major mode for looking at a Forge issue."
   :interactive nil)
@@ -1104,6 +1105,7 @@ This mode itself is never used directly."
     forge-insert-topic-marks
     forge-insert-topic-assignees))
 
+(defvar-keymap forge-pullreq-mode-map :parent forge-topic-mode-map)
 (define-derived-mode forge-pullreq-mode forge-topic-mode "Pull-request"
   "Major mode for looking at a Forge pull-request."
   :interactive nil)
