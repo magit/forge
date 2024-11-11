@@ -136,7 +136,8 @@ Must be set before `forge-topics' is loaded.")
     (unless (or repo global)
       (error "Cannot determine repository"))
     (magit-setup-buffer-internal #'forge-topics-mode nil
-                                 `((forge-buffer-repository     ,(oref repo id))
+                                 `((forge-buffer-repository
+                                    ,(and repo (oref repo id)))
                                    (forge--buffer-topics-spec   ,spec)
                                    (forge-buffer-unassociated-p ,global))
                                  (get-buffer-create buf)
