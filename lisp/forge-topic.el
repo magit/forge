@@ -140,28 +140,28 @@ were closed without being merged."
        :box ( :line-width ,(if (>= emacs-major-version 28) (cons -1 -1) -1)
               :style nil)))
   "Face used for summaries of entities with unread notifications.
-This face is always used together with, and takes preference
-over, a `forge[-fancy]-{issue,pullreq}-STATE' face and should not
-specify any attribute that is specified by any of those faces.
-Likewise those faces should not set `:weight' or `:slant'."
+This face is always used together with, and takes preference over,
+a `forge-{issue,pullreq}-STATE' face and should not specify any
+attribute that is specified by any of those faces.  Likewise those
+faces should not set `:weight' or `:slant'."
   :group 'forge-faces)
 
 (defface forge-topic-pending
   '((t :weight bold))
   "Face used for summaries of entities with open notifications.
-This face is always used together with, and takes preference
-over, a `forge[-fancy]-{issue,pullreq}-STATE' face and should not
-specify any attribute that is specified by any of those faces.
-Likewise those faces should not set `:weight' or `:slant'."
+This face is always used together with, and takes preference over,
+a `forge-{issue,pullreq}-STATE' face and should not specify any
+attribute that is specified by any of those faces.  Likewise those
+faces should not set `:weight' or `:slant'."
   :group 'forge-faces)
 
 (defface forge-topic-done
   '((t :slant italic))
   "Face used for summaries of entities with no unread or open notification.
-This face is always used together with, and takes preference
-over, a `forge[-fancy]-{issue,pullreq}-STATE' face and should not
-specify any attribute that is specified by any of those faces.
-Likewise those faces should not set `:weight' or `:slant'."
+This face is always used together with, and takes preference over,
+a `forge-{issue,pullreq}-STATE' face and should not specify any
+attribute that is specified by any of those faces.  Likewise those
+faces should not set `:weight' or `:slant'."
   :group 'forge-faces)
 
 ;;;;; Issues
