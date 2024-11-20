@@ -1,4 +1,19 @@
 # -*- mode: org -*-
+* v0.4.5    UNRELEASED
+
+- Started cashing calls to ~git~ during transient menu refreshes, similar
+  to how such calls are cached when refreshing a Magit buffer.  #712
+
+- Fixed parent keymap of ~forge-issues-mode-map~ and ~forge-pullreqs-mode-map~.
+  9ac2afbbb
+
+- Fixed a regression in ~forge-topics-setup-buffer~.  #725
+
+- By default only draft pull-requests are shown in italic now.  The new
+  ~forge-pullreq-draft~ face can be used to control how such pull-requests
+  are shown.  Previously all topics that are marked as done were shown
+  in italic.  #726
+
 * v0.4.4    2024-10-01
 
 Thoughts and whitespace.
