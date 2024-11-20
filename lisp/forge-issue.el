@@ -121,7 +121,7 @@
               'forge-issue))
 
 (cl-defmethod forge-get-issue ((number integer))
-  (and-let* ((repo (forge-get-repository :tracked)))
+  (and-let* ((repo (forge-get-repository :tracked nil 'notatpt)))
     (forge-get-issue repo number)))
 
 (cl-defmethod forge-get-issue ((id string))

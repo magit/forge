@@ -143,7 +143,7 @@
               'forge-pullreq))
 
 (cl-defmethod forge-get-pullreq ((number integer))
-  (and-let* ((repo (forge-get-repository :tracked)))
+  (and-let* ((repo (forge-get-repository :tracked nil 'notatpt)))
     (forge-get-pullreq repo number)))
 
 (cl-defmethod forge-get-pullreq ((id string))
