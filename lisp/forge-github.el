@@ -553,14 +553,13 @@
    nil :auth 'forge :host host))
 
 (defun forge--batch-add-callback (host owner names)
-  (let ((repos (cl-mapcan
-                (lambda (name)
-                  (let ((repo (forge-get-repository
-                               (list host owner name)
-                               nil :insert!)))
-                    (and (not (forge-get-repository repo nil :tracked?))
-                         (list repo))))
-                names))
+  (let ((repos (mapcan (lambda (name)
+                         (let ((repo (forge-get-repository
+                                      (list host owner name)
+                                      nil :insert!)))
+                           (and (not (forge-get-repository repo nil :tracked?))
+                                (list repo))))
+                       names))
         (cb nil))
     (setq cb (lambda ()
                (when-let ((repo (pop repos)))
