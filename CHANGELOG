@@ -14,6 +14,8 @@
   are shown.  Previously all topics that are marked as done were shown
   in italic.  #726
 
+- Fixed visiting commit in a browser.
+
 * v0.4.4    2024-10-01
 
 Thoughts and whitespace.

@@ -362,7 +362,7 @@ argument also offer closed pull-requests."
     (unless (magit-list-containing-branches
              commit "-r" (concat (oref repo remote) "/*"))
       (if-let* ((branch (car (magit-list-containing-branches commit "-r")))
-                (remote (cdr (magit-split-branch-name branch))))
+                (remote (car (magit-split-branch-name branch))))
           (setq repo (forge-get-repository :stub remote))
         (message "%s does not appear to be available on any remote.  %s"
                  commit "You might have to push it first.")))
