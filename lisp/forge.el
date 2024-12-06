@@ -11,15 +11,15 @@
 ;; Package-Requires: (
 ;;     (emacs "27.1")
 ;;     (compat "30.0.0.0")
-;;     (closql "2.0.0")
+;;     (closql "2.1.0")
 ;;     (dash "2.19.1")
-;;     (emacsql "4.0.3")
+;;     (emacsql "4.1.0")
 ;;     (ghub "4.1.1")
 ;;     (let-alist "1.0.6")
-;;     (magit "4.1.1")
+;;     (magit "4.1.3")
 ;;     (markdown-mode "2.6")
 ;;     (seq "2.24")
-;;     (transient "0.7.6")
+;;     (transient "0.8.0")
 ;;     (yaml "0.5.5"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
