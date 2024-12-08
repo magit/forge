@@ -9,12 +9,12 @@
 
 ;; Package-Version: 0.4.4
 ;; Package-Requires: (
-;;     (emacs "27.1")
+;;     (emacs "29.1")
 ;;     (compat "30.0.0.0")
 ;;     (closql "2.1.0")
 ;;     (dash "2.19.1")
 ;;     (emacsql "4.1.0")
-;;     (ghub "4.1.1")
+;;     (ghub "4.2.0")
 ;;     (let-alist "1.0.6")
 ;;     (magit "4.1.3")
 ;;     (markdown-mode "2.6")

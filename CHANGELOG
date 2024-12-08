@@ -1,6 +1,8 @@
 # -*- mode: org -*-
 * v0.4.5    UNRELEASED
 
+- At least Emacs 29.1 is required now.
+
 - Started cashing calls to ~git~ during transient menu refreshes, similar
   to how such calls are cached when refreshing a Magit buffer.  #712
 
