@@ -14,7 +14,9 @@
   are shown.  Previously all topics that are marked as done were shown
   in italic.  #726
 
-- Fixed visiting commit in a browser.
+- Fixed infinite recursion in ~forge-get-issue~ and ~forge-get-pullreq~.  #704
+
+- Fixed visiting commit in a browser.  8f9e94949
 
 * v0.4.4    2024-10-01
 
