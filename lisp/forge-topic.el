@@ -1713,6 +1713,10 @@ alist, containing just `text' and `position'.")
 
 ;;; Bug-Reference
 
+(defvar forge-bug-reference-remote-files t
+  "Whether forge may enable `bug-reference-mode' in remote files.
+See also `forge-bug-reference-setup'.")
+
 (defun forge-bug-reference-setup ()
   "Setup `bug-reference' in the current buffer.
 If forge data has been fetched for the current repository, then
@@ -1720,6 +1724,9 @@ enable `bug-reference-mode' or `bug-reference-prog-mode' and
 modify `bug-reference-bug-regexp' if appropriate."
   (unless (or bug-reference-url-format
               (not (forge-db t))
+              (and buffer-file-name
+                   (not forge-bug-reference-remote-files)
+                   (file-remote-p buffer-file-name))
               ;; TODO Allow use in these modes again.
               (derived-mode-p 'forge-topics-mode 'forge-notifications-mode))
     (magit--with-safe-default-directory nil
