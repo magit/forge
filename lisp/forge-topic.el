@@ -715,14 +715,14 @@ can be selected from the start."
      "Labels: "
      (forge--format-labels (and obj (forge-get-repository obj)))
      nil t
-     (and (forge-topic-p obj)
+     (and (cl-typep obj 'forge-topic)
           (forge--format-labels obj crm-separator)))))
 
 (defun forge-read-topic-marks (&optional obj)
   (let ((crm-separator ","))
     (magit-completing-read-multiple
      "Marks: " (forge--format-marks) nil t
-     (and (forge-topic-p obj)
+     (and (cl-typep obj 'forge-topic)
           (forge--format-marks obj crm-separator)))))
 
 (defun forge-read-topic-assignees (&optional topic)
