@@ -319,15 +319,14 @@ an error."
 
 (put 'forge-topic 'thing-at-point #'forge-thingatpt--topic)
 (defun forge-thingatpt--topic ()
-  (and-let* ((repo (forge--repo-for-thingatpt)))
-    (and (thing-at-point-looking-at
-          (if (forge-gitlab-repository--eieio-childp repo)
-              "\\(?2:[#!]\\)\\(?1:[0-9]+\\)\\_>"
-            "#\\([0-9]+\\)\\_>"))
-         (funcall (if (equal (match-string 2) "!")
-                      #'forge-get-pullreq
-                    #'forge-get-topic)
-                  repo (string-to-number (match-string-no-properties 1))))))
+  (and-let* (((thing-at-point-looking-at "\\([#!]\\)\\([0-9]+\\)\\_>"))
+             (prefix (match-string-no-properties 1))
+             (number (string-to-number (match-string-no-properties 2)))
+             (repo (forge--repo-for-thingatpt)))
+    (cond ((equal prefix "#")
+           (forge-get-topic repo number))
+          ((forge-gitlab-repository--eieio-childp repo)
+           (forge-get-pullreq repo number)))))
 
 (defun forge-region-topics ()
   (magit-region-values '(issue pullreq)))
