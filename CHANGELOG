@@ -1,4 +1,13 @@
 # -*- mode: org -*-
+* v0.4.6    UNRELEASED
+
+- ~forge-read-topic-labels~ and ~forge-read-topic-marks~ failed to use the
+  existing labels/marks as initial input.  #731
+
+- The repository at point is now recognized in ~magit-repolist-mode~ buffers.
+
+- ~forge-dispatch~ is now bound in ~magit-repolist-mode-map~.
+
 * v0.4.5    2024-12-08
 
 - At least Emacs 29.1 is required now.
