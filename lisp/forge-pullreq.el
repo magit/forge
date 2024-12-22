@@ -185,12 +185,13 @@ an error."
 
 (put 'forge-pullreq 'thing-at-point #'forge-thingatpt--pullreq)
 (defun forge-thingatpt--pullreq ()
-  (and-let* ((repo (forge--repo-for-thingatpt)))
-    (and (thing-at-point-looking-at
-          (if (forge-gitlab-repository--eieio-childp repo)
-              "[#!]\\([0-9]+\\)\\_>"
-            "#\\([0-9]+\\)\\_>"))
-         (forge-get-pullreq repo (string-to-number (match-string 1))))))
+  (and-let* (((thing-at-point-looking-at "\\([#!]\\)\\([0-9]+\\)\\_>"))
+             (prefix (match-string-no-properties 1))
+             (number (string-to-number (match-string-no-properties 2)))
+             (repo (forge--repo-for-thingatpt))
+             ((or (equal prefix "#")
+                  (forge-gitlab-repository--eieio-childp repo))))
+    (forge-get-pullreq repo number)))
 
 ;;; Read
 
