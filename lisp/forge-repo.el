@@ -305,7 +305,7 @@ an error."
              (forge-get-repository :id id)))
       (and (derived-mode-p 'magit-repolist-mode)
            (and-let* ((dir (tabulated-list-get-id)))
-             (forge-get-repository :dir (expand-file-name dir))))
+             (forge-get-repository :dir dir)))
       (and demand (user-error "No repository at point"))))
 
 (defun forge--repo-for-thingatpt ()
