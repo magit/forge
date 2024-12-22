@@ -108,6 +108,11 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
                 #'forge-copy-url-at-point-as-kill)))
 
 ;;;###autoload
+(with-eval-after-load 'magit-repos
+  (when forge-add-default-bindings
+    (keymap-set magit-repolist-mode-map "N" #'forge-dispatch)))
+
+;;;###autoload
 (with-eval-after-load 'git-commit
   (when forge-add-default-bindings
     (keymap-set git-commit-mode-map "C-c C-v" #'forge-visit-topic)))
