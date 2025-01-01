@@ -1,25 +1,25 @@
 ;;; forge.el --- Access Git forges from Magit  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2018-2024 Jonas Bernoulli
+;; Copyright (C) 2018-2025 Jonas Bernoulli
 
 ;; Author: Jonas Bernoulli <emacs.forge@jonas.bernoulli.dev>
 ;; Maintainer: Jonas Bernoulli <emacs.forge@jonas.bernoulli.dev>
 ;; Homepage: https://github.com/magit/forge
 ;; Keywords: git tools vc
 
-;; Package-Version: 0.4.5
+;; Package-Version: 0.4.6
 ;; Package-Requires: (
 ;;     (emacs "29.1")
-;;     (compat "30.0.0.0")
+;;     (compat "30.0.1.0")
 ;;     (closql "2.1.0")
 ;;     (dash "2.19.1")
 ;;     (emacsql "4.1.0")
 ;;     (ghub "4.2.0")
 ;;     (let-alist "1.0.6")
-;;     (magit "4.1.3")
+;;     (magit "4.2.0")
 ;;     (markdown-mode "2.6")
 ;;     (seq "2.24")
-;;     (transient "0.8.0")
+;;     (transient "0.8.2")
 ;;     (yaml "0.5.5"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later

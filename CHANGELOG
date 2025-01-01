@@ -1,12 +1,13 @@
 # -*- mode: org -*-
-* v0.4.6    UNRELEASED
+* v0.4.6    2025-01-01
 
 - ~forge-read-topic-labels~ and ~forge-read-topic-marks~ failed to use the
   existing labels/marks as initial input.  #731
 
 - The repository at point is now recognized in ~magit-repolist-mode~ buffers.
+  bb4d2038f
 
-- ~forge-dispatch~ is now bound in ~magit-repolist-mode-map~.
+- ~forge-dispatch~ is now bound in ~magit-repolist-mode-map~.  8bace81bc
 
 * v0.4.5    2024-12-08
 
