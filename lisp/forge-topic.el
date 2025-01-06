@@ -59,6 +59,19 @@ The following %-sequences are supported:
   :group 'forge
   :type 'boolean)
 
+(defcustom forge-topic-wash-title-hook
+  (list #'magit-highlight-bracket-keywords)
+  "Functions used to highlight parts of each individual topic title.
+
+These functions are called in order, in a buffer that containing the
+topic title.  They should set text properties as they see fit, usually
+just `font-lock-face'.  Before each function is called, point is at the
+beginning of the buffer."
+  :package-version '(forge . "0.4.7")
+  :group 'forge
+  :type 'hook
+  :options (list #'magit-highlight-bracket-keywords))
+
 (defcustom forge-topic-repository-slug-width 28
   "Width of repository slugs (i.e., \"OWNER/NAME\")."
   :package-version '(forge . "0.4.0")
@@ -828,25 +841,29 @@ can be selected from the start."
     (magit--propertize-face "no" 'magit-dimmed)))
 
 (defun forge--format-topic-title (topic)
-  (with-slots (title status state) topic
-    (magit-log-propertize-keywords
-     nil
-     (magit--propertize-face
-      title
-      `(,@(and (forge-pullreq-p topic)
-               (oref topic draft-p)
-               '(forge-pullreq-draft))
-        ,(pcase status
-           ('unread  'forge-topic-unread)
-           ('pending 'forge-topic-pending)
-           ('done    'forge-topic-done))
-        ,(pcase (list (eieio-object-class topic) state)
-           (`(forge-issue   open)      'forge-issue-open)
-           (`(forge-issue   completed) 'forge-issue-completed)
-           (`(forge-issue   unplanned) 'forge-issue-unplanned)
-           (`(forge-pullreq open)      'forge-pullreq-open)
-           (`(forge-pullreq merged)    'forge-pullreq-merged)
-           (`(forge-pullreq rejected)  'forge-pullreq-rejected)))))))
+  (with-temp-buffer
+    (save-excursion
+      (with-slots (title status state) topic
+        (insert
+         (magit--propertize-face
+          title
+          `(,@(and (forge-pullreq-p topic)
+                   (oref topic draft-p)
+                   '(forge-pullreq-draft))
+            ,(pcase status
+               ('unread  'forge-topic-unread)
+               ('pending 'forge-topic-pending)
+               ('done    'forge-topic-done))
+            ,(pcase (list (eieio-object-class topic) state)
+               (`(forge-issue   open)      'forge-issue-open)
+               (`(forge-issue   completed) 'forge-issue-completed)
+               (`(forge-issue   unplanned) 'forge-issue-unplanned)
+               (`(forge-pullreq open)      'forge-pullreq-open)
+               (`(forge-pullreq merged)    'forge-pullreq-merged)
+               (`(forge-pullreq rejected)  'forge-pullreq-rejected)))))))
+    (run-hook-wrapped 'forge-topic-wash-title-hook
+                      (lambda (fn) (prog1 nil (save-excursion (funcall fn)))))
+    (buffer-string)))
 
 (defun forge--format-topic-milestone (topic)
   (and-let* ((id (oref topic milestone))

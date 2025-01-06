@@ -1453,6 +1453,15 @@ under heavy development.
 This option specifies the file used to store the forge database.
 @end defopt
 
+@defopt forge-topic-wash-title-hook
+Functions used to highlight parts of each individual topic title.
+
+These functions are called in order, in a buffer that containing the
+topic title.  They should set text properties as they see fit, usually
+just @code{font-lock-face}.  Before each function is called, point is at the
+beginning of the buffer.
+@end defopt
+
 @defopt forge-topic-repository-slug-width
 This option specifies the width of repository slugs (i.e.,
 "OWNER/NAME").
