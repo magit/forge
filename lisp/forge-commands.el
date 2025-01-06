@@ -918,9 +918,8 @@ as merged."
 
 ;;;###autoload
 (defun forge-rename-default-branch ()
-  "Rename the default branch to NEWNAME.
-Change the name on the upstream remotely and locally, and update the
-upstream remotes of local branches accordingly."
+  "Rename the default branch on the upstream remote and locally.
+Also update the upstream branches of local branches accordingly."
   (interactive)
   (let* ((repo (forge-get-repository :tracked))
          (_ (unless (forge-github-repository-p repo)
