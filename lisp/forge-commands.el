@@ -917,10 +917,40 @@ as merged."
   (forge-pull))
 
 ;;;###autoload
+(defun forge-set-default-branch ()
+  "Change the default branch on the upstream remote and locally.
+Also update the upstream branches of local branches accordingly."
+  (interactive)
+  (pcase-let* ((`(,repo ,old) (forge--set-default-branch-read-args))
+               (new (magit-read-remote-branch
+                     (format "Set default branch (was: %s)" old)
+                     (delete old (forge--get-remote))
+                     nil nil t)))
+    (message "Changing default branch...")
+    (forge--set-default-branch repo new)
+    (magit--set-default-branch new old)
+    (forge-refresh-buffer)
+    (message "Changing default branch...done")))
+
+;;;###autoload
 (defun forge-rename-default-branch ()
   "Rename the default branch on the upstream remote and locally.
 Also update the upstream branches of local branches accordingly."
   (interactive)
+  (pcase-let* ((`(,repo ,old) (forge--set-default-branch-read-args))
+               (default (and (not (equal old "main")) "main"))
+               (new (read-string
+                     (format "Rename default branch `%s' to%s: " old
+                             (if default (format " (default: %s)" default) ""))
+                     nil nil default)))
+    (message "Renaming default branch...")
+    (forge--rename-branch repo new old)
+    (magit--set-default-branch new old)
+    (magit-git "remote" "set-head" "--auto" (oref repo remote))
+    (forge-refresh-buffer)
+    (message "Renaming default branch...done")))
+
+(defun forge--set-default-branch-read-args ()
   (let* ((repo (forge-get-repository :tracked))
          (_ (unless (forge-github-repository-p repo)
               (user-error "Updating default branch not supported for forge `%s'"
@@ -935,22 +965,11 @@ Also update the upstream branches of local branches accordingly."
                     (magit-git "fetch" "--prune")
                     (magit-git "remote" "set-head" "--auto" remote)
                     (message "Determining old default branch...done")
-                    (magit-git-string "symbolic-ref" "--short" symref)))
-         (oldname (if oldhead
-                      (cdr (magit-split-branch-name oldhead))
-                    (error "Cannot determine old default branch")))
-         (default (and (not (equal oldname "main")) "main"))
-         (newname (read-string
-                   (format "Rename default branch `%s' to%s: "
-                           oldname
-                           (if default (format " (default: %s)" default) ""))
-                   nil nil default)))
-    (message "Renaming default branch...")
-    (forge--rename-branch repo newname oldname)
-    (magit--set-default-branch newname oldname)
-    (magit-git "remote" "set-head" "--auto" (oref repo remote))
-    (forge-refresh-buffer)
-    (message "Renaming default branch...done")))
+                    (magit-git-string "symbolic-ref" "--short" symref))))
+    (list repo
+          (if oldhead
+              (cdr (magit-split-branch-name oldhead))
+            (error "Cannot determine old default branch")))))
 
 ;;; Configuration
 

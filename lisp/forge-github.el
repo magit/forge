@@ -774,6 +774,17 @@
         ;; so Forge doesn't support them either.
         ))))
 
+(cl-defmethod forge--set-default-branch ((repo forge-github-repository) branch)
+  (forge--ghub-patch repo
+    "/repos/:owner/:repo"
+    `((default_branch . ,branch)))
+  (message "Waiting 5 seconds for GitHub to complete update...")
+  (sleep-for 5)
+  (message "Waiting 5 seconds for GitHub to complete update...done")
+  (let ((remote (oref repo remote)))
+    (magit-call-git "fetch" "--prune" remote)
+    (magit-call-git "remote" "set-head" "--auto" remote)))
+
 (cl-defmethod forge--rename-branch ((repo forge-github-repository)
                                     newname oldname)
   (forge--ghub-post repo

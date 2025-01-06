@@ -138,6 +138,8 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
   (transient-suffix-put 'magit-remote 'magit-update-default-branch :key "b u")
   (transient-append-suffix 'magit-remote "b u"
     '("b r" "Rename default branch" forge-rename-default-branch))
+  (transient-append-suffix 'magit-remote "b u"
+    '("b s" "Set default branch" forge-set-default-branch))
 
   (transient-append-suffix 'magit-worktree "c"
     '("n" "pull-request worktree" forge-checkout-worktree))
