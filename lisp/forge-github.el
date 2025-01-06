@@ -774,16 +774,15 @@
         ;; so Forge doesn't support them either.
         ))))
 
-(cl-defmethod forge--set-default-branch ((repo forge-github-repository)
-                                         newname oldname)
+(cl-defmethod forge--rename-branch ((repo forge-github-repository)
+                                    newname oldname)
   (forge--ghub-post repo
     (format "/repos/:owner/:name/branches/%s/rename" oldname)
     `((new_name . ,newname)))
   (message "Waiting 5 seconds for GitHub to complete rename...")
   (sleep-for 5)
   (message "Waiting 5 seconds for GitHub to complete rename...done")
-  (magit-call-git "fetch" "--prune" (oref repo remote))
-  (magit--set-default-branch newname oldname))
+  (magit-call-git "fetch" "--prune" (oref repo remote)))
 
 (cl-defmethod forge--fork-repository ((repo forge-github-repository) fork)
   (with-slots (owner name) repo

@@ -947,7 +947,8 @@ upstream remotes of local branches accordingly."
                            (if default (format " (default: %s)" default) ""))
                    nil nil default)))
     (message "Renaming default branch...")
-    (forge--set-default-branch repo newname oldname)
+    (forge--rename-branch repo newname oldname)
+    (magit--set-default-branch newname oldname)
     (forge-refresh-buffer)
     (message "Renaming default branch...done")))
 
