@@ -949,6 +949,7 @@ upstream remotes of local branches accordingly."
     (message "Renaming default branch...")
     (forge--rename-branch repo newname oldname)
     (magit--set-default-branch newname oldname)
+    (magit-git "remote" "set-head" "--auto" (oref repo remote))
     (forge-refresh-buffer)
     (message "Renaming default branch...done")))
 
