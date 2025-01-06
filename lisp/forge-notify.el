@@ -305,8 +305,7 @@ signal an error."
                   (propertize (substring (match-string 0 url)
                                          0 (magit-abbrev-length))
                               'font-lock-face 'magit-hash)
-                  (magit-log-propertize-keywords
-                   nil
+                  (magit-log--wash-summary
                    (propertize title 'font-lock-face
                                (if-let ((topic (oref notif topic))
                                         ((eq (oref topic status) 'unread)))
