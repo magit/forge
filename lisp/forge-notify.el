@@ -307,8 +307,8 @@ signal an error."
                               'font-lock-face 'magit-hash)
                   (magit-log--wash-summary
                    (propertize title 'font-lock-face
-                               (if-let ((topic (oref notif topic))
-                                        ((eq (oref topic status) 'unread)))
+                               (if-let* ((topic (oref notif topic))
+                                         ((eq (oref topic status) 'unread)))
                                    'forge-topic-unread
                                  'forge-topic-open)))))))
       (_
