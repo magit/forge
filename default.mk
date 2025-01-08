@@ -14,6 +14,7 @@ ELS  += $(PKG)-revnote.el
 ELS  += $(PKG)-notify.el
 ELS  += $(PKG)-github.el
 ELS  += $(PKG)-gitlab.el
+ELS  += $(PKG)-forgejo.el
 ELS  += $(PKG)-gitea.el
 ELS  += $(PKG)-gogs.el
 ELS  += $(PKG)-bitbucket.el
