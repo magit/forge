@@ -580,7 +580,10 @@ With prefix argument MENU, also show the topic menu."
                                     issue source target))
 
 (defun forge-create-pullreq--read-args ()
-  (let* ((source  (magit-completing-read
+  (let* ((repo (forge-get-repository :tracked))
+         (_ (unless (oref repo worktree)
+              (user-error "Cannot create pull-request without working tree")))
+         (source  (magit-completing-read
                    "Source branch"
                    (magit-list-remote-branch-names)
                    nil t nil 'magit-revision-history
@@ -592,7 +595,6 @@ With prefix argument MENU, also show the topic menu."
                          (if (magit-remote-branch-p d)
                              d
                            (magit-get-push-branch d t))))))
-         (repo    (forge-get-repository :tracked))
          (remote  (oref repo remote))
          (targets (delete source (magit-list-remote-branch-names remote)))
          (target  (magit-completing-read

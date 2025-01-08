@@ -38,6 +38,15 @@
   :options '(visual-line-mode
              turn-on-flyspell))
 
+(defcustom forge-post-fallback-directory
+  (locate-user-emacs-file "forge-drafts/")
+  "Directory used to store post drafts for locally unavailable repositories.
+Normally drafts are stored inside the Git directory.  If that does not
+exist (or its location is unknown), then this directory is used instead."
+  :package-version '(forge . "0.4.7")
+  :group 'forge
+  :type 'directory)
+
 (defcustom forge-buffer-draft-p nil
   "Whether new pull-requests start out as drafts by default.
 
@@ -113,9 +122,18 @@ an error."
 (make-variable-buffer-local 'forge-buffer-draft-p)
 
 (defun forge--prepare-post-buffer (filename &optional header source target)
-  (let ((file (convert-standard-filename
-               (expand-file-name (concat "magit/posts/" filename)
-                                 (magit-gitdir)))))
+  (let* ((repo (forge-get-repository :tracked))
+         (tree (oref repo worktree))
+         (file (convert-standard-filename
+                (if tree
+                    (expand-file-name (concat "magit/posts/" filename)
+                                      (magit-gitdir tree))
+                  (expand-file-name (format "%s_%s-%s_%s"
+                                            (oref repo githost)
+                                            (oref repo owner)
+                                            (oref repo name)
+                                            filename)
+                                    forge-post-fallback-directory)))))
     (make-directory (file-name-directory file) t)
     (let ((prevbuf (current-buffer))
           (resume (and (file-exists-p file)
