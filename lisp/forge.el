@@ -64,6 +64,7 @@
 (require 'forge-revnote)
 (require 'forge-notify)
 
+(require 'forge-forgejo)
 (require 'forge-github)
 (require 'forge-gitlab)
 (require 'forge-gitea)

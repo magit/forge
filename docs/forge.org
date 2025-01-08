@@ -1503,29 +1503,34 @@ implementation".  Support for other forges can lag behind a bit.
 - https://framagit.org
 
 ** Partially Supported Forges
-*** Gitea https://gitea.io
+*** Forgejo https://forgejo.org
 :PROPERTIES:
 :UNNUMBERED: notoc
 :END:
 
 This is the next forge whose API will be supported.
 
-**** Gitea Hosts
+**** Forgejo Hosts
 
 - https://codeberg.org
+
+*** Gitea https://gitea.io
+:PROPERTIES:
+:UNNUMBERED: notoc
+:END:
+
+Once Forgejo is supported it might be fairly simple to support Gitea
+too, because the former is a fork of the latter, and their APIs might
+still be similar enough.
 
 *** Gogs https://gogs.io
 :PROPERTIES:
 :UNNUMBERED: notoc
 :END:
 
-Once Gitea is supported it should be fairly simple to support Gogs
-too, because the former is a fork of the latter and the APIs seem to
-still be very similar.
-
-**** Gogs Hosts
-
-- https://code.orgmode.org
+Once Forgejo is supported it might be fairly simple to support Gogs
+too, because the Forgejo is a fork of Gitea, which is a fork of Gogs,
+and their APIs might still be similar enough.
 
 *** Bitbucket https://bitbucket.org
 :PROPERTIES:

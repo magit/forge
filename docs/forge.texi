@@ -1762,33 +1762,32 @@ expose those.
 @node Partially Supported Forges
 @appendixsec Partially Supported Forges
 
-@anchor{Gitea https//giteaio}
-@appendixsubsec Gitea @uref{https://gitea.io}
+@anchor{Forgejo https//forgejoorg}
+@appendixsubsec Forgejo @uref{https://forgejo.org}
 
 This is the next forge whose API will be supported.
 
-@anchor{Gitea Hosts}
-@appendixsubsubsec Gitea Hosts
+@anchor{Forgejo Hosts}
+@appendixsubsubsec Forgejo Hosts
 
 @itemize
 @item
 @uref{https://codeberg.org}
 @end itemize
 
+@anchor{Gitea https//giteaio}
+@appendixsubsec Gitea @uref{https://gitea.io}
+
+Once Forgejo is supported it might be fairly simple to support Gitea
+too, because the former is a fork of the latter, and their APIs might
+still be similar enough.
+
 @anchor{Gogs https//gogsio}
 @appendixsubsec Gogs @uref{https://gogs.io}
 
-Once Gitea is supported it should be fairly simple to support Gogs
-too, because the former is a fork of the latter and the APIs seem to
-still be very similar.
-
-@anchor{Gogs Hosts}
-@appendixsubsubsec Gogs Hosts
-
-@itemize
-@item
-@uref{https://code.orgmode.org}
-@end itemize
+Once Forgejo is supported it might be fairly simple to support Gogs
+too, because the Forgejo is a fork of Gitea, which is a fork of Gogs,
+and their APIs might still be similar enough.
 
 @anchor{Bitbucket https//bitbucketorg}
 @appendixsubsec Bitbucket @uref{https://bitbucket.org}

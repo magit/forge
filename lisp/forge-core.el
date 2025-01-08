@@ -67,7 +67,7 @@
      "gitlab.gnome.org" forge-gitlab-repository)
     ;; Forges (API unsupported)
     ("codeberg.org" "codeberg.org/api/v1"
-     "codeberg.org" forge-gitea-repository)
+     "codeberg.org" forge-forgejo-repository)
     ("bitbucket.org" "api.bitbucket.org/2.0"
      "bitbucket.org" forge-bitbucket-repository)
     ;; Semi-Forges
@@ -108,7 +108,7 @@ Complications:
 - WEBHOST and CLASS cannot be changed once you have added one or
   more repositories from a forge.  Changing GITHOST and/or APIHOST
   may be possible, but should seldom be necessary."
-  :package-version '(forge . "0.1.0")
+  :package-version '(forge . "0.4.7")
   :group 'forge
   :type '(repeat (list (string :tag "Git host")
                        (choice (string :tag "API endpoint")
