@@ -293,6 +293,24 @@ argument also offer closed pull-requests."
   (interactive (list (forge-read-repository "Browse repository")))
   (browse-url (forge-get-url repository)))
 
+;;;###autoload
+(defun forge-browse-blob (commit file &optional line end force-hash)
+  "Visit a blob using a browser.
+
+When invoked from a blob- or file-visiting buffer, visit that blob
+without prompting.  If the region is active, try to jump to the marked
+line or lines, and highlight them in the browser.  To what extend that
+is possible depends on the forge.  When the region is not active just
+visit the blob, without trying to jump to the current line.  When
+jumping to a line, always use a commit hash as part of the URL.  From
+a file in the worktree with no active region, instead use the branch
+name as part of the URL, unless a prefix argument is used.
+
+When invoked from any other buffer, prompt the user for a branch or
+commit, and for a file."
+  (interactive (forge--browse-blob-args))
+  (browse-url (forge-get-url :blob commit file line end force-hash)))
+
 ;;;###autoload(autoload 'forge-browse-this-topic "forge-commands" nil t)
 (transient-define-suffix forge-browse-this-topic ()
   "Visit the topic at point using a browser."
@@ -308,7 +326,7 @@ argument also offer closed pull-requests."
 
 ;;;###autoload
 (defun forge-copy-url-at-point-as-kill ()
-  "Copy the url of the thing at point."
+  "Copy the url of thing at point or the thing visited in the current buffer."
   (interactive)
   (if-let ((target (forge--browse-target)))
       (let ((url (if (stringp target) target (forge-get-url target))))
@@ -337,11 +355,31 @@ argument also offer closed pull-requests."
         (forge-get-url :branch branch))
       (and-let* ((remote (magit-remote-at-point)))
         (forge-get-url :remote remote))
+      (and-let* ((file (magit-file-at-point)))
+        (forge-get-url :blob nil file))
       (forge-post-at-point)
       (forge-current-topic)
+      (and (or magit-buffer-file-name buffer-file-name)
+           (apply #'forge-get-url :blob (forge--browse-blob-args)))
       (and magit-buffer-revision
            (forge-get-url :commit magit-buffer-revision))
       (forge-get-repository :stub?)))
+
+(defun forge--browse-blob-args ()
+  (cond
+   (magit-buffer-file-name
+    `(,(or magit-buffer-refname magit-buffer-revision)
+      ,(magit-file-relative-name magit-buffer-file-name)
+      ,@(magit-file-region-line-numbers)
+      ,current-prefix-arg))
+   (buffer-file-name
+    `(nil
+      ,(magit-file-relative-name buffer-file-name)
+      ,@(magit-file-region-line-numbers)
+      ,current-prefix-arg))
+   ((let ((commit (magit-read-local-branch-or-commit
+                   "Browse file from commit")))
+      (list commit (magit-read-file-from-rev commit "Browse file"))))))
 
 ;;;; Urls
 
@@ -369,6 +407,23 @@ argument also offer closed pull-requests."
     (forge--format repo 'commit-url-format
                    `((?r . ,(magit-commit-p commit))))))
 
+(cl-defmethod forge-get-url ((_(eql :blob)) commit file
+                             &optional line end force-hash)
+  (let* ((commit (or (and (magit-branch-p commit)
+                          (cdr (magit-split-branch-name commit)))
+                     (and commit (magit-commit-p commit))
+                     (and (not (or line force-hash))
+                          (magit-get-current-branch))
+                     (magit-rev-parse "HEAD")))
+         (repo   (forge-get-repository :stub))
+         (format (oref repo blob-url-format)))
+    (when (cl-typep repo 'forge-gitweb-repository)
+      (setq commit (concat (if (magit-branch-p commit) "hb=" "h=") commit)))
+    (concat
+     (forge--format repo format `((?r . ,commit) (?f . ,file)))
+     (and line (forge-format-blob-lines repo line
+                                        (and (not (equal line end)) end))))))
+
 (cl-defmethod forge-get-url ((_(eql :branch)) branch)
   (let (remote)
     (if (magit-remote-branch-p branch)
@@ -392,6 +447,27 @@ argument also offer closed pull-requests."
 
 (cl-defmethod forge-get-url ((notify forge-notification))
   (oref notify url))
+
+(cl-defmethod forge-format-blob-lines ((repo forge-repository) line end)
+  (cl-etypecase repo ;Third-party classes require separate methods.
+    ((or forge-github-repository
+         forge-gitlab-repository ;Also supports "#L%s-%s".
+         forge-forgejo-repository
+         forge-gitea-repository
+         forge-gogs-repository)
+     (format (if end "#L%s-L%s" "#L%s") line end))
+    (forge-bitbucket-repository
+     (format (if end "#lines-%s:%s" "#lines-%s") line end))
+    ((or forge-cgit-repository
+         forge-cgit*-repository
+         forge-cgit**-repository)
+     (format "#n%s" line))
+    ((or forge-gitweb-repository
+         forge-repoorcz-repository
+         forge-stagit-repository)
+     (format "#l%s" line))
+    (forge-srht-repository
+     (format "#L%s" line))))
 
 ;;; Visit
 

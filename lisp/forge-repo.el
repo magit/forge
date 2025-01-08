@@ -41,6 +41,7 @@
    (commit-url-format         :initform nil :allocation :class)
    (branch-url-format         :initform nil :allocation :class)
    (remote-url-format         :initform nil :allocation :class)
+   (blob-url-format           :initform nil :allocation :class)
    (create-issue-url-format   :initform nil :allocation :class)
    (create-pullreq-url-format :initform nil :allocation :class)
    (pullreq-refspec           :initform nil :allocation :class)

@@ -38,6 +38,7 @@
    (commit-url-format         :initform "https://%h/%o/%n/commits/%r")
    (branch-url-format         :initform "https://%h/%o/%n/branch/%r")
    (remote-url-format         :initform "https://%h/%o/%n/src")
+   (blob-url-format           :initform "https://%h/%o/%n/src/%r/%f")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/pull-requests/new")))
 

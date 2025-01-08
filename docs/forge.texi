@@ -996,7 +996,7 @@ separate buffer.
 @findex forge-browse-this-topic
 @findex forge-browse-this-repository
 These commands visit the topic, issue(s), pull-request(s), post,
-branch, commit, remote or repository at point in a browser.
+branch, commit, remote, repository or blob at point in a browser.
 @end table
 
 @deffn Command forge-browse-commit
@@ -1027,6 +1027,22 @@ branch, commit, remote or repository at point in a browser.
 These commands read a topic, issue(s), pull-request(s), branch,
 commit, remote or repository, and open it in a browser.
 @end table
+
+@deffn Command forge-browse-commit
+This command visit a blob in a browser.
+
+When invoked from a blob- or file-visiting buffer, visit that blob
+without prompting.  If the region is active, try to jump to the marked
+line or lines, and highlight them in the browser.  To what extend that
+is possible depends on the forge.  When the region is not active just
+visit the blob, without trying to jump to the current line.  When
+jumping to a line, always use a commit hash as part of the URL@.  From
+a file in the worktree with no active region, instead use the branch
+name as part of the URL, unless a prefix argument is used.
+
+When invoked from any other buffer, prompt the user for a branch or
+commit, and for a file.
+@end deffn
 
 @node Creating Topics and Posts
 @chapter Creating Topics and Posts

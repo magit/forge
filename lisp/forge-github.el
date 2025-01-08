@@ -40,6 +40,7 @@
    (commit-url-format         :initform "https://%h/%o/%n/commit/%r")
    (branch-url-format         :initform "https://%h/%o/%n/commits/%r")
    (remote-url-format         :initform "https://%h/%o/%n")
+   (blob-url-format           :initform "https://%h/%o/%n/blob/%r/%f")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/compare")
    (pullreq-refspec           :initform "+refs/pull/*/head:refs/pullreqs/*")))
