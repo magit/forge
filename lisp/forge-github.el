@@ -726,15 +726,27 @@
   (let ((value (mapcar #'cadr (oref topic review-requests))))
     ;; FIXME Only refresh once.
     (when-let ((add (cl-set-difference reviewers value :test #'equal)))
-      (forge--ghub-post topic
-        "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-        `((reviewers . ,add))
-        :callback (forge--set-field-callback topic)))
+      (let (users teams)
+        (dolist (reviewer add)
+          (if (string-match "/" reviewer)
+              (push (substring reviewer (match-end 0)) teams)
+            (push reviewer users)))
+        (forge--ghub-post topic
+          "/repos/:owner/:repo/pulls/:number/requested_reviewers"
+          `(,@(and users `((reviewers      . ,users)))
+            ,@(and teams `((team_reviewers . ,teams))))
+          :callback (forge--set-field-callback topic))))
     (when-let ((remove (cl-set-difference value reviewers :test #'equal)))
-      (forge--ghub-delete topic
-        "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-        `((reviewers . ,remove))
-        :callback (forge--set-field-callback topic)))))
+      (let (users teams)
+        (dolist (reviewer remove)
+          (if (string-match "/" reviewer)
+              (push (substring reviewer (match-end 0)) teams)
+            (push reviewer users)))
+        (forge--ghub-delete topic
+          "/repos/:owner/:repo/pulls/:number/requested_reviewers"
+          `(,@(and users `((reviewers      . ,users)))
+            ,@(and teams `((team_reviewers . ,teams))))
+          :callback (forge--set-field-callback topic))))))
 
 (cl-defmethod forge--delete-comment
   ((_repo forge-github-repository) post)
