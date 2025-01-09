@@ -752,7 +752,8 @@ can be selected from the start."
 (defun forge-read-topic-review-requests (&optional topic)
   (let* ((repo (forge-get-repository (or topic :tracked)))
          (value (and topic (oref topic review-requests)))
-         (choices (mapcar #'cadr (oref repo assignees)))
+         (choices (nconc (mapcar #'cadr (oref repo assignees))
+                         (oref repo teams)))
          (crm-separator ","))
     (magit-completing-read-multiple
      "Request review from: " choices nil

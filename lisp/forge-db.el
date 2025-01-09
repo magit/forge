@@ -53,7 +53,7 @@
    (object-class :initform 'forge-repository)
    (file         :initform 'forge-database-file)
    (schemata     :initform 'forge--db-table-schemata)
-   (version      :initform 13)))
+   (version      :initform 14)))
 
 (defvar forge--override-connection-class nil)
 
@@ -122,6 +122,7 @@
       (milestones :default eieio-unbound)
       issues-until
       pullreqs-until
+      teams
       ])
 
     (assignee
@@ -534,6 +535,11 @@
            id))
         (closql--db-set-version db (setq version 13))
         (message "Upgrading Forge database from version 12 to 13...done"))
+      (when (= version 13)
+        (message "Upgrading Forge database from version 13 to 14...")
+        (emacsql db [:alter-table repository :add-column teams :default nil])
+        (closql--db-set-version db (setq version 14))
+        (message "Upgrading Forge database from version 13 to 14...done"))
       )
     (cl-call-next-method)))
 

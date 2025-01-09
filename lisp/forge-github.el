@@ -104,7 +104,8 @@
     (oset repo issues-p       .hasIssuesEnabled)
     (oset repo wiki-p         .hasWikiEnabled)
     (oset repo stars          .stargazers.totalCount)
-    (oset repo watchers       .watchers.totalCount)))
+    (oset repo watchers       .watchers.totalCount)
+    (oset repo teams          (mapcar #'cdar .owner.teams))))
 
 (cl-defmethod forge--update-revnotes ((repo forge-github-repository) data)
   (closql-with-transaction (forge-db)

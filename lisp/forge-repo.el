@@ -80,7 +80,8 @@
    (worktree                  :initform nil)
    (milestones                :closql-table milestone)
    (issues-until              :initform nil)
-   (pullreqs-until            :initform nil))
+   (pullreqs-until            :initform nil)
+   (teams                     :initform nil))
   :abstract t)
 
 (defclass forge-unusedapi-repository (forge-repository) () :abstract t)
