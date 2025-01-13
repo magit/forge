@@ -643,6 +643,41 @@ point is currently on."
         (insert (replace-regexp-in-string "^" "> " quote) "\n\n")))
     (forge--display-post-buffer buf)))
 
+(transient-define-suffix forge-approve-pullreq ()
+  "Approve the current pull-request."
+  :description "approve pull-request"
+  :inapt-if-not #'forge-current-pullreq
+  :transient nil
+  (interactive)
+  (let ((pullreq (forge-current-pullreq t)))
+    (unless (cl-typep (forge-get-repository pullreq) 'forge-github-repository)
+      (user-error "This command is only available for Github"))
+    (when-let ((buf (forge--prepare-post-buffer
+                     (forge--format pullreq "%i;new-approval")
+                     (forge--format pullreq "Approve pull-request #%i of %p"))))
+      (with-current-buffer buf
+        (setq forge--buffer-post-object pullreq)
+        (setq forge--submit-post-function #'forge--submit-approve-pullreq))
+      (forge--display-post-buffer buf))))
+
+(transient-define-suffix forge-request-changes ()
+  "Request changes to the current pull-request."
+  :description "request changes"
+  :inapt-if-not #'forge-current-pullreq
+  :transient nil
+  (interactive)
+  (let ((pullreq (forge-current-pullreq t)))
+    (unless (cl-typep (forge-get-repository pullreq) 'forge-github-repository)
+      (user-error "This command is only available for Github"))
+    (when-let ((buf (forge--prepare-post-buffer
+                     (forge--format pullreq "%i;new-request")
+                     (forge--format
+                      pullreq "Request changes for pull-request #%i of %p"))))
+      (with-current-buffer buf
+        (setq forge--buffer-post-object pullreq)
+        (setq forge--submit-post-function #'forge--submit-request-changes))
+      (forge--display-post-buffer buf))))
+
 ;;; Edit
 
 (defun forge-edit-post ()

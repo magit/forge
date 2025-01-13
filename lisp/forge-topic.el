@@ -1349,7 +1349,9 @@ This mode itself is never used directly."
    ["Actions"
     ("/f" forge-pull-this-topic)
     ("/b" forge-browse-this-topic)
-    ("/c" forge-checkout-this-pullreq)]]
+    ("/c" forge-checkout-this-pullreq)
+    ("/A" forge-approve-pullreq)
+    ("/R" forge-request-changes)]]
   [forge--lists-group
    ["Set                                         "
     ("-m" forge-topic-set-milestone)

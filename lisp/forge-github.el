@@ -649,6 +649,22 @@
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
+(cl-defmethod forge--submit-approve-pullreq ((_ forge-github-repository) repo)
+  (let ((body (magit--buffer-string nil nil t)))
+    (forge--ghub-post repo "/repos/:owner/:repo/pulls/:number/reviews"
+      `((event . "APPROVE")
+        ,@(and (not (equal body "")) `((body . ,body))))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback))))
+
+(cl-defmethod forge--submit-request-changes ((_ forge-github-repository) repo)
+  (let ((body (magit--buffer-string nil nil t)))
+    (forge--ghub-post repo "/repos/:owner/:repo/pulls/:number/reviews"
+      `((event . "REQUEST_CHANGES")
+        ,@(and (not (equal body "")) `((body . ,body))))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback))))
+
 (cl-defmethod forge--set-topic-title
   ((_repo forge-github-repository) topic title)
   (forge--ghub-patch topic
