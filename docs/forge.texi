@@ -399,13 +399,17 @@ the final closing parenthesis and typing @code{C-x C-e} (@code{eval-last-sexp}).
 Next add a line like the following to the chosen file:
 
 @example
-machine gitlab.com/api/v4 login USERNAME^forge password TOKEN
+machine gitlab.com login USERNAME^forge password TOKEN
 @end example
 
 @itemize
 @item
-The value of @code{machine} must be @code{gitlab.com/api/v4}.  Variations of this
-won't work.
+The value of @code{machine} should be @code{gitlab.com}.  For historic reasons
+@code{gitlab.com} is also supported.
+
+@item
+Note that if you instead use the @code{auth-source-pass} backend, then you
+@strong{must} use @code{gitlab.com} as @code{host}.
 
 @item
 USERNAME must be the same as the value used for the @code{gitlab.user} Git
@@ -521,10 +525,20 @@ machine APIHOST login USERNAME^forge password TOKEN
 
 @itemize
 @item
-APIHOST must be the same as the second element of the entry we added
-to @code{forge-alist}.  In the above example that would be
-@code{example.com/api/v4}.  Do @strong{not} instead use GITHOST or INSTANCE-ID (aka
-WEBHOST).
+APIHOST must be either the same as the second element of the entry
+we added to @code{forge-alist}, or that element with the path suffix
+removed.  For example, if the APIHOST, specified in an @code{forge-alist}
+entry, is @code{example.com/api/v4}, then you can use @code{example.com/api/v4} or
+@code{example.com}.
+
+Historically only the former was supported, but that was a design
+mistake, which we are now stuck with, and using just @code{example.com} as
+APIHOST in @code{~/.authsource} is now recommended.  For the time being, in
+@code{forge-alist} you must still always use @code{example.com/api/v4} as APIHOST@.
+
+If you instead use the @code{auth-source-pass} backend, then you @strong{must} use
+@code{example.com} as the value of @code{host}.  Using @code{example.com/api/v4} does not
+work with that backend.
 
 @item
 USERNAME must be the same username you used above as the value of

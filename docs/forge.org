@@ -313,11 +313,14 @@ the final closing parenthesis and typing ~C-x C-e~ (~eval-last-sexp~).
 Next add a line like the following to the chosen file:
 
 #+begin_src example
-  machine gitlab.com/api/v4 login USERNAME^forge password TOKEN
+  machine gitlab.com login USERNAME^forge password TOKEN
 #+end_src
 
-- The value of ~machine~ must be ~gitlab.com/api/v4~.  Variations of this
-  won't work.
+- The value of ~machine~ should be ~gitlab.com~.  For historic reasons
+  ~gitlab.com~ is also supported.
+
+- Note that if you instead use the ~auth-source-pass~ backend, then you
+  *must* use ~gitlab.com~ as ~host~.
 
 - USERNAME must be the same as the value used for the ~gitlab.user~ Git
   variable above.  You *must* append ~^forge~ to that, without any space
@@ -433,10 +436,20 @@ Next add a line like the following to the chosen file:
   machine APIHOST login USERNAME^forge password TOKEN
 #+end_src
 
-- APIHOST must be the same as the second element of the entry we added
-  to ~forge-alist~.  In the above example that would be
-  ~example.com/api/v4~.  Do *not* instead use GITHOST or INSTANCE-ID (aka
-  WEBHOST).
+- APIHOST must be either the same as the second element of the entry
+  we added to ~forge-alist~, or that element with the path suffix
+  removed.  For example, if the APIHOST, specified in an ~forge-alist~
+  entry, is ~example.com/api/v4~, then you can use ~example.com/api/v4~ or
+  ~example.com~.
+
+  Historically only the former was supported, but that was a design
+  mistake, which we are now stuck with, and using just ~example.com~ as
+  APIHOST in ~~/.authsource~ is now recommended.  For the time being, in
+  ~forge-alist~ you must still always use ~example.com/api/v4~ as APIHOST.
+
+  If you instead use the ~auth-source-pass~ backend, then you *must* use
+  ~example.com~ as the value of ~host~.  Using ~example.com/api/v4~ does not
+  work with that backend.
 
 - USERNAME must be the same username you used above as the value of
   the Git variable.  You *must* append ~^forge~ to that, without any space

@@ -14,7 +14,7 @@
 ;;     (closql "2.1.0")
 ;;     (dash "2.19.1")
 ;;     (emacsql "4.1.0")
-;;     (ghub "4.2.0")
+;;     (ghub "4.2.1")
 ;;     (let-alist "1.0.6")
 ;;     (magit "4.2.1")
 ;;     (markdown-mode "2.6")
