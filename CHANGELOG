@@ -1,4 +1,30 @@
 # -*- mode: org -*-
+* v0.4.7    UNRELEASED
+
+- Added new hook ~forge-topic-wash-title-hook~.  #735
+
+- ~forge-rename-default-branch~ now also updates the local symref, which tracks
+  the remote's HEAD.  b7ca5e76f
+
+- Added new command ~forge-set-default-branch~.  bdbf43f36
+
+- Added new class ~forge-forgejo-repository~ and changed the ~forge-alist~ for
+  ~codeberg.org~ to use that.  0c81b44fb
+
+- Added support for visiting blobs using a browser.  #91
+
+- Added support for creating issues and commenting on existing issues and
+  pull-requests for repositories, that are tracked in Forge's database,
+  but which have not been cloned to the local machine.  #722
+
+- It is now possible to request a review from a team.  #304
+
+- Addressed an incompatibility between some legacy behavior in Ghub and
+  ~auth-source-pass~.  You will have to change your configuration for this
+  to be effective.  See the [[https://magit.vc/manual/forge/Setup-for-Gitlabcom.html][updated documentation]].  #720
+
+- Added new commands ~forge-approve-pullreq~ and ~forge-request-changes~.  #377
+
 * v0.4.6    2025-01-01
 
 - ~forge-read-topic-labels~ and ~forge-read-topic-marks~ failed to use the
