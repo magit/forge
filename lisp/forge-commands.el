@@ -448,6 +448,9 @@ commit, and for a file."
 (cl-defmethod forge-get-url ((notify forge-notification))
   (oref notify url))
 
+ ;; Transitional kludge for the infamous package.el defect.
+(require 'forge-forgejo)
+
 (cl-defmethod forge-format-blob-lines ((repo forge-repository) line end)
   (cl-etypecase repo ;Third-party classes require separate methods.
     ((or forge-github-repository
