@@ -52,6 +52,7 @@
                            &optional callback since)
   (cl-assert (not (and since (forge-get-repository repo nil :tracked?))))
   (setq forge--mode-line-buffer (current-buffer))
+  (setq forge--mode-line-buffer-name (buffer-name))
   (forge--msg repo t nil "Pulling REPO")
   (let ((cb (let ((buf (current-buffer))
                   (val nil))

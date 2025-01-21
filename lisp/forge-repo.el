@@ -500,9 +500,13 @@ forges and hosts."
                    (transient--refresh-transient))))))
 
 (defvar forge--mode-line-buffer nil)
+(defvar forge--mode-line-buffer-name nil)
 
 (defun forge--msg (repo echo done format &rest args)
-  (let ((msg (apply #'format format args)))
+  (let ((msg (apply #'format format args))
+        (buf (if (buffer-live-p forge--mode-line-buffer)
+                 forge--mode-line-buffer
+               (get-buffer (or forge--mode-line-buffer-name "")))))
     (when repo
       (setq msg (string-replace
                  "REPO"
@@ -510,8 +514,8 @@ forges and hosts."
                  msg)))
     (when (and echo msg)
       (message "%s%s" msg (if done "...done" "...")))
-    (when (buffer-live-p forge--mode-line-buffer)
-      (with-current-buffer forge--mode-line-buffer
+    (when (buffer-live-p buf)
+      (with-current-buffer buf
         (setq mode-line-process
               (if done
                   nil
