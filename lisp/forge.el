@@ -16,6 +16,7 @@
 ;;     (emacsql "4.1.0")
 ;;     (ghub "4.2.0")
 ;;     (let-alist "1.0.6")
+;;     (llama "0.5.0")
 ;;     (magit "4.2.0")
 ;;     (markdown-mode "2.6")
 ;;     (seq "2.24")

@@ -28,6 +28,7 @@
 (require 'compat)
 (require 'dash)
 (require 'eieio)
+(require 'llama)
 (require 'seq)
 (require 'subr-x)
 

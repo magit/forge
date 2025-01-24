@@ -30,6 +30,7 @@ DEPS += compat
 DEPS += dash
 DEPS += emacsql
 DEPS += ghub/lisp
+DEPS += llama
 DEPS += magit/lisp
 DEPS += markdown-mode
 DEPS += seq
