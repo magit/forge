@@ -292,9 +292,6 @@ See `forge-alist' for valid Git hosts."
       (error "(Maybe repository) is nil; `%s' not satisfied" demand)
     nil))
 
-(defun forge--get-repository:tracked? ()
-  (forge-get-repository :tracked?))
-
 (defun forge-repository-at-point (&optional demand)
   "Return the repository at point.
 If there is no such repository and DEMAND is non-nil, then signal

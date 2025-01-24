@@ -65,7 +65,7 @@ Takes the pull-request as only argument and must return a directory."
     ("f t" "one topic"      forge-pull-topic)
     ("f n" "notifications"  forge-pull-notifications)]
    ["Create"
-    :if forge--get-repository:tracked?
+    :if (##forge-get-repository :tracked?)
     ("c i" "issue"          forge-create-issue)
     ("c p" "pull-request"   forge-create-pullreq)
     ("c u" "pr from issue"  forge-create-pullreq-from-issue)
@@ -83,20 +83,21 @@ Takes the pull-request as only argument and must return a directory."
                             "track some repo"
                           "track this repository"))))
     ("/M" "merge with api" forge-merge
-     :if forge--get-repository:tracked? :level 7)]]
+     :if (##forge-get-repository :tracked?)
+     :level 7)]]
   [forge--lists-group
    ["Visit"
-    :inapt-if-not forge--get-repository:tracked?
+    :inapt-if-not (##forge-get-repository :tracked?)
     ("v t" "topic"          forge-visit-topic)
     ("v i" "issue"          forge-visit-issue)
     ("v p" "pull-request"   forge-visit-pullreq)]
    ["Browse"
     ("b t" "topic"          forge-browse-topic
-     :inapt-if-not forge--get-repository:tracked?)
+     :inapt-if-not (##forge-get-repository :tracked?))
     ("b i" "issue"          forge-browse-issue
-     :inapt-if-not forge--get-repository:tracked?)
+     :inapt-if-not (##forge-get-repository :tracked?))
     ("b p" "pull-request"   forge-browse-pullreq
-     :inapt-if-not forge--get-repository:tracked?)
+     :inapt-if-not (##forge-get-repository :tracked?))
     ("b r" "remote"         forge-browse-remote)
     ("b I" "issues"         forge-browse-issues)
     ("b P" "pull-requests"  forge-browse-pullreqs)
