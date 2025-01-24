@@ -1168,7 +1168,7 @@ upstream remote."
   [:class transient-subgroups
 
    ;; Already tracked.
-   [:if (lambda () (forge--scope :tracked))
+   [:if (##forge--scope :tracked)
     (:info*
      (lambda ()
        (format
@@ -1177,7 +1177,7 @@ upstream remote."
      :format "%d")]
 
    ;; Nothing to tracked.
-   [:if-not (lambda () (forge--scope 'topdir))
+   [:if-not (##forge--scope 'topdir)
     (:info*
      (lambda ()
        (format
@@ -1186,7 +1186,7 @@ upstream remote."
      :format "%d")]
 
    ;; Cannot track.
-   [:if (lambda () (and (not (forge--scope 'repo)) (forge--scope 'topdir)))
+   [:if (##and (not (forge--scope 'repo)) (forge--scope 'topdir))
     :description
     (lambda ()
       (concat
@@ -1209,7 +1209,7 @@ upstream remote."
      (lambda () (interactive) (info "(forge)Setup a Partially Supported Host")))]
 
    ;; Track it!
-   [:if (lambda () (forge--scope :untracked))
+   [:if (##forge--scope :untracked)
     :description
     (lambda ()
       (format
