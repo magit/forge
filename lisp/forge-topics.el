@@ -576,8 +576,8 @@ then display the respective menu, otherwise display no menu."
    (list (magit-read-char-case "Order by: " t
            (?n "[n]ewest"            'newest)
            (?o "[o]ldest"            'oldest)
-           (?u "[r]ecently updated"  'recently-updated)
-           (?U "[a]nciently updated" 'anciently-updated))))
+           (?r "[r]ecently updated"  'recently-updated)
+           (?a "[a]nciently updated" 'anciently-updated))))
   (oset forge--buffer-topics-spec order order)
   (forge-refresh-buffer))
 
