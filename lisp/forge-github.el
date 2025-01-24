@@ -251,7 +251,8 @@
                                     &optional bump)
   (closql-with-transaction (forge-db)
     (let ((initial-pull (not (oref repo issues-until))))
-      (mapc (lambda (e) (forge--update-issue repo e bump initial-pull)) data))))
+      (dolist (elt data)
+        (forge--update-issue repo elt bump initial-pull)))))
 
 (cl-defmethod forge--update-issue ((repo forge-github-repository) data
                                    &optional bump initial-pull)
@@ -309,7 +310,8 @@
                                       &optional bump)
   (closql-with-transaction (forge-db)
     (let ((initial-pull (not (oref repo pullreqs-until))))
-      (mapc (lambda (e) (forge--update-pullreq repo e bump initial-pull)) data))))
+      (dolist (elt data)
+        (forge--update-pullreq repo elt bump initial-pull)))))
 
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data
                                      &optional bump initial-pull)
