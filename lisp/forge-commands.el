@@ -72,7 +72,7 @@ Takes the pull-request as only argument and must return a directory."
     ("c f" "fork or remote" forge-fork)]
    [:description (lambda ()
                    (cond
-                    ((forge--get-repository:tracked?) "Actions")
+                    ((forge-get-repository :tracked?) "Actions")
                     ((or (magit-gitdir) (forge-repository-at-point))
                      "Forge does not yet track this repository")
                     ("Not inside a Git repository")))
@@ -198,7 +198,7 @@ repository cannot be determined, instead invoke `forge-add-repository'."
 ;;;###autoload(autoload 'forge-pull-topic "forge-commands" nil t)
 (transient-define-suffix forge-pull-topic (number)
   "Read a topic TYPE and NUMBER pull data about it from its forge."
-  :inapt-if-not (lambda () (and (forge--get-repository:tracked?)
+  :inapt-if-not (lambda () (and (forge-get-repository :tracked?)
                            (forge--get-github-repository)))
   (interactive
    (list (read-number "Pull topic: "

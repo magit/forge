@@ -275,10 +275,10 @@ then display the respective menu, otherwise display no menu."
 (transient-define-suffix forge-list-topics (&optional repo)
   "List topics of the current repository."
   :description "topics"
-  :inapt-if (lambda () (or (not (forge--get-repository:tracked?))
+  :inapt-if (lambda () (or (not (forge-get-repository :tracked?))
                       (and (eq major-mode 'forge-topics-mode)
                            (not (oref forge--buffer-topics-spec global)))))
-  :inapt-face (lambda () (if (not (forge--get-repository:tracked?))
+  :inapt-face (lambda () (if (not (forge-get-repository :tracked?))
                         'transient-inapt-suffix
                       'forge-suffix-active))
   (declare (interactive-only nil))
