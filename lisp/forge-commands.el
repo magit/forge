@@ -109,7 +109,7 @@ Takes the pull-request as only argument and must return a directory."
 
 (transient-augment-suffix forge-dispatch
   :transient #'transient--do-replace
-  :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-dispatch))
+  :inapt-if (##eq (oref transient--prefix command) 'forge-dispatch)
   :inapt-face 'forge-suffix-active)
 
 ;;;###autoload(autoload 'forge-configure "forge-commands" nil t)
@@ -127,7 +127,7 @@ Takes the pull-request as only argument and must return a directory."
 
 (transient-augment-suffix forge-configure
   :transient #'transient--do-replace
-  :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-configure))
+  :inapt-if (##eq (oref transient--prefix command) 'forge-configure)
   :inapt-face 'forge-suffix-active)
 
 ;;; Pull
@@ -1111,7 +1111,7 @@ Also update the upstream branches of local branches accordingly."
   :class 'magit--git-variable
   :variable "forge.graphqlItemLimit"
   :reader #'read-string
-  :default (lambda () (number-to-string ghub-graphql-items-per-request)))
+  :default (##number-to-string ghub-graphql-items-per-request))
 
 (transient-define-suffix forge-toggle-display-in-status-buffer ()
   "Toggle whether to display topics in the current status buffer."

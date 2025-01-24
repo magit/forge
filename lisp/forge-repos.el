@@ -152,7 +152,7 @@ Must be set before `forge-list' is loaded.")
 (transient-augment-suffix forge-repositories-menu
   :transient #'transient--do-replace
   :if-mode 'forge-repository-list-mode
-  :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-repositories-menu))
+  :inapt-if (##eq (oref transient--prefix command) 'forge-repositories-menu)
   :inapt-face 'forge-suffix-active)
 
 ;;;; List

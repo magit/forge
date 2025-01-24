@@ -232,7 +232,7 @@ Must be set before `forge-topics' is loaded.")
 (transient-augment-suffix forge-topics-menu
   :transient #'transient--do-replace
   :if-not-derived '(forge-notifications-mode forge-repository-list-mode)
-  :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-topics-menu))
+  :inapt-if (##eq (oref transient--prefix command) 'forge-topics-menu)
   :inapt-face 'forge-suffix-active)
 
 (defvar-local forge--quit-keep-topic-menu nil)
@@ -369,9 +369,7 @@ then display the respective menu, otherwise display no menu."
 (transient-define-suffix forge-topics-filter-active ()
   "Limit topic list to active topics."
   :description "active"
-  :face (lambda ()
-          (and (oref forge--buffer-topics-spec active)
-               'forge-suffix-active))
+  :face (##and (oref forge--buffer-topics-spec active) 'forge-suffix-active)
   (interactive)
   (oset forge--buffer-topics-spec active
         (not (oref forge--buffer-topics-spec active)))
@@ -520,19 +518,19 @@ then display the respective menu, otherwise display no menu."
   "Read a milestone and limit topic list to topics with that milestone."
   :class 'forge--topics-filter-command
   :slot 'milestone
-  :formatter (lambda (m) (propertize m 'face 'forge-topic-label)))
+  :formatter (##propertize % 'face 'forge-topic-label))
 
 (transient-define-suffix forge-topics-filter-labels ()
   "Read labels and limit topic list to topics with one of these labels."
   :class 'forge--topics-filter-command
   :slot 'labels
-  :formatter (lambda (labels) (and labels (forge--format-labels labels " "))))
+  :formatter (##and % (forge--format-labels % " ")))
 
 (transient-define-suffix forge-topics-filter-marks ()
   "Read marks and limit topic list to topics with one of these marks."
   :class 'forge--topics-filter-command
   :slot 'marks
-  :formatter (lambda (marks) (and marks (forge--format-marks marks " "))))
+  :formatter (##and % (forge--format-marks % " ")))
 
 (transient-define-suffix forge-topics-filter-saved ()
   "Toggle whether to limit topic list to saved topics."
@@ -540,25 +538,25 @@ then display the respective menu, otherwise display no menu."
   :slot 'saved
   :reader #'always
   :description
-  (lambda () (forge--format-boolean 'saved "saved" forge--buffer-topics-spec)))
+  (##forge--format-boolean 'saved "saved" forge--buffer-topics-spec))
 
 (transient-define-suffix forge-topics-filter-author ()
   "Read an author and limit topic list to topics created by that author."
   :class 'forge--topics-filter-command
   :slot 'author
-  :reader (lambda () (forge--read-filter-by-user "Author")))
+  :reader (##forge--read-filter-by-user "Author"))
 
 (transient-define-suffix forge-topics-filter-assignee ()
   "Read an assignee and limit topic list to topics assignee to that person."
   :class 'forge--topics-filter-command
   :slot 'assignee
-  :reader (lambda () (forge--read-filter-by-user "Assignee")))
+  :reader (##forge--read-filter-by-user "Assignee"))
 
 (transient-define-suffix forge-topics-filter-reviewer ()
   "Read a reviewer and limit topic list to reviews requested from that person."
   :class 'forge--topics-filter-command
   :slot 'reviewer
-  :reader (lambda () (forge--read-filter-by-user "Reviewer")))
+  :reader (##forge--read-filter-by-user "Reviewer"))
 
 (defun forge--read-filter-by-user (prompt)
   (let* ((repo (forge-get-repository :tracked))
@@ -597,8 +595,8 @@ then display the respective menu, otherwise display no menu."
 (transient-define-suffix forge-topics-group ()
   "Group topics by repository."
   :description "group by repo"
-  :if (lambda () (oref forge--buffer-topics-spec global))
-  :inapt-if (lambda () (oref forge--buffer-topics-spec grouped))
+  :if (##oref forge--buffer-topics-spec global)
+  :inapt-if (##oref forge--buffer-topics-spec grouped)
   :inapt-face 'forge-suffix-active
   (interactive)
   (oset forge--buffer-topics-spec grouped t)
@@ -607,8 +605,8 @@ then display the respective menu, otherwise display no menu."
 (transient-define-suffix forge-topics-ungroup ()
   "Show a flat topic list."
   :description "single list"
-  :if (lambda () (oref forge--buffer-topics-spec global))
-  :inapt-if-not (lambda () (oref forge--buffer-topics-spec grouped))
+  :if (##oref forge--buffer-topics-spec global)
+  :inapt-if-not (##oref forge--buffer-topics-spec grouped)
   :inapt-face 'forge-suffix-active
   (interactive)
   (oset forge--buffer-topics-spec grouped nil)

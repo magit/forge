@@ -248,7 +248,7 @@ an error."
   :class 'transient-lisp-variable
   :variable 'forge-buffer-draft-p
   :reader (lambda (&rest _) (not forge-buffer-draft-p))
-  :if (lambda () (equal (file-name-nondirectory buffer-file-name) "new-pullreq")))
+  :if (##equal (file-name-nondirectory buffer-file-name) "new-pullreq"))
 
 ;;; Notes
 

@@ -178,7 +178,7 @@ signal an error."
 (transient-augment-suffix forge-notifications-menu
   :transient #'transient--do-replace
   :if-mode 'forge-notifications-mode
-  :inapt-if (lambda () (eq (oref transient--prefix command) 'forge-notifications-menu))
+  :inapt-if (##eq (oref transient--prefix command) 'forge-notifications-menu)
   :inapt-face 'forge-suffix-active)
 
 ;;;###autoload(autoload 'forge-list-notifications "forge-notify" nil t)
@@ -194,7 +194,7 @@ signal an error."
 (transient-define-suffix forge-notifications-display-inbox ()
   "List unread and pending notifications."
   :description "inbox"
-  :inapt-if (lambda () (equal forge-notifications-selection '(unread pending)))
+  :inapt-if (##equal forge-notifications-selection '(unread pending))
   :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
@@ -205,7 +205,7 @@ signal an error."
 (transient-define-suffix forge-notifications-display-saved ()
   "List saved notifications."
   :description "saved"
-  :inapt-if (lambda () (eq forge-notifications-selection 'saved))
+  :inapt-if (##eq forge-notifications-selection 'saved)
   :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
@@ -216,7 +216,7 @@ signal an error."
 (transient-define-suffix forge-notifications-display-done ()
   "List done notifications."
   :description "done"
-  :inapt-if (lambda () (eq forge-notifications-selection 'done))
+  :inapt-if (##eq forge-notifications-selection 'done)
   :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
@@ -227,7 +227,7 @@ signal an error."
 (transient-define-suffix forge-notifications-display-all ()
   "List all notifications."
   :description "all"
-  :inapt-if (lambda () (equal forge-notifications-selection '(unread pending done)))
+  :inapt-if (##equal forge-notifications-selection '(unread pending done))
   :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
@@ -238,7 +238,7 @@ signal an error."
 (transient-define-suffix forge-notifications-style-flat ()
   "Show a flat notification list."
   :description "single list"
-  :inapt-if (lambda () (eq forge-notifications-display-style 'flat))
+  :inapt-if (##eq forge-notifications-display-style 'flat)
   :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)
@@ -249,7 +249,7 @@ signal an error."
 (transient-define-suffix forge-notifications-style-nested ()
   "Group notifications by repository."
   :description "group by repo"
-  :inapt-if (lambda () (eq forge-notifications-display-style 'nested))
+  :inapt-if (##eq forge-notifications-display-style 'nested)
   :inapt-face 'forge-suffix-active
   (interactive)
   (unless (derived-mode-p 'forge-notifications-mode)

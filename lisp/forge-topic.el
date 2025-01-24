@@ -1322,7 +1322,7 @@ This mode itself is never used directly."
 
 (transient-define-suffix forge-toggle-topic-legend ()
   "Toggle whether to show legend for faces used in topic menus and lists."
-  :description (lambda () (if forge--show-topic-legend "hide legend" "show legend"))
+  :description (##if forge--show-topic-legend "hide legend" "show legend")
   :transient t
   (interactive)
   (customize-set-variable 'forge--show-topic-legend
@@ -1529,7 +1529,7 @@ This mode itself is never used directly."
     (let ((name (symbol-name slot)))
       (cond ((string-suffix-p "-p" name)
              (setq name (substring name 0 -2))
-             (oset obj reader (lambda (topic) (not (eieio-oref topic slot)))))
+             (oset obj reader (##not (eieio-oref % slot))))
             ((oset obj reader (intern (format "forge-read-topic-%s" name)))))
       (oset obj setter (intern (format "forge--set-topic-%s" name)))
       (unless (slot-boundp obj 'formatter)
@@ -1550,12 +1550,12 @@ This mode itself is never used directly."
 (transient-define-suffix forge-topic-set-labels (labels)
   "Edit the LABELS of the current topic."
   :class 'forge--topic-set-slot-command :slot 'labels
-  :formatter (lambda (topic) (forge--format-labels topic t)))
+  :formatter (##forge--format-labels % t))
 
 (transient-define-suffix forge-topic-set-marks (marks)
   "Edit the MARKS of the current topic."
   :class 'forge--topic-set-slot-command :slot 'marks
-  :formatter (lambda (topic) (forge--format-marks topic t)))
+  :formatter (##forge--format-marks % t))
 
 (transient-define-suffix forge-topic-set-assignees (assignees)
   "Edit the ASSIGNEES of the current topic."
@@ -1570,12 +1570,12 @@ This mode itself is never used directly."
   "Toggle whether the current pull-request is a draft."
   :class 'forge--topic-set-slot-command :slot 'draft-p
   :inapt-if-not #'forge-current-pullreq
-  :description (lambda () (forge--format-boolean 'draft-p "draft")))
+  :description (##forge--format-boolean 'draft-p "draft"))
 
 (transient-define-suffix forge-topic-toggle-saved ()
   "Toggle whether this topic is marked as saved."
   :class 'forge--topic-set-slot-command :slot 'saved-p
-  :description (lambda () (forge--format-boolean 'saved-p "saved"))
+  :description (##forge--format-boolean 'saved-p "saved")
   ;; Set only locally because Github's API does not support this.
   (interactive)
   (let ((topic (forge-current-topic t)))
