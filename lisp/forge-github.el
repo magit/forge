@@ -369,8 +369,8 @@
         (forge--set-id-slot repo pullreq 'assignees .assignees))
       (ignore-errors
         (forge--set-id-slot repo pullreq 'review-requests
-                            (--map (cdr (cadr (car it)))
-                                   .reviewRequests)))
+                            (mapcar (##cdr (cadr (car %)))
+                                    .reviewRequests)))
       (ignore-errors
         (unless (magit-get-boolean "forge.kludge-for-issue-294")
           (forge--set-id-slot repo pullreq 'labels .labels))))
@@ -539,8 +539,8 @@
    `((login . ,user))
    (lambda (d)
      (funcall callback
-              (--map (alist-get 'name it)
-                     (let-alist d .user.repositories))))
+              (mapcar (##alist-get 'name %)
+                      (let-alist d .user.repositories))))
    nil :auth 'forge :host host))
 
 (cl-defmethod forge--fetch-organization-repos
@@ -552,8 +552,8 @@
    `((login . ,org))
    (lambda (d)
      (funcall callback
-              (--map (alist-get 'name it)
-                     (let-alist d .organization.repositories))))
+              (mapcar (##alist-get 'name %)
+                      (let-alist d .organization.repositories))))
    nil :auth 'forge :host host))
 
 (defun forge--batch-add-callback (host owner names)
@@ -777,16 +777,15 @@
                                            (_ (subclass forge-issue)))
   (and-let* ((files (magit-revision-files (oref repo default-branch))))
     (let ((case-fold-search t))
-      (if-let ((file (--first (string-match-p "\
-\\`\\(\\|docs/\\|\\.github/\\)issue_template\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
-                              files)))
+      (if-let ((file (seq-find (##string-match-p "\
+\\`\\(\\|docs/\\|\\.github/\\)issue_template\\(\\.[a-zA-Z0-9]+\\)?\\'" %)
+                               files)))
           (list file)
-        (setq files
-              (--filter (string-match-p "\\`\\.github/ISSUE_TEMPLATE/[^/]*" it)
-                        files))
-        (if-let ((conf (cl-find-if
-                        (lambda (f)
-                          (equal (file-name-nondirectory f) "config.yml"))
+        (setq files (seq-filter
+                     (##string-match-p "\\`\\.github/ISSUE_TEMPLATE/[^/]*" %)
+                     files))
+        (if-let ((conf (seq-find
+                        (##equal (file-name-nondirectory %) "config.yml")
                         files)))
             (nconc (delete conf files)
                    (list conf))
@@ -796,9 +795,9 @@
                                            (_ (subclass forge-pullreq)))
   (and-let* ((files (magit-revision-files (oref repo default-branch))))
     (let ((case-fold-search t))
-      (if-let ((file (--first (string-match-p "\
-\\`\\(\\|docs/\\|\\.github/\\)pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'" it)
-                              files)))
+      (if-let ((file (seq-find (##string-match-p "\
+\\`\\(\\|docs/\\|\\.github/\\)pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'" %)
+                               files)))
           (list file)
         ;; Unlike for issues, the web interface does not support
         ;; multiple pull-request templates.  The API does though,

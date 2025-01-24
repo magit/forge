@@ -1010,7 +1010,7 @@ what subset of KIND is being listed."
 
 (defun forge--insert-topics (type heading topics)
   (when topics
-    (let ((width (apply #'max (--map (length (oref it slug)) topics))))
+    (let ((width (apply #'max (mapcar (##length (oref % slug)) topics))))
       (magit-insert-section ((eval type) heading t)
         (magit-insert-heading
           (concat (magit--propertize-face (concat heading " ")
@@ -1725,9 +1725,9 @@ alist, containing just `text' and `position'.")
                   (if (eq class 'forge-pullreq)
                       "Select pull-request template"
                     "Select issue template")
-                  (--map (alist-get 'prompt it) choices)
+                  (mapcar (##alist-get 'prompt %) choices)
                   nil t)))
-          (--first (equal (alist-get 'prompt it) c) choices))
+          (seq-find (##equal (alist-get 'prompt %) c) choices))
       (car choices))))
 
 ;;; Bug-Reference

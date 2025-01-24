@@ -156,7 +156,7 @@ Must be set before `forge-topics' is loaded.")
         (dolist (topic topics)
           (forge--insert-topic topic 5)))
        ((pcase-dolist (`(,_ . ,topics)
-                       (--group-by (oref it repository) topics))
+                       (seq-group-by (##oref % repository) topics))
           (let ((repo (forge-get-repository (car topics))))
             (magit-insert-section (forge-repo repo)
               (magit-insert-heading

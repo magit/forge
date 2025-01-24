@@ -282,7 +282,7 @@ signal an error."
             (forge-insert-notification notif))
           (insert ?\n)))
        ((pcase-dolist (`(,_ . ,notifs)
-                       (--group-by (oref it repository) notifs))
+                       (seq-group-by (##oref % repository) notifs))
           (let ((repo (forge-get-repository (car notifs))))
             (magit-insert-section (forge-repo repo)
               (magit-insert-heading
