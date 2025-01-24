@@ -433,9 +433,8 @@
                                                (intern (cadr (assq 'path err)))))
                                         (cdr errors))))
                                  (progn
-                                   (setq query (cl-delete-if
-                                                (lambda (e) (memq e notfound))
-                                                query :key #'caar))
+                                   (setq query (cl-delete-if (##memq % notfound)
+                                                             query :key #'caar))
                                    (funcall vacuum))
                                (ghub--signal-error errors)))))
                    (cl-incf page)

@@ -94,7 +94,7 @@ signal an error."
          (status (remq 'saved status))
          (db (forge-db)))
     (mapcar
-     (lambda (row) (closql--remake-instance 'forge-notification db row))
+     (##closql--remake-instance 'forge-notification db %)
      (if (seq-set-equal-p status '(unread pending done) #'eq)
          (forge-sql [:select * :from notification :order-by [(desc updated)]])
        (forge-sql

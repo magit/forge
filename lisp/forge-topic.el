@@ -503,7 +503,7 @@ Limit list to topics for which a review by the given user was requested."
                                     ('anciently-updated  '(< updated)))))
         (cl-sort (nconc (forge--list-topics-1 spec repo 'issue)
                         (forge--list-topics-1 spec repo 'pullreq))
-                 pred :key (lambda (obj) (eieio-oref obj slot))))
+                 pred :key (##eieio-oref % slot)))
     (forge--list-topics-1 spec repo type)))
 
 (defun forge--list-topics-1 (spec repo type)
@@ -561,8 +561,8 @@ Limit list to topics for which a review by the given user was requested."
           (`(,@(and state  `((in topic:state  ,(vconcat (ensure-list state)))))
              ,@(and status `((in topic:status ,(vconcat (ensure-list status))))))))
        ,@(and milestone '((= topic:milestone milestone:id)))
-       ,@(and labels    `((or ,@(mapcar (lambda (l) `(= label:name ,l)) labels))))
-       ,@(and marks     `((or ,@(mapcar (lambda (m) `(=  mark:name ,m))  marks))))
+       ,@(and labels    `((or ,@(mapcar (##`(= label:name ,%)) labels))))
+       ,@(and marks     `((or ,@(mapcar (##`(=  mark:name ,%))  marks))))
        ,@(and saved     '((= topic:saved-p  't)))
        ,@(and author    `((= topic:author   ,author)))
        ,@(and assignee  `((= assignee:login ,assignee)))
@@ -635,9 +635,8 @@ can be selected from the start."
     (cdr (assoc choice alist))))
 
 (defun forge--topic-collection (topics)
-  (mapcar (lambda (topic)
-            (cons (forge--format-topic-line topic)
-                  (oref topic id)))
+  (mapcar (##cons (forge--format-topic-line %)
+                  (oref % id))
           topics))
 
 (defvar-keymap forge-read-topic-minibuffer-map
@@ -709,7 +708,7 @@ can be selected from the start."
                                      :where (= repository $s1)
                                      :order-by [(desc updated)]]
                                     (oref repo id))))
-               :annotation-function (lambda (c) (get-text-property 0 :title c))))))
+               :annotation-function (##get-text-property 0 :title %)))))
 
 (defun forge-read-topic-title (topic)
   (read-string "Title: " (oref topic title)))
@@ -863,7 +862,7 @@ can be selected from the start."
                (`(forge-pullreq merged)    'forge-pullreq-merged)
                (`(forge-pullreq rejected)  'forge-pullreq-rejected)))))))
     (run-hook-wrapped 'forge-topic-wash-title-hook
-                      (lambda (fn) (prog1 nil (save-excursion (funcall fn)))))
+                      (##prog1 nil (save-excursion (funcall %))))
     (buffer-string)))
 
 (defun forge--format-topic-milestone (topic)
