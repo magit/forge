@@ -399,7 +399,7 @@
                       `((all . t) ,@(and since `((since . ,since))))
                       :host apihost :unpaginate t)))
          ;; Split into multiple requests to reduce risk of timeouts.
-         (groups (-partition-all 50 notifs))
+         (groups (seq-partition notifs 50))
          (pages  (length groups))
          (page   0)
          (topics nil))
