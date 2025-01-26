@@ -296,9 +296,10 @@ non-equal objects may exist, representing the same thing."
   (oref obj id))
 
 (defun forge--set-id-slot (repo object slot ids)
-  (closql-oset object slot
+  (closql-dset object slot
                (let ((rid (oref repo id)))
-                 (mapcar (##forge--object-id rid (alist-get 'id %)) ids))))
+                 (mapcar (##forge--object-id rid (alist-get 'id %)) ids))
+               t))
 
 ;;; Format
 

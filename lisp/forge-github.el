@@ -296,10 +296,8 @@
               :body    (forge--sanitize-string .body))
              t)))
         (forge--update-status repo issue data bump initial-pull))
-      (ignore-errors
-        (forge--set-id-slot repo issue 'assignees .assignees))
-      (ignore-errors
-        (forge--set-id-slot repo issue 'labels .labels)))
+      (forge--set-id-slot repo issue 'assignees .assignees)
+      (forge--set-id-slot repo issue 'labels .labels))
     issue))
 
 ;;;; Pullreqs
@@ -362,14 +360,11 @@
               :body    (forge--sanitize-string .body))
              t)))
         (forge--update-status repo pullreq data bump initial-pull))
-      (ignore-errors
-        (forge--set-id-slot repo pullreq 'assignees .assignees))
-      (ignore-errors
-        (forge--set-id-slot repo pullreq 'review-requests
-                            (mapcar (##alist-get 'requestedReviewer %)
-                                    .reviewRequests)))
-      (ignore-errors
-        (forge--set-id-slot repo pullreq 'labels .labels)))
+      (forge--set-id-slot repo pullreq 'assignees .assignees)
+      (forge--set-id-slot repo pullreq 'review-requests
+                          (mapcar (##alist-get 'requestedReviewer %)
+                                  .reviewRequests))
+      (forge--set-id-slot repo pullreq 'labels .labels))
     pullreq))
 
 ;;;; Notifications

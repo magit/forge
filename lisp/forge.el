@@ -11,7 +11,7 @@
 ;; Package-Requires: (
 ;;     (emacs "29.1")
 ;;     (compat "30.0.1.0")
-;;     (closql "2.1.0")
+;;     (closql "2.2.0")
 ;;     (emacsql "4.1.0")
 ;;     (ghub "4.2.0")
 ;;     (let-alist "1.0.6")
