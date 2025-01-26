@@ -280,8 +280,7 @@
         (oset issue created    .createdAt)
         (oset issue closed     .closedAt)
         (oset issue locked-p   .locked)
-        (oset issue milestone  (and .milestone.id
-                                    (forge--object-id repo-id .milestone.id)))
+        (oset issue milestone  (forge--object-id repo-id .milestone.id))
         (oset issue body       (forge--sanitize-string .body))
         (dolist (c .comments)
           (let-alist c
@@ -347,9 +346,7 @@
         (oset pullreq head-rev     .headRefOid)
         (oset pullreq head-user    .headRef.repository.owner.login)
         (oset pullreq head-repo    .headRef.repository.nameWithOwner)
-        (oset pullreq milestone    (and .milestone.id
-                                        (forge--object-id repo-id
-                                                          .milestone.id)))
+        (oset pullreq milestone    (forge--object-id repo-id .milestone.id))
         (oset pullreq body         (forge--sanitize-string .body))
         (dolist (p .comments)
           (let-alist p

@@ -253,20 +253,21 @@ A face attribute should be used that is not already used by any
    t))
 
 (cl-defmethod forge--object-id ((prefix string) number-or-id)
-  (base64-encode-string
-   (encode-coding-string
-    (format "%s:%s"
-            (base64-decode-string prefix)
-            (if (numberp number-or-id)
-                number-or-id
-              ;; Currently every ID is base64 encoded.  Unfortunately
-              ;; we cannot use the IDs of Gitlab labels (see comment
-              ;; in the respective `forge--update-labels' method),
-              ;; and have to use their names, which are not encoded.
-              (or (ignore-errors (base64-decode-string number-or-id))
-                  number-or-id)))
-    'utf-8)
-   t))
+  (and number-or-id
+       (base64-encode-string
+        (encode-coding-string
+         (format "%s:%s"
+                 (base64-decode-string prefix)
+                 (if (numberp number-or-id)
+                     number-or-id
+                   ;; Currently every ID is base64 encoded.  Unfortunately
+                   ;; we cannot use the IDs of Gitlab labels (see comment
+                   ;; in the respective `forge--update-labels' method),
+                   ;; and have to use their names, which are not encoded.
+                   (or (ignore-errors (base64-decode-string number-or-id))
+                       number-or-id)))
+         'utf-8)
+        t)))
 
 (cl-defmethod forge-topic-mark-read ((topic forge-topic))
   (when (eq (oref topic status) 'unread)
