@@ -256,7 +256,8 @@
 
 (cl-defmethod forge--update-issue ((repo forge-github-repository) data
                                    &optional bump initial-pull)
-  (let (issue-id issue)
+  (let ((repo-id (oref repo id))
+        issue-id issue)
     (let-alist data
       (closql-with-transaction (forge-db)
         (setq issue-id (forge--object-id 'forge-issue repo .number))
@@ -264,7 +265,7 @@
                         (closql-insert
                          (forge-db)
                          (forge-issue :id         issue-id
-                                      :repository (oref repo id)
+                                      :repository repo-id
                                       :number     .number))))
         (oset issue their-id   .id)
         (oset issue slug       (format "#%s" .number))
@@ -280,8 +281,7 @@
         (oset issue closed     .closedAt)
         (oset issue locked-p   .locked)
         (oset issue milestone  (and .milestone.id
-                                    (forge--object-id (oref repo id)
-                                                      .milestone.id)))
+                                    (forge--object-id repo-id .milestone.id)))
         (oset issue body       (forge--sanitize-string .body))
         (dolist (c .comments)
           (let-alist c
@@ -315,7 +315,8 @@
 
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data
                                      &optional bump initial-pull)
-  (let (pullreq-id pullreq)
+  (let ((repo-id (oref repo id))
+        pullreq-id pullreq)
     (let-alist data
       (closql-with-transaction (forge-db)
         (setq pullreq-id (forge--object-id 'forge-pullreq repo .number))
@@ -323,7 +324,7 @@
                           (closql-insert
                            (forge-db)
                            (forge-pullreq :id         pullreq-id
-                                          :repository (oref repo id)
+                                          :repository repo-id
                                           :number     .number))))
         (oset pullreq their-id     .id)
         (oset pullreq slug         (format "#%s" .number))
@@ -348,7 +349,7 @@
         (oset pullreq head-user    .headRef.repository.owner.login)
         (oset pullreq head-repo    .headRef.repository.nameWithOwner)
         (oset pullreq milestone    (and .milestone.id
-                                        (forge--object-id (oref repo id)
+                                        (forge--object-id repo-id
                                                           .milestone.id)))
         (oset pullreq body         (forge--sanitize-string .body))
         (dolist (p .comments)
