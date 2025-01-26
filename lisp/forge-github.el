@@ -300,8 +300,7 @@
       (ignore-errors
         (forge--set-id-slot repo issue 'assignees .assignees))
       (ignore-errors
-        (unless (magit-get-boolean "forge.kludge-for-issue-294")
-          (forge--set-id-slot repo issue 'labels .labels))))
+        (forge--set-id-slot repo issue 'labels .labels)))
     issue))
 
 ;;;; Pullreqs
@@ -373,8 +372,7 @@
                             (mapcar (##cdr (cadr (car %)))
                                     .reviewRequests)))
       (ignore-errors
-        (unless (magit-get-boolean "forge.kludge-for-issue-294")
-          (forge--set-id-slot repo pullreq 'labels .labels))))
+        (forge--set-id-slot repo pullreq 'labels .labels)))
     pullreq))
 
 ;;;; Notifications
