@@ -366,7 +366,7 @@
         (forge--set-id-slot repo pullreq 'assignees .assignees))
       (ignore-errors
         (forge--set-id-slot repo pullreq 'review-requests
-                            (mapcar (##cdr (cadr (car %)))
+                            (mapcar (##alist-get 'requestedReviewer %)
                                     .reviewRequests)))
       (ignore-errors
         (forge--set-id-slot repo pullreq 'labels .labels)))

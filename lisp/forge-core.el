@@ -295,16 +295,10 @@ Using OBJ itself would not be appropriate because multiple
 non-equal objects may exist, representing the same thing."
   (oref obj id))
 
-(defun forge--set-id-slot (repo object slot rows)
-  "Set the value in OBJECT for SLOT to VALUE, actually storing foreign keys."
-  ;; TODO Should CloSQL advice `oset' to make this unnecessary?
-  (let ((repo-id (oref repo id)))
-    (closql-oset
-     object slot
-     (mapcar (lambda (val)
-               (forge--object-id repo-id
-                                 (if (atom val) val (alist-get 'id val))))
-             rows))))
+(defun forge--set-id-slot (repo object slot ids)
+  (closql-oset object slot
+               (let ((rid (oref repo id)))
+                 (mapcar (##forge--object-id rid (alist-get 'id %)) ids))))
 
 ;;; Format
 
