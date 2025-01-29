@@ -295,10 +295,20 @@ Using OBJ itself would not be appropriate because multiple
 non-equal objects may exist, representing the same thing."
   (oref obj id))
 
-(defun forge--set-connections (repo object slot ids)
+(defun forge--set-connections (repo object slot list)
   (closql-dset object slot
                (let ((rid (oref repo id)))
-                 (mapcar (##forge--object-id rid (alist-get 'id %)) ids))
+                 (mapcar (lambda (value)
+                           (forge--object-id
+                            rid
+                            (if (atom value)
+                                ;; For Gitlab labels we unfortunately only
+                                ;; get a string, the ambigious name of the
+                                ;; label.  See also the comment in the
+                                ;; Gitlab `forge--update-labels' method.
+                                value
+                              (alist-get 'id value))))
+                         list))
                t))
 
 ;;; Format

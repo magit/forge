@@ -427,7 +427,8 @@
                       ;; tagged with the old label name until it itself
                       ;; is modified somehow.  Additionally it leads to
                       ;; name conflicts between group and project
-                      ;; labels.  See #160.
+                      ;; labels.  See #160.  Also see the comment in
+                      ;; `forge--set-connections'.
                       (list (forge--object-id id .name)
                             .name
                             (downcase .color)
