@@ -25,6 +25,19 @@
 
 - Added new commands ~forge-approve-pullreq~ and ~forge-request-changes~.  #377
 
+- Started using the ~##~ macro and the ~partial~ shorthand from the ~llama~ package.
+  247330105, b17be58bc
+
+- Stopped depending on the ~dash~ package.  5c4a1afc8
+
+- Sorting topics by when they were updated was not possible because the shown
+  key bindings were incorrect, and if if the user figured out what the secret
+  bindings were, then it would have errored.  #745
+
+- When an unknown label, assignee or review request was encountered, then all
+  entities of that type were ignored.  Now only the unknown entity is ignored.
+  2e040c1d2
+
 * v0.4.6    2025-01-01
 
 - ~forge-read-topic-labels~ and ~forge-read-topic-marks~ failed to use the
