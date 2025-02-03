@@ -347,14 +347,12 @@ REPO, return it, else set the slot to nil and return nil."
 ;;;; List
 
 (defun forge--ls-repos ()
-  (mapcar (let ((db (forge-db)))
-            (##closql--remake-instance 'forge-repository db %))
+  (mapcar (partial #'closql--remake-instance 'forge-repository (forge-db))
           (forge-sql [:select * :from repository
                       :order-by [(asc owner) (asc name)]])))
 
 (defun forge--ls-owned-repos ()
-  (mapcar (let ((db (forge-db)))
-            (##closql--remake-instance 'forge-repository db %))
+  (mapcar (partial #'closql--remake-instance 'forge-repository (forge-db))
           (forge-sql [:select * :from repository
                       :where (and (in owner $v1)
                                   (not (in name $v2)))
