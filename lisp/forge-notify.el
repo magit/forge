@@ -91,10 +91,9 @@ signal an error."
 (defun forge--ls-notifications (status)
   (let* ((status (ensure-list status))
          (savedp (memq 'saved status))
-         (status (remq 'saved status))
-         (db (forge-db)))
+         (status (remq 'saved status)))
     (mapcar
-     (##closql--remake-instance 'forge-notification db %)
+     (partial #'closql--remake-instance 'forge-notification (forge-db))
      (if (seq-set-equal-p status '(unread pending done) #'eq)
          (forge-sql [:select * :from notification :order-by [(desc updated)]])
        (forge-sql
