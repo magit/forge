@@ -435,7 +435,7 @@
                             .description)))
                   ;; For now simply remove one of the duplicates.
                   (cl-delete-duplicates data
-                                        :key (apply-partially #'alist-get 'name)
+                                        :key (##alist-get 'name %)
                                         :test #'equal)))))
 
 ;;;; Notifications

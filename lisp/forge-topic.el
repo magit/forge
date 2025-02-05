@@ -508,9 +508,9 @@ Limit list to topics for which a review by the given user was requested."
     (forge--list-topics-1 spec repo type)))
 
 (defun forge--list-topics-1 (spec repo type)
-  (mapcar (apply-partially #'closql--remake-instance
-                           (if (eq type 'issue) 'forge-issue 'forge-pullreq)
-                           (forge-db))
+  (mapcar (partial #'closql--remake-instance
+                   (if (eq type 'issue) 'forge-issue 'forge-pullreq)
+                   (forge-db))
           (forge-sql (forge--list-topics-2 spec repo type))))
 
 (defun forge--list-topics-2 (spec repo type)
