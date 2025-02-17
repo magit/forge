@@ -682,7 +682,6 @@ commands.  For ~forge-topic-menu~, see [[*Editing Topics]].
   buffer.  If the list buffer already exists, this command only
   ensures that all types of topics are listed.  If any other filters
   are in effect, they are left intact.
-  TODO fix preserving type
 
 - Key: RET [on "Issues" status section] (forge-list-issues) ::
 
@@ -722,7 +721,7 @@ commands.  For ~forge-topic-menu~, see [[*Editing Topics]].
 :END:
 
 - Key: N m n (forge-notifications-menu) ::
-- Key: C-c C-c ::
+- Key: C-c C-c [in notifications list buffer] ::
 
   This command displays a menu used to control the list of
   notifications displayed in the current buffer.
@@ -738,7 +737,7 @@ commands.  For ~forge-topic-menu~, see [[*Editing Topics]].
 :END:
 
 - Key: N m r (forge-repositories-menu) ::
-- Key: C-c C-c ::
+- Key: C-c C-c [in repositories list buffer] ::
 
   This command displays a menu used to control the list of
   repositories displayed in the current buffer.
@@ -826,7 +825,7 @@ Magit status buffers, by adding the following functions to
 
 Which topics are listed initially is customizable using option
 ~forge-status-buffer-default-topic-filters~ and can be changed
-temporarily for the current buffer, using ~N m f~ (`forge-topics-menu').
+temporarily for the current buffer, using ~N m f~ (~forge-topics-menu~).
 
 - Function: forge-insert-issues ::
 
