@@ -155,7 +155,7 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
 
 ;;; Startup Asserts
 
-(defconst forge--minimal-git "2.7.0")
+(defconst forge--minimal-git "2.25.0")
 
 (defun forge-startup-asserts ()
   (let ((version (magit-git-version)))
