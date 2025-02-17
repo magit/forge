@@ -136,6 +136,8 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
   (transient-append-suffix 'magit-branch "W"
     '("F" "from pull-request" forge-branch-pullreq))
 
+  (transient-append-suffix 'magit-remote "a"
+    '("f" "Fork" forge-fork))
   (transient-insert-suffix 'magit-remote "d u"
     '("d s" "Set default branch" forge-set-default-branch))
   (transient-append-suffix 'magit-remote "d u"
