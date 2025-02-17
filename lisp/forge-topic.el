@@ -482,8 +482,8 @@ Limit list to topics for which a review by the given user was requested."
    (limit       :documentation "Number of topics to list at most."
                 :initarg :limit
                 :initform 200
-                :type integer
-                :custom natnum)
+                :type (or integer null)
+                :custom (choice natnum (const :tag "no limit" nil)))
    (grouped     :documentation "Whether to group topics by repository."
                 :initarg :grouped
                 :initform nil
