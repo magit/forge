@@ -911,5 +911,10 @@
                :callback callback :errorback errorback))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-github)
 ;;; forge-github.el ends here

@@ -1773,5 +1773,10 @@ modify `bug-reference-bug-regexp' if appropriate."
     (add-hook hook #'forge-bug-reference-setup)))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-topic)
 ;;; forge-topic.el ends here

@@ -682,5 +682,10 @@
                :errorback (or errorback (and callback t))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-gitlab)
 ;;; forge-gitlab.el ends here
