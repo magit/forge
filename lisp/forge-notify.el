@@ -320,5 +320,10 @@ signal an error."
                              'font-lock-face 'error)))))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-notify)
 ;;; forge-notify.el ends here

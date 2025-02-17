@@ -538,5 +538,10 @@ forges and hosts."
     ('forge-bitbucket-repository 'bitbucket)))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-repo)
 ;;; forge-repo.el ends here
