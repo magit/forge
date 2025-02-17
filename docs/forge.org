@@ -802,7 +802,7 @@ some menu may also remain active.
 :UNNUMBERED: notoc
 :END:
 
-- User Option: forge-status-buffer-default-topic-filters ::
+- User Option: forge-list-buffer-default-topic-filters ::
 
   This option specifies the filters initially used to limit topics
   listed in topic list buffers.

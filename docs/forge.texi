@@ -919,7 +919,7 @@ some menu may also remain active.
 @anchor{Default topic filters}
 @heading Default topic filters
 
-@defopt forge-status-buffer-default-topic-filters
+@defopt forge-list-buffer-default-topic-filters
 This option specifies the filters initially used to limit topics
 listed in topic list buffers.
 @end defopt
