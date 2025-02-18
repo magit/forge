@@ -1357,8 +1357,8 @@ you to manually clean up the local database."
   (setq topic (forge-get-topic topic))
   (closql-delete topic)
   (if (and (derived-mode-p 'forge-topic-mode)
-           (eq (oref topic id)
-               (oref forge-buffer-topic id)))
+           (equal (oref topic id)
+                  (oref forge-buffer-topic id)))
       (kill-buffer (current-buffer))
     (forge-refresh-buffer)))
 
