@@ -1349,18 +1349,35 @@ This may take a while.  Only Github is supported at the moment."
 ;;;###autoload
 (defun forge-remove-topic-locally (topic)
   "Remove a topic from the local database only.
-Due to how the supported APIs work, it would be too expensive to
-automatically remove topics from the local database that were
-removed from the forge.  The purpose of this command is to allow
-you to manually clean up the local database."
-  (interactive (list (forge-read-topic "Delete topic LOCALLY only")))
-  (setq topic (forge-get-topic topic))
-  (closql-delete topic)
-  (if (and (derived-mode-p 'forge-topic-mode)
-           (equal (oref topic id)
-                  (oref forge-buffer-topic id)))
-      (kill-buffer (current-buffer))
-    (forge-refresh-buffer)))
+
+When the region marks multiple topics, then offer to remove them all.
+
+The topic is not removed from the forge and, if it is later modified,
+then it will be added to the database again when fetching all topics.
+
+This is useful for users who only fetch individual topics and want to
+remove the topics they are no longer interested in.  This can also be
+used to remove topics locally, which have already been removed on the
+forge (the service).  Forge (the package) cannot automatically detect
+when that happens, because given how the APIs work, this would be too
+expensive."
+  (interactive
+   (list (if-let* ((topics (magit-region-values '(issue pullreq) t))
+                   ((magit-confirm 'remove-topics-locally nil
+                      "Delete %d topics locally" nil
+                      (mapcar #'forge--format-topic-line topics))))
+             topics
+           (forge-read-topic "Delete topic LOCALLY only"))))
+  (if (listp topic)
+      (progn (mapc #'closql-delete topic)
+             (forge-refresh-buffer))
+    (setq topic (forge-get-topic topic))
+    (closql-delete topic)
+    (if (and (derived-mode-p 'forge-topic-mode)
+             (equal (oref topic id)
+                    (oref forge-buffer-topic id)))
+        (kill-buffer (current-buffer))
+      (forge-refresh-buffer))))
 
 ;;;###autoload
 (defun forge-reset-database ()

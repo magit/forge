@@ -1457,13 +1457,17 @@ database.
 
 @deffn Command forge-remove-topic-locally
 This command reads a topic and removes it from the local database.
-The topic is not removed from the forge and, if it is later modified,
-then it will be added to the database again.
+When the region marks multiple topics, then offer to remove them all.
 
-Due to how the supported APIs work, it would be too expensive to
-automatically remove topics from the local database that were removed
-from the forge.  The only purpose of this command is to allow you to
-manually clean up the local database.
+The topic is not removed from the forge and, if it is later modified,
+then it will be added to the database again when fetching all topics.
+
+This is useful for users who only fetch individual topics and want to
+remove the topics they are no longer interested in.  This can also be
+used to remove topics locally, which have already been removed on the
+forge (the service).  Forge (the package) cannot automatically detect
+when that happens, because given how the APIs work, this would be too
+expensive.
 @end deffn
 
 @deffn Command forge-reset-database
