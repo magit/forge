@@ -1288,34 +1288,34 @@ This mode itself is never used directly."
    ""])
 
 (defconst forge--topic-set-state-group
-  `[:description ,(##if forge--show-topic-legend "Set public state" "Set state")
-    ("o" forge-topic-state-set-open)
-    ("c" forge-issue-state-set-completed)
-    ("x" forge-issue-state-set-unplanned)
-    ("c" forge-pullreq-state-set-merged)
-    ("x" forge-pullreq-state-set-rejected)])
+  [:description (##if forge--show-topic-legend "Set public state" "Set state")
+   ("o" forge-topic-state-set-open)
+   ("c" forge-issue-state-set-completed)
+   ("x" forge-issue-state-set-unplanned)
+   ("c" forge-pullreq-state-set-merged)
+   ("x" forge-pullreq-state-set-rejected)])
 
 (defconst forge--topic-set-status-group
-  `[:description ,(##if forge--show-topic-legend "Set private status" "Set status")
+  [:description (##if forge--show-topic-legend "Set private status" "Set status")
    ("u" forge-topic-status-set-unread)
    ("p" forge-topic-status-set-pending)
    ("d" forge-topic-status-set-done)])
 
 (defconst forge--topic-legend-group
-  `(["Legend" :if-non-nil forge--show-topic-legend
-     (:info* ,(##propertize "open issue"       'face 'forge-issue-open))
-     (:info* ,(##propertize "completed issue"  'face 'forge-issue-completed))
-     (:info* ,(##propertize "unplanned issue"  'face 'forge-issue-unplanned))]
+  '(["Legend" :if-non-nil forge--show-topic-legend
+     (:info* (##propertize "open issue"       'face 'forge-issue-open))
+     (:info* (##propertize "completed issue"  'face 'forge-issue-completed))
+     (:info* (##propertize "unplanned issue"  'face 'forge-issue-unplanned))]
     ["" :if-non-nil forge--show-topic-legend
-     (:info* ,(##propertize "open pullreq"     'face 'forge-pullreq-open))
-     (:info* ,(##propertize "merged pullreq"   'face 'forge-pullreq-merged))
-     (:info* ,(##propertize "rejected pullreq" 'face 'forge-pullreq-rejected))]
+     (:info* (##propertize "open pullreq"     'face 'forge-pullreq-open))
+     (:info* (##propertize "merged pullreq"   'face 'forge-pullreq-merged))
+     (:info* (##propertize "rejected pullreq" 'face 'forge-pullreq-rejected))]
     ["" :if-non-nil forge--show-topic-legend
-     (:info* ,(##propertize "unread"           'face 'forge-topic-unread))
-     (:info* ,(##propertize "pending"          'face 'forge-topic-pending))
-     (:info* ,(##propertize "done"             'face 'forge-topic-done))]
+     (:info* (##propertize "unread"           'face 'forge-topic-unread))
+     (:info* (##propertize "pending"          'face 'forge-topic-pending))
+     (:info* (##propertize "done"             'face 'forge-topic-done))]
     ["" :if-non-nil forge--show-topic-legend
-     (:info* ,(##propertize "draft"            'face 'forge-pullreq-draft))]))
+     (:info* (##propertize "draft"            'face 'forge-pullreq-draft))]))
 
 (defvar forge--show-topic-legend t)
 
