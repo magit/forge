@@ -904,7 +904,7 @@ configure it first."
 (defun forge-checkout-worktree (path pullreq)
   "Create, configure and checkout a new worktree from a pull-request.
 This is like `forge-checkout-pullreq', except that it also
-creates a new worktree. Please see the manual for more
+creates a new worktree.  Please see the manual for more
 information."
   (interactive
    (let ((id (forge-read-pullreq "Checkout pull request")))
