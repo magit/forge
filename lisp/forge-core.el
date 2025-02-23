@@ -303,7 +303,7 @@ non-equal objects may exist, representing the same thing."
                             rid
                             (if (atom value)
                                 ;; For Gitlab labels we unfortunately only
-                                ;; get a string, the ambigious name of the
+                                ;; get a string, the ambiguous name of the
                                 ;; label.  See also the comment in the
                                 ;; Gitlab `forge--update-labels' method.
                                 value
