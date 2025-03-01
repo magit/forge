@@ -1,4 +1,16 @@
 # -*- mode: org -*-
+* v0.4.8    UNRELEASED
+
+- At least Git 2.25.0 is required now.  Same as for Magit.
+
+- The type of ~forge--topics-spec~ slot was wrong.  6eac2c3ee
+
+- Improved bindings added to ~magit-remote~.  de4c964cb
+
+- Added ~forge-fork~ to ~magit-remote~ menu.  3a2739f35
+
+- ~forge-remove-topic-locally~ can now remove all marked topics.  #734
+
 * v0.4.7    2025-02-04
 
 - Added new hook ~forge-topic-wash-title-hook~.  #735
