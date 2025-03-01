@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v0.4.8    UNRELEASED
+* v0.4.8    2025-03-02
 
 - At least Git 2.25.0 is required now.  Same as for Magit.
 
