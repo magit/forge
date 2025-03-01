@@ -1796,7 +1796,7 @@ expose those.
 @appendixsec Partially Supported Forges
 
 @anchor{Forgejo https//forgejoorg}
-@appendixsubsec Forgejo @uref{https://forgejo.org}
+@appendixsubsec Forgejo https://forgejo.org
 
 This is the next forge whose API will be supported.
 
@@ -1809,21 +1809,21 @@ This is the next forge whose API will be supported.
 @end itemize
 
 @anchor{Gitea https//giteaio}
-@appendixsubsec Gitea @uref{https://gitea.io}
+@appendixsubsec Gitea https://gitea.io
 
 Once Forgejo is supported it might be fairly simple to support Gitea
 too, because the former is a fork of the latter, and their APIs might
 still be similar enough.
 
 @anchor{Gogs https//gogsio}
-@appendixsubsec Gogs @uref{https://gogs.io}
+@appendixsubsec Gogs https://gogs.io
 
 Once Forgejo is supported it might be fairly simple to support Gogs
 too, because the Forgejo is a fork of Gitea, which is a fork of Gogs,
 and their APIs might still be similar enough.
 
 @anchor{Bitbucket https//bitbucketorg}
-@appendixsubsec Bitbucket @uref{https://bitbucket.org}
+@appendixsubsec Bitbucket https://bitbucket.org
 
 I don't plan to support Bitbucket's API any time soon, and it gets
 less likely that I will every do it every time I look at it.
@@ -1864,7 +1864,7 @@ progress since: @uref{https://bitbucket.org/site/master/issues/5814}.
 @appendixsec Supported Semi-Forges
 
 @anchor{Gitweb https//git-scmcom/docs/gitweb}
-@appendixsubsec Gitweb @uref{https://git-scm.com/docs/gitweb}
+@appendixsubsec Gitweb https://git-scm.com/docs/gitweb
 
 @anchor{Gitweb Caveats}
 @appendixsubsubsec Gitweb Caveats
@@ -1878,7 +1878,7 @@ just on this site).
 @end itemize
 
 @anchor{Cgit https//gitzx2c4com/cgit/about}
-@appendixsubsec Cgit @uref{https://git.zx2c4.com/cgit/about}
+@appendixsubsec Cgit https://git.zx2c4.com/cgit/about
 
 @anchor{Cgit Caveats}
 @appendixsubsubsec Cgit Caveats
@@ -1905,7 +1905,7 @@ one for a particular installation.
 @end itemize
 
 @anchor{Stgit https//codemadnessorg/git/stagit/file/READMEhtml}
-@appendixsubsec Stgit @uref{https://codemadness.org/git/stagit/file/README.html}
+@appendixsubsec Stgit https://codemadness.org/git/stagit/file/README.html
 
 @anchor{Stgit Caveats}
 @appendixsubsubsec Stgit Caveats
@@ -1927,7 +1927,7 @@ log is just one click away from there).
 @end itemize
 
 @anchor{Srht https//metasrht}
-@appendixsubsec Srht @uref{https://meta.sr.ht}
+@appendixsubsec Srht https://meta.sr.ht
 
 @anchor{Srht Caveats}
 @appendixsubsubsec Srht Caveats
