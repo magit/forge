@@ -1078,23 +1078,25 @@ is configured to disallow that, you should instead merge locally
 and then push the target branch.  Forges detect that you have
 done that and respond by automatically marking the pull-request
 as merged."
-  (interactive
-   (list (forge-read-pullreq "Merge pull-request")
-         (if (forge--childp (forge-get-repository :tracked)
-                            'forge-gitlab-repository)
-             (magit-read-char-case "Merge method " t
-               (?m "[m]erge"  'merge)
-               (?s "[s]quash" 'squash))
-           (magit-read-char-case "Merge method " t
-             (?m "[m]erge"  'merge)
-             (?s "[s]quash" 'squash)
-             (?r "[r]ebase" 'rebase)))))
+  (interactive (list (forge-read-pullreq "Merge pull-request")
+                     (forge-select-merge-method)))
   (let ((pullreq (forge-get-pullreq pullreq)))
     (forge--merge-pullreq (forge-get-repository pullreq)
                           pullreq
                           (magit-rev-hash
                            (forge--pullreq-branch-internal pullreq))
                           method)))
+
+(defun forge-select-merge-method ()
+  (if (forge--childp (forge-get-repository :tracked)
+                     'forge-gitlab-repository)
+      (magit-read-char-case "Merge method " t
+        (?m "[m]erge"  'merge)
+        (?s "[s]quash" 'squash))
+    (magit-read-char-case "Merge method " t
+      (?m "[m]erge"  'merge)
+      (?s "[s]quash" 'squash)
+      (?r "[r]ebase" 'rebase))))
 
 ;;;###autoload
 (defun forge-set-default-branch ()
