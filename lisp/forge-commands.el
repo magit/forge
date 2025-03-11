@@ -1078,6 +1078,7 @@ is configured to disallow that, you should instead merge locally
 and then push the target branch.  Forges detect that you have
 done that and respond by automatically marking the pull-request
 as merged."
+  (declare (interactive-only nil))
   (interactive (list (forge-read-pullreq "Merge pull-request")
                      (forge-select-merge-method)))
   (let ((pullreq (forge-get-pullreq pullreq)))

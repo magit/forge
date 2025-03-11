@@ -1634,13 +1634,32 @@ This mode itself is never used directly."
   :if #'forge-current-discussion)
 
 (transient-define-suffix forge-pullreq-state-set-merged ()
-  "If the current pull-request is merged, then visualize that."
+  "Merge the current pull-request into its target.
+Prompt the user to either use the API to perform the merge or use Git.
+I recommend you only use the API if your organization enforces that
+inferior process."
   :class 'forge--topic-set-state-command
   :state 'merged
   :getter #'forge-current-pullreq
   :if #'forge-current-pullreq
+  :transient nil
   (interactive)
-  (message "Please use a merge command for this"))
+  (let ((pullreq (forge-current-pullreq)))
+    (if (magit-read-char-case (format "Merge #%s " (oref pullreq number)) t
+          (?g "using [g]it (recommended)" t)
+          (?a "using [a]pi" nil))
+        (if-let ((branch (or (forge--pullreq-branch-active pullreq)
+                             (forge--branch-pullreq pullreq)))
+                 (upstream (magit-get-local-upstream-branch branch)))
+            (if (zerop (magit-call-git "checkout" upstream))
+                (magit--merge-absorb
+                 branch (magit-merge-arguments)
+                 ;; Users might be surprised that we
+                 ;; aren't done yet, so drop a hint.
+                 "Inspect the result, and if satisfied push")
+              (user-error "Could not checkout %S" upstream))
+          (user-error "No upstream configured for %S" branch))
+      (forge-merge pullreq (forge-select-merge-method)))))
 
 (transient-define-suffix forge-pullreq-state-set-rejected ()
   "Set the state of the current pull-request to `rejected'."
