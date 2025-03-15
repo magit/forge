@@ -137,7 +137,7 @@
       (id :not-null :primary-key)
       login
       name
-      forge-id] ; Needed for Gitlab.
+      forge-id]
      (:foreign-key
       [repository] :references repository [id]
       :on-delete :cascade))
