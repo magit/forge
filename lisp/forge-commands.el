@@ -709,6 +709,7 @@ point is currently on."
 (transient-define-suffix forge-edit-topic-note ()
   "Edit your private note about the current topic."
   :transient #'transient--do-quit-all
+  :inapt-if-not #'forge-current-topic
   :description
   (lambda ()
     (if-let ((topic (forge-current-topic)))
