@@ -289,6 +289,10 @@ is non-nil."
                                        &optional stub noerror)
   "Return the database and forge ids for the specified CLASS object.")
 
+(defun forge--their-id (id)
+  "Return the forge's id for the ID used in the local database."
+  (car (last (split-string (base64-decode-string id) ":"))))
+
 (cl-defmethod magit-section-ident-value ((obj forge-object))
   "Return the value ob OBJ's `id' slot.
 Using OBJ itself would not be appropriate because multiple
