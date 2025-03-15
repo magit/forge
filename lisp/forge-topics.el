@@ -207,6 +207,7 @@ Must be set before `forge-topics' is loaded.")
     ("d" forge-topics-filter-status-done)]
    ["Type"
     ("t t" forge-topics-all-types)
+    ("t d" forge-topics-filter-discussions)
     ("t i" forge-topics-filter-issues)
     ("t p" forge-topics-filter-pullreqs)]]
   [forge--lists-group
@@ -291,6 +292,15 @@ then display the respective menu, otherwise display no menu."
   (forge-topics-setup-buffer repo)
   (transient-setup 'forge-topics-menu))
 
+;;;###autoload(autoload 'forge-list-discussions "forge-topics" nil t)
+(transient-define-suffix forge-list-discussions (&optional repo)
+  "List discussions of the current repository."
+  :description "discussions"
+  (declare (interactive-only nil))
+  (interactive)
+  (forge-topics-setup-buffer repo nil :type 'discussion)
+  (transient-setup 'forge-topics-menu))
+
 ;;;###autoload(autoload 'forge-list-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-issues (&optional repo)
   "List issues of the current repository."
@@ -359,6 +369,11 @@ then display the respective menu, otherwise display no menu."
 (transient-define-suffix forge-topics-all-types ()
   :class 'forge--topics-filter-type-command :type 'topic
   :description "topics")
+
+(transient-define-suffix forge-topics-filter-discussions ()
+  "List discussions of the current repository."
+  :class 'forge--topics-filter-type-command :type 'discussion
+  :description "discussions")
 
 (transient-define-suffix forge-topics-filter-issues ()
   "List issues of the current repository."
@@ -432,6 +447,7 @@ Realized topics include:
   :state '(completed merged)
   :description (lambda ()
                  (pcase (oref forge--buffer-topics-spec type)
+                   ('discussion "completed")
                    ('issue      "completed")
                    ('pullreq    "merged")
                    ('topic      "realized"))))
@@ -446,6 +462,7 @@ Expunged topics include:
   :state '(unplanned duplicate rejected)
   :description (lambda ()
                  (pcase (oref forge--buffer-topics-spec type)
+                   ('discussion "expunged")
                    ('issue      "expunged")
                    ('pullreq    "rejected")
                    ('topic      "expunged"))))

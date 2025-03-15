@@ -189,6 +189,26 @@ attribute that is specified by any of those faces.  Likewise those
 faces should not set `:weight' or `:slant'."
   :group 'forge-faces)
 
+;;;;; Discussions
+
+(defface forge-discussion-open
+  '((t :slant italic))
+  "Face used for summaries of open discussions."
+  :group 'forge-faces)
+
+(defface forge-discussion-completed
+  '((t :inherit forge-dimmed :slant italic))
+  "Face used for summaries of discussions closed as completed."
+  :group 'forge-faces)
+
+(defface forge-discussion-expunged
+  '((t :inherit forge-dimmed :slant italic :strike-through t))
+  "Face used for summaries of expunged discussions.
+Expunged discussions include:
+- discussions closes as unplanned, and
+- discussions closed as duplicates."
+  :group 'forge-faces)
+
 ;;;;; Issues
 
 (defface forge-issue-open
@@ -227,7 +247,7 @@ Expunged issues include:
   :group 'forge-faces)
 
 (defface forge-pullreq-draft
-  '((t :slant italic))
+  '((t :inherit highlight))
   "Face used for summaries of draft pull-requests.
 A face attribute should be used that is not already used by any
 `forge-topic-STATUS' or `forge-{issue,pullreq}-STATE' face."
@@ -310,6 +330,8 @@ A face attribute should be used that is not already used by any
 (cl-defmethod forge-get-topic ((topic forge-topic))
   topic)
 
+;; TODO forge-get-topic Support discussions
+
 (cl-defmethod forge-get-topic ((repo forge-repository) number-or-id)
   (if (numberp number-or-id)
       (if (< number-or-id 0)
@@ -326,7 +348,8 @@ A face attribute should be used that is not already used by any
         (forge-get-pullreq number))))
 
 (cl-defmethod forge-get-topic ((id string))
-  (or (forge-get-issue id)
+  (or (forge-get-discussion id)
+      (forge-get-issue id)
       (forge-get-pullreq id)))
 
 ;;;; Current
@@ -344,7 +367,7 @@ an error."
 If there is no such topic and DEMAND is non-nil, then signal
 an error."
   (or (thing-at-point 'forge-topic)
-      (magit-section-value-if '(issue pullreq))
+      (magit-section-value-if '(discussion issue pullreq))
       (forge-get-pullreq :branch)
       (and demand (user-error "No topic at point"))))
 
@@ -360,7 +383,7 @@ an error."
            (forge-get-pullreq repo number)))))
 
 (defun forge-region-topics ()
-  (magit-region-values '(issue pullreq)))
+  (magit-region-values '(discussion issue pullreq)))
 
 ;;;; List
 
@@ -382,9 +405,10 @@ an error."
 Limit list based on topic type."
                 :initarg :type
                 :initform 'topic
-                :type (member topic issue pullreq nil)
+                :type (member topic discussion issue pullreq nil)
                 :custom (choice
                          (const topic)
+                         (const discussion)
                          (const issue)
                          (const pullreq)
                          (const :tag "disable topic sections (nil)" nil)))
@@ -540,14 +564,18 @@ Limit list to topics for which a review by the given user was requested."
                                     ('oldest             '(< number))
                                     ('recently-updated   '(string> updated))
                                     ('anciently-updated  '(string< updated)))))
-        (cl-sort (nconc (forge--list-topics-1 spec repo 'issue)
+        (cl-sort (nconc (forge--list-topics-1 spec repo 'discussion)
+                        (forge--list-topics-1 spec repo 'issue)
                         (forge--list-topics-1 spec repo 'pullreq))
                  pred :key (##eieio-oref % slot)))
     (forge--list-topics-1 spec repo type)))
 
 (defun forge--list-topics-1 (spec repo type)
   (mapcar (partial #'closql--remake-instance
-                   (if (eq type 'issue) 'forge-issue 'forge-pullreq)
+                   (pcase type
+                     ('discussion 'forge-discussion)
+                     ('issue      'forge-issue)
+                     ('pullreq    'forge-pullreq))
                    (forge-db))
           (forge-sql (forge--list-topics-2 spec repo type))))
 
@@ -565,26 +593,35 @@ Limit list to topics for which a review by the given user was requested."
       ,@(and milestone
              [:join milestone :on (= milestone:title ,milestone)])
       ,@(pcase (and labels type)
+          ('discussion
+           [:join discussion-label :on (= discussion-label:discussion  topic:id)
+            :join            label :on (= label:id          discussion-label:id)])
           ('issue
-           [:join   issue-label :on (= issue-label:issue      topic:id)
-            :join         label :on (= label:id         issue-label:id)])
+           [:join      issue-label :on (= issue-label:issue            topic:id)
+            :join            label :on (= label:id               issue-label:id)])
           ('pullreq
-           [:join pullreq-label :on (= pullreq-label:pullreq  topic:id)
-            :join         label :on (= label:id       pullreq-label:id)]))
+           [:join    pullreq-label :on (= pullreq-label:pullreq        topic:id)
+            :join            label :on (= label:id             pullreq-label:id)]))
       ,@(pcase (and marks type)
+          ('discussion
+           [:join discussion-mark :on (= discussion-mark:discussion  topic:id)
+            :join            mark :on (= mark:id           discussion-mark:id)])
           ('issue
-           [:join   issue-mark :on (= issue-mark:issue      topic:id)
-            :join         mark :on (= mark:id         issue-mark:id)])
+           [:join      issue-mark :on (= issue-mark:issue            topic:id)
+            :join            mark :on (= mark:id                issue-mark:id)])
           ('pullreq
-           [:join pullreq-mark :on (= pullreq-mark:pullreq  topic:id)
-            :join         mark :on (= mark:id       pullreq-mark:id)]))
+           [:join    pullreq-mark :on (= pullreq-mark:pullreq        topic:id)
+            :join            mark :on (= mark:id              pullreq-mark:id)]))
       ,@(pcase (and assignee type)
+          ('discussion
+           [:join discussion-assignee :on (= discussion-assignee:discussion  topic:id)
+            :join            assignee :on (= assignee:id       discussion-assignee:id)])
           ('issue
-           [:join   issue-assignee :on (= issue-assignee:issue      topic:id)
-            :join         assignee :on (= assignee:id      issue-assignee:id)])
+           [:join      issue-assignee :on (= issue-assignee:issue            topic:id)
+            :join            assignee :on (= assignee:id            issue-assignee:id)])
           ('pullreq
-           [:join pullreq-assignee :on (= pullreq-assignee:pullreq  topic:id)
-            :join         assignee :on (= assignee:id    pullreq-assignee:id)]))
+           [:join    pullreq-assignee :on (= pullreq-assignee:pullreq        topic:id)
+            :join            assignee :on (= assignee:id          pullreq-assignee:id)]))
       ,@(and reviewer
              [:join (as pullreq-review-request r) :on (= r:pullreq  topic:id)
               :join assignee                      :on (= assignee:id    r:id)])
@@ -737,11 +774,15 @@ can be selected from the start."
                                         'pullreq)
                                       (oref repo id))
                          (forge-sql [:select [number title updated]
-                                     :from pullreq
+                                     :from discussion
                                      :where (= repository $s1)
                                      :union
                                      :select [number title updated]
                                      :from issue
+                                     :where (= repository $s1)
+                                     :union
+                                     :select [number title updated]
+                                     :from pullreq
                                      :where (= repository $s1)
                                      :order-by [(desc updated)]]
                                     (oref repo id))))
@@ -893,13 +934,17 @@ can be selected from the start."
                ('pending 'forge-topic-pending)
                ('done    'forge-topic-done))
             ,(pcase (list (eieio-object-class topic) state)
-               (`(forge-issue   open)      'forge-issue-open)
-               (`(forge-issue   completed) 'forge-issue-completed)
-               (`(forge-issue   unplanned) 'forge-issue-expunged)
-               (`(forge-issue   duplicate) 'forge-issue-expunged)
-               (`(forge-pullreq open)      'forge-pullreq-open)
-               (`(forge-pullreq merged)    'forge-pullreq-merged)
-               (`(forge-pullreq rejected)  'forge-pullreq-rejected)))))))
+               (`(forge-discussion  open)       'forge-discussion-open)
+               (`(forge-discussion  completed)  'forge-discussion-completed)
+               (`(forge-discussion  unplanned)  'forge-discussion-expunged)
+               (`(forge-discussion  duplicate)  'forge-discussion-expunged)
+               (`(forge-issue       open)       'forge-issue-open)
+               (`(forge-issue       completed)  'forge-issue-completed)
+               (`(forge-issue       unplanned)  'forge-issue-expunged)
+               (`(forge-issue       duplicate)  'forge-issue-expunged)
+               (`(forge-pullreq     open)       'forge-pullreq-open)
+               (`(forge-pullreq     merged)     'forge-pullreq-merged)
+               (`(forge-pullreq     rejected)   'forge-pullreq-rejected)))))))
     (run-hook-wrapped 'forge-topic-wash-title-hook
                       (##prog1 nil (save-excursion (funcall %))))
     (buffer-string)))
@@ -968,13 +1013,17 @@ can be selected from the start."
     (magit--propertize-face
      (symbol-name state)
      (pcase (list (if (forge-issue-p topic) 'issue 'pullreq) state)
-       ('(issue   open)      'forge-issue-open)
-       ('(issue   completed) 'forge-issue-completed)
-       ('(issue   unplanned) 'forge-issue-expunged)
-       ('(issue   duplicate) 'forge-issue-expunged)
-       ('(pullreq open)      'forge-pullreq-open)
-       ('(pullreq merged)    'forge-pullreq-merged)
-       ('(pullreq closed)    'forge-pullreq-rejected)))))
+       ('(discussion  open)       'forge-discussion-open)
+       ('(discussion  completed)  'forge-discussion-completed)
+       ('(discussion  unplanned)  'forge-discussion-expunged)
+       ('(discussion  duplicate)  'forge-discussion-expunged)
+       ('(issue       open)       'forge-issue-open)
+       ('(issue       completed)  'forge-issue-completed)
+       ('(issue       unplanned)  'forge-issue-expunged)
+       ('(issue       duplicate)  'forge-issue-expunged)
+       ('(pullreq     open)       'forge-pullreq-open)
+       ('(pullreq     merged)     'forge-pullreq-merged)
+       ('(pullreq     closed)     'forge-pullreq-rejected)))))
 
 (defun forge--format-topic-status (topic)
   (with-slots (status) topic
@@ -1153,6 +1202,17 @@ This mode itself is never used directly."
   (setq-local markdown-translate-filename-function
               #'forge--markdown-translate-filename-function))
 
+(defvar-keymap forge-discussion-mode-map :parent forge-topic-mode-map)
+(define-derived-mode forge-discussion-mode forge-topic-mode "Discussion"
+  "Mode for looking at a Forge discussion.")
+(defalias 'forge-discussion-setup-buffer   #'forge-topic-setup-buffer)
+(defalias 'forge-discussion-refresh-buffer #'forge-topic-refresh-buffer)
+(defvar forge-discussion-headers-hook
+  '(forge-insert-topic-state
+    forge-insert-topic-status
+    forge-insert-topic-labels
+    forge-insert-topic-marks))
+
 (defvar-keymap forge-issue-mode-map :parent forge-topic-mode-map)
 (define-derived-mode forge-issue-mode forge-topic-mode "Issue"
   "Major mode for looking at a Forge issue."
@@ -1192,7 +1252,10 @@ This mode itself is never used directly."
          (name (format "*forge: %s %s*" (oref repo slug) (oref topic slug)))
          (magit-generate-buffer-name-function (lambda (_mode _value) name)))
     (magit-setup-buffer-internal
-     (if (forge-issue-p topic) #'forge-issue-mode #'forge-pullreq-mode)
+     (pcase-exhaustive (eieio-object-class topic)
+       ('forge-discussion #'forge-discussion-mode)
+       ('forge-issue      #'forge-issue-mode)
+       ('forge-pullreq    #'forge-pullreq-mode))
      t `((forge-buffer-topic ,topic))
      name (or (forge-get-worktree repo) "/"))
     (forge-topic-mark-read topic)))
@@ -1224,7 +1287,12 @@ This mode itself is never used directly."
 (defun forge-insert-post (post topic)
   (magit-insert-section (post post)
     (forge-insert-post-heading post)
-    (forge-insert-post-content post)))
+    (forge-insert-post-content post)
+    (when (forge-discussion-p topic)
+      (dolist (reply (oref post replies))
+        (magit-insert-section (post reply) ;TODO type 'reply?
+          (forge-insert-post-heading reply)
+          (forge-insert-post-content reply))))))
 
 (defun forge-insert-post-heading (post)
   (oset magit-insert-section--current
@@ -1255,7 +1323,10 @@ This mode itself is never used directly."
     (magit-insert-heading heading)))
 
 (defun forge-insert-post-content (post)
-  (insert (forge--fontify-markdown (oref post body)) "\n\n"))
+  (insert (forge--fontify-markdown
+           (oref post body)
+           (and (forge-discussion-reply-p post) 4)))
+  (insert "\n\n"))
 
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
   (oref forge-buffer-topic slug))
@@ -1358,6 +1429,10 @@ This mode itself is never used directly."
 
 (defconst forge--topic-legend-group
   '(["Legend" :if-non-nil forge--show-topic-legend
+     (:info* (##propertize "open discussion"      'face 'forge-discussion-open))
+     (:info* (##propertize "completed discussion" 'face 'forge-discussion-completed))
+     (:info* (##propertize "expunged discussion"  'face 'forge-discussion-expunged))]
+    ["" :if-non-nil forge--show-topic-legend
      (:info* (##propertize "open issue"       'face 'forge-issue-open))
      (:info* (##propertize "completed issue"  'face 'forge-issue-completed))
      (:info* (##propertize "expunged issue"   'face 'forge-issue-expunged))]
@@ -1614,7 +1689,8 @@ This mode itself is never used directly."
 
 (transient-define-suffix forge-topic-set-milestone (milestone)
   "Edit what MILESTONE the current topic belongs to."
-  :class 'forge--topic-set-slot-command :slot 'milestone)
+  :class 'forge--topic-set-slot-command :slot 'milestone
+  :inapt-if-not (##or (forge-current-issue) (forge-current-pullreq)))
 
 (transient-define-suffix forge-topic-set-labels (labels)
   "Edit the LABELS of the current topic."
@@ -1630,7 +1706,8 @@ This mode itself is never used directly."
 
 (transient-define-suffix forge-topic-set-assignees (assignees)
   "Edit the ASSIGNEES of the current topic."
-  :class 'forge--topic-set-slot-command :slot 'assignees)
+  :class 'forge--topic-set-slot-command :slot 'assignees
+  :inapt-if-not (##or (forge-current-issue) (forge-current-pullreq)))
 
 (transient-define-suffix forge-topic-set-review-requests (review-requests)
   "Edit the REVIEW-REQUESTS of the current pull-request."
@@ -1665,14 +1742,18 @@ This mode itself is never used directly."
 
 ;;; Markdown Utilities
 
-(defun forge--fontify-markdown (text)
+(defun forge--fontify-markdown (text &optional indent)
   (with-temp-buffer
     (delay-mode-hooks
       (gfm-mode))
     (insert text)
     (font-lock-ensure)
     (when forge-post-fill-region
+      (when indent
+        (setq fill-column (- fill-column indent)))
       (fill-region (point-min) (point-max)))
+    (when indent
+      (indent-rigidly (point-min) (point-max) indent))
     (buffer-string)))
 
 (defun forge--markdown-translate-filename-function (file)
@@ -1790,12 +1871,18 @@ alist, containing just `text' and `position'.")
 
 (cl-defmethod forge--topic-template ((repo forge-repository)
                                      (class (subclass forge-topic)))
-  (let ((choices (forge--topic-templates-data repo class)))
+  (let ((choices (if (eq class 'forge-discussion)
+                     ;; TODO Format discussion types from api like it
+                     ;; came from template files, or maybe handle this
+                     ;; differently and elsewhere.
+                     nil
+                   (forge--topic-templates-data repo class))))
     (if (cdr choices)
         (let ((c (magit-completing-read
-                  (if (eq class 'forge-pullreq)
-                      "Select pull-request template"
-                    "Select issue template")
+                  (pcase class
+                    ('forge-discussion "Select discussion type")
+                    ('forge-issue      "Select issue template")
+                    ('forge-pullreq    "Select pull-request template"))
                   (mapcar (##alist-get 'prompt %) choices)
                   nil t)))
           (seq-find (##equal (alist-get 'prompt %) c) choices))
