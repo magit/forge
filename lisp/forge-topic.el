@@ -1288,7 +1288,7 @@ This mode itself is never used directly."
    ""])
 
 (defconst forge--topic-set-state-group
-  [:description (##if forge--show-topic-legend "Set public state" "Set state")
+  [:description (lambda () (if forge--show-topic-legend "Set public state" "Set state"))
    ("o" forge-topic-state-set-open)
    ("c" forge-issue-state-set-completed)
    ("x" forge-issue-state-set-unplanned)
@@ -1296,7 +1296,7 @@ This mode itself is never used directly."
    ("x" forge-pullreq-state-set-rejected)])
 
 (defconst forge--topic-set-status-group
-  [:description (##if forge--show-topic-legend "Set private status" "Set status")
+  [:description (lambda () (if forge--show-topic-legend "Set private status" "Set status"))
    ("u" forge-topic-status-set-unread)
    ("p" forge-topic-status-set-pending)
    ("d" forge-topic-status-set-done)])
