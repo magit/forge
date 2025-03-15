@@ -1483,6 +1483,16 @@ This mode itself is never used directly."
   :getter #'forge-current-issue
   :if #'forge-current-issue)
 
+(transient-define-suffix forge-issue-state-set-duplicate ()
+  "Set the state of the current issue to `duplicate'."
+  :class 'forge--topic-set-state-command
+  :state 'duplicate
+  :getter #'forge-current-issue
+  :if #'forge-current-issue
+  (interactive)
+  ;; THEM Once they fix that, also update `forge--set-topic-state'.
+  (message "The API does not yet support closing an issue as a duplicate"))
+
 (transient-define-suffix forge-pullreq-state-set-merged ()
   "If the current pull-request is merged, then visualize that."
   :class 'forge--topic-set-state-command

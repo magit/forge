@@ -673,6 +673,8 @@
       ;; Merging isn't done through here.
       ('completed '((state . "closed") (state_reason . "completed")))
       ('unplanned '((state . "closed") (state_reason . "not_planned")))
+      ;; THEM: This does not appear to be possible using either API.
+      ;; ('duplicate '((state . "closed") (state_reason . "duplicate")))
       ('rejected  '((state . "closed")))
       ('open      '((state . "open"))))
     :callback (forge--set-field-callback topic)))
