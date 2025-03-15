@@ -273,7 +273,7 @@
               (pcase-exhaustive (list .stateReason .state)
                 ('("COMPLETED"   "CLOSED") 'completed)
                 ('("NOT_PLANNED" "CLOSED") 'unplanned)
-                ('("DUPLICATE"   "CLOSED") 'completed)
+                ('("DUPLICATE"   "CLOSED") 'duplicate)
                 ('("REOPENED"      "OPEN") 'open)
                 ('(nil             "OPEN") 'open)))
         (oset issue author     .author.login)
