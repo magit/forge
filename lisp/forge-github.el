@@ -567,8 +567,8 @@
     (forge--ghub-post repo "/repos/:owner/:repo/issues"
       `((title . , .title)
         (body  . , .body)
-        ,@(and .labels    (list (cons 'labels    .labels)))
-        ,@(and .assignees (list (cons 'assignees .assignees))))
+        ,@(and .labels    `((labels    . , .labels)))
+        ,@(and .assignees `((assignees . , .assignees))))
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
