@@ -516,7 +516,7 @@
     (cl-typecase topic
       (forge-pullreq "/projects/:project/merge_requests/:number")
       (forge-issue   "/projects/:project/issues/:number"))
-    `((,field . ,value))
+    `((,field . ,(if (and value (listp value)) (vconcat value) value)))
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-title

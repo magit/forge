@@ -714,7 +714,7 @@
   ((_repo forge-github-repository) topic labels)
   (funcall (if labels #'forge--ghub-put #'forge--ghub-delete)
            topic "/repos/:owner/:repo/issues/:number/labels" nil
-           :payload labels
+           :payload (vconcat labels)
            :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-assignees
@@ -723,11 +723,11 @@
     ;; FIXME Only refresh once.
     (when-let ((add (cl-set-difference assignees value :test #'equal)))
       (forge--ghub-post topic "/repos/:owner/:repo/issues/:number/assignees"
-        `((assignees . ,add))
+        `((assignees . ,(vconcat add)))
         :callback (forge--set-field-callback topic)))
     (when-let ((remove (cl-set-difference value assignees :test #'equal)))
       (forge--ghub-delete topic "/repos/:owner/:repo/issues/:number/assignees"
-        `((assignees . ,remove))
+        `((assignees . ,(vconcat remove)))
         :callback (forge--set-field-callback topic)))))
 
 (cl-defmethod forge--set-topic-review-requests
@@ -742,8 +742,8 @@
             (push reviewer users)))
         (forge--ghub-post topic
           "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-          `(,@(and users `((reviewers      . ,users)))
-            ,@(and teams `((team_reviewers . ,teams))))
+          `(,@(and users `((reviewers      . ,(vconcat users))))
+            ,@(and teams `((team_reviewers . ,(vconcat teams)))))
           :callback (forge--set-field-callback topic))))
     (when-let ((remove (cl-set-difference value reviewers :test #'equal)))
       (let (users teams)
@@ -753,8 +753,8 @@
             (push reviewer users)))
         (forge--ghub-delete topic
           "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-          `(,@(and users `((reviewers      . ,users)))
-            ,@(and teams `((team_reviewers . ,teams))))
+          `(,@(and users `((reviewers      . ,(vconcat users))))
+            ,@(and teams `((team_reviewers . ,(vconcat teams)))))
           :callback (forge--set-field-callback topic))))))
 
 (cl-defmethod forge--delete-comment
