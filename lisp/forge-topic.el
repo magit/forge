@@ -275,8 +275,8 @@ A face attribute should be used that is not already used by any
 
 (cl-defmethod forge--set-topic-marks ((_repo forge-repository) topic marks)
   (oset topic marks
-        (mapcar #'car (forge-sql [:select id :from mark :where (in name $v1)]
-                                 (vconcat marks))))
+        (forge-sql-car [:select id :from mark :where (in name $v1)]
+                       (vconcat marks)))
   (forge-refresh-buffer))
 
 ;;; Query
