@@ -1537,6 +1537,7 @@ This mode itself is never used directly."
 (transient-define-suffix forge-topic-set-title (title)
   "Edit the TITLE of the current topic."
   :class 'forge--topic-set-slot-command :slot 'title
+  :inapt-if-not #'forge-current-topic
   :formatter (lambda (topic)
                (propertize (truncate-string-to-width
                             (forge--format-topic-title topic) 34 nil ?\s t)
@@ -1549,11 +1550,13 @@ This mode itself is never used directly."
 (transient-define-suffix forge-topic-set-labels (labels)
   "Edit the LABELS of the current topic."
   :class 'forge--topic-set-slot-command :slot 'labels
+  :inapt-if-not #'forge-current-topic
   :formatter (##forge--format-labels % t))
 
 (transient-define-suffix forge-topic-set-marks (marks)
   "Edit the MARKS of the current topic."
   :class 'forge--topic-set-slot-command :slot 'marks
+  :inapt-if-not #'forge-current-topic
   :formatter (##forge--format-marks % t))
 
 (transient-define-suffix forge-topic-set-assignees (assignees)
@@ -1574,6 +1577,7 @@ This mode itself is never used directly."
 (transient-define-suffix forge-topic-toggle-saved ()
   "Toggle whether this topic is marked as saved."
   :class 'forge--topic-set-slot-command :slot 'saved-p
+  :inapt-if-not #'forge-current-topic
   :description (##forge--format-boolean 'saved-p "saved")
   ;; Set only locally because Github's API does not support this.
   (interactive)
