@@ -711,51 +711,75 @@
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-labels
-  ((_repo forge-github-repository) topic labels)
-  (funcall (if labels #'forge--ghub-put #'forge--ghub-delete)
-           topic "/repos/:owner/:repo/issues/:number/labels" nil
-           :payload (vconcat labels)
-           :callback (forge--set-field-callback topic)))
+  ((repo forge-github-repository) topic labels)
+  (let* ((topic-id (oref topic their-id))
+         (old (mapcar (##forge--their-id (car %)) (oref topic labels)))
+         (new (mapcar (##forge--their-id (car %))
+                      (forge-sql [:select [id] :from label
+                                  :where (and (= repository $s1)
+                                              (in name $v2))]
+                                 (oref repo id)
+                                 (vconcat labels))))
+         (add (cl-set-difference new old :test #'equal))
+         (del (cl-set-difference old new :test #'equal)))
+    (when (or add del)
+      (ghub--graphql
+       `(mutation
+         ,@(and add '((addLabelsToLabelable
+                       [(input $add AddLabelsToLabelableInput!)]
+                       clientMutationId)))
+         ,@(and del '((removeLabelsFromLabelable
+                       [(input $del RemoveLabelsFromLabelableInput!)]
+                       clientMutationId))))
+       `(,@(and add `((add (labelableId . ,topic-id)
+                           (labelIds . ,(vconcat add)))))
+         ,@(and del `((del (labelableId . ,topic-id)
+                           (labelIds . ,(vconcat del))))))
+       :callback (forge--set-field-callback topic)))))
 
 (cl-defmethod forge--set-topic-assignees
-  ((_repo forge-github-repository) topic assignees)
-  (let ((value (mapcar #'cadr (oref topic assignees))))
-    ;; FIXME Only refresh once.
-    (when-let ((add (cl-set-difference assignees value :test #'equal)))
-      (forge--ghub-post topic "/repos/:owner/:repo/issues/:number/assignees"
-        `((assignees . ,(vconcat add)))
-        :callback (forge--set-field-callback topic)))
-    (when-let ((remove (cl-set-difference value assignees :test #'equal)))
-      (forge--ghub-delete topic "/repos/:owner/:repo/issues/:number/assignees"
-        `((assignees . ,(vconcat remove)))
-        :callback (forge--set-field-callback topic)))))
+  ((repo forge-github-repository) topic assignees)
+  (let* ((topic-id (oref topic their-id))
+         (old (mapcar (##nth 3 %) (oref topic assignees)))
+         (new (forge-sql-car [:select [forge-id] :from assignee
+                              :where (and (= repository $s1)
+                                          (in login $v2))]
+                             (oref repo id)
+                             (vconcat assignees)))
+         (add (cl-set-difference new old :test #'equal))
+         (del (cl-set-difference old new :test #'equal)))
+    (when (or add del)
+      (ghub--graphql
+       `(mutation
+         ,@(and add '((addAssigneesToAssignable
+                       [(input $add AddAssigneesToAssignableInput!)]
+                       clientMutationId)))
+         ,@(and del '((removeAssigneesFromAssignable
+                       [(input $del RemoveAssigneesFromAssignableInput!)]
+                       clientMutationId))))
+       `(,@(and add `((add (assignableId . ,topic-id)
+                           (assigneeIds . ,(vconcat add)))))
+         ,@(and del `((del (assignableId . ,topic-id))
+                      (assigneeIds . ,(vconcat del)))))
+       :callback (forge--set-field-callback topic)))))
 
 (cl-defmethod forge--set-topic-review-requests
-  ((_repo forge-github-repository) topic reviewers)
-  (let ((value (mapcar #'cadr (oref topic review-requests))))
-    ;; FIXME Only refresh once.
-    (when-let ((add (cl-set-difference reviewers value :test #'equal)))
-      (let (users teams)
-        (dolist (reviewer add)
-          (if (string-match "/" reviewer)
-              (push (substring reviewer (match-end 0)) teams)
-            (push reviewer users)))
-        (forge--ghub-post topic
-          "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-          `(,@(and users `((reviewers      . ,(vconcat users))))
-            ,@(and teams `((team_reviewers . ,(vconcat teams)))))
-          :callback (forge--set-field-callback topic))))
-    (when-let ((remove (cl-set-difference value reviewers :test #'equal)))
-      (let (users teams)
-        (dolist (reviewer remove)
-          (if (string-match "/" reviewer)
-              (push (substring reviewer (match-end 0)) teams)
-            (push reviewer users)))
-        (forge--ghub-delete topic
-          "/repos/:owner/:repo/pulls/:number/requested_reviewers"
-          `(,@(and users `((reviewers      . ,(vconcat users))))
-            ,@(and teams `((team_reviewers . ,(vconcat teams)))))
-          :callback (forge--set-field-callback topic))))))
+  ((repo forge-github-repository) topic reviewers)
+  (let ((users (forge-sql-car
+                [:select [forge-id] :from assignee
+                 :where (and (= repository $s1)
+                             (in login $v2))]
+                (oref repo id)
+                (vconcat (seq-remove (##string-match "/" %) reviewers))))
+        (teams nil)) ;TODO Investigate #742, track id, then use it here.
+    (ghub--graphql
+     `(mutation (requestReviews
+                 [(input $input RequestReviewsInput!)]
+                 clientMutationId))
+     `((input (pullRequestId . ,(oref topic their-id))
+              ,@(and users `((userIds . ,(vconcat users))))
+              ,@(and teams `((teamIds . ,(vconcat teams))))))
+     :callback (forge--set-field-callback topic))))
 
 (cl-defmethod forge--delete-comment
   ((_repo forge-github-repository) post)
