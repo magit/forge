@@ -713,9 +713,11 @@ can be selected from the start."
   (read-string "Title: " (oref topic title)))
 
 (defun forge-read-topic-milestone (&optional topic)
-  (forge--completing-read
+  (magit-completing-read
    "Milestone"
-   (mapcar #'caddr (oref (forge-get-repository (or topic :tracked)) milestones))
+   (cons ""
+         (mapcar #'caddr
+                 (oref (forge-get-repository (or topic :tracked)) milestones)))
    nil t
    (and topic (forge--format-topic-milestone topic))))
 
@@ -757,24 +759,6 @@ can be selected from the start."
      "Request review from: " choices nil
      'confirm
      (mapconcat #'cadr value ","))))
-
-(defun forge--completing-read ( prompt collection &optional
-                                predicate require-match initial-input
-                                hist def)
-  ;; NOTE Only required until `magit-completing-read' has been
-  ;; updated to allow empty input if require-match is t.
-  (let ((reply (funcall magit-completing-read-function
-                        (concat prompt ": ")
-                        (if (and def (not (member def collection)))
-                            (cons def collection)
-                          collection)
-                        predicate
-                        require-match initial-input hist def)))
-    (if (equal reply "")
-        (if (and require-match (not (eq require-match t)))
-            (user-error "Nothing selected")
-          nil)
-      reply)))
 
 ;;; Format
 
