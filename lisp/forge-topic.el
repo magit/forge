@@ -794,11 +794,6 @@ can be selected from the start."
                  forge-topic-repository-slug-width
                  nil ?\s t)
                 " "))
-   ;; MAYBE bring this back once we support discussions.
-   ;; (cond (no-indicator nil)
-   ;;       ((forge-issue-p   topic) (magit--propertize-face "I " 'magit-dimmed))
-   ;;       ((forge-pullreq-p topic) (magit--propertize-face "P " 'magit-dimmed))
-   ;;       (t                       (magit--propertize-face "* " 'error)))
    (string-pad (forge--format-topic-slug topic) (or width 5))
    " "
    (forge--format-topic-title topic)))
