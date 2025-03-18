@@ -294,11 +294,9 @@ A face attribute should be used that is not already used by any
   topic)
 
 (cl-defmethod forge-get-topic ((repo forge-repository) number-or-id)
-  (if (numberp number-or-id)
-      (if (< number-or-id 0)
-          (forge-get-pullreq repo (abs number-or-id))
-        (or (forge-get-issue repo number-or-id)
-            (forge-get-pullreq repo number-or-id)))
+  (if (and (numberp number-or-id)
+           (< number-or-id 0))
+      (forge-get-pullreq repo (abs number-or-id))
     (or (forge-get-issue number-or-id)
         (forge-get-pullreq number-or-id))))
 
