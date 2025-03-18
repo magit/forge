@@ -1642,8 +1642,6 @@ This mode itself is never used directly."
                      (buffer-substring-no-properties beg end)
                      :object-type 'alist
                      :sequence-type 'list
-                     ;; FIXME Does not work because of
-                     ;; https://github.com/zkry/yaml.el/pull/28.
                      :false-object nil))
         (let-alist alist
           (when (and .name .about)
