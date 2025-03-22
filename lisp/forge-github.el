@@ -602,10 +602,7 @@
                   (magit-split-branch-name forge--buffer-base-branch))
                  (`(,head-remote . ,head-branch)
                   (magit-split-branch-name forge--buffer-head-branch))
-                 (head-repo (forge-get-repository :stub head-remote))
-                 (url-mime-accept-string
-                  ;; Support draft pull-requests.
-                  "application/vnd.github.shadow-cat-preview+json"))
+                 (head-repo (forge-get-repository :stub head-remote)))
       (forge--ghub-post repo "/repos/:owner/:repo/pulls"
         `((title . , .title)
           (body  . , .body)
