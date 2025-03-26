@@ -424,7 +424,9 @@ Limit list to topics assigned to given milestone."
                 :initarg :milestone
                 :initform nil
                 :type (or string null)
-                :custom string)
+                :custom (choice
+                         (string :tag "name")
+                         (const :tag "all (nil)" nil)))
    (labels      :documentation "\
 Limit list to topics with at least one of the given labels."
                 :initarg :labels
