@@ -374,7 +374,8 @@
   ((_class (subclass forge-github-repository)) githost &optional callback)
   ;; The GraphQL API doesn't support notifications and support in the
   ;; REST API is abysmal -- forcing us to perform a major rain dance.
-  (let ((spec (forge--get-forge-host githost t)))
+  (let ((buffer (current-buffer))
+        (spec (forge--get-forge-host githost t)))
     (forge--msg nil t nil "Pulling notifications")
     (pcase-let*
         ((`(,_ ,apihost ,forge ,_) spec)
@@ -437,6 +438,7 @@
                (forge--msg nil t nil "Storing notifications")
                (forge--ghub-update-notifications notifs topics (not since))
                (forge--msg nil t t "Storing notifications")
+               (forge-refresh-buffer buffer)
                (when callback
                  (funcall callback)))))
         (cb)))))
