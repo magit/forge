@@ -33,6 +33,15 @@
 
 (defvar bug-reference-auto-setup-functions)
 
+(define-obsolete-face-alias 'forge-topic-slug-completed
+                            'forge-topic-slug-realized "Forge 0.5.0")
+
+(define-obsolete-face-alias 'forge-topic-slug-unplanned
+                            'forge-topic-slug-expunged "Forge 0.5.0")
+
+(define-obsolete-face-alias 'forge-issue-unplanned
+                            'forge-issue-expunged "Forge 0.5.0")
+
 ;;; Options
 
 (defcustom forge-limit-topic-choices t
@@ -122,16 +131,21 @@ does not inherit from `magit-dimmed'."
   "Face uses for slugs of open topics."
   :group 'forge-faces)
 
-(defface forge-topic-slug-completed
+(defface forge-topic-slug-realized
   '((t :inherit forge-dimmed))
-  "Face used for slugs of completed topics."
+  "Face used for slugs of realized topics.
+Realized topics include:
+- completed issues and
+- merged pull-requests."
   :group 'forge-faces)
 
-(defface forge-topic-slug-unplanned
+(defface forge-topic-slug-expunged
   '((t :inherit forge-dimmed :strike-through t))
-  "Face used for slugs of unplanned topics.
-E.g., for issues closes as \"unplanned\" and pull-requests that
-were closed without being merged."
+  "Face used for slugs of expunged topics.
+Expunged topics include:
+- issues closes as unplanned,
+- issues closed as duplicates, and
+- pull-requests closed without merging."
   :group 'forge-faces)
 
 (defface forge-topic-slug-saved
@@ -187,9 +201,12 @@ faces should not set `:weight' or `:slant'."
   "Face used for summaries of issues closed as completed."
   :group 'forge-faces)
 
-(defface forge-issue-unplanned
+(defface forge-issue-expunged
   '((t :inherit forge-dimmed :strike-through t))
-  "Face used for summaries of issues closed as unplanned."
+  "Face used for summaries of expunged issues.
+Expunged issues include:
+- issues closes as unplanned, and
+- issues closed as duplicates."
   :group 'forge-faces)
 
 ;;;;; Pull-Requests
@@ -390,12 +407,17 @@ State is the \"public condition\".  I.e., is the topic still open?"
                 :type (satisfies (lambda (val)
                                    (member val '(open
                                                  (completed merged)
-                                                 (unplanned rejected)
+                                                 completed
+                                                 merged
+                                                 (unplanned duplicate rejected)
+                                                 unplanned
+                                                 duplicate
+                                                 rejected
                                                  nil))))
                 :custom (choice
                          (const open)
                          (const (completed merged))
-                         (const (unplanned rejected))
+                         (const (unplanned duplicate rejected))
                          (const :tag "all (nil)" nil)))
    (status      :documentation "\
 Limit list based on topic (private) status.
@@ -489,6 +511,22 @@ Limit list to topics for which a review by the given user was requested."
                 :initform nil
                 :type boolean
                 :custom boolean)))
+
+(defun forge--cast-topics-spec-state (spec)
+  (when-let ((cast (pcase (list (oref spec type) (oref spec state))
+                     (`(topic ,(or 'unplanned 'duplicate 'rejected))
+                      '(unplanned duplicate rejected))
+                     ('(issue rejected)
+                      '(unplanned duplicate rejected))
+                     (`(pullreq ,(or 'unplanned 'duplicate))
+                      '(unplanned duplicate rejected))
+                     (`(topic ,(or 'completed 'merged))
+                      '(completed merged))
+                     ('(issue merged)
+                      '(completed merged))
+                     ('(pullreq completed)
+                      '(completed merged)))))
+    (oset spec state cast)))
 
 (cl-defun forge--list-topics
     (&optional (spec forge--buffer-topics-spec)
@@ -791,9 +829,10 @@ can be selected from the start."
      `(,@(and saved-p               '(forge-topic-slug-saved))
        ,@(and (eq status 'unread)   '(forge-topic-slug-unread))
        ,(pcase state
-          ('open                     'forge-topic-slug-open)
-          ((or 'completed 'merged)   'forge-topic-slug-completed)
-          ((or 'unplanned 'rejected) 'forge-topic-slug-unplanned))))))
+          ('open                    'forge-topic-slug-open)
+          ((or 'completed 'merged)  'forge-topic-slug-completed)
+          ((or 'unplanned 'duplicate 'rejected)
+           'forge-topic-slug-unplanned))))))
 
 (defun forge--format-topic-refs (topic)
   (pcase-let
@@ -837,7 +876,8 @@ can be selected from the start."
             ,(pcase (list (eieio-object-class topic) state)
                (`(forge-issue   open)      'forge-issue-open)
                (`(forge-issue   completed) 'forge-issue-completed)
-               (`(forge-issue   unplanned) 'forge-issue-unplanned)
+               (`(forge-issue   unplanned) 'forge-issue-expunged)
+               (`(forge-issue   duplicate) 'forge-issue-expunged)
                (`(forge-pullreq open)      'forge-pullreq-open)
                (`(forge-pullreq merged)    'forge-pullreq-merged)
                (`(forge-pullreq rejected)  'forge-pullreq-rejected)))))))
@@ -910,9 +950,9 @@ can be selected from the start."
      (symbol-name state)
      (pcase (list (if (forge-issue-p topic) 'issue 'pullreq) state)
        ('(issue   open)      'forge-issue-open)
-       ('(issue   closed)    'forge-issue-completed)
        ('(issue   completed) 'forge-issue-completed)
-       ('(issue   unplanned) 'forge-issue-unplanned)
+       ('(issue   unplanned) 'forge-issue-expunged)
+       ('(issue   duplicate) 'forge-issue-expunged)
        ('(pullreq open)      'forge-pullreq-open)
        ('(pullreq merged)    'forge-pullreq-merged)
        ('(pullreq closed)    'forge-pullreq-rejected)))))
@@ -1264,15 +1304,15 @@ This mode itself is never used directly."
    ("m f" "filter"    forge-repositories-menu)
    ("m d" "dispatch"  forge-dispatch)
    ("m c" "configure" forge-configure)
-   ""])
+   """"])
 
 (defconst forge--topic-set-state-group
   [:description (##if forge--show-topic-legend "Set public state" "Set state")
    ("o" forge-topic-state-set-open)
    ("c" forge-issue-state-set-completed)
-   ("x" forge-issue-state-set-unplanned)
-   ("c" forge-pullreq-state-set-merged)
-   ("x" forge-pullreq-state-set-rejected)])
+   ("U" forge-issue-state-set-unplanned)
+   ("M" forge-pullreq-state-set-merged)
+   ("R" forge-pullreq-state-set-rejected)])
 
 (defconst forge--topic-set-status-group
   [:description (##if forge--show-topic-legend "Set private status" "Set status")
@@ -1284,7 +1324,7 @@ This mode itself is never used directly."
   '(["Legend" :if-non-nil forge--show-topic-legend
      (:info* (##propertize "open issue"       'face 'forge-issue-open))
      (:info* (##propertize "completed issue"  'face 'forge-issue-completed))
-     (:info* (##propertize "unplanned issue"  'face 'forge-issue-unplanned))]
+     (:info* (##propertize "expunged issue"   'face 'forge-issue-expunged))]
     ["" :if-non-nil forge--show-topic-legend
      (:info* (##propertize "open pullreq"     'face 'forge-pullreq-open))
      (:info* (##propertize "merged pullreq"   'face 'forge-pullreq-merged))
@@ -1413,19 +1453,31 @@ This mode itself is never used directly."
   "Set the state of the current issue to `completed'."
   :class 'forge--topic-set-state-command
   :state 'completed
-  :getter #'forge-current-issue)
+  :getter #'forge-current-issue
+  :if #'forge-current-issue)
 
 (transient-define-suffix forge-issue-state-set-unplanned ()
   "Set the state of the current issue to `unplanned'."
   :class 'forge--topic-set-state-command
   :state 'unplanned
-  :getter #'forge-current-issue)
+  :getter #'forge-current-issue
+  :if #'forge-current-issue)
+
+(transient-define-suffix forge-issue-state-set-duplicate ()
+  "Set the state of the current issue to `duplicate'."
+  :class 'forge--topic-set-state-command
+  :state 'duplicate
+  :getter #'forge-current-issue
+  :if #'forge-current-issue
+  (interactive)
+  (message "The API does not yet support closing an issue as a duplicate"))
 
 (transient-define-suffix forge-pullreq-state-set-merged ()
   "If the current pull-request is merged, then visualize that."
   :class 'forge--topic-set-state-command
   :state 'merged
   :getter #'forge-current-pullreq
+  :if #'forge-current-pullreq
   (interactive)
   (message "Please use a merge command for this"))
 
@@ -1433,7 +1485,8 @@ This mode itself is never used directly."
   "Set the state of the current pull-request to `rejected'."
   :class 'forge--topic-set-state-command
   :state 'rejected
-  :getter #'forge-current-pullreq)
+  :getter #'forge-current-pullreq
+  :if #'forge-current-pullreq)
 
 ;;;; Status
 

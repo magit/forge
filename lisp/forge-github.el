@@ -273,7 +273,7 @@
               (pcase-exhaustive (list .stateReason .state)
                 ('("COMPLETED"   "CLOSED") 'completed)
                 ('("NOT_PLANNED" "CLOSED") 'unplanned)
-                ('("DUPLICATE"   "CLOSED") 'completed)
+                ('("DUPLICATE"   "CLOSED") 'duplicate)
                 ('("REOPENED"      "OPEN") 'open)
                 ('(nil             "OPEN") 'open)))
         (oset issue author     .author.login)
@@ -670,6 +670,7 @@
     "/repos/:owner/:repo/issues/:number"
     (pcase-exhaustive state
       ;; Merging isn't done through here.
+      ;; Marking as a duplicate isn't supported via API.
       ('completed '((state . "closed") (state_reason . "completed")))
       ('unplanned '((state . "closed") (state_reason . "not_planned")))
       ('rejected  '((state . "closed")))

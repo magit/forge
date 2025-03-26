@@ -133,6 +133,7 @@ Must be set before `forge-topics' is loaded.")
       (eieio-oset spec key (pop params)))
     (unless (oref spec type)
       (oset spec type 'topic))
+    (forge--cast-topics-spec-state spec)
     (unless (or repo global)
       (error "Cannot determine repository"))
     (magit-setup-buffer-internal #'forge-topics-mode nil
@@ -193,8 +194,10 @@ Must be set before `forge-topics' is loaded.")
    ["State"
     ("a" forge-topics-filter-active)
     ("o" forge-topics-filter-state-open)
-    ("c" forge-topics-filter-state-completed)
-    ("x" forge-topics-filter-state-unplanned)]
+    ("r" forge-topics-filter-state-realized)
+    ("e" forge-topics-filter-state-expunged)
+    ("U" forge-topics-filter-state-unplanned)
+    ("D" forge-topics-filter-state-duplicate)]
    ["Status"
     ("i" forge-topics-filter-status-inbox)
     ("u" forge-topics-filter-status-unread)
@@ -343,6 +346,7 @@ then display the respective menu, otherwise display no menu."
                 (interactive)
                 (oset forge--buffer-topics-spec type
                       (oref (transient-suffix-object) type))
+                (forge--cast-topics-spec-state forge--buffer-topics-spec)
                 (forge-refresh-buffer)))
    (inapt-face :initform 'forge-suffix-active)
    (inapt-if
@@ -396,14 +400,7 @@ then display the respective menu, otherwise display no menu."
                 (forge-refresh-buffer)))
    (description
     :initform (lambda (suffix)
-                (let ((want (oref suffix state))
-                      (type (oref forge--buffer-topics-spec type)))
-                  (pcase type
-                    ((guard (atom want))
-                     (symbol-name want))
-                    ('topic   (apply #'format "%s/%s" want))
-                    ('issue   (symbol-name (car want)))
-                    ('pullreq (symbol-name (cadr want)))))))
+                (symbol-name (oref suffix state))))
    (face
     :initform (lambda (suffix)
                 (let ((want   (oref suffix state))
@@ -417,19 +414,57 @@ then display the respective menu, otherwise display no menu."
                               (eq want 'open))
                          (if (eq have want)
                              'forge-suffix-active-and-implied
-                           'forge-suffix-implied))))))))
+                           'forge-suffix-implied))
+                        ((and (memq want '(unplanned duplicate))
+                              (equal have '(unplanned duplicate rejected))
+                              (not active))
+                         'forge-suffix-implied)))))))
 
 (transient-define-suffix forge-topics-filter-state-open ()
   "Limit topic list to open topics."
-  :class 'forge--topics-filter-state-command :state 'open)
+  :class 'forge--topics-filter-state-command
+  :state 'open)
 
-(transient-define-suffix forge-topics-filter-state-completed ()
-  "Limit topic list to completed and merged topics."
-  :class 'forge--topics-filter-state-command :state '(completed merged))
+(transient-define-suffix forge-topics-filter-state-realized ()
+  "Limit topic list to realized topics.
+Realized topics include:
+- completed issues and
+- merged pull-requests."
+  :class 'forge--topics-filter-state-command
+  :state '(completed merged)
+  :description (lambda ()
+                 (pcase (oref forge--buffer-topics-spec type)
+                   ('issue      "completed")
+                   ('pullreq    "merged")
+                   ('topic      "realized"))))
+
+(transient-define-suffix forge-topics-filter-state-expunged ()
+  "Limit topic list to expunged topics.
+Expunged topics include:
+- issues closed as unplanned,
+- issues closed as duplicates, and
+- pull-requests closed without merging."
+  :class 'forge--topics-filter-state-command
+  :state '(unplanned duplicate rejected)
+  :description (lambda ()
+                 (pcase (oref forge--buffer-topics-spec type)
+                   ('issue      "expunged")
+                   ('pullreq    "rejected")
+                   ('topic      "expunged"))))
 
 (transient-define-suffix forge-topics-filter-state-unplanned ()
-  "Limit topic list to unplanned and rejected topics."
-  :class 'forge--topics-filter-state-command :state '(unplanned rejected))
+  "Limit topic list to issues closed as unplanned."
+  :class 'forge--topics-filter-state-command
+  :state 'unplanned
+  :description "  unplanned"
+  :if (##eq (oref forge--buffer-topics-spec type) 'issue))
+
+(transient-define-suffix forge-topics-filter-state-duplicate ()
+  "Limit topic list to issues closed as duplicates."
+  :class 'forge--topics-filter-state-command
+  :state 'duplicate
+  :description "  duplicate"
+  :if (##eq (oref forge--buffer-topics-spec type) 'issue))
 
 ;;;; Status
 
