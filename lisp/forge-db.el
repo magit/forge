@@ -395,9 +395,10 @@
             (message "Upgrading Forge database from version %s to %s..."
                      version ,to)
             ,@body
-            (closql--db-set-version db (setq version ,to))
+            (closql--db-set-version db ,to)
             (message "Upgrading Forge database from version %s to %s...done"
-                     version ,to))))
+                     version ,to)
+            (setq version ,to))))
     (up 3
         (emacsql db [:create-table pullreq-review-request $S1]
                  (cdr (assq 'pullreq-review-request forge--db-table-schemata))))
