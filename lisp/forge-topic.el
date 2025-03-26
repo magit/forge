@@ -1205,8 +1205,8 @@ This mode itself is never used directly."
        ,@(and (if command? command t)
               `((defvar-keymap ,map "<remap> <magit-edit-thing>"
                                ,(or command `(function ,cmd)))
-                (put ',fun 'definition-name ',name)))
-       (put ',map 'definition-name ',name))))
+                (put ',map 'definition-name ',name)))
+       (put ',fun 'definition-name ',name))))
 
 (forge--define-topic-header refs
   :command nil
