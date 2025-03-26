@@ -1194,32 +1194,49 @@ This mode itself is never used directly."
         (magit-insert-section (note)
           (magit-insert-heading "Note")
           (insert (forge--fontify-markdown note) "\n\n")))
-      (dolist (post (cons topic (oref topic posts)))
-        (with-slots (author created body) post
-          (magit-insert-section
-              ( post post nil
-                :heading-highlight-face 'magit-diff-hunk-heading-highlight)
-            (let ((heading
-                   (format-spec
-                    forge-post-heading-format
-                    `((?a . ,(propertize (concat (forge--format-avatar author)
-                                                 (or author "(ghost)"))
-                                         'font-lock-face 'forge-post-author))
-                      (?c . ,(propertize created 'font-lock-face 'forge-post-date))
-                      (?C . ,(propertize (apply #'format "%s %s ago"
-                                                (magit--age
-                                                 (float-time
-                                                  (date-to-time created))))
-                                         'font-lock-face 'forge-post-date))))))
-              (font-lock-append-text-property
-               0 (length heading)
-               'font-lock-face 'magit-diff-hunk-heading heading)
-              (magit-insert-heading heading))
-            (insert (forge--fontify-markdown body) "\n\n"))))
+      (forge-insert-post topic nil)
+      (dolist (post (oref topic posts))
+        (forge-insert-post post topic))
       (when (and (display-images-p)
                  (fboundp 'markdown-display-inline-images))
         (let ((markdown-display-remote-images t))
           (markdown-display-inline-images))))))
+
+(defun forge-insert-post (post topic)
+  (magit-insert-section (post post)
+    (forge-insert-post-heading post)
+    (forge-insert-post-content post)))
+
+(defun forge-insert-post-heading (post)
+  (oset magit-insert-section--current
+        heading-highlight-face
+        'magit-diff-hunk-heading-highlight)
+  (let* ((author  (oref post author))
+         (created (oref post created))
+         (heading
+          (format-spec
+           forge-post-heading-format
+           `((?a . ,(propertize (concat (forge--format-avatar author)
+                                        (or author "(ghost)"))
+                                'font-lock-face 'forge-post-author))
+             (?c . ,(propertize created 'font-lock-face 'forge-post-date))
+             (?C . ,(propertize (apply #'format "%s %s ago"
+                                       (magit--age
+                                        (float-time
+                                         (date-to-time created))))
+                                'font-lock-face 'forge-post-date))))))
+    (when (forge-discussion-reply-p post)
+      (setq heading (concat "    " heading)))
+    (font-lock-append-text-property
+     0 (length heading)
+     'font-lock-face (if (forge-discussion-reply-p post)
+                         '(magit-dimmed magit-diff-hunk-heading)
+                       'magit-diff-hunk-heading)
+     heading)
+    (magit-insert-heading heading)))
+
+(defun forge-insert-post-content (post)
+  (insert (forge--fontify-markdown (oref post body)) "\n\n"))
 
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
   (oref forge-buffer-topic slug))
