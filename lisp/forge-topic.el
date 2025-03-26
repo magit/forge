@@ -1326,6 +1326,7 @@ This mode itself is never used directly."
    ["Actions"
     ("/f" forge-pull-this-topic)
     ("/b" forge-browse-this-topic)
+    ("/r" "respond" forge-create-post)
     ("/c" forge-checkout-this-pullreq)
     ("/A" forge-approve-pullreq)
     ("/R" forge-request-changes)]]
