@@ -562,34 +562,32 @@ Limit list to topics for which a review by the given user was requested."
            (setq status '(unread pending))))
     `[:select :distinct topic:*
       :from [(as ,type topic)]
-      ,@(cond
-         (milestone
-          `[:join milestone :on (= milestone:title ,milestone)]))
-      ,@(cond
-         ((not labels) nil)
-         ((eq type 'issue)
-          [:join   issue-label :on (= issue-label:issue      topic:id)
-           :join         label :on (= label:id         issue-label:id)])
-         ([:join pullreq-label :on (= pullreq-label:pullreq  topic:id)
-           :join         label :on (= label:id       pullreq-label:id)]))
-      ,@(cond
-         ((not marks) nil)
-         ((eq type 'issue)
-          [:join   issue-mark :on (= issue-mark:issue      topic:id)
-           :join         mark :on (= mark:id         issue-mark:id)])
-         ([:join pullreq-mark :on (= pullreq-mark:pullreq  topic:id)
-           :join         mark :on (= mark:id       pullreq-mark:id)]))
-      ,@(cond
-         ((not assignee) nil)
-         ((eq type 'issue)
-          [:join   issue-assignee :on (= issue-assignee:issue      topic:id)
-           :join         assignee :on (= assignee:id      issue-assignee:id)])
-         ([:join pullreq-assignee :on (= pullreq-assignee:pullreq  topic:id)
-           :join         assignee :on (= assignee:id    pullreq-assignee:id)]))
-      ,@(cond
-         (reviewer
-          [:join (as pullreq-review-request r) :on (= r:pullreq  topic:id)
-           :join assignee                      :on (= assignee:id    r:id)]))
+      ,@(and milestone
+             `[:join milestone :on (= milestone:title ,milestone)])
+      ,@(pcase (and labels type)
+          ('issue
+           [:join   issue-label :on (= issue-label:issue      topic:id)
+            :join         label :on (= label:id         issue-label:id)])
+          ('pullreq
+           [:join pullreq-label :on (= pullreq-label:pullreq  topic:id)
+            :join         label :on (= label:id       pullreq-label:id)]))
+      ,@(pcase (and marks type)
+          ('issue
+           [:join   issue-mark :on (= issue-mark:issue      topic:id)
+            :join         mark :on (= mark:id         issue-mark:id)])
+          ('pullreq
+           [:join pullreq-mark :on (= pullreq-mark:pullreq  topic:id)
+            :join         mark :on (= mark:id       pullreq-mark:id)]))
+      ,@(pcase (and assignee type)
+          ('issue
+           [:join   issue-assignee :on (= issue-assignee:issue      topic:id)
+            :join         assignee :on (= assignee:id      issue-assignee:id)])
+          ('pullreq
+           [:join pullreq-assignee :on (= pullreq-assignee:pullreq  topic:id)
+            :join         assignee :on (= assignee:id    pullreq-assignee:id)]))
+      ,@(and reviewer
+             [:join (as pullreq-review-request r) :on (= r:pullreq  topic:id)
+              :join assignee                      :on (= assignee:id    r:id)])
       :where
       (and
        ,@(and (not global) repo `((= topic:repository ,(oref repo id))))
