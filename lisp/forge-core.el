@@ -36,6 +36,7 @@
 (require 'forge-db)
 
 (eval-when-compile
+  (cl-pushnew 'forge-id eieio--known-slot-names)
   (cl-pushnew 'id       eieio--known-slot-names)
   (cl-pushnew 'name     eieio--known-slot-names)
   (cl-pushnew 'number   eieio--known-slot-names)
@@ -297,6 +298,8 @@ is non-nil."
     (car (last (split-string (base64-decode-string id/obj) ":"))))
    ((slot-exists-p id/obj 'their-id)
     (oref id/obj their-id))
+   ((slot-exists-p id/obj 'forge-id)
+    (oref id/obj forge-id))
    ((forge--their-id (oref id/obj id)))))
 
 (cl-defmethod magit-section-ident-value ((obj forge-object))
