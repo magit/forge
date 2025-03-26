@@ -613,5 +613,10 @@ then display the respective menu, otherwise display no menu."
   (forge-refresh-buffer))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-topics)
 ;;; forge-topics.el ends here

@@ -427,5 +427,10 @@ the mode requirement."
             (substring rnd 20 32))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-core)
 ;;; forge-core.el ends here

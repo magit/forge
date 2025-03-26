@@ -533,5 +533,10 @@
     (message "Copying Forge database to %s...done" dst)))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-db)
 ;;; forge-db.el ends here

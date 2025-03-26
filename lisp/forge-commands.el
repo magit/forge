@@ -1400,5 +1400,10 @@ heavy development."
 (magit-define-section-jumper forge-jump-to-issues "Issues" issues)
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-commands)
 ;;; forge-commands.el ends here

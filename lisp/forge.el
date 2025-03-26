@@ -181,4 +181,10 @@ too.\n" forge--minimal-git version) :error))))
     (forge-startup-asserts)
   (add-hook 'after-init-hook #'forge-startup-asserts t))
 
+;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 ;;; forge.el ends here

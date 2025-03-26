@@ -293,5 +293,10 @@ and optional HEADING to change the section heading."
           (magit-make-margin-overlay nil t))))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-pullreq)
 ;;; forge-pullreq.el ends here

@@ -43,5 +43,10 @@
    (body                 :initarg :body)))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-revnote)
 ;;; forge-revnote.el ends here

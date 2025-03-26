@@ -77,5 +77,10 @@
          (funcall forge--tabulated-list-query))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("partial" . "llama--left-apply-partially")
+;;   ("rpartial" . "llama--right-apply-partially"))
+;; End:
 (provide 'forge-tablist)
 ;;; forge-tablist.el ends here
