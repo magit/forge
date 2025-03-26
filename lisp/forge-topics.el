@@ -197,6 +197,7 @@ Must be set before `forge-topics' is loaded.")
     ("r" forge-topics-filter-state-realized)
     ("e" forge-topics-filter-state-expunged)
     ("U" forge-topics-filter-state-unplanned)
+    ("O" forge-topics-filter-state-outdated)
     ("D" forge-topics-filter-state-duplicate)]
    ["Status"
     ("i" forge-topics-filter-status-inbox)
@@ -205,14 +206,16 @@ Must be set before `forge-topics' is loaded.")
     ("d" forge-topics-filter-status-done)]
    ["Type"
     ("t t" forge-topics-all-types)
+    ("t d" forge-topics-filter-discussions)
     ("t i" forge-topics-filter-issues)
     ("t p" forge-topics-filter-pullreqs)]]
   [forge--lists-group
    ["Filter                                      "
+    ("-c" forge-topics-filter-category)
     ("-m" forge-topics-filter-milestone)
     ("-l" forge-topics-filter-labels)
     ("-x" forge-topics-filter-marks)
-    ("-c" forge-topics-filter-author)
+    ("-A" forge-topics-filter-author)
     ("-a" forge-topics-filter-assignee)
     ("-r" forge-topics-filter-reviewer)
     ("-s" forge-topics-filter-saved)]
@@ -289,6 +292,15 @@ then display the respective menu, otherwise display no menu."
   (forge-topics-setup-buffer repo)
   (transient-setup 'forge-topics-menu))
 
+;;;###autoload(autoload 'forge-list-discussions "forge-topics" nil t)
+(transient-define-suffix forge-list-discussions (&optional repo)
+  "List discussions of the current repository."
+  :description "discussions"
+  (declare (interactive-only nil))
+  (interactive)
+  (forge-topics-setup-buffer repo nil :type 'discussion)
+  (transient-setup 'forge-topics-menu))
+
 ;;;###autoload(autoload 'forge-list-issues "forge-topics" nil t)
 (transient-define-suffix forge-list-issues (&optional repo)
   "List issues of the current repository."
@@ -358,6 +370,11 @@ then display the respective menu, otherwise display no menu."
   :class 'forge--topics-filter-type-command :type 'topic
   :description "topics")
 
+(transient-define-suffix forge-topics-filter-discussions ()
+  "List discussions of the current repository."
+  :class 'forge--topics-filter-type-command :type 'discussion
+  :description "discussions")
+
 (transient-define-suffix forge-topics-filter-issues ()
   "List issues of the current repository."
   :class 'forge--topics-filter-type-command :type 'issue
@@ -415,8 +432,9 @@ then display the respective menu, otherwise display no menu."
                          (if (eq have want)
                              'forge-suffix-active-and-implied
                            'forge-suffix-implied))
-                        ((and (memq want '(unplanned duplicate))
-                              (equal have '(unplanned duplicate rejected))
+                        ((and (memq want '(unplanned duplicate outdated))
+                              (equal have
+                                     '(unplanned duplicate outdated rejected))
                               (not active))
                          'forge-suffix-implied)))))))
 
@@ -428,12 +446,14 @@ then display the respective menu, otherwise display no menu."
 (transient-define-suffix forge-topics-filter-state-realized ()
   "Limit topic list to realized topics.
 Realized topics include:
-- completed issues and
+- completed discussions,
+- completed issues, and
 - merged pull-requests."
   :class 'forge--topics-filter-state-command
   :state '(completed merged)
   :description (lambda ()
                  (pcase (oref forge--buffer-topics-spec type)
+                   ('discussion "completed")
                    ('issue      "completed")
                    ('pullreq    "merged")
                    ('topic      "realized"))))
@@ -441,13 +461,16 @@ Realized topics include:
 (transient-define-suffix forge-topics-filter-state-expunged ()
   "Limit topic list to expunged topics.
 Expunged topics include:
+- discussions closed as outdated,
+- discussions closed as duplicates,
 - issues closed as unplanned,
 - issues closed as duplicates, and
 - pull-requests closed without merging."
   :class 'forge--topics-filter-state-command
-  :state '(unplanned duplicate rejected)
+  :state '(unplanned duplicate outdated rejected)
   :description (lambda ()
                  (pcase (oref forge--buffer-topics-spec type)
+                   ('discussion "expunged")
                    ('issue      "expunged")
                    ('pullreq    "rejected")
                    ('topic      "expunged"))))
@@ -459,12 +482,19 @@ Expunged topics include:
   :description "  unplanned"
   :if (##eq (oref forge--buffer-topics-spec type) 'issue))
 
+(transient-define-suffix forge-topics-filter-state-outdated ()
+  "Limit topic list to discussions closed as outdated."
+  :class 'forge--topics-filter-state-command
+  :state 'outdated
+  :description "  outdated"
+  :if (##eq (oref forge--buffer-topics-spec type) 'discussion))
+
 (transient-define-suffix forge-topics-filter-state-duplicate ()
-  "Limit topic list to issues closed as duplicates."
+  "Limit topic list to discussions and issues closed as duplicates."
   :class 'forge--topics-filter-state-command
   :state 'duplicate
   :description "  duplicate"
-  :if (##eq (oref forge--buffer-topics-spec type) 'issue))
+  :if (##memq (oref forge--buffer-topics-spec type) '(discussion issue)))
 
 ;;;; Status
 
@@ -548,6 +578,12 @@ Expunged topics include:
   ((obj forge--topics-filter-command) &optional _slots)
   (unless (slot-boundp obj 'reader)
     (oset obj reader (intern (format "forge-read-topic-%s" (oref obj slot))))))
+
+(transient-define-suffix forge-topics-filter-category ()
+  "Read a category and limit discussions to that category."
+  :class 'forge--topics-filter-command
+  :slot 'category
+  :formatter (##propertize % 'face 'forge-topic-label))
 
 (transient-define-suffix forge-topics-filter-milestone ()
   "Read a milestone and limit topic list to topics with that milestone."

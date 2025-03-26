@@ -8,6 +8,7 @@ ELS  += $(PKG).el
 ELS  += $(PKG)-repo.el
 ELS  += $(PKG)-post.el
 ELS  += $(PKG)-topic.el
+ELS  += $(PKG)-discussion.el
 ELS  += $(PKG)-issue.el
 ELS  += $(PKG)-pullreq.el
 ELS  += $(PKG)-revnote.el

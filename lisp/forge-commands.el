@@ -66,6 +66,7 @@ Takes the pull-request as only argument and must return a directory."
     ("f n" "notifications"  forge-pull-notifications)]
    ["Create"
     :if (##forge-get-repository :tracked?)
+    ("c d" "discussion"     forge-create-discussion)
     ("c i" "issue"          forge-create-issue)
     ("c p" "pull-request"   forge-create-pullreq)
     ("c u" "pr from issue"  forge-create-pullreq-from-issue)
@@ -89,6 +90,7 @@ Takes the pull-request as only argument and must return a directory."
    ["Visit"
     :inapt-if-not (##forge-get-repository :tracked?)
     ("v t" "topic"          forge-visit-topic)
+    ("v d" "discussion"     forge-visit-discussion)
     ("v i" "issue"          forge-visit-issue)
     ("v p" "pull-request"   forge-visit-pullreq)]
    ["Browse"
@@ -223,6 +225,13 @@ repository cannot be determined, instead invoke `forge-add-repository'."
 ;;; Browse
 
 ;;;###autoload
+(defun forge-browse-discussions ()
+  "Visit the current repository's discussions using a browser."
+  (interactive)
+  (browse-url (forge--format (forge-get-repository :stub)
+                             'discussions-url-format)))
+
+;;;###autoload
 (defun forge-browse-issues ()
   "Visit the current repository's issues using a browser."
   (interactive)
@@ -243,6 +252,14 @@ By default only offer open topics but with a prefix argument
 also offer closed topics."
   (interactive (list (forge-read-topic "Browse topic")))
   (forge--browse-topic topic))
+
+;;;###autoload
+(defun forge-browse-discussion (discussion)
+  "Read a DISCUSSION and visit it using a browser.
+By default only offer open discussions but with a prefix argument
+also offer closed issues."
+  (interactive (list (forge-read-discussion "Browse discussion")))
+  (forge--browse-topic discussion))
 
 ;;;###autoload
 (defun forge-browse-issue (issue)
@@ -387,6 +404,9 @@ commit, and for a file."
 (cl-defgeneric forge-get-url (obj)
   "Return the URL for a forge object.")
 
+(cl-defmethod forge-get-url ((disc forge-discussion))
+  (forge--format disc 'discussion-url-format))
+
 (cl-defmethod forge-get-url ((issue forge-issue))
   (forge--format issue 'issue-url-format))
 
@@ -441,7 +461,9 @@ commit, and for a file."
 
 (cl-defmethod forge-get-url ((post forge-post))
   (forge--format post (let ((topic (forge-get-parent post)))
-                        (cond ((forge--childp topic 'forge-issue)
+                        (cond ((forge--childp topic 'forge-discussion)
+                               'discussion-post-url-format)
+                              ((forge--childp topic 'forge-issue)
                                'issue-post-url-format)
                               ((forge--childp topic 'forge-pullreq)
                                'pullreq-post-url-format)))))
@@ -484,6 +506,16 @@ argument offer all topics.  While completion is in progress, \
 the limitation to active topics."
   (interactive (list (forge-read-topic "View topic")))
   (forge-topic-setup-buffer (forge-get-topic topic)))
+
+;;;###autoload
+(defun forge-visit-discussion (discussion)
+  "Read a DISCUSSION and visit it.
+By default only offer active topics for completion.  With a prefix
+argument offer all topics.  While completion is in progress, \
+\\<forge-read-topic-minibuffer-map>\\[forge-read-topic-lift-limit] lifts
+the limitation to active topics."
+  (interactive (list (forge-read-discussion "View discussion")))
+  (forge-topic-setup-buffer (forge-get-discussion discussion)))
 
 ;;;###autoload
 (defun forge-visit-issue (issue)
@@ -539,6 +571,21 @@ With prefix argument MENU, also show the topic menu."
      ((user-error "Not tracked and location of clone is unknown")))))
 
 ;;; Create
+
+(defun forge-create-discussion (category)
+  "Create a new discussion for the current repository."
+  (interactive
+   (list (forge-read-topic-category nil "Category for new discussion")))
+  (let* ((repo (forge-get-repository :tracked))
+         (buf (forge--prepare-post-buffer
+               "new-discussion"
+               (forge--format repo "Create new discussion on %p"))))
+    (when buf
+      (with-current-buffer buf
+        (setq forge--buffer-post-object repo)
+        (setq forge--submit-post-function
+              (rpartial #'forge--submit-create-discussion category)))
+      (forge--display-post-buffer buf))))
 
 (defun forge-create-issue ()
   "Create a new issue for the current repository."
@@ -623,11 +670,7 @@ point is currently on."
   (interactive (list current-prefix-arg))
   (unless (derived-mode-p 'forge-topic-mode)
     (user-error "This command is only available from topic buffers"))
-  (let* ((topic forge-buffer-topic)
-         (buf (forge--prepare-post-buffer
-               (forge--format topic "%i;new-comment")
-               (forge--format topic "New comment on #%i of %p")))
-         (quote (cond
+  (let* ((quote (cond
                  ((not (magit-section-match 'post)) nil)
                  ((use-region-p)
                   (buffer-substring-no-properties (region-beginning)
@@ -636,9 +679,25 @@ point is currently on."
                   (let ((section (magit-current-section)))
                     (string-trim-right
                      (buffer-substring-no-properties (oref section content)
-                                                     (oref section end))))))))
+                                                     (oref section end)))))))
+         (obj (if (forge-discussion-p forge-buffer-topic)
+                  (forge--select-discussion-reply-target)
+                forge-buffer-topic))
+         (buf (cond
+               ((forge-discussion-post-p obj)
+                (forge--prepare-post-buffer
+                 (forge--format obj "%i;%I;new-reply")
+                 (forge--format obj "New comment on #%i;%I of %p")))
+               ((forge-discussion-p obj)
+                (forge--prepare-post-buffer
+                 (forge--format obj "%i;new-answer")
+                 (forge--format obj "New comment on #%i of %p")))
+               (t
+                (forge--prepare-post-buffer
+                 (forge--format obj "%i;new-comment")
+                 (forge--format obj "New comment on #%i of %p"))))))
     (with-current-buffer buf
-      (setq forge--buffer-post-object topic)
+      (setq forge--buffer-post-object obj)
       (setq forge--submit-post-function #'forge--submit-create-post)
       (when quote
         (goto-char (point-max))

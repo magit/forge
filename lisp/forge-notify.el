@@ -295,7 +295,7 @@ signal an error."
 (defun forge-insert-notification (notif)
   (with-slots (type title url) notif
     (pcase type
-      ((or 'issue 'pullreq)
+      ((or 'discussion 'issue 'pullreq)
        (forge--insert-topic (forge-get-topic notif)))
       ('commit
        (magit-insert-section (ncommit nil) ; !commit

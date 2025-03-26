@@ -32,6 +32,9 @@
    (closql-class-suffix        :initform "-repository")
    (closql-table               :initform 'repository)
    (closql-primary-key         :initform 'id)
+   (discussions-url-format     :initform nil :allocation :class)
+   (discussion-url-format      :initform nil :allocation :class)
+   (discussion-post-url-format :initform nil :allocation :class)
    (issues-url-format          :initform nil :allocation :class)
    (issue-url-format           :initform nil :allocation :class)
    (issue-post-url-format      :initform nil :allocation :class)
@@ -81,7 +84,11 @@
    (milestones                 :closql-table milestone)
    (issues-until               :initform nil)
    (pullreqs-until             :initform nil)
-   (teams                      :initform nil))
+   (teams                      :initform nil)
+   (discussion-categories      :closql-table discussion-category)
+   (discussions                :closql-class forge-discussion)
+   (discussions-p              :initform nil)
+   (discussions-until          :initform nil))
   :abstract t)
 
 (defclass forge-unusedapi-repository (forge-repository) () :abstract t)
@@ -479,18 +486,30 @@ forges and hosts."
        (?p . ,path)
        (?P . ,(string-replace "/" "%2F" path))))))
 
-(defun forge--set-field-callback (topic)
-  (lambda (&rest _)
-    (forge--pull-topic
-     (forge-get-repository topic)
-     topic
-     :callback (lambda ()
-                 (forge-refresh-buffer)
-                 (when (transient-active-prefix
-                        '(forge-topic-menu
-                          forge-topics-menu
-                          forge-notifications-menu))
-                   (transient--refresh-transient))))))
+(defun forge--set-field-callback (topic &optional preserve-status)
+  (let ((status (oref topic status)))
+    (lambda (&rest _)
+      (forge--pull-topic
+       (forge-get-repository topic)
+       topic
+       :callback (lambda ()
+                   ;; Necessary when setting a discussion field because
+                   ;; the API provides even less information about the
+                   ;; status of discussions compared to other topics and
+                   ;; as a result we would otherwise always switch the
+                   ;; status to `unread'.  This is not needed for every
+                   ;; modification of a discussion because some of them
+                   ;; (e.g., setting labels) do not cause `updated_at' to
+                   ;; be bumped; this second defect cancels out the first
+                   ;; when it comes to this function.
+                   (when preserve-status
+                     (oset topic status status))
+                   (forge-refresh-buffer)
+                   (when (transient-active-prefix
+                          '(forge-topic-menu
+                            forge-topics-menu
+                            forge-notifications-menu))
+                     (transient--refresh-transient)))))))
 
 (defvar forge--mode-line-buffer nil)
 
