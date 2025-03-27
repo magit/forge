@@ -59,6 +59,7 @@
 (require 'forge-repo)
 (require 'forge-post)
 (require 'forge-topic)
+(require 'forge-discussion)
 (require 'forge-issue)
 (require 'forge-pullreq)
 (require 'forge-revnote)
