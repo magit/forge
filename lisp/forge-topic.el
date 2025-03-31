@@ -388,6 +388,15 @@ an error."
 (defun forge-region-topics ()
   (magit-region-values '(discussion issue pullreq)))
 
+(defun forge-current-topic-type ()
+  (magit-section-case
+    ([* discussions] 'discussion)
+    ([* issues]      'issue)
+    ([* pullreqs]    'pullreq)
+    (t (or (and forge--buffer-topics-spec
+                (oref forge--buffer-topics-spec type))
+           'topic))))
+
 ;;;; List
 
 (defvar-local forge--buffer-topics-spec nil)
@@ -436,6 +445,7 @@ State is the \"public condition\".  I.e., is the topic still open?"
                 :type (satisfies
                        (lambda (val)
                          (member val '(open
+                                       closed
                                        (completed merged)
                                        completed
                                        merged
@@ -605,6 +615,8 @@ Limit list to topics for which a review by the given user was requested."
            (setq status '(unread pending)))
           ((eq status 'inbox)
            (setq status '(unread pending))))
+    (when (eq state 'closed)
+      (setq state '( completed merged unplanned duplicate outdated rejected)))
     `[:select :distinct topic:*
       :from [(as ,type topic)]
       ,@(pcase type
