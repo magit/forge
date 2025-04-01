@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v0.5.0    UNRELEASED
+* v0.5.0    2025-04-01
 
 - Added support for Github discussions.  This is a large addition and
   there are still sharp edges in need of sanding.  3aa6d2a60
