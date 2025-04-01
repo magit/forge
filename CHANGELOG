@@ -1,8 +1,8 @@
 # -*- mode: org -*-
 * v0.5.0    UNRELEASED
 
-- Added support for Github discussions.  This is a large change and there
-  are still sharp edges in need of sanding.  3aa6d2a60
+- Added support for Github discussions.  This is a large addition and
+  there are still sharp edges in need of sanding.  3aa6d2a60
 
 - Added support for more of Github's topic states, i.e., reasons why a
   topic is closed.  a140b92db
@@ -10,6 +10,8 @@
 - Somewhat reluctantly started using GraphQL for mutations.  For those
   the old REST API was more consistent and pleasant to use, but it does
   not support newer features.  fe133a75f
+
+- Added new command ~forge-mark-completed-topics-as-done~.  514d4e31b
 
 Contains additional code cleanups and fixes.
 
