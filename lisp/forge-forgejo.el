@@ -56,7 +56,7 @@
 
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-forgejo-repository) until)
+(cl-defmethod forge--pull ((repo forge-forgejo-repository) &optional callback until)
   (setq until (or until (oref repo updated)))
   (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
                             (current-buffer)))
@@ -90,10 +90,12 @@
                       (forge--update-milestones repo .milestones)
                       (dolist (v .issues)   (forge--update-issue repo v))
                       (dolist (v .pullreqs) (forge--update-pullreq repo v))
-                      (oset repo sparse-p nil))
+                      (oset repo condition :tracked))
                     (forge--msg repo t t "Storing REPO")
-                    (unless (oref repo selective-p)
-                      (forge--git-fetch buf dir repo)))))))))
+                    (cond
+                     ((oref repo selective-p))
+                     (callback (funcall callback))
+                     ((forge--maybe-git-fetch repo buf))))))))))
     (funcall cb cb)))
 
 (cl-defmethod forge--fetch-repository ((repo forge-forgejo-repository) callback)
@@ -216,8 +218,8 @@
       `((limit . ,forge--forgejo-batch-size)
         (type . "issues")
         (state . "all")
-        ,@(and-let* ((after (forge--topics-until repo until 'issue)))
-            `((updated_after . ,after))))
+        ,@(and-let* ((after (or until (oref repo issues-until))))
+            `((since . ,after))))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
                   (if until
@@ -304,6 +306,7 @@
 
 ;;;; Pull requests
 
+;; TODO: see whether this can be fetched with the repos:owner:repo/issues endpoint
 (cl-defmethod forge--fetch-pullreqs ((repo forge-forgejo-repository) callback until)
   (let ((cb (forge--forgejo-fetch-topics-cb 'pullreqs repo callback))
         (until (and until (date-to-time until))))
@@ -719,7 +722,7 @@ is met."
   (let* ((result '())
          (url (if obj (forge--format-resource obj resource) resource))
          (cb (lambda (cb)
-               (forge--forgejo-get nil url params
+               (forge--forgejo-get obj url params
                  :callback
                  (lambda (value headers status req)
                    (while (and value
