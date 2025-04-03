@@ -1,4 +1,4 @@
-;;; forge-gitea.el --- Gitea support  -*- lexical-binding:t -*-
+;;; forge-forgejo.el --- Forgejo support  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2023 Matija Obid
 
@@ -22,7 +22,7 @@
 
 ;;; Code:
 
-(require 'gtea)
+(require 'forgejo)
 
 (require 'forge)
 (require 'forge-issue)
@@ -34,7 +34,7 @@
 
 ;;; Class
 
-(defclass forge-gitea-repository (forge-repository)
+(defclass forge-forgejo-repository (forge-repository)
   ((issues-url-format         :initform "https://%h/%o/%n/issues")
    (issue-url-format          :initform "https://%h/%o/%n/issues/%i")
    ;; The anchor for the issue itself is .../%i#issue-%i
@@ -51,12 +51,12 @@
 
 ;;; Pull
 
-(defvar forge--gtea-batch-size 240
+(defvar forge--forgejo-batch-size 240
   "Number of pullreqs/issues to be fetched in one page.")
 
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-gitea-repository) until)
+(cl-defmethod forge--pull ((repo forge-forgejo-repository) until)
   (setq until (or until (oref repo updated)))
   (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
                             (current-buffer)))
@@ -96,8 +96,8 @@
                       (forge--git-fetch buf dir repo)))))))))
     (funcall cb cb)))
 
-(cl-defmethod forge--fetch-repository ((repo forge-gitea-repository) callback)
-  (forge--gtea-get repo "repos/:owner/:repo" nil
+(cl-defmethod forge--fetch-repository ((repo forge-forgejo-repository) callback)
+  (forge--forgejo-get repo "repos/:owner/:repo" nil
     :callback (lambda (value _headers _status _req)
                 (when (oref repo selective-p)
                   (setq value (append '((assignees) (labels)
@@ -105,7 +105,7 @@
                                       value)))
                 (funcall callback callback value))))
 
-(cl-defmethod forge--update-repository ((repo forge-gitea-repository) data)
+(cl-defmethod forge--update-repository ((repo forge-forgejo-repository) data)
   (let-alist data
     (oset repo created        .created_at)
     (oset repo updated        .updated_at)
@@ -124,12 +124,12 @@
     (oset repo stars          .stars_count)
     (oset repo watchers       .watchers_count)))
 
-(cl-defmethod forge--fetch-assignees ((repo forge-gitea-repository) callback)
-  (forge--gtea-get repo "repos/:owner/:repo/assignees" nil
+(cl-defmethod forge--fetch-assignees ((repo forge-forgejo-repository) callback)
+  (forge--forgejo-get repo "repos/:owner/:repo/assignees" nil
     :callback (lambda (value _headers _status _req)
                 (funcall callback callback (cons 'assignees value)))))
 
-(cl-defmethod forge--update-assignees ((repo forge-gitea-repository) data)
+(cl-defmethod forge--update-assignees ((repo forge-forgejo-repository) data)
   (oset repo assignees
         (with-slots (id) repo
           (mapcar (lambda (row)
@@ -143,12 +143,12 @@
                             .id)))
                   data))))
 
-(cl-defmethod forge--fetch-milestones ((repo forge-gitea-repository) callback)
-  (forge--gtea-get repo "repos/:owner/:repo/milestones" nil
+(cl-defmethod forge--fetch-milestones ((repo forge-forgejo-repository) callback)
+  (forge--forgejo-get repo "repos/:owner/:repo/milestones" nil
     :callback (lambda (value _headers _status _req)
                 (funcall callback callback (cons 'milestones value)))))
 
-(cl-defmethod forge--update-milestones ((repo forge-gitea-repository) data)
+(cl-defmethod forge--update-milestones ((repo forge-forgejo-repository) data)
   (oset repo milestones
         (with-slots (id) repo
           (mapcar (lambda (row)
@@ -163,12 +163,12 @@
                             .description)))
                   (delete-dups data)))))
 
-(cl-defmethod forge--fetch-labels ((repo forge-gitea-repository) callback)
-  (forge--gtea-get repo "repos/:owner/:repo/labels" nil
+(cl-defmethod forge--fetch-labels ((repo forge-forgejo-repository) callback)
+  (forge--forgejo-get repo "repos/:owner/:repo/labels" nil
     :callback (lambda (value _headers _status _req)
                 (funcall callback callback (cons 'labels value)))))
 
-(cl-defmethod forge--update-labels ((repo forge-gitea-repository) data)
+(cl-defmethod forge--update-labels ((repo forge-forgejo-repository) data)
   (oset repo labels
         (with-slots (id) repo
           (mapcar (lambda (row)
@@ -182,7 +182,7 @@
 
 ;;;; Issues
 
-(defun forge--gtea-fetch-topics-cb (field repo callback)
+(defun forge--forgejo-fetch-topics-cb (field repo callback)
   (let ((typ (cl-ecase field
                (issues "issues")
                (pullreqs "PRs")))
@@ -209,11 +209,11 @@
         (forge--msg nil nil t "Pulling %s %s/%s" typ i cnt)
         (funcall callback callback (cons field (nreverse val)))))))
 
-(cl-defmethod forge--fetch-issues ((repo forge-gitea-repository) callback until)
-  (let ((cb (forge--gtea-fetch-topics-cb 'issues repo callback)))
+(cl-defmethod forge--fetch-issues ((repo forge-forgejo-repository) callback until)
+  (let ((cb (forge--forgejo-fetch-topics-cb 'issues repo callback)))
     (forge--msg repo t nil "Pulling REPO issues")
-    (forge--gtea-get repo "repos/:owner/:repo/issues"
-      `((limit . ,forge--gtea-batch-size)
+    (forge--forgejo-get repo "repos/:owner/:repo/issues"
+      `((limit . ,forge--forgejo-batch-size)
         (type . "issues")
         (state . "all")
         ,@(and-let* ((after (forge--topics-until repo until 'issue)))
@@ -224,15 +224,15 @@
                       (funcall cb cb value)
                     (funcall callback callback (cons 'issues value)))))))
 
-(cl-defmethod forge--fetch-issue-posts ((repo forge-gitea-repository) cur cb)
+(cl-defmethod forge--fetch-issue-posts ((repo forge-forgejo-repository) cur cb)
   (let-alist (car cur)
-    (forge--gtea-get repo (format "repos/:owner/:repo/issues/%s/comments" .number) nil
+    (forge--forgejo-get repo (format "repos/:owner/:repo/issues/%s/comments" .number) nil
       :unpaginate t
       :callback (lambda (value _headers _status _req)
                   (setf (alist-get 'notes (car cur)) value)
                   (funcall cb cb)))))
 
-(cl-defmethod forge--update-issue ((repo forge-gitea-repository) data)
+(cl-defmethod forge--update-issue ((repo forge-forgejo-repository) data)
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((issue-id (forge--object-id 'forge-issue repo .id))
@@ -287,29 +287,29 @@
              t)))
         issue))))
 
-(cl-defmethod forge--pull-topic ((repo forge-gitea-repository)
+(cl-defmethod forge--pull-topic ((repo forge-forgejo-repository)
                                  (topic forge-topic))
   (condition-case _
-      (let ((data (forge--gtea-get topic "repos/:owner/:repo/pulls/:number"))
-            (cb (forge--gtea-fetch-topics-cb 'pullreqs repo
+      (let ((data (forge--forgejo-get topic "repos/:owner/:repo/pulls/:number"))
+            (cb (forge--forgejo-fetch-topics-cb 'pullreqs repo
                                              (lambda (_ data)
                                                (forge--update-pullreq repo (cadr data))))))
         (funcall cb cb (list data)))
     (error
-     (let ((data (forge--gtea-get topic "repos/:owner/:repo/issues/:number"))
-           (cb (forge--gtea-fetch-topics-cb 'issues repo
+     (let ((data (forge--forgejo-get topic "repos/:owner/:repo/issues/:number"))
+           (cb (forge--forgejo-fetch-topics-cb 'issues repo
                                             (lambda (_ data)
                                               (forge--update-issue repo (cadr data))))))
        (funcall cb cb (list data))))))
 
 ;;;; Pull requests
 
-(cl-defmethod forge--fetch-pullreqs ((repo forge-gitea-repository) callback until)
-  (let ((cb (forge--gtea-fetch-topics-cb 'pullreqs repo callback))
+(cl-defmethod forge--fetch-pullreqs ((repo forge-forgejo-repository) callback until)
+  (let ((cb (forge--forgejo-fetch-topics-cb 'pullreqs repo callback))
         (until (and until (date-to-time until))))
     (forge--msg repo t nil "Pulling REPO PRs")
-    (forge--gtea-get* repo "repos/:owner/:repo/pulls"
-      `((limit . ,forge--gtea-batch-size)
+    (forge--forgejo-get* repo "repos/:owner/:repo/pulls"
+      `((limit . ,forge--forgejo-batch-size)
         (sort . "recentupdate"))
       :callback (lambda (value _headers _status _req)
                   (if until
@@ -319,15 +319,15 @@
                (let-alist res
                  (or (not until) (time-less-p until (date-to-time .updated_at))))))))
 
-(cl-defmethod forge--fetch-pullreq-posts ((repo forge-gitea-repository) cur cb)
+(cl-defmethod forge--fetch-pullreq-posts ((repo forge-forgejo-repository) cur cb)
   (let-alist (car cur)
-    (forge--gtea-get repo (format "repos/:owner/:repo/pulls/%s/comments" .number) nil
+    (forge--forgejo-get repo (format "repos/:owner/:repo/pulls/%s/comments" .number) nil
       :unpaginate t
       :callback (lambda (value _headers _status _req)
                   (setf (alist-get 'notes (car cur)) value)
                   (funcall cb cb)))))
 
-(cl-defmethod forge--update-pullreq ((repo forge-gitea-repository) data)
+(cl-defmethod forge--update-pullreq ((repo forge-forgejo-repository) data)
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .number))
@@ -401,7 +401,7 @@
         pullreq))))
 
 ;;;; Reviews:
-(cl-defmethod forge--fetch-issue-reviews ((repo forge-gitea-repository) cur callback &optional load-notes)
+(cl-defmethod forge--fetch-issue-reviews ((repo forge-forgejo-repository) cur callback &optional load-notes)
   (let-alist (car cur)
     (let ((cb (lambda (cb reviews)
                 ;; TODO Add main comment of review.
@@ -410,18 +410,18 @@
                                                      (lambda (_)
                                                        (funcall cb cb (cdr reviews))))
                   (funcall callback callback)))))
-      (forge--gtea-get repo (format "repos/:owner/:repo/pulls/%s/reviews" .number) nil
+      (forge--forgejo-get repo (format "repos/:owner/:repo/pulls/%s/reviews" .number) nil
         :callback (lambda (value &rest _args)
                     (setf (alist-get 'reviews (car cur)) value)
                     (if load-notes
                         (funcall cb cb value)
                       (funcall callback callback)))))))
 
-(cl-defmethod forge--fetch-issue-review-notes ((repo forge-gitea-repository) number cur callback)
+(cl-defmethod forge--fetch-issue-review-notes ((repo forge-forgejo-repository) number cur callback)
   (let-alist (car cur)
     (if (string= .state "REQUEST_REVIEW") ; Review requests does not have a comments.
         (funcall callback callback)
-      (forge--gtea-get repo (format "repos/:owner/:repo/pulls/%s/reviews/%s/comments" number .id)
+      (forge--forgejo-get repo (format "repos/:owner/:repo/pulls/%s/reviews/%s/comments" number .id)
         nil
         :callback (lambda (value &rest _args)
                     (setf (alist-get 'notes (car cur)) value)
@@ -430,7 +430,7 @@
 
 ;;;; Notifications:
 
-(defun forge--gtea-massage-notification (data _forge githost callback)
+(defun forge--forgejo-massage-notification (data _forge githost callback)
   (let-alist data
     (let* ((number (and (string-match "[0-9]*\\'" .subject.url)
                         (string-to-number (match-string 0 .subject.url))))
@@ -445,7 +445,7 @@
                     nil 'create))
            (repoid (oref repo id))
            (id     (forge--object-id repoid .id))
-           (cb (forge--gtea-fetch-topics-cb
+           (cb (forge--forgejo-fetch-topics-cb
                 'pullreqs repo
                 (lambda (_cb pulls)
                   (funcall
@@ -464,14 +464,14 @@
                      :type         type
                      :topic        number
                      :url          .subject.url)))))))
-      (forge--gtea-get nil (format "repos/%s/%s/%s" .repository.full_name url-part number)
+      (forge--forgejo-get nil (format "repos/%s/%s/%s" .repository.full_name url-part number)
         nil
         :callback (lambda (pull &rest _args)
                     (funcall cb cb (list pull)))))))
 
 (setq last-notifications nil)
 
-(cl-defmethod forge--pull-notifications ((repo (subclass forge-gitea-repository)) githost &optional callback)
+(cl-defmethod forge--pull-notifications ((repo (subclass forge-forgejo-repository)) githost &optional callback)
   (let ((spec (assoc githost forge-alist)))
     (unless spec
       (error "No entry for %S in forge-alist" githost))
@@ -479,7 +479,7 @@
     (let ((cb (lambda (cb data &optional n)
                 (setq last-notifications (or last-notifications data))
                 (if data
-                    (forge--gtea-massage-notification
+                    (forge--forgejo-massage-notification
                      (car data) repo githost
                      (lambda (noti)
                        (pcase-let ((`(_ _ ,obj) noti))
@@ -487,14 +487,14 @@
                            (closql-insert (forge-db) obj t)
                            (forge--zap-repository-cache (forge-get-repository obj)))
                          (funcall cb cb (cdr data) (or n (length data))))))
-                  (forge--gtea-put nil "notifications")
+                  (forge--forgejo-put nil "notifications")
                   (forge--msg nil t t "Pulled %s notifications" (or n 0))
                   (when callback
                     (funcall callback callback))))))
-      (funcall cb cb (forge--gtea-get nil "notifications")))))
+      (funcall cb cb (forge--forgejo-get nil "notifications")))))
 
 ;;; Mutations
-(cl-defmethod forge--submit-create-pullreq ((_ forge-gitea-repository) repo)
+(cl-defmethod forge--submit-create-pullreq ((_ forge-forgejo-repository) repo)
   (let-alist (forge--topic-parse-buffer)
     (when (and .yaml (local-variable-p 'forge-buffer-draft-p))
       (user-error "Cannot use yaml frontmatter and set `%s' at the same time"
@@ -507,7 +507,7 @@
                  (url-mime-accept-string
                   ;; Support draft pull-requests.
                   "application/vnd.github.shadow-cat-preview+json"))
-      (forge--gtea-post repo "repos/:owner/:repo/pulls"
+      (forge--forgejo-post repo "repos/:owner/:repo/pulls"
         `((title . ,.title)
           (body . ,.body)
           (base . ,base-branch)
@@ -518,22 +518,22 @@
         :callback  (forge--post-submit-callback)
         :errorback (forge--post-submit-errorback)))))
 
-(cl-defmethod forge--submit-create-issue ((_ forge-gitea-repository) repo)
+(cl-defmethod forge--submit-create-issue ((_ forge-forgejo-repository) repo)
   (let-alist (forge--topic-parse-buffer)
-    (forge--gtea-post repo "repos/:owner/:repo/issues"
+    (forge--forgejo-post repo "repos/:owner/:repo/issues"
       `((title       . , .title)
         (description . , .body))
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
-(cl-defmethod forge--submit-create-post ((_ forge-gitea-repository) topic)
-  (forge--gtea-post topic "repos/:owner/:repo/issues/:number/comments"
+(cl-defmethod forge--submit-create-post ((_ forge-forgejo-repository) topic)
+  (forge--forgejo-post topic "repos/:owner/:repo/issues/:number/comments"
     `((body . ,(string-trim (buffer-string))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
-(cl-defmethod forge--submit-edit-post ((_ forge-gitea-repository) post)
-  (forge--gtea-patch
+(cl-defmethod forge--submit-edit-post ((_ forge-forgejo-repository) post)
+  (forge--forgejo-patch
     nil
     (cl-typecase post
       (forge-pullreq (forge--format-resource post "repos/:owner/:repo/pulls/:number"))
@@ -547,12 +547,12 @@
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
-(cl-defmethod forge--delete-comment ((_repo forge-gitea-repository) post)
-  (forge--gtea-delete post "repos/:owner/:repo/issues/comments/:number")
+(cl-defmethod forge--delete-comment ((_repo forge-forgejo-repository) post)
+  (forge--forgejo-delete post "repos/:owner/:repo/issues/comments/:number")
   (closql-delete post)
   (magit-refresh))
 
-(cl-defmethod forge--set-topic-labels ((repo forge-gitea-repository) topic labels)
+(cl-defmethod forge--set-topic-labels ((repo forge-forgejo-repository) topic labels)
   (let ((callback (forge--set-field-callback)))
     (forge--fetch-labels
      repo (lambda (_cb data)
@@ -561,20 +561,20 @@
                                    (when (member .name labels)
                                      (list .id))))
                                (cdr data))))
-              (forge--gtea-put topic "repos/:owner/:repo/issues/:number/labels"
+              (forge--forgejo-put topic "repos/:owner/:repo/issues/:number/labels"
                 `((labels . ,ids))
                 :callback callback))))))
 
 (cl-defmethod forge--set-topic-field
-  ((_repo forge-gitea-repository) topic field value)
-  (forge--gtea-patch topic
+  ((_repo forge-forgejo-repository) topic field value)
+  (forge--forgejo-patch topic
     (cl-typecase topic
       (forge-pullreq "repos/:owner/:repo/pulls/:number")
       (forge-issue   "repos/:owner/:repo/issues/:number"))
     `((,field . ,value))
     :callback (forge--set-field-callback)))
 
-(cl-defmethod forge--set-topic-milestone ((repo forge-gitea-repository) topic milestone)
+(cl-defmethod forge--set-topic-milestone ((repo forge-forgejo-repository) topic milestone)
   (forge--set-topic-field repo topic 'milestone (caar (forge-sql [:select [number]
                                                                           :from milestone
                                                                           :where (and (= repository $s1)
@@ -582,29 +582,29 @@
                                                                  (oref repo id)
                                                                  milestone))))
 
-(cl-defmethod forge--set-topic-title ((repo forge-gitea-repository) topic title)
+(cl-defmethod forge--set-topic-title ((repo forge-forgejo-repository) topic title)
   (forge--set-topic-field repo topic 'title title))
 
-(cl-defmethod forge--set-topic-state ((repo forge-gitea-repository) topic value)
+(cl-defmethod forge--set-topic-state ((repo forge-forgejo-repository) topic value)
   (forge--set-topic-field repo topic 'state (cl-ecase value
                                               (closed "closed")
                                               (open   "open"))))
 
-(cl-defmethod forge--set-topic-review-requests ((_repo forge-gitea-repository) topic reviewers)
+(cl-defmethod forge--set-topic-review-requests ((_repo forge-forgejo-repository) topic reviewers)
   (let ((value (mapcar #'car (closql--iref topic 'review-requests))))
     (when-let ((add (cl-set-difference reviewers value :test #'equal)))
-      (forge--gtea-post topic "repos/:owner/:repo/pulls/:number/requested_reviewers"
+      (forge--forgejo-post topic "repos/:owner/:repo/pulls/:number/requested_reviewers"
         `((reviewers . ,add))))
     (when-let ((remove (cl-set-difference value reviewers :test #'equal)))
-      (forge--gtea-delete topic "repos/:owner/:repo/pulls/:number/requested_reviewers"
+      (forge--forgejo-delete topic "repos/:owner/:repo/pulls/:number/requested_reviewers"
         `((reviewers . ,remove)))))
-  ;; (oset topic review-requests (forge--gitea-map-logins reviewers))
+  ;; (oset topic review-requests (forge--forgejo-map-logins reviewers))
   (forge-pull))
 
-(cl-defmethod forge--set-topic-assignees ((repo forge-gitea-repository) topic assignees)
+(cl-defmethod forge--set-topic-assignees ((repo forge-forgejo-repository) topic assignees)
   (forge--set-topic-field repo topic 'assignees assignees))
 
-(defun forge--gitea-map-logins (logins)
+(defun forge--forgejo-map-logins (logins)
   (mapcan (lambda (user)
             (let ((id (cl-first user))
                   (login (cl-second user)))
@@ -613,7 +613,7 @@
           (oref (forge-get-repository nil) assignees)))
 
 ;;;; Templates:
-(cl-defmethod forge--topic-templates ((repo forge-gitea-repository)
+(cl-defmethod forge--topic-templates ((repo forge-forgejo-repository)
                                       (_ (subclass forge-issue)))
   (and-let* ((files (magit-revision-files (oref repo default-branch))))
     (let ((case-fold-search t))
@@ -632,7 +632,7 @@
                    (list conf))
           files)))))
 
-(cl-defmethod forge--topic-templates ((repo forge-gitea-repository)
+(cl-defmethod forge--topic-templates ((repo forge-forgejo-repository)
                                       (_ (subclass forge-pullreq)))
   (and-let* ((files (magit-revision-files (oref repo default-branch))))
     (let ((case-fold-search t))
@@ -654,11 +654,11 @@
          (txt (string-trim (string-join (cddr lines) "\n"))))
     txt))
 
-(cl-defmethod forge--merge-pullreq ((_repo forge-gitea-repository)
+(cl-defmethod forge--merge-pullreq ((_repo forge-forgejo-repository)
                                     topic hash method)
   (let (merged)
     (cl-labels ((merge-pr (msg)
-                  (forge--gtea-post topic "repos/:owner/:repo/pulls/:number/merge"
+                  (forge--forgejo-post topic "repos/:owner/:repo/pulls/:number/merge"
                     `((delete_branch_after_merge . t)
                       (MergeMessageField . ,msg)
                       (do . ,(symbol-name method))
@@ -683,8 +683,8 @@
 
 ;;;; Approve
 
-(defun forge-gitea-approve (pullreq &optional message)
-  "Approve pullrequest.  Currently done only for gitea hosting."
+(defun forge-forgejo-approve (pullreq &optional message)
+  "Approve pullrequest.  Currently done only for forgejo hosting."
   (interactive
    (list (forge-read-pullreq "Approve pull-request" t)))
   (let ((pullreq (forge-get-pullreq pullreq)))
@@ -698,7 +698,7 @@
                    (concat "origin/"
                            (forge--pullreq-branch-internal pullreq)))))
     (forge--pullreq-branch-internal pullreq)
-    (forge--gtea-post pullreq "repos/:owner/:repo/pulls/:number/reviews"
+    (forge--forgejo-post pullreq "repos/:owner/:repo/pulls/:number/reviews"
       `((body . ,message)
         ;; (comments . ,nil)
         (event . "APPROVED")
@@ -709,7 +709,7 @@
 
 ;;; Wrappers
 
-(cl-defun forge--gtea-get* (obj resource
+(cl-defun forge--forgejo-get* (obj resource
                                 &optional params
                                 &key callback while)
   "Unpaginate list of resources until WHILE condition or end of list
@@ -719,7 +719,7 @@ is met."
   (let* ((result '())
          (url (if obj (forge--format-resource obj resource) resource))
          (cb (lambda (cb)
-               (forge--gtea-get nil url params
+               (forge--forgejo-get nil url params
                  :callback
                  (lambda (value headers status req)
                    (while (and value
@@ -746,14 +746,14 @@ is met."
                      (funcall callback result headers status req)))))))
     (funcall cb cb)))
 
-(cl-defun forge--gtea-get (obj resource
+(cl-defun forge--forgejo-get (obj resource
                                &optional params
                                &key query payload headers
                                silent unpaginate noerror reader
                                host
                                callback errorback)
   (declare (indent defun))
-  (gtea-get (if obj (forge--format-resource obj resource) resource)
+  (forgejo-get (if obj (forge--format-resource obj resource) resource)
             params
             :host (or host (oref (forge-get-repository obj) apihost))
             :auth 'forge
@@ -762,14 +762,14 @@ is met."
             :noerror noerror :reader reader
             :callback callback :errorback errorback))
 
-(cl-defun forge--gtea-put (obj resource
+(cl-defun forge--forgejo-put (obj resource
                                &optional params
                                &key query payload headers
                                silent unpaginate noerror reader
                                host
                                callback errorback)
   (declare (indent defun))
-  (gtea-put (if obj (forge--format-resource obj resource) resource)
+  (forgejo-put (if obj (forge--format-resource obj resource) resource)
             params
             :host (or host (oref (forge-get-repository obj) apihost))
             :auth 'forge
@@ -778,13 +778,13 @@ is met."
             :noerror noerror :reader reader
             :callback callback :errorback errorback))
 
-(cl-defun forge--gtea-post (obj resource
+(cl-defun forge--forgejo-post (obj resource
                                 &optional params
                                 &key query payload headers
                                 silent unpaginate noerror reader
                                 host callback errorback)
   (declare (indent defun))
-  (gtea-post (forge--format-resource obj resource)
+  (forgejo-post (forge--format-resource obj resource)
              params
              :host (or host (oref (forge-get-repository obj) apihost))
              :auth 'forge
@@ -793,13 +793,13 @@ is met."
              :noerror noerror :reader reader
              :callback callback :errorback errorback))
 
-(cl-defun forge--gtea-patch (obj resource
+(cl-defun forge--forgejo-patch (obj resource
                                  &optional params
                                  &key query payload headers
                                  silent unpaginate noerror reader
                                  host callback errorback)
   (declare (indent defun))
-  (gtea-patch (if obj (forge--format-resource obj resource) resource)
+  (forgejo-patch (if obj (forge--format-resource obj resource) resource)
               params
               :host (or host (oref (forge-get-repository obj) apihost))
               :auth 'forge
@@ -808,13 +808,13 @@ is met."
               :noerror noerror :reader reader
               :callback callback :errorback errorback))
 
-(cl-defun forge--gtea-delete (obj resource
+(cl-defun forge--forgejo-delete (obj resource
                                   &optional params
                                   &key query payload headers
                                   silent unpaginate noerror reader
                                   host callback errorback)
   (declare (indent defun))
-  (gtea-delete (forge--format-resource obj resource)
+  (forgejo-delete (forge--format-resource obj resource)
                params
                :host (or host (oref (forge-get-repository obj) apihost))
                :auth 'forge
@@ -825,5 +825,5 @@ is met."
 
 
 ;;; _
-(provide 'forge-gitea)
-;;; forge-gitea.el ends here
+(provide 'forge-forgejo)
+;;; forge-forgejo.el ends here
