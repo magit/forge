@@ -553,6 +553,7 @@ forges and hosts."
     ((or 'forge-gitlab-repository 'forge-gitlab-http-repository) 'gitlab)
     ('forge-github-repository    'github)
     ('forge-gitea-repository     'gitea)
+    ('forge-forgejo-repository   'forgejo)
     ('forge-gogs-repository      'gogs)
     ('forge-bitbucket-repository 'bitbucket)))
 
