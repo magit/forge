@@ -265,8 +265,8 @@
         (oset issue body         (forge--sanitize-string .body))
 
         (unless (magit-get-boolean "forge.omitExpensive")
-          (forge--set-id-slot repo issue 'assignees .assignees)
-          (forge--set-id-slot repo issue 'labels .labels))
+          (forge--set-connections repo issue 'assignees .assignees)
+          (forge--set-connections repo issue 'labels .labels))
         (dolist (comment .notes)
           (let-alist comment
             (closql-insert
@@ -368,12 +368,17 @@
         (oset pullreq labels       (mapcar (lambda (label)
                                              (forge--object-id (oref repo id) (cdr (assoc 'id label))))
                                            .labels))
-        (forge--set-id-slot repo pullreq 'assignees .assignees)
+        (forge--set-connections repo pullreq 'assignees .assignees)
 
-        (forge--set-id-slot repo pullreq 'review-requests
-                            (mapcar (lambda (review)
-                                      (alist-get 'user review))
-                                    .reviews))
+        (forge--set-connections repo pullreq 'review-requests
+                            (cl-remove-duplicates
+                             (mapcan (lambda (review)
+                                       ;; Only commenting persons are omitted:
+                                       (when (member (alist-get 'state review) '("REQUEST_REVIEW" "APPROVED" "REQUEST_CHANGES"))
+                                         (list (alist-get 'user review))))
+                                     .reviews)
+                             :key (lambda (it) (alist-get 'login it))
+                             :test #'string=))
         (let ((reviews (mapcan (lambda (review)
                                  (unless (string-empty-p (alist-get 'body review))
                                    (list review)))
