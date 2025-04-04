@@ -75,6 +75,8 @@
                     (forge--fetch-milestones repo cb))
                    ((not (assq 'forks val))
                     (forge--fetch-forks repo cb))
+                   ((not (assq 'posts val))
+                    (forge--fetch-posts repo cb until))
                    ((not (assq 'teams val))
                     (forge--fetch-teams repo cb))
                    ((and .has_issues
@@ -93,6 +95,7 @@
                       (forge--update-milestones repo .milestones)
                       (forge--update-forks      repo .forks)
                       (forge--update-teams      repo .teams)
+                      (forge--update-posts      repo .posts)
                       (dolist (v .issues)   (forge--update-issue repo v))
                       (dolist (v .pullreqs) (forge--update-pullreq repo v))
                       (oset repo condition :tracked))
@@ -216,6 +219,72 @@
                             .description)))
                   data))))
 
+(defun forge--forgejo-least-date (a b)
+  (if (time-less-p (date-to-time a)
+                   (date-to-time b))
+      a
+    b))
+
+(cl-defmethod forge--fetch-posts ((repo forge-forgejo-repository) callback since)
+  (forge--forgejo-get repo "repos/:owner/:repo/issues/posts"
+    `(,@(and-let* ((after (or since (forge--forgejo-least-date
+                                     (oref repo issues-until)
+                                     (oref repo pullreqs-until)))))
+            `((since . ,after))))
+    :unpaginate t
+    :callback (lambda (value _headers _status _req)
+                (funcall callback callback (cons 'posts value)))))
+
+(cl-defmethod forge--fetch-issue-posts ((repo forge-forgejo-repository) cur cb)
+  (let-alist (car cur)
+    (forge--forgejo-get repo (format "repos/:owner/:repo/issues/%s/comments" .number) nil
+      :unpaginate t
+      :callback (lambda (value _headers _status _req)
+                  (setf (alist-get 'notes (car cur)) value)
+                  (funcall cb cb)))))
+
+(cl-defmethod forge--update-posts ((repo forge-forgejo-repository) data
+                                      &optional bump)
+  (closql-with-transaction (forge-db)
+    (dolist (elt data)
+      (forge--update-post repo elt bump t))))
+
+(cl-defmethod forge--update-post ((repo forge-forgejo-repository) data
+                                  &optional bump initial-pull)
+  (closql-with-transaction (forge-db)
+    (let-alist data
+      (let* ((repo-id (oref repo id))
+             (post-id .id)
+             (pullreq-id (car (last (string-split .pull_request_url "/"))))
+             (issue-id (car (last (string-split .issue_url "/"))))
+             (body (if (not .diff_hunk)
+                       (forge--sanitize-string .body)
+                     (concat "```diff\n"
+                             (string-trim .diff_hunk)
+                             "\n```\n--\n"
+                             (forge--sanitize-string .body))))
+             (post (if (not (string-empty-p issue-id))
+                       (forge-issue-post
+                        :id (forge--object-id (forge--object-id 'forge-issue repo issue-id)
+                                              .id)
+                        :issue (forge--object-id 'forge-issue repo issue-id)
+                        :number  .id
+                        :author  .user.login
+                        :created .created_at
+                        :updated .updated_at
+                        :body body)
+                     (forge-pullreq-post
+                      :id (forge--object-id (forge--object-id 'forge-pullreq repo pullreq-id)
+                                            post-id)
+                      :pullreq (forge--object-id 'forge-pullreq repo pullreq-id)
+                      :number .id
+                      :author .user.login
+                      :created .created_at
+                      :updated .updated_at
+                      :body body))))
+        (closql-insert (forge-db) post t)
+        post))))
+
 
 ;;;; Issues
 
@@ -260,14 +329,6 @@
                   (if until
                       (funcall cb cb value)
                     (funcall callback callback (cons 'issues value)))))))
-
-(cl-defmethod forge--fetch-issue-posts ((repo forge-forgejo-repository) cur cb)
-  (let-alist (car cur)
-    (forge--forgejo-get repo (format "repos/:owner/:repo/issues/%s/comments" .number) nil
-      :unpaginate t
-      :callback (lambda (value _headers _status _req)
-                  (setf (alist-get 'notes (car cur)) value)
-                  (funcall cb cb)))))
 
 (cl-defmethod forge--update-issue ((repo forge-forgejo-repository) data)
   (closql-with-transaction (forge-db)
