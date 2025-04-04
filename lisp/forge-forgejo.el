@@ -60,7 +60,6 @@
   (setq until (or until (oref repo updated)))
   (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
                             (current-buffer)))
-                  (dir default-directory)
                   (val nil))
               (lambda (cb &optional v)
                 (when v (if val (push v val) (setq val v)))
