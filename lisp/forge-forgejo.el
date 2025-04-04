@@ -54,6 +54,7 @@
 (defvar forge--forgejo-batch-size 240
   "Number of pullreqs/issues to be fetched in one page.")
 
+
 ;;;; Repository
 
 (cl-defmethod forge--pull ((repo forge-forgejo-repository) &optional callback until)
@@ -134,6 +135,9 @@
     (oset repo stars          .stars_count)
     (oset repo watchers       .watchers_count)))
 
+
+;;;; Assignees
+
 (cl-defmethod forge--fetch-assignees ((repo forge-forgejo-repository) callback)
   (forge--forgejo-get repo "repos/:owner/:repo/assignees" nil
     :callback (lambda (value _headers _status _req)
@@ -152,6 +156,9 @@
                             .full_name
                             .id)))
                   data))))
+
+
+;;;; Milestones
 
 (cl-defmethod forge--fetch-milestones ((repo forge-forgejo-repository) callback)
   (forge--forgejo-get repo "repos/:owner/:repo/milestones" nil
@@ -173,6 +180,9 @@
                             .description)))
                   (delete-dups data)))))
 
+
+;;;; Teams
+
 (cl-defmethod forge--fetch-teams ((repo forge-forgejo-repository) callback)
   (forge--forgejo-get repo "repos/:owner/:repo/teams" nil
     :callback (lambda (value _headers _status _req)
@@ -181,6 +191,9 @@
 (cl-defmethod forge--update-teams ((repo forge-forgejo-repository) data)
   ;; TODO: check whether this is correct
   (oset repo teams (mapcar #'cdar data)))
+
+
+;;;; Forks
 
 (cl-defmethod forge--fetch-forks ((repo forge-forgejo-repository) callback)
   (forge--forgejo-get repo "repos/:owner/:repo/forks" nil
@@ -203,6 +216,9 @@
                   (delete-dups data)))))
 
 
+
+;;;; Labels
+
 (cl-defmethod forge--fetch-labels ((repo forge-forgejo-repository) callback)
   (forge--forgejo-get repo "repos/:owner/:repo/labels" nil
     :callback (lambda (value _headers _status _req)
@@ -218,6 +234,9 @@
                             (concat "#" (downcase .color))
                             .description)))
                   data))))
+
+
+;;;; Posts
 
 (defun forge--forgejo-least-date (a b)
   (if (time-less-p (date-to-time a)
@@ -506,6 +525,7 @@
                t))))
         pullreq))))
 
+
 ;;;; Reviews:
 (cl-defmethod forge--fetch-issue-reviews ((repo forge-forgejo-repository) cur callback &optional load-notes)
   (let-alist (car cur)
@@ -533,7 +553,7 @@
                     (setf (alist-get 'notes (car cur)) value)
                     (funcall callback callback))))))
 
-
+
 ;;;; Notifications:
 
 (defun forge--forgejo-massage-notification (data _forge githost callback)
