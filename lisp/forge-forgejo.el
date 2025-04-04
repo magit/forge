@@ -75,7 +75,8 @@
                     (forge--fetch-milestones repo cb))
                    ((not (assq 'forks val))
                     (forge--fetch-forks repo cb))
-                   ;; TODO: check teams?
+                   ((not (assq 'teams val))
+                    (forge--fetch-teams repo cb))
                    ((and .has_issues
                          (not (assq 'issues val)))
                     (forge--fetch-issues repo cb until))
@@ -91,6 +92,7 @@
                       (forge--update-labels     repo .labels)
                       (forge--update-milestones repo .milestones)
                       (forge--update-forks      repo .forks)
+                      (forge--update-teams      repo .teams)
                       (dolist (v .issues)   (forge--update-issue repo v))
                       (dolist (v .pullreqs) (forge--update-pullreq repo v))
                       (oset repo condition :tracked))
@@ -167,6 +169,15 @@
                             .closed_at
                             .description)))
                   (delete-dups data)))))
+
+(cl-defmethod forge--fetch-teams ((repo forge-forgejo-repository) callback)
+  (forge--forgejo-get repo "repos/:owner/:repo/teams" nil
+    :callback (lambda (value _headers _status _req)
+                (funcall callback callback (cons 'teams value)))))
+
+(cl-defmethod forge--update-teams ((repo forge-forgejo-repository) data)
+  ;; TODO: check whether this is correct
+  (oset repo teams (mapcar #'cdar data)))
 
 (cl-defmethod forge--fetch-forks ((repo forge-forgejo-repository) callback)
   (forge--forgejo-get repo "repos/:owner/:repo/forks" nil
