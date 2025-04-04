@@ -73,6 +73,9 @@
                     (forge--fetch-labels repo cb))
                    ((not (assq 'milestones val))
                     (forge--fetch-milestones repo cb))
+                   ((not (assq 'forks val))
+                    (forge--fetch-forks repo cb))
+                   ;; TODO: check teams?
                    ((and .has_issues
                          (not (assq 'issues val)))
                     (forge--fetch-issues repo cb until))
@@ -87,6 +90,7 @@
                       (forge--update-assignees  repo .assignees)
                       (forge--update-labels     repo .labels)
                       (forge--update-milestones repo .milestones)
+                      (forge--update-forks      repo .forks)
                       (dolist (v .issues)   (forge--update-issue repo v))
                       (dolist (v .pullreqs) (forge--update-pullreq repo v))
                       (oset repo condition :tracked))
@@ -163,6 +167,27 @@
                             .closed_at
                             .description)))
                   (delete-dups data)))))
+
+(cl-defmethod forge--fetch-forks ((repo forge-forgejo-repository) callback)
+  (forge--forgejo-get repo "repos/:owner/:repo/forks" nil
+    :callback (lambda (value _headers _status _req)
+                (funcall callback callback (cons 'forks value)))))
+
+(cl-defmethod forge--update-forks ((repo forge-forgejo-repository) data)
+  (oset repo forks
+        (with-slots (id) repo
+          (mapcar (lambda (row)
+                    (let-alist row
+                      (nconc (forge--repository-ids
+                              (eieio-object-class repo)
+                              (oref repo githost)
+                              .owner.login
+                              .name)
+                             (list .owner.login ;; TODO: check whether should be .parent.full_name or something similar
+                                   .name))))
+                  ;; TODO: check if delete-dups is necessary
+                  (delete-dups data)))))
+
 
 (cl-defmethod forge--fetch-labels ((repo forge-forgejo-repository) callback)
   (forge--forgejo-get repo "repos/:owner/:repo/labels" nil
