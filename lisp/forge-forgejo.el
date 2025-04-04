@@ -311,16 +311,18 @@
   (let ((cb (forge--forgejo-fetch-topics-cb 'pullreqs repo callback))
         (until (and until (date-to-time until))))
     (forge--msg repo t nil "Pulling REPO PRs")
-    (forge--forgejo-get* repo "repos/:owner/:repo/pulls"
+    (forge--forgejo-get repo "repos/:owner/:repo/pulls"
       `((limit . ,forge--forgejo-batch-size)
         (sort . "recentupdate"))
+      :unpaginate t
       :callback (lambda (value _headers _status _req)
                   (if until
                       (funcall cb cb value)
                     (funcall callback callback (cons 'pullreqs value))))
-      :while (lambda (res)
-               (let-alist res
-                 (or (not until) (time-less-p until (date-to-time .updated_at))))))))
+      ;; :while (lambda (res)
+      ;;          (let-alist res
+      ;;            (or (not until) (time-less-p until (date-to-time .updated_at)))))
+      )))
 
 (cl-defmethod forge--fetch-pullreq-posts ((repo forge-forgejo-repository) cur cb)
   (let-alist (car cur)
