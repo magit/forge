@@ -1,9 +1,9 @@
 ;;; forge-forgejo.el --- Forgejo support  -*- lexical-binding:t -*-
 
-;; Copyright (C) 2023 Matija Obid
+;; Copyright (C) 2023 Matija Obid, 2025 pinoaffe
 
-;; Author: Matija Obid <matija.obid@posteo.net>
-;; Maintainer: Matija Obid <matija.obid@posteo.net>
+;; Author: Matija Obid <matija.obid@posteo.net>, pinoaffe <pinoaffe@gmail.com>
+;; Maintainer: TBD
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
@@ -30,6 +30,11 @@
 
 ;; FIXME: error in process filter: json-read: Unrecognized keyword: "f51"
 ;; FIXME: initial commit don't pull all topics (same for github)
+;; FIXME: fix all issues/pullreqs
+;; FIXME: consistently use errorback and callback
+;; FIXME: consistently use bump, until/since and initial pull
+;; FIXME: fetching of individual issues/pullreqs
+;; FIXME: fetching of long lists of issues/pullreqs
 
 
 ;;; Class
@@ -254,6 +259,13 @@
     :callback (lambda (value _headers _status _req)
                 (funcall callback callback (cons 'posts value)))))
 
+(cl-defmethod forge--fetch-topic-posts ((repo forge-forgejo-repository) (topic forge-topic) cb)
+  (forge--forgejo-get topic "repos/:owner/:repo/issues/:number/comments" nil
+    :unpaginate t
+    :callback (lambda (value _headers _status _req)
+                (setf (alist-get 'notes (car cur)) value)
+                (funcall cb cb))))
+
 (cl-defmethod forge--fetch-issue-posts ((repo forge-forgejo-repository) cur cb)
   (let-alist (car cur)
     (forge--forgejo-get repo (format "repos/:owner/:repo/issues/%s/comments" .number) nil
@@ -263,7 +275,7 @@
                   (funcall cb cb)))))
 
 (cl-defmethod forge--update-posts ((repo forge-forgejo-repository) data
-                                      &optional bump)
+                                   &optional bump)
   (closql-with-transaction (forge-db)
     (dolist (elt data)
       (forge--update-post repo elt bump t))))
@@ -300,45 +312,17 @@
 
 ;;;; Issues
 
-(defun forge--forgejo-fetch-topics-cb (field repo callback)
-  (let ((typ (cl-ecase field
-               (issues "issues")
-               (pullreqs "PRs")))
-        i cnt)
-    (lambda (cb topics &optional val)
-      (cond ((not topics)
-             (funcall callback callback (cons field val)))
-            ((eq field 'issues)
-             (funcall callback callback (cons field topics)))
-            (t
-             (unless cnt
-               (setq i 0
-                     cnt (length topics)))
-             (cl-incf i)
-             (forge--msg nil nil nil "Pulling %s %s/%s" typ i cnt)
-             (if (eq field 'issues)
-                 (funcall cb cb (cdr topics) (cons (car topics) val))
-               ;; Load reviews for pull requests:
-               (forge--fetch-issue-reviews repo topics
-                                           (lambda (_)
-                                             (funcall cb cb (cdr topics) (cons (car topics) val)))
-                                           t)))))))
-
 (cl-defmethod forge--fetch-issues ((repo forge-forgejo-repository) callback since)
-  (let ((cb (forge--forgejo-fetch-topics-cb 'issues repo callback)))
-    (forge--msg repo t nil "Pulling REPO issues")
-    (forge--forgejo-get repo "repos/:owner/:repo/issues"
-      `((limit . ,forge--forgejo-batch-size)
-        (type . "issues")
-        (state . "all")
-        ,@(and-let* ((after (or since (oref repo issues-until))))
-            `((since . ,after))))
-      :unpaginate t
-      :callback (lambda (value _headers _status _req)
-                  ;; TODO: check
-                  (if since
-                      (funcall cb cb value)
-                    (funcall callback callback (cons 'issues value)))))))
+  (forge--msg repo t nil "Pulling REPO issues")
+  (forge--forgejo-get repo "repos/:owner/:repo/issues"
+    `((limit . ,forge--forgejo-batch-size)
+      (type . "issues")
+      (state . "all")
+      ,@(and-let* ((after (or since (oref repo issues-until))))
+          `((since . ,after))))
+    :unpaginate t
+    :callback (lambda (value _headers _status _req)
+                (funcall callback callback (cons 'issues value)))))
 
 (cl-defmethod forge--update-issue ((repo forge-forgejo-repository) data)
   (closql-with-transaction (forge-db)
@@ -356,8 +340,9 @@
         (oset issue number       .number)
         (oset issue repository   (oref repo id))
         (oset issue state        (pcase-exhaustive .state
-                             ("closed" 'closed)
-                             ("open" 'open)))
+                                   ("closed" 'closed)
+                                   ("open" 'open)
+                                   (_ 'open)))
         (oset issue author       .user.username)
         (oset issue title        .title)
         (oset issue created      .created_at)
@@ -393,43 +378,91 @@
                                 "\n```\n--\n"
                                 body))))
              t)))
+        (closql-insert (forge-db) issue t)
         issue))))
 
 (cl-defmethod forge--pull-topic ((repo forge-forgejo-repository)
-                                 (topic forge-topic))
-  ;; TODO: make this also fetch posts
-  (condition-case _
-      (let ((data (forge--forgejo-get topic "repos/:owner/:repo/pulls/:number"))
-            (cb (forge--forgejo-fetch-topics-cb 'pullreqs repo
-                                             (lambda (_ data)
-                                               (forge--update-pullreq repo (cadr data))))))
-        (funcall cb cb (list data)))
-    (error
-     (let ((data (forge--forgejo-get topic "repos/:owner/:repo/issues/:number"))
-           (cb (forge--forgejo-fetch-topics-cb 'issues repo
-                                            (lambda (_ data)
-                                              (forge--update-issue repo (cadr data))))))
-       (funcall cb cb (list data))))))
+                                 (topic forge-issue)
+                                 &key callback errorback)
+  (forge--forgejo-get topic "repos/:owner/:repo/issues/:number" nil
+    :errorback errorback
+    :callback (lambda (issue &rest _)
+                (forge--forgejo-get topic "repos/:owner/:repo/issues/:number/comments" nil
+                  :errorback errorback
+                  :callback (lambda (comments &rest _)
+                              (closql-with-transaction (forge-db)
+                                (setq asdf (forge--update-issue repo issue))
+                                (forge--update-posts repo comments)
+                                (when callback
+                                  (funcall callback callback))))))))
+
+(cl-defmethod forge--pull-topic ((repo forge-forgejo-repository)
+                                 (topic forge-pullreq)
+                                 &key callback errorback)
+  (forge--forgejo-get topic "repos/:owner/:repo/pulls/:number" nil
+    :errorback errorback
+    :callback (lambda (pullreq &rest _)
+                ;; NOTE: there is no
+                ;;       "repos/:owner/:repo/pulls/:number/comments"
+                ;;       endpoint, instead the issues endpoint is used
+                ;;       since apparantly pullrequests are a special
+                ;;       type of issue
+                (forge--forgejo-get topic "repos/:owner/:repo/issues/:number/comments" nil
+                  :errorback errorback
+                  :callback (lambda (comments &rest _)
+                              (closql-with-transaction (forge-db)
+                                (forge--update-pullreq repo pullreq)
+                                (forge--update-posts repo comments)
+                                (when callback
+                                  (funcall callback callback))))))))
+
+(cl-defmethod forge--pull-topic ((repo forge-forgejo-repository)
+                                 (number number)
+                                 &optional callback errorback)
+  (let ((id (oref repo id)))
+    (forge--pull-topic
+     repo
+     (forge-pullreq :repository id :number number)
+     :callback callback
+     :errorback (lambda (err _headers _status _req)
+                  (forge--pull-topic
+                   repo
+                   (forge-issue :repository id :number number)
+                   :callback callback
+                   :errorback errorback)))))
 
 ;;;; Pull requests
 
-;; TODO: see whether this can be fetched with the repos:owner:repo/issues endpoint
+(defun forge--mapcallback (cbf cbe sequence &optional result)
+  "f is a function of two arguments"
+  (if (seq-empty-p sequence)
+      (funcall cbf cbf (seq-reverse result))
+    (funcall cbe
+             (lambda (cb val)
+               (forge--mapcallback cbf
+                                   cbe
+                                   (cdr sequence)
+                                   (cons val result)))
+             (car sequence))))
+
 (cl-defmethod forge--fetch-pullreqs ((repo forge-forgejo-repository) callback until)
-  (let ((cb (forge--forgejo-fetch-topics-cb 'pullreqs repo callback))
-        (until (and until (date-to-time until))))
+  ;; TODO: see whether this can be fetched with the repos:owner:repo/issues endpoint
+  ;; TODO: only fetch recently updated pullreqs
+  (let ((until (and until (date-to-time until))))
     (forge--msg repo t nil "Pulling REPO PRs")
     (forge--forgejo-get repo "repos/:owner/:repo/pulls"
       `((limit . ,forge--forgejo-batch-size)
         (sort . "recentupdate"))
       :unpaginate t
-      :callback (lambda (value _headers _status _req)
-                  (if until
-                      (funcall cb cb value)
-                    (funcall callback callback (cons 'pullreqs value))))
-      ;; :while (lambda (res)
-      ;;          (let-alist res
-      ;;            (or (not until) (time-less-p until (date-to-time .updated_at)))))
-      )))
+      :callback (lambda (pullreqs _headers _status _req)
+                  (forge--mapcallback
+                   (lambda (&rest _)
+                     (funcall callback callback (cons 'pullreqs pullreqs)))
+                   (lambda (cb pullreq)
+                     (forge--fetch-issue-reviews repo pullreq cb t)
+                     pullreq)
+                   ;; (if until pullreqs nil)
+                   nil)))))
 
 (cl-defmethod forge--fetch-pullreq-posts ((repo forge-forgejo-repository) cur cb)
   (let-alist (car cur)
@@ -519,30 +552,32 @@
 
 
 ;;;; Reviews:
-(cl-defmethod forge--fetch-issue-reviews ((repo forge-forgejo-repository) cur callback &optional load-notes)
-  (let-alist (car cur)
-    (let ((cb (lambda (cb reviews)
-                ;; TODO Add main comment of review.
-                (if reviews
-                    (forge--fetch-issue-review-notes repo .number reviews
-                                                     (lambda (_)
-                                                       (funcall cb cb (cdr reviews))))
-                  (funcall callback callback)))))
-      (forge--forgejo-get repo (format "repos/:owner/:repo/pulls/%s/reviews" .number) nil
-        :callback (lambda (value &rest _args)
-                    (setf (alist-get 'reviews (car cur)) value)
-                    (if load-notes
-                        (funcall cb cb value)
-                      (funcall callback callback)))))))
+(cl-defmethod forge--fetch-issue-reviews ((repo forge-forgejo-repository) pullreq callback &optional load-notes)
+  (let-alist pullreq
+    (forge--forgejo-get repo (format "repos/:owner/:repo/pulls/%s/reviews" .number) nil
+      :callback (lambda (reviews &rest _args)
+                  (setf (alist-get 'reviews pullreq) reviews)
+                  (forge--mapcallback
+                   (lambda (&rest _)
+                     (funcall callback callback))
+                   (lambda (cb review)
+                     (forge--fetch-issue-review-notes repo
+                                                      .number
+                                                      review
+                                                      (lambda (&rest _)
+                                                        (funcall cb cb review))))
+                   ;; (if load-notes reviews nil)
+                   nil
+                   )))))
 
-(cl-defmethod forge--fetch-issue-review-notes ((repo forge-forgejo-repository) number cur callback)
-  (let-alist (car cur)
+(cl-defmethod forge--fetch-issue-review-notes ((repo forge-forgejo-repository) number review callback)
+  (let-alist review
     (if (string= .state "REQUEST_REVIEW") ; Review requests does not have a comments.
         (funcall callback callback)
       (forge--forgejo-get repo (format "repos/:owner/:repo/pulls/%s/reviews/%s/comments" number .id)
         nil
         :callback (lambda (value &rest _args)
-                    (setf (alist-get 'notes (car cur)) value)
+                    (setf (alist-get 'notes review) value)
                     (funcall callback callback))))))
 
 
@@ -871,6 +906,7 @@ is met."
                                host
                                callback errorback)
   (declare (indent defun))
+  (message "Fetching %s %s" resource (forge--format-resource obj resource))
   (forgejo-get (if obj (forge--format-resource obj resource) resource)
             params
             :host (or host (oref (forge-get-repository obj) apihost))
