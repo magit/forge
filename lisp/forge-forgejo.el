@@ -282,25 +282,18 @@
                              (string-trim .diff_hunk)
                              "\n```\n--\n"
                              (forge--sanitize-string .body))))
-             (post (if (not (string-empty-p issue-id))
-                       (forge-issue-post
-                        :id (forge--object-id (forge--object-id 'forge-issue repo issue-id)
-                                              .id)
-                        :issue (forge--object-id 'forge-issue repo issue-id)
-                        :number  .id
-                        :author  .user.login
-                        :created .created_at
-                        :updated .updated_at
-                        :body body)
-                     (forge-pullreq-post
-                      :id (forge--object-id (forge--object-id 'forge-pullreq repo pullreq-id)
-                                            post-id)
-                      :pullreq (forge--object-id 'forge-pullreq repo pullreq-id)
-                      :number .id
-                      :author .user.login
-                      :created .created_at
-                      :updated .updated_at
-                      :body body))))
+             (issue-p (string-empty-p pullreq-id))
+             (topic-id (if issue-p issue-id pullreq-id))
+             (topic-type (if issue-p 'forge-issue 'forge-pullreq))
+             (post-id (forge--object-id (forge--object-id topic-type repo topic-id) .id))
+             (post (funcall (if issue-p #'forge-issue-post #'forge-pullreq-post)
+                            :id post-id
+                            (if issue-p :issue :pullreq) post-id
+                            :number  .id
+                            :author  .user.login
+                            :created .created_at
+                            :updated .updated_at
+                            :body body)))
         (closql-insert (forge-db) post t)
         post))))
 
