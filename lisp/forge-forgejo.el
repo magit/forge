@@ -306,26 +306,23 @@
                (pullreqs "PRs")))
         i cnt)
     (lambda (cb topics &optional val)
-      (unless cnt
-        (setq i 0
-              cnt (length topics)))
-      (cl-incf i)
-      (if topics
-          (progn
-            (forge--msg nil nil nil "Pulling %s %s/%s" typ i cnt)
-            (forge--fetch-issue-posts
-             repo topics
-             (lambda (cbb)
-               (if (or (eq field 'issues)
-                       (not cbb))
-                   (funcall cb cb (cdr topics) (cons (car topics) val))
-                 ;; Load reviews for pull requests:
-                 (forge--fetch-issue-reviews repo topics
-                                             (lambda (_)
-                                               (funcall cbb nil))
-                                             t)))))
-        (forge--msg nil nil t "Pulling %s %s/%s" typ i cnt)
-        (funcall callback callback (cons field (nreverse val)))))))
+      (cond ((not topics)
+             (funcall callback callback (cons field val)))
+            ((eq field 'issues)
+             (funcall callback callback (cons field topics)))
+            (t
+             (unless cnt
+               (setq i 0
+                     cnt (length topics)))
+             (cl-incf i)
+             (forge--msg nil nil nil "Pulling %s %s/%s" typ i cnt)
+             (if (eq field 'issues)
+                 (funcall cb cb (cdr topics) (cons (car topics) val))
+               ;; Load reviews for pull requests:
+               (forge--fetch-issue-reviews repo topics
+                                           (lambda (_)
+                                             (funcall cb cb (cdr topics) (cons (car topics) val)))
+                                           t)))))))
 
 (cl-defmethod forge--fetch-issues ((repo forge-forgejo-repository) callback since)
   (let ((cb (forge--forgejo-fetch-topics-cb 'issues repo callback)))
@@ -400,6 +397,7 @@
 
 (cl-defmethod forge--pull-topic ((repo forge-forgejo-repository)
                                  (topic forge-topic))
+  ;; TODO: make this also fetch posts
   (condition-case _
       (let ((data (forge--forgejo-get topic "repos/:owner/:repo/pulls/:number"))
             (cb (forge--forgejo-fetch-topics-cb 'pullreqs repo
