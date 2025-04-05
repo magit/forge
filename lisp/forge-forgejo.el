@@ -57,8 +57,8 @@
 
 ;;;; Repository
 
-(cl-defmethod forge--pull ((repo forge-forgejo-repository) &optional callback until)
-  (setq until (or until (oref repo updated)))
+(cl-defmethod forge--pull ((repo forge-forgejo-repository) &optional callback since)
+  (setq since (or since (oref repo updated)))
   (let ((cb (let ((buf (and (derived-mode-p 'magit-mode)
                             (current-buffer)))
                   (val nil))
@@ -77,15 +77,15 @@
                    ((not (assq 'forks val))
                     (forge--fetch-forks repo cb))
                    ((not (assq 'posts val))
-                    (forge--fetch-posts repo cb until))
+                    (forge--fetch-posts repo cb since))
                    ((not (assq 'teams val))
                     (forge--fetch-teams repo cb))
                    ((and .has_issues
                          (not (assq 'issues val)))
-                    (forge--fetch-issues repo cb until))
+                    (forge--fetch-issues repo cb since))
                    ((and .has_pull_requests
                          (not (assq 'pullreqs val)))
-                    (forge--fetch-pullreqs repo cb until))
+                    (forge--fetch-pullreqs repo cb since))
                    (t
                     (forge--msg repo t t   "Pulling REPO")
                     (forge--msg repo t nil "Storing REPO")
@@ -327,18 +327,19 @@
         (forge--msg nil nil t "Pulling %s %s/%s" typ i cnt)
         (funcall callback callback (cons field (nreverse val)))))))
 
-(cl-defmethod forge--fetch-issues ((repo forge-forgejo-repository) callback until)
+(cl-defmethod forge--fetch-issues ((repo forge-forgejo-repository) callback since)
   (let ((cb (forge--forgejo-fetch-topics-cb 'issues repo callback)))
     (forge--msg repo t nil "Pulling REPO issues")
     (forge--forgejo-get repo "repos/:owner/:repo/issues"
       `((limit . ,forge--forgejo-batch-size)
         (type . "issues")
         (state . "all")
-        ,@(and-let* ((after (or until (oref repo issues-until))))
+        ,@(and-let* ((after (or since (oref repo issues-until))))
             `((since . ,after))))
       :unpaginate t
       :callback (lambda (value _headers _status _req)
-                  (if until
+                  ;; TODO: check
+                  (if since
                       (funcall cb cb value)
                     (funcall callback callback (cons 'issues value)))))))
 
