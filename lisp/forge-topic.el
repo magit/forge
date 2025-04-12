@@ -1933,8 +1933,11 @@ alist, containing just `text' and `position'.")
 
 (cl-defmethod forge--topic-template ((repo forge-repository)
                                      (class (subclass forge-topic)))
-  (let ((choices (and (not (eq class 'forge-discussion))
-                      (forge--topic-templates-data repo class))))
+  (let* ((supported-topic? (not (eq class 'forge-discussion)))
+         (template-choices (when supported-topic?
+                             (forge--topic-templates-data repo class)))
+         (choices (and template-choices
+                       (append template-choices '(((prompt . "Blank")))))))
     (if (cdr choices)
         (let ((c (magit-completing-read
                   (pcase class
