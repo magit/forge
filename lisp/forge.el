@@ -124,7 +124,7 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
   (keymap-set magit-commit-section-map "C-c C-v" #'forge-visit-topic)
   (keymap-set magit-branch-section-map "C-c C-v" #'forge-visit-topic)
 
-  (transient-insert-suffix 'magit-dispatch "o"
+  (transient-insert-suffix 'magit-dispatch '(0 -1 -1)
     '("N" "Forge" forge-dispatch))
 
   (transient-append-suffix 'magit-fetch "m" '("n" forge-pull))
