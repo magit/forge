@@ -1440,7 +1440,7 @@ This mode itself is never used directly."
 ;;; Commands
 ;;;; Groups
 
-(defconst forge--lists-group
+(transient-define-group forge--lists-group
   ["List"
    ("l r" "repositories"  forge-list-repositories)
    ("l n" "notifications" forge-list-notifications)
@@ -1448,7 +1448,7 @@ This mode itself is never used directly."
    ("l t" "topics"        forge-list-topics)
    ""])
 
-(defconst forge--topic-menus-group
+(transient-define-group forge--topic-menus-group
   ["Menu"
    ("m s" "edit"      forge-topic-menu)
    ("m f" "filter"    forge-topics-menu)
@@ -1458,7 +1458,7 @@ This mode itself is never used directly."
    ("m c" "configure" forge-configure)
    """"])
 
-(defconst forge--topic-set-state-group
+(transient-define-group forge--topic-set-state-group
   [:description (##if forge--show-topic-legend "Set public state" "Set state")
    ("o" forge-topic-state-set-open)
    ("c" forge-chatter-state-set-completed)
@@ -1468,31 +1468,31 @@ This mode itself is never used directly."
    ("M" forge-pullreq-state-set-merged)
    ("R" forge-pullreq-state-set-rejected)])
 
-(defconst forge--topic-set-status-group
+(transient-define-group forge--topic-set-status-group
   [:description (##if forge--show-topic-legend "Set private status" "Set status")
    ("u" forge-topic-status-set-unread)
    ("p" forge-topic-status-set-pending)
    ("d" forge-topic-status-set-done)])
 
-(defconst forge--topic-legend-group
-  '(["Legend" :if-non-nil forge--show-topic-legend
-     (:info* (##propertize "open discussion"      'face 'forge-discussion-open))
-     (:info* (##propertize "completed discussion" 'face 'forge-discussion-completed))
-     (:info* (##propertize "expunged discussion"  'face 'forge-discussion-expunged))]
-    ["" :if-non-nil forge--show-topic-legend
-     (:info* (##propertize "open issue"       'face 'forge-issue-open))
-     (:info* (##propertize "completed issue"  'face 'forge-issue-completed))
-     (:info* (##propertize "expunged issue"   'face 'forge-issue-expunged))]
-    ["" :if-non-nil forge--show-topic-legend
-     (:info* (##propertize "open pullreq"     'face 'forge-pullreq-open))
-     (:info* (##propertize "merged pullreq"   'face 'forge-pullreq-merged))
-     (:info* (##propertize "rejected pullreq" 'face 'forge-pullreq-rejected))]
-    ["" :if-non-nil forge--show-topic-legend
-     (:info* (##propertize "unread"           'face 'forge-topic-unread))
-     (:info* (##propertize "pending"          'face 'forge-topic-pending))
-     (:info* (##propertize "done"             'face 'forge-topic-done))]
-    ["" :if-non-nil forge--show-topic-legend
-     (:info* (##propertize "draft"            'face 'forge-pullreq-draft))]))
+(transient-define-group forge--topic-legend-group
+  ["Legend" :if-non-nil forge--show-topic-legend
+   (:info* (##propertize "open discussion"      'face 'forge-discussion-open))
+   (:info* (##propertize "completed discussion" 'face 'forge-discussion-completed))
+   (:info* (##propertize "expunged discussion"  'face 'forge-discussion-expunged))]
+  ["" :if-non-nil forge--show-topic-legend
+   (:info* (##propertize "open issue"       'face 'forge-issue-open))
+   (:info* (##propertize "completed issue"  'face 'forge-issue-completed))
+   (:info* (##propertize "expunged issue"   'face 'forge-issue-expunged))]
+  ["" :if-non-nil forge--show-topic-legend
+   (:info* (##propertize "open pullreq"     'face 'forge-pullreq-open))
+   (:info* (##propertize "merged pullreq"   'face 'forge-pullreq-merged))
+   (:info* (##propertize "rejected pullreq" 'face 'forge-pullreq-rejected))]
+  ["" :if-non-nil forge--show-topic-legend
+   (:info* (##propertize "unread"           'face 'forge-topic-unread))
+   (:info* (##propertize "pending"          'face 'forge-topic-pending))
+   (:info* (##propertize "done"             'face 'forge-topic-done))]
+  ["" :if-non-nil forge--show-topic-legend
+   (:info* (##propertize "draft"            'face 'forge-pullreq-draft))])
 
 (defvar forge--show-topic-legend t)
 
