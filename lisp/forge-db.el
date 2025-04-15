@@ -34,8 +34,8 @@
 (declare-function forge-get-repository "forge-core" (demand))
 
 (eval-when-compile
-  (cl-pushnew 'number eieio--known-slot-names)
-  (cl-pushnew 'value eieio--known-slot-names))
+  (cl-pushnew 'milestone eieio--known-slot-names)  ; forge-{issue,pullreq}
+  (cl-pushnew 'number    eieio--known-slot-names)) ; forge-{issue,pullreq,...}
 
 ;;; Options
 
