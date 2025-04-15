@@ -1858,14 +1858,14 @@ alist, containing just `text' and `position'.")
               (with-temp-buffer
                 (magit-git-insert "cat-file" "-p" (concat branch ":" f))
                 (if (equal (file-name-nondirectory f) "config.yml")
-                    (forge--topic-parse-link-buffer)
+                    (forge--topic-parse-template-config)
                   (list (forge--topic-parse-buffer f)))))
             (forge--topic-template-files repo class))))
 
 (cl-defgeneric forge--topic-template-files (repo class)
   "Return a list of topic template files for REPO and a topic of CLASS.")
 
-(defun forge--topic-parse-link-buffer ()
+(defun forge--topic-parse-template-config ()
   (let-alist (yaml-parse-string (magit--buffer-string)
                                 :object-type 'alist
                                 :sequence-type 'list)
