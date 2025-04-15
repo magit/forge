@@ -1859,11 +1859,10 @@ When point is on the answer, then unmark it and mark no other."
       (setq beg (point))
       (when (re-search-forward "^---[\s\t]*$" nil t)
         (setq end (match-beginning 0))
-        (setq alist (yaml-parse-string
-                     (buffer-substring-no-properties beg end)
-                     :object-type 'alist
-                     :sequence-type 'list
-                     :false-object nil))
+        (setq alist (yaml-parse-string (magit--buffer-string beg end)
+                                       :object-type 'alist
+                                       :sequence-type 'list
+                                       :false-object nil))
         (let-alist alist
           (when (and .name .about)
             (setf (alist-get 'prompt alist)
@@ -1906,9 +1905,7 @@ When point is on the answer, then unmark it and mark no other."
 
 (defun forge--topic-parse-yaml-links ()
   (alist-get 'contact_links
-             (yaml-parse-string (buffer-substring-no-properties
-                                 (point-min)
-                                 (point-max))
+             (yaml-parse-string (magit--buffer-string)
                                 :object-type 'alist
                                 :sequence-type 'list)))
 

@@ -673,13 +673,10 @@ point is currently on."
   (let* ((quote (cond
                  ((not (magit-section-match 'post)) nil)
                  ((use-region-p)
-                  (buffer-substring-no-properties (region-beginning)
-                                                  (region-end)))
+                  (magit--buffer-string (region-beginning) (region-end)))
                  (quote
-                  (let ((section (magit-current-section)))
-                    (string-trim-right
-                     (buffer-substring-no-properties (oref section content)
-                                                     (oref section end)))))))
+                  (with-slots (content end) (magit-current-section)
+                    (magit--buffer-string content end t)))))
          (obj (if (forge-discussion-p forge-buffer-topic)
                   (forge--select-discussion-reply-target)
                 forge-buffer-topic))

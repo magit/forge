@@ -262,9 +262,7 @@ an error."
   "<remap> <magit-edit-thing>" #'forge-edit-topic-note)
 
 (defun forge--save-note (_repo topic)
-  (let ((value (string-trim (buffer-substring-no-properties
-                             (point-min)
-                             (point-max)))))
+  (let ((value (string-trim (magit--buffer-string))))
     (oset topic note (if (equal value "") nil value)))
   (delete-file buffer-file-name t)
   (let ((dir (file-name-directory buffer-file-name)))
