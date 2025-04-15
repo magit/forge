@@ -1894,20 +1894,16 @@ When point is on the answer, then unmark it and mark no other."
       (body  . ,(string-trim body)))))
 
 (defun forge--topic-parse-link-buffer ()
-  (save-match-data
-    (save-excursion
-      (goto-char (point-min))
-      (mapcar (lambda (alist)
-                (cons (cons 'prompt (concat (alist-get 'name alist) " -- "
-                                            (alist-get 'about alist)))
-                      alist))
-              (forge--topic-parse-yaml-links)))))
-
-(defun forge--topic-parse-yaml-links ()
-  (alist-get 'contact_links
-             (yaml-parse-string (magit--buffer-string)
+  (let-alist (yaml-parse-string (magit--buffer-string)
                                 :object-type 'alist
-                                :sequence-type 'list)))
+                                :sequence-type 'list)
+    (nconc
+     (and (not (eq .blank_issues_enabled :false)) ;unset means true
+          '(((prompt . "Blank issue -- Create a new issue from scratch"))))
+     (mapcar (lambda (link)
+               `(,@link
+                 (prompt ,(let-alist link (concat .name " -- " .about)))))
+             .contact_links))))
 
 (cl-defgeneric forge--topic-template-files (repo class)
   "Return a list of topic template files for REPO and a topic of CLASS.")
