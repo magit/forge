@@ -1831,6 +1831,52 @@ When point is on the answer, then unmark it and mark no other."
 
 ;;; Templates
 
+(cl-defgeneric forge--topic-template (repo class)
+  "Return a topic template alist for REPO and a topic of CLASS.
+If there are multiple templates, then the user is asked to select
+one of them.  It there are no templates, then return a very basic
+alist, containing just `text' and `position'.")
+
+(cl-defmethod forge--topic-template ((repo forge-repository)
+                                     (class (subclass forge-topic)))
+  (let ((choices (and (not (eq class 'forge-discussion))
+                      (forge--topic-templates-data repo class))))
+    (if (cdr choices)
+        (let ((c (magit-completing-read
+                  (pcase class
+                    ('forge-discussion "Select discussion type")
+                    ('forge-issue      "Select issue template")
+                    ('forge-pullreq    "Select pull-request template"))
+                  (mapcar (##alist-get 'prompt %) choices)
+                  nil t)))
+          (seq-find (##equal (alist-get 'prompt %) c) choices))
+      (car choices))))
+
+(defun forge--topic-templates-data (repo class)
+  (let ((branch (oref repo default-branch)))
+    (mapcan (lambda (f)
+              (with-temp-buffer
+                (magit-git-insert "cat-file" "-p" (concat branch ":" f))
+                (if (equal (file-name-nondirectory f) "config.yml")
+                    (forge--topic-parse-link-buffer)
+                  (list (forge--topic-parse-buffer f)))))
+            (forge--topic-template-files repo class))))
+
+(cl-defgeneric forge--topic-template-files (repo class)
+  "Return a list of topic template files for REPO and a topic of CLASS.")
+
+(defun forge--topic-parse-link-buffer ()
+  (let-alist (yaml-parse-string (magit--buffer-string)
+                                :object-type 'alist
+                                :sequence-type 'list)
+    (nconc
+     (and (not (eq .blank_issues_enabled :false)) ;unset means true
+          '(((prompt . "Blank issue -- Create a new issue from scratch"))))
+     (mapcar (lambda (link)
+               `(,@link
+                 (prompt ,(let-alist link (concat .name " -- " .about)))))
+             .contact_links))))
+
 (defun forge--topic-parse-buffer (&optional file)
   (save-match-data
     (save-excursion
@@ -1892,52 +1938,6 @@ When point is on the answer, then unmark it and mark no other."
     (setq body (magit--buffer-string (point) nil ?\n))
     `((title . ,(string-trim title))
       (body  . ,(string-trim body)))))
-
-(defun forge--topic-parse-link-buffer ()
-  (let-alist (yaml-parse-string (magit--buffer-string)
-                                :object-type 'alist
-                                :sequence-type 'list)
-    (nconc
-     (and (not (eq .blank_issues_enabled :false)) ;unset means true
-          '(((prompt . "Blank issue -- Create a new issue from scratch"))))
-     (mapcar (lambda (link)
-               `(,@link
-                 (prompt ,(let-alist link (concat .name " -- " .about)))))
-             .contact_links))))
-
-(cl-defgeneric forge--topic-template-files (repo class)
-  "Return a list of topic template files for REPO and a topic of CLASS.")
-
-(cl-defgeneric forge--topic-template (repo class)
-  "Return a topic template alist for REPO and a topic of CLASS.
-If there are multiple templates, then the user is asked to select
-one of them.  It there are no templates, then return a very basic
-alist, containing just `text' and `position'.")
-
-(defun forge--topic-templates-data (repo class)
-  (let ((branch (oref repo default-branch)))
-    (mapcan (lambda (f)
-              (with-temp-buffer
-                (magit-git-insert "cat-file" "-p" (concat branch ":" f))
-                (if (equal (file-name-nondirectory f) "config.yml")
-                    (forge--topic-parse-link-buffer)
-                  (list (forge--topic-parse-buffer f)))))
-            (forge--topic-template-files repo class))))
-
-(cl-defmethod forge--topic-template ((repo forge-repository)
-                                     (class (subclass forge-topic)))
-  (let ((choices (and (not (eq class 'forge-discussion))
-                      (forge--topic-templates-data repo class))))
-    (if (cdr choices)
-        (let ((c (magit-completing-read
-                  (pcase class
-                    ('forge-discussion "Select discussion type")
-                    ('forge-issue      "Select issue template")
-                    ('forge-pullreq    "Select pull-request template"))
-                  (mapcar (##alist-get 'prompt %) choices)
-                  nil t)))
-          (seq-find (##equal (alist-get 'prompt %) c) choices))
-      (car choices))))
 
 ;;; Bug-Reference
 
