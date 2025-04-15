@@ -492,9 +492,9 @@
 (cl-defmethod forge--submit-edit-post ((_ forge-gitlab-repository) post)
   (forge--glab-put post
     (cl-etypecase post
-      (forge-pullreq "/projects/:project/merge_requests/:number")
-      (forge-issue   "/projects/:project/issues/:number")
-      (forge-issue-post "/projects/:project/issues/:topic/notes/:number")
+      (forge-pullreq      "/projects/:project/merge_requests/:number")
+      (forge-issue        "/projects/:project/issues/:number")
+      (forge-issue-post   "/projects/:project/issues/:topic/notes/:number")
       (forge-pullreq-post "/projects/:project/merge_requests/:topic/notes/:number"))
     (if (cl-typep post 'forge-topic)
         (let-alist (forge--topic-parse-buffer)
