@@ -1831,14 +1831,7 @@ When point is on the answer, then unmark it and mark no other."
 
 ;;; Templates
 
-(cl-defgeneric forge--topic-template (repo class)
-  "Return a topic template alist for REPO and a topic of CLASS.
-If there are multiple templates, then the user is asked to select
-one of them.  It there are no templates, then return a very basic
-alist, containing just `text' and `position'.")
-
-(cl-defmethod forge--topic-template ((repo forge-repository)
-                                     (class (subclass forge-topic)))
+(defun forge--topic-template (repo class)
   (let ((choices (and (not (eq class 'forge-discussion))
                       (forge--topic-templates repo class))))
     (if (cdr choices)
