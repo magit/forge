@@ -1840,7 +1840,7 @@ alist, containing just `text' and `position'.")
 (cl-defmethod forge--topic-template ((repo forge-repository)
                                      (class (subclass forge-topic)))
   (let ((choices (and (not (eq class 'forge-discussion))
-                      (forge--topic-templates-data repo class))))
+                      (forge--topic-templates repo class))))
     (if (cdr choices)
         (let ((c (magit-completing-read
                   (pcase class
@@ -1852,7 +1852,7 @@ alist, containing just `text' and `position'.")
           (seq-find (##equal (alist-get 'prompt %) c) choices))
       (car choices))))
 
-(defun forge--topic-templates-data (repo class)
+(defun forge--topic-templates (repo class)
   (let ((branch (oref repo default-branch)))
     (mapcan (lambda (f)
               (with-temp-buffer
