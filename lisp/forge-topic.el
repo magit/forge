@@ -1905,7 +1905,7 @@ When point is on the answer, then unmark it and mark no other."
         (let-alist alist
           (when (and .name .about)
             (setf (alist-get 'prompt alist)
-                  (format "[%s] %s" .name .about)))
+                  (format "%s -- %s" .name .about)))
           (when (and .labels (atom .labels))
             (setf (alist-get 'labels alist) (list .labels)))
           (when (and .assignees (atom .assignees))
