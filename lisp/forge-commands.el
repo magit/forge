@@ -591,14 +591,20 @@ With prefix argument MENU, also show the topic menu."
   "Create a new issue for the current repository."
   (interactive)
   (let* ((repo (forge-get-repository :tracked))
-         (buf (forge--prepare-post-buffer
-               "new-issue"
-               (forge--format repo "Create new issue on %p"))))
-    (when buf
-      (with-current-buffer buf
-        (setq forge--buffer-post-object repo)
-        (setq forge--submit-post-function #'forge--submit-create-issue))
-      (forge--display-post-buffer buf))))
+         (template (forge--topic-template repo 'forge-issue)))
+    (let-alist template
+      (pcase-exhaustive .type
+        ('redirect (browse-url .url))
+        ('forge-discussion (forge-create-discussion .category))
+        ('forge-issue
+         (when-let ((buf (forge--prepare-post-buffer
+                          "new-issue"
+                          (forge--format repo "Create new issue on %p")
+                          nil nil template)))
+           (with-current-buffer buf
+             (setq forge--buffer-post-object repo)
+             (setq forge--submit-post-function #'forge--submit-create-issue))
+           (forge--display-post-buffer buf)))))))
 
 (defun forge-create-pullreq (source target)
   "Create a new pull-request for the current repository."
@@ -607,7 +613,8 @@ With prefix argument MENU, also show the topic menu."
          (buf (forge--prepare-post-buffer
                "new-pullreq"
                (forge--format repo "Create new pull-request on %p")
-               source target)))
+               source target
+               (forge--topic-template repo 'forge-pullreq))))
     (with-current-buffer buf
       (setq forge--buffer-base-branch target)
       (setq forge--buffer-head-branch source)

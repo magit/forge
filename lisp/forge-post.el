@@ -121,7 +121,7 @@ an error."
 (defvar-local forge--pre-post-buffer nil)
 (make-variable-buffer-local 'forge-buffer-draft-p)
 
-(defun forge--prepare-post-buffer (filename &optional header source target)
+(defun forge--prepare-post-buffer (filename &optional header source target template)
   (let* ((repo (forge-get-repository :tracked))
          (tree (oref repo worktree))
          (file (convert-standard-filename
@@ -151,20 +151,9 @@ an error."
                   (?d "[d]iscard draft and start over" t))
             (erase-buffer)
             (setq resume nil)))
-        (when (and (not resume)
-                   (member filename '("new-issue" "new-pullreq")))
-          (let-alist (forge--topic-template
-                      (forge-get-repository :tracked)
-                      (pcase filename
-                        ("new-issue"   'forge-issue)
-                        ("new-pullreq" 'forge-pullreq)))
+        (when (and (not resume) template)
+          (let-alist template
             (cond
-             (.url
-              (browse-url .url)
-              (forge-post-cancel)
-              (setq buf nil)
-              (message "Using browser to visit %s instead of opening an issue"
-                       .url))
              (.name
               ;; A Github issue with yaml frontmatter.
               (save-excursion (insert .text))

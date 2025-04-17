@@ -1832,16 +1832,27 @@ When point is on the answer, then unmark it and mark no other."
 ;;; Templates
 
 (defun forge--topic-template (repo class)
-  (let ((templates (forge--topic-templates repo class)))
-    (if (cdr templates)
-        (let ((c (magit-completing-read
-                  (pcase class
-                    ('forge-issue   "Select issue template")
-                    ('forge-pullreq "Select pull-request template"))
-                  (mapcar (##alist-get 'prompt %) templates)
-                  nil t)))
-          (seq-find (##equal (alist-get 'prompt %) c) templates))
-      (car templates))))
+  (let* ((templates (forge--topic-templates repo class))
+         (template
+          (if (cdr templates)
+              (let ((c (magit-completing-read
+                        (pcase class
+                          ('forge-issue   "Select issue template")
+                          ('forge-pullreq "Select pull-request template"))
+                        (mapcar (##alist-get 'prompt %) templates)
+                        nil t)))
+                (seq-find (##equal (alist-get 'prompt %) c) templates))
+            (car templates))))
+    (if-let ((url (alist-get 'url template)))
+        (if (string-match (forge--format repo "\
+\\`https://%h/[^/]+/[^/]+/discussions\\(?:/categories/\\(.+\\)\\)?")
+                          url)
+            `((type . forge-discussion)
+              (category . ,(or (match-string 1 url)
+                               (forge-read-topic-category
+                                nil "Category for new discussion"))))
+          `((type . redirect) ,@template))
+      `((type . ,class) ,@template))))
 
 (defun forge--topic-templates (repo class)
   (mapcan (lambda (file)
