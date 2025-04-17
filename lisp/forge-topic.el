@@ -1867,7 +1867,7 @@ When point is on the answer, then unmark it and mark no other."
           '(((prompt . "Blank issue -- Create a new issue from scratch"))))
      (mapcar (lambda (link)
                `(,@link
-                 (prompt ,(let-alist link (concat .name " -- " .about)))))
+                 (prompt . ,(let-alist link (concat .name " -- " .about)))))
              .contact_links))))
 
 (defun forge--topic-parse-buffer (&optional file)
