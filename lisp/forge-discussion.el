@@ -198,10 +198,9 @@ can be selected from the start."
 (defun forge-read-topic-category (&optional topic prompt)
   (magit-completing-read
    (or prompt "Category")
-   (cons ""
-         (mapcar #'caddr
-                 (oref (forge-get-repository (or topic :tracked))
-                       discussion-categories)))
+   (mapcar #'caddr
+           (oref (forge-get-repository (or topic :tracked))
+                 discussion-categories))
    nil t
    (and topic (forge--format-topic-category topic))))
 
