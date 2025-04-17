@@ -1851,7 +1851,7 @@ When point is on the answer, then unmark it and mark no other."
               (magit-git-insert "cat-file" "-p" file)
               (if (equal (file-name-nondirectory file) "config.yml")
                   (forge--topic-parse-template-config)
-                (list (forge--topic-parse-buffer file)))))
+                (list (forge--topic-parse-template)))))
           (forge--topic-template-files repo class)))
 
 (cl-defgeneric forge--topic-template-files (repo class))
@@ -1879,6 +1879,25 @@ When point is on the answer, then unmark it and mark no other."
                `(,@link
                  (prompt . ,(let-alist link (concat .name " -- " .about)))))
              .contact_links))))
+
+(defun forge--topic-parse-template ()
+  (goto-char (point-min))
+  (skip-chars-forward "\s\t\n\r")
+  (if-let ((beg (and (looking-at "^---[\s\t]*$")
+                     (point)))
+           (end (and (zerop (forward-line))
+                     (re-search-forward "^---[\s\t]*$" nil t)
+                     (match-beginning 0))))
+      (let-alist (yaml-parse-string (magit--buffer-string beg end)
+                                    :object-type 'alist
+                                    :sequence-type 'list
+                                    :null-object nil)
+        `((prompt    . ,(format "%s -- %s" .name .about))
+          (title     . ,(and .title (string-trim .title)))
+          (text      . ,(magit--buffer-string (point) nil ?\n))
+          (labels    . ,(ensure-list .labels))
+          (assignees . ,(ensure-list .assignees))))
+    `((text . (magit--buffer-string)))))
 
 (defun forge--topic-parse-buffer (&optional file)
   (save-match-data
