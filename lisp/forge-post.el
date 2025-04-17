@@ -151,13 +151,13 @@ an error."
                   (?d "[d]iscard draft and start over" t))
             (erase-buffer)
             (setq resume nil)))
-        (when (and (not resume) (string-prefix-p "new" filename))
+        (when (and (not resume)
+                   (member filename '("new-issue" "new-pullreq")))
           (let-alist (forge--topic-template
                       (forge-get-repository :tracked)
                       (pcase filename
-                        ("new-discussion" 'forge-discussion)
-                        ("new-issue"      'forge-issue)
-                        ("new-pullreq"    'forge-pullreq)))
+                        ("new-issue"   'forge-issue)
+                        ("new-pullreq" 'forge-pullreq)))
             (cond
              (.url
               (browse-url .url)
