@@ -1846,17 +1846,27 @@ When point is on the answer, then unmark it and mark no other."
       (car choices))))
 
 (defun forge--topic-templates (repo class)
-  (let ((branch (oref repo default-branch)))
-    (mapcan (lambda (f)
-              (with-temp-buffer
-                (magit-git-insert "cat-file" "-p" (concat branch ":" f))
-                (if (equal (file-name-nondirectory f) "config.yml")
-                    (forge--topic-parse-template-config)
-                  (list (forge--topic-parse-buffer f)))))
-            (forge--topic-template-files repo class))))
+  (mapcan (lambda (file)
+            (with-temp-buffer
+              (magit-git-insert "cat-file" "-p" file)
+              (if (equal (file-name-nondirectory file) "config.yml")
+                  (forge--topic-parse-template-config)
+                (list (forge--topic-parse-buffer file)))))
+          (forge--topic-template-files repo class)))
 
-(cl-defgeneric forge--topic-template-files (repo class)
-  "Return a list of topic template files for REPO and a topic of CLASS.")
+(cl-defgeneric forge--topic-template-files (repo class))
+
+(defun forge--topic-template-files-1 (repo suffix &rest paths)
+  (setq suffix (ensure-list suffix))
+  (let ((branch (oref repo default-branch)))
+    (seq-keep (if suffix
+                  (##and (member (file-name-extension %) suffix)
+                         (concat branch ":" %))
+                (##concat branch ":" %))
+              (magit-git-items "ls-tree" "-z"
+                               "--full-tree" "--name-only"
+                               (and suffix "-r")
+                               branch "--" paths))))
 
 (defun forge--topic-parse-template-config ()
   (let-alist (yaml-parse-string (magit--buffer-string)

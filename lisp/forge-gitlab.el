@@ -589,15 +589,11 @@
 
 (cl-defmethod forge--topic-template-files ((repo forge-gitlab-repository)
                                            (_ (subclass forge-issue)))
-  (seq-filter
-   (##string-match-p "\\`\\.gitlab/issue_templates/.+\\.md\\'" %)
-   (magit-revision-files (oref repo default-branch))))
+  (forge--topic-template-files-1 repo "md" ".gitlab/issue_templates"))
 
 (cl-defmethod forge--topic-template-files ((repo forge-gitlab-repository)
                                            (_ (subclass forge-pullreq)))
-  (seq-filter
-   (##string-match-p "\\`\\.gitlab/merge_request_templates/.+\\.md\\'" %)
-   (magit-revision-files (oref repo default-branch))))
+  (forge--topic-template-files-1 repo "md" ".gitlab/merge_request_templates"))
 
 (cl-defmethod forge--fork-repository ((repo forge-gitlab-repository) fork)
   (with-slots (owner name) repo
