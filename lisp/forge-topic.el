@@ -1832,18 +1832,18 @@ When point is on the answer, then unmark it and mark no other."
 ;;; Templates
 
 (defun forge--topic-template (repo class)
-  (let ((choices (and (not (eq class 'forge-discussion))
-                      (forge--topic-templates repo class))))
-    (if (cdr choices)
+  (let ((templates (and (not (eq class 'forge-discussion))
+                        (forge--topic-templates repo class))))
+    (if (cdr templates)
         (let ((c (magit-completing-read
                   (pcase class
                     ('forge-discussion "Select discussion type")
                     ('forge-issue      "Select issue template")
                     ('forge-pullreq    "Select pull-request template"))
-                  (mapcar (##alist-get 'prompt %) choices)
+                  (mapcar (##alist-get 'prompt %) templates)
                   nil t)))
-          (seq-find (##equal (alist-get 'prompt %) c) choices))
-      (car choices))))
+          (seq-find (##equal (alist-get 'prompt %) c) templates))
+      (car templates))))
 
 (defun forge--topic-templates (repo class)
   (mapcan (lambda (file)
