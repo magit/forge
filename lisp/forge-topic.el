@@ -1874,10 +1874,13 @@ When point is on the answer, then unmark it and mark no other."
                                 :sequence-type 'list)
     (nconc
      (and (not (eq .blank_issues_enabled :false)) ;unset means true
-          '(((prompt . "Blank issue -- Create a new issue from scratch"))))
+          `(((prompt . ,(concat (propertize "Blank issue" 'face 'bold)
+                                " — Create a new issue from scratch")))))
      (mapcar (lambda (link)
                `(,@link
-                 (prompt . ,(let-alist link (concat .name " -- " .about)))))
+                 (prompt . ,(let-alist link
+                              (concat (propertize .name 'face 'bold)
+                                      " — " .about)))))
              .contact_links))))
 
 (defun forge--topic-parse-template ()
@@ -1892,7 +1895,7 @@ When point is on the answer, then unmark it and mark no other."
                                     :object-type 'alist
                                     :sequence-type 'list
                                     :null-object nil)
-        `((prompt    . ,(format "%s -- %s" .name .about))
+        `((prompt    . ,(format "%s — %s" (propertize .name 'face 'bold) .about))
           (title     . ,(and .title (string-trim .title)))
           (text      . ,(magit--buffer-string (point) nil ?\n))
           (labels    . ,(ensure-list .labels))
