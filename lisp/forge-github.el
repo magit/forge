@@ -1080,12 +1080,26 @@
            `((organization . ,fork))))
     (ghub-wait (format "/repos/%s/%s" fork name) nil :auth 'forge)))
 
-(cl-defmethod forge--merge-pullreq ((_repo forge-github-repository)
-                                    topic hash method)
-  (forge--ghub-put topic
+(cl-defmethod forge--merge-pullreq ((repo forge-github-repository)
+                                    pullreq hash method)
+  (forge--ghub-put pullreq
     "/repos/:owner/:repo/pulls/:number/merge"
     `((merge_method . ,(symbol-name method))
-      ,@(and hash `((sha . ,hash))))))
+      ,@(and hash `((sha . ,hash))))
+    :errorback t
+    :callback
+    (lambda (&rest _)
+      (forge--pull
+       repo
+       (lambda ()
+         (when-let* ((branch (or (forge--pullreq-branch-active pullreq)
+                                 (forge--branch-pullreq pullreq)))
+                     (upstream (magit-get-local-upstream-branch branch))
+                     (remote (oref repo remote)))
+           (magit-call-git "checkout" upstream)
+           (magit-call-git "pull" "--ff-only" remote (magit-pull-arguments))
+           (magit-call-git "branch" "-d" branch)
+           (forge-refresh-buffer)))))))
 
 ;;; Wrappers
 

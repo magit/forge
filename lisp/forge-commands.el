@@ -1094,8 +1094,7 @@ as merged."
                           pullreq
                           (magit-rev-hash
                            (forge--pullreq-branch-internal pullreq))
-                          method))
-  (forge-pull))
+                          method)))
 
 ;;;###autoload
 (defun forge-set-default-branch ()
