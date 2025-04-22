@@ -821,7 +821,7 @@ Please see the manual for more information."
     (if-let ((branch (forge--pullreq-branch-active pullreq)))
         (progn (message "Branch %S already exists and is configured" branch)
                branch)
-      (forge--branch-pullreq (forge-get-repository pullreq) pullreq)
+      (forge--branch-pullreq pullreq)
       (forge-refresh-buffer))))
 
 (cl-defmethod forge--branch-pullreq ((pullreq forge-pullreq))
