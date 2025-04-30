@@ -1,4 +1,17 @@
 # -*- mode: org -*-
+* v0.5.1    UNRELEASED
+
+PENDING Improve template handling and creation of topics.
+
+- ~forge-post-submit-callback-hook~ when a post is submitted using a
+  GraphQL mutation.  76c9d001e
+
+- Fixed updating local state after merging a pull-request using the API.
+  3aee91da1
+
+- ~forge-pullreq-state-set-merged~ is no longer a no-op and offers to merge
+  using either Git or the API.  64d02997d
+
 * v0.5.0    2025-04-01
 
 - Added support for Github discussions.  This is a large addition and
