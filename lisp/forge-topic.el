@@ -1928,7 +1928,7 @@ When point is on the answer, then unmark it and mark no other."
           (text      . ,(magit--buffer-string (point) nil ?\n))
           (labels    . ,(ensure-list .labels))
           (assignees . ,(ensure-list .assignees))))
-    `((text . (magit--buffer-string)))))
+    `((text . ,(magit--buffer-string)))))
 
 (defun forge--topic-parse-buffer (&optional file)
   (save-match-data
