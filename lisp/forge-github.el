@@ -1047,9 +1047,29 @@
 
 (cl-defmethod forge--topic-template-files ((repo forge-github-repository)
                                            (_ (subclass forge-pullreq)))
-  ;; The web interface does not support multiple pull-request templates,
-  ;; and while the API theoretically does, we don't support that here.
-  (forge--topic-template-files-1 repo nil ".github/PULL_REQUEST_TEMPLATE"))
+  ;; The web interface does not support multiple pull-request
+  ;; templates, and while the API theoretically does, we don't support
+  ;; that here.
+  (when-let* ((branch (oref repo default-branch))
+              (git-paths '("./" ".github/" "docs/"))
+              ;; same as `git-paths' but Git prints "./" as "" prefix:
+              (prefixes '("" ".github/" "docs/"))
+              (filenames '("pull_request_template.md" "pull_request_template"))
+              ;; concatenate every prefix with every filename:
+              (potential-template-files (mapcan
+                                         (lambda (prefix) (mapcar
+                                                           (lambda (filename) (concat prefix filename))
+                                                           filenames))
+                                         prefixes))
+              (all-git-files (apply #'magit-git-items "ls-tree" "-z" "--full-tree" "--name-only" branch "--" git-paths))
+              ;; find the first item of `all-git-files' that is
+              ;; within `potential-template-files':
+              (template-file (seq-find
+                              (lambda (potential-template-file)
+                                (seq-some (lambda (path) (string-equal-ignore-case potential-template-file path)) potential-template-files))
+                              all-git-files)))
+    (when template-file
+      (list (concat branch ":" template-file)))))
 
 (cl-defmethod forge--set-default-branch ((repo forge-github-repository) branch)
   (forge--ghub-patch repo
