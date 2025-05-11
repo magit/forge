@@ -1049,7 +1049,17 @@
                                            (_ (subclass forge-pullreq)))
   ;; The web interface does not support multiple pull-request templates,
   ;; and while the API theoretically does, we don't support that here.
-  (forge--topic-template-files-1 repo nil ".github/PULL_REQUEST_TEMPLATE"))
+  ;; When there are multiple conflicting "default" templates, the rules
+  ;; used by Github are more complex than just sorting alphabetically and
+  ;; then taking the first found file.  Too bad; that's what we do.
+  (let ((branch (oref repo default-branch))
+        (case-fold-search t))
+    (seq-some (lambda (file)
+                (and (string-match-p "\
+\\`\\(.github/\\|docs/\\)?pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'" file)
+                     (concat branch ":" file)))
+              (magit-git-items "ls-tree" "-z" "--full-tree" "--name-only"
+                               "-r" branch))))
 
 (cl-defmethod forge--set-default-branch ((repo forge-github-repository) branch)
   (forge--ghub-patch repo
