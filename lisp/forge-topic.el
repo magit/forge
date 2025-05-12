@@ -687,7 +687,8 @@ Limit list to topics for which a review by the given user was requested."
        ,@(and author    `((= topic:author   ,author)))
        ,@(and assignee (memq type '(issue pullreq))
               `((= assignee:login ,assignee)))
-       ,@(and reviewer  `((= assignee:login ,reviewer))))
+       ,@(and reviewer (eq type 'pullreq)
+              `((= assignee:login ,reviewer))))
       :order-by [,(pcase order
                     ('newest            '(desc topic:number))
                     ('oldest            '(asc  topic:number))
