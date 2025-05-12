@@ -658,9 +658,6 @@ Limit list to topics for which a review by the given user was requested."
            [:join    pullreq-mark :on (= pullreq-mark:pullreq        topic:id)
             :join            mark :on (= mark:id              pullreq-mark:id)]))
       ,@(pcase (and assignee type)
-          ('discussion
-           [:join discussion-assignee :on (= discussion-assignee:discussion  topic:id)
-            :join            assignee :on (= assignee:id       discussion-assignee:id)])
           ('issue
            [:join      issue-assignee :on (= issue-assignee:issue            topic:id)
             :join            assignee :on (= assignee:id            issue-assignee:id)])
@@ -688,7 +685,8 @@ Limit list to topics for which a review by the given user was requested."
        ,@(and marks     `((or ,@(mapcar (##`(=  mark:name ,%))  marks))))
        ,@(and saved     '((= topic:saved-p  't)))
        ,@(and author    `((= topic:author   ,author)))
-       ,@(and assignee  `((= assignee:login ,assignee)))
+       ,@(and assignee (memq type '(issue pullreq))
+              `((= assignee:login ,assignee)))
        ,@(and reviewer  `((= assignee:login ,reviewer))))
       :order-by [,(pcase order
                     ('newest            '(desc topic:number))
