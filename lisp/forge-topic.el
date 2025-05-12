@@ -457,8 +457,15 @@ State is the \"public condition\".  I.e., is the topic still open?"
                                        nil))))
                 :custom (choice
                          (const open)
+                         (const closed)
                          (const (completed merged))
+                         (const completed)
+                         (const merged)
                          (const (unplanned duplicate outdated rejected))
+                         (const unplanned)
+                         (const duplicate)
+                         (const outdated)
+                         (const rejected)
                          (const :tag "all (nil)" nil)))
    (status      :documentation "\
 Limit list based on topic (private) status.
@@ -523,23 +530,29 @@ current Forge database."
 Limit list to topics created by given user."
                 :initarg :author
                 :initform nil
-                :label "Author (username)"
+                :label "Author"
                 :type (or string null)
-                :custom string)
+                :custom (choice
+                         (string :tag "username")
+                         (const :tag "no filter (nil)" nil)))
    (assignee    :documentation "\
 Limit list to topics assigned to given user."
                 :initarg :assignee
                 :initform nil
-                :label "Assignee (username)"
+                :label "Assignee"
                 :type (or string null)
-                :custom string)
+                :custom (choice
+                         (string :tag "username")
+                         (const :tag "no filter (nil)" nil)))
    (reviewer    :documentation "\
 Limit list to topics for which a review by the given user was requested."
                 :initarg :reviewer
                 :initform nil
-                :label "Reviewer (username)"
+                :label "Reviewer"
                 :type (or string null)
-                :custom string)
+                :custom (choice
+                         (string :tag "username")
+                         (const :tag "no filter (nil)" nil)))
    (global      :documentation "Whether to list topics for all repositories."
                 :initarg :global
                 :initform nil
