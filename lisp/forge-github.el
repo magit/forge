@@ -1057,7 +1057,7 @@
     (seq-some (lambda (file)
                 (and (string-match-p "\
 \\`\\(.github/\\|docs/\\)?pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'" file)
-                     (concat branch ":" file)))
+                     (list (concat branch ":" file))))
               (magit-git-items "ls-tree" "-z" "--full-tree" "--name-only"
                                "-r" branch))))
 
