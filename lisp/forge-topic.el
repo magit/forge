@@ -1153,8 +1153,7 @@ what subset of KIND is being listed."
     (insert "\n")
     (magit-log-format-author-margin
      (oref topic author)
-     (format-time-string "%s" (parse-iso8601-time-string (oref topic created)))
-     t)
+     (format-time-string "%s" (parse-iso8601-time-string (oref topic created))))
     (when (and (slot-exists-p topic 'merged)
                (not (oref topic merged)))
       (magit-insert-heading)
