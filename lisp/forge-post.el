@@ -121,7 +121,7 @@ an error."
 (defvar-local forge--pre-post-buffer nil)
 (make-variable-buffer-local 'forge-buffer-draft-p)
 
-(defun forge--prepare-post-buffer (filename &optional header source target template)
+(defun forge--prepare-post-buffer (filename header &optional source target template)
   (let* ((repo (forge-get-repository :tracked))
          (tree (oref repo worktree))
          (file (convert-standard-filename
@@ -141,8 +141,7 @@ an error."
           (buf (find-file-noselect file)))
       (with-current-buffer buf
         (forge-post-mode)
-        (when header
-          (magit-set-header-line-format header))
+        (magit-set-header-line-format header)
         (setq forge--pre-post-buffer prevbuf)
         (when resume
           (forge--display-post-buffer buf)
