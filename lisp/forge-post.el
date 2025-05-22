@@ -123,17 +123,7 @@ an error."
 
 (defun forge--prepare-post-buffer (filename header &optional template)
   (let* ((repo (forge-get-repository :tracked))
-         (tree (oref repo worktree))
-         (file (convert-standard-filename
-                (if tree
-                    (expand-file-name (concat "magit/posts/" filename)
-                                      (magit-gitdir tree))
-                  (expand-file-name (format "%s_%s-%s_%s"
-                                            (oref repo githost)
-                                            (oref repo owner)
-                                            (oref repo name)
-                                            filename)
-                                    forge-post-fallback-directory)))))
+         (file forge--post-expand-file-name filename repo))
     (make-directory (file-name-directory file) t)
     (let ((prevbuf (current-buffer))
           (resume (and (file-exists-p file)
@@ -181,6 +171,13 @@ an error."
 
 (defun forge--display-post-buffer (buf)
   (magit-display-buffer buf #'display-buffer))
+
+(defun forge--post-expand-file-name (file repo)
+  (if-let ((worktree (oref repo worktree)))
+      (expand-file-name (concat "magit/posts/" file) (magit-gitdir worktree))
+    (expand-file-name (with-slots (githost owner name) repo
+                        (format "%s_%s-%s_%s" githost owner name file))
+                      forge-post-fallback-directory)))
 
 (defun forge--post-submit-callback ()
   (let* ((file    buffer-file-name)
