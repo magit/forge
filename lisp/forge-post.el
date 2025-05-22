@@ -125,21 +125,13 @@ an error."
   (let* ((repo (forge-get-repository :tracked))
          (file forge--post-expand-file-name filename repo))
     (make-directory (file-name-directory file) t)
-    (let ((prevbuf (current-buffer))
-          (resume (and (file-exists-p file)
-                       (> (file-attribute-size (file-attributes file)) 0)))
-          (buf (find-file-noselect file)))
+    (let* ((prevbuf (current-buffer))
+           (buf (find-file-noselect file))
+           (resume (forge--post-resume-p file buf)))
       (with-current-buffer buf
         (forge-post-mode)
         (magit-set-header-line-format header)
         (setq forge--pre-post-buffer prevbuf)
-        (when resume
-          (forge--display-post-buffer buf)
-          (when (magit-read-char-case "A draft already exists.  " nil
-                  (?r "[r]esume editing existing draft")
-                  (?d "[d]iscard draft and start over" t))
-            (erase-buffer)
-            (setq resume nil)))
         (when (and (not resume) template)
           (let-alist template
             (cond
@@ -178,6 +170,16 @@ an error."
     (expand-file-name (with-slots (githost owner name) repo
                         (format "%s_%s-%s_%s" githost owner name file))
                       forge-post-fallback-directory)))
+
+(defun forge--post-resume-p (file buffer)
+  (and (file-exists-p file)
+       (> (file-attribute-size (file-attributes file)) 0)
+       (progn (forge--display-post-buffer buffer)
+              (or (magit-read-char-case "" nil
+                    (?r "[r]esume editing this draft" t)
+                    (?d "[d]iscard and start over?"))
+                  (progn (erase-buffer)
+                         nil)))))
 
 (defun forge--post-submit-callback ()
   (let* ((file    buffer-file-name)
