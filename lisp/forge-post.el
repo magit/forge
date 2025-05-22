@@ -133,32 +133,7 @@ an error."
         (magit-set-header-line-format header)
         (setq forge--pre-post-buffer prevbuf)
         (when (and (not resume) template)
-          (let-alist template
-            (cond
-             (.name
-              ;; A Github issue with yaml frontmatter.
-              (save-excursion (insert .text))
-              (unless (re-search-forward "^title: " nil t)
-                (when (re-search-forward "^---" nil t 2)
-                  (beginning-of-line)
-                  (insert "title: \n")
-                  (backward-char))))
-             (t
-              (insert "# ")
-              (let* ((source (alist-get 'source template))
-                     (target (alist-get 'target template))
-                     (single
-                      (and source
-                           (= (car (magit-rev-diff-count source target)) 1))))
-                (save-excursion
-                  (when single
-                    ;; A pull-request.
-                    (magit-rev-insert-format "%B" source))
-                  (when .text
-                    (if single
-                        (insert "-------\n")
-                      (insert "\n"))
-                    (insert "\n" .text)))))))))
+          (forge--post-insert-template template)))
       buf)))
 
 (defun forge--display-post-buffer (buf)
@@ -180,6 +155,33 @@ an error."
                     (?d "[d]iscard and start over?"))
                   (progn (erase-buffer)
                          nil)))))
+
+(defun forge--post-insert-template (template)
+  (let-alist template
+    (cond
+     (.name
+      ;; A Github issue with yaml frontmatter.
+      (save-excursion (insert .text))
+      (unless (re-search-forward "^title: " nil t)
+        (when (re-search-forward "^---" nil t 2)
+          (beginning-of-line)
+          (insert "title: \n")
+          (backward-char))))
+     (t
+      (insert "# ")
+      (let* ((source (alist-get 'source template))
+             (target (alist-get 'target template))
+             (single (and source
+                          (= (car (magit-rev-diff-count source target)) 1))))
+        (save-excursion
+          (when single
+            ;; A pull-request.
+            (magit-rev-insert-format "%B" source))
+          (when .text
+            (if single
+                (insert "-------\n")
+              (insert "\n"))
+            (insert "\n" .text))))))))
 
 (defun forge--post-submit-callback ()
   (let* ((file    buffer-file-name)
