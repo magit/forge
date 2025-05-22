@@ -181,24 +181,6 @@ an error."
 (defun forge--display-post-buffer (buf)
   (magit-display-buffer buf #'display-buffer))
 
-(defun forge-post-cancel ()
-  "Cancel the post that is being edited in the current buffer."
-  (interactive)
-  (save-buffer)
-  (if-let ((fn forge--cancel-post-function))
-      (funcall fn forge--buffer-post-object)
-    (magit-mode-bury-buffer 'kill)))
-
-(defun forge-post-submit ()
-  "Submit the post that is being edited in the current buffer."
-  (interactive)
-  (save-buffer)
-  (if-let ((fn forge--submit-post-function))
-      (funcall fn
-               (forge-get-repository forge--buffer-post-object)
-               forge--buffer-post-object)
-    (error "forge--submit-post-function is nil")))
-
 (defun forge--post-submit-callback ()
   (let* ((file    buffer-file-name)
          (editbuf (current-buffer))
@@ -227,6 +209,8 @@ an error."
   (lambda (error &rest _)
     (error "Failed to submit post: %S" error)))
 
+;;; Commands
+
 (transient-define-prefix forge-post-dispatch ()
   "Dispatch a post creation command."
   ["Variables"
@@ -234,6 +218,24 @@ an error."
   ["Act"
    ("C-c" "Submit" forge-post-submit)
    ("C-k" "Cancel" forge-post-cancel)])
+
+(defun forge-post-submit ()
+  "Submit the post that is being edited in the current buffer."
+  (interactive)
+  (save-buffer)
+  (if-let ((fn forge--submit-post-function))
+      (funcall fn
+               (forge-get-repository forge--buffer-post-object)
+               forge--buffer-post-object)
+    (error "forge--submit-post-function is nil")))
+
+(defun forge-post-cancel ()
+  "Cancel the post that is being edited in the current buffer."
+  (interactive)
+  (save-buffer)
+  (if-let ((fn forge--cancel-post-function))
+      (funcall fn forge--buffer-post-object)
+    (magit-mode-bury-buffer 'kill)))
 
 (transient-define-infix forge-post-toggle-draft ()
   "Toggle whether the pull-request being created is a draft."
