@@ -115,7 +115,6 @@ an error."
 (defvar-local forge--buffer-base-branch nil)
 (defvar-local forge--buffer-head-branch nil)
 (defvar-local forge--buffer-post-object nil)
-(defvar-local forge--buffer-issue nil)
 (defvar-local forge--submit-post-function nil)
 (defvar-local forge--cancel-post-function nil)
 (defvar-local forge--pre-post-buffer nil)
