@@ -600,7 +600,7 @@ With prefix argument MENU, also show the topic menu."
          (when-let ((buf (forge--prepare-post-buffer
                           "new-issue"
                           (forge--format repo "Create new issue on %p")
-                          nil nil template)))
+                          template)))
            (with-current-buffer buf
              (setq forge--buffer-post-object repo)
              (setq forge--submit-post-function #'forge--submit-create-issue))
@@ -613,8 +613,9 @@ With prefix argument MENU, also show the topic menu."
          (buf (forge--prepare-post-buffer
                "new-pullreq"
                (forge--format repo "Create new pull-request on %p")
-               source target
-               (forge--topic-template repo 'forge-pullreq))))
+               `(,@(forge--topic-template repo 'forge-pullreq)
+                 (source . ,source)
+                 (target . ,target)))))
     (with-current-buffer buf
       (setq forge--buffer-base-branch target)
       (setq forge--buffer-head-branch source)

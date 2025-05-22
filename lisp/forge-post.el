@@ -121,7 +121,7 @@ an error."
 (defvar-local forge--pre-post-buffer nil)
 (make-variable-buffer-local 'forge-buffer-draft-p)
 
-(defun forge--prepare-post-buffer (filename header &optional source target template)
+(defun forge--prepare-post-buffer (filename header &optional template)
   (let* ((repo (forge-get-repository :tracked))
          (tree (oref repo worktree))
          (file (convert-standard-filename
@@ -163,9 +163,11 @@ an error."
                   (backward-char))))
              (t
               (insert "# ")
-              (let ((single
-                     (and source
-                          (= (car (magit-rev-diff-count source target)) 1))))
+              (let* ((source (alist-get 'source template))
+                     (target (alist-get 'target template))
+                     (single
+                      (and source
+                           (= (car (magit-rev-diff-count source target)) 1))))
                 (save-excursion
                   (when single
                     ;; A pull-request.
