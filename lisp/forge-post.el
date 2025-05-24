@@ -135,7 +135,8 @@ an error."
       (magit-set-header-line-format header)
       (setq forge--pre-post-buffer prevbuf)
       (when (and (not resume) template)
-        (forge--post-insert-template template)))
+        (forge--post-insert-template template))
+      (run-hooks 'forge-edit-post-hook))
     buffer))
 
 (defun forge--display-post-buffer (buf)

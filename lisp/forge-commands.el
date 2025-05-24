@@ -620,8 +620,7 @@ With prefix argument MENU, also show the topic menu."
       (setq forge--buffer-base-branch target)
       (setq forge--buffer-head-branch source)
       (setq forge--buffer-post-object repo)
-      (setq forge--submit-post-function #'forge--submit-create-pullreq)
-      (run-hooks 'forge-create-pullreq-hook))
+      (setq forge--submit-post-function #'forge--submit-create-pullreq))
     (forge--display-post-buffer buf)))
 
 (transient-define-suffix forge-create-pullreq-from-issue (issue source target)
