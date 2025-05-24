@@ -718,7 +718,7 @@ point is currently on."
   :transient nil
   (interactive)
   (let ((pullreq (forge-current-pullreq t)))
-    (unless (cl-typep (forge-get-repository pullreq) 'forge-github-repository)
+    (unless (forge-github-repository-p (forge-get-repository pullreq))
       (user-error "This command is only available for Github"))
     (when-let ((buf (forge--prepare-post-buffer
                      (forge--format pullreq "%i;new-approval")
@@ -735,7 +735,7 @@ point is currently on."
   :transient nil
   (interactive)
   (let ((pullreq (forge-current-pullreq t)))
-    (unless (cl-typep (forge-get-repository pullreq) 'forge-github-repository)
+    (unless (forge-github-repository-p (forge-get-repository pullreq))
       (user-error "This command is only available for Github"))
     (when-let ((buf (forge--prepare-post-buffer
                      (forge--format pullreq "%i;new-request")
