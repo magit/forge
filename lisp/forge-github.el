@@ -710,8 +710,7 @@
 
 ;;; Mutations
 
-(cl-defmethod forge--submit-create-discussion ((_ forge-github-repository)
-                                               repo category)
+(cl-defmethod forge--submit-create-discussion ((_ forge-github-repository) repo)
   (let-alist (forge--topic-parse-buffer)
     (ghub--graphql
      '(mutation (createDiscussion
@@ -724,7 +723,7 @@
                                      :where (and (= repository $s1)
                                                  (= name $s2))]
                                     (oref repo id)
-                                    category)))
+                                    forge--buffer-category)))
               (title . , .title)
               (body . , .body)))
      :callback  (forge--post-submit-callback)

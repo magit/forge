@@ -118,6 +118,7 @@ an error."
 (defvar-local forge--cancel-post-function nil)
 
 (defvar-local forge--buffer-post-object nil)
+(defvar-local forge--buffer-category nil)
 (defvar-local forge--buffer-base-branch nil)
 (defvar-local forge--buffer-head-branch nil)
 (make-variable-buffer-local 'forge-buffer-draft-p)

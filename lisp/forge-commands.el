@@ -582,9 +582,9 @@ With prefix argument MENU, also show the topic menu."
                (forge--format repo "Create new discussion on %p"))))
     (when buf
       (with-current-buffer buf
+        (setq forge--buffer-category category)
         (setq forge--buffer-post-object repo)
-        (setq forge--submit-post-function
-              (rpartial #'forge--submit-create-discussion category)))
+        (setq forge--submit-post-function #'forge--submit-create-discussion))
       (forge--display-post-buffer buf))))
 
 (defun forge-create-issue ()
