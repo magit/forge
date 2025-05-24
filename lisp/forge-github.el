@@ -798,12 +798,12 @@
               `((discussionId . ,(oref (forge-get-discussion post) their-id))
                 (replyToId . ,(oref post their-id)))
             `((discussionId . ,(oref post their-id))))
-        (body . ,(string-trim (buffer-string)))))
+        (body . ,(magit--buffer-string nil nil t))))
      :callback  (forge--post-submit-callback)
      :errorback (forge--post-submit-errorback)))
    (t
     (forge--ghub-post post "/repos/:owner/:repo/issues/:number/comments"
-      `((body . ,(string-trim (buffer-string))))
+      `((body . ,(magit--buffer-string nil nil t)))
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback)))))
 
@@ -817,7 +817,7 @@
         (let-alist (forge--topic-parse-buffer)
           `((title . , .title)
             (body  . , .body)))
-      `((body . ,(string-trim (buffer-string)))))
+      `((body . ,(magit--buffer-string nil nil t))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
