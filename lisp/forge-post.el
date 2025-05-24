@@ -47,15 +47,6 @@ exist (or its location is unknown), then this directory is used instead."
   :group 'forge
   :type 'directory)
 
-(defcustom forge-buffer-draft-p nil
-  "Whether new pull-requests start out as drafts by default.
-
-The buffer-local value is used to keep track of the draft status
-of the current pull-request."
-  :package-version '(forge . "0.4.0")
-  :group 'forge
-  :type 'boolean)
-
 ;;; Class
 
 (defclass forge-post (forge-object) () :abstract t)
@@ -121,7 +112,7 @@ an error."
 (defvar-local forge--buffer-category nil)
 (defvar-local forge--buffer-base-branch nil)
 (defvar-local forge--buffer-head-branch nil)
-(make-variable-buffer-local 'forge-buffer-draft-p)
+(defvar-local forge--buffer-draft-p nil)
 
 (defun forge--prepare-post-buffer (filename header &optional template)
   (let* ((prevbuf (current-buffer))
@@ -135,7 +126,8 @@ an error."
       (magit-set-header-line-format header)
       (setq forge--pre-post-buffer prevbuf)
       (when (and (not resume) template)
-        (forge--post-insert-template template))
+        (forge--post-insert-template template)
+        (setq forge--buffer-draft-p (alist-get 'draft template)))
       (run-hooks 'forge-edit-post-hook))
     buffer))
 
@@ -245,9 +237,9 @@ an error."
 (transient-define-infix forge-post-toggle-draft ()
   "Toggle whether the pull-request being created is a draft."
   :class 'transient-lisp-variable
-  :variable 'forge-buffer-draft-p
-  :reader (lambda (&rest _) (not forge-buffer-draft-p))
-  :if (##equal (file-name-nondirectory buffer-file-name) "new-pullreq"))
+  :variable 'forge--buffer-draft-p
+  :reader (lambda (&rest _) (not forge--buffer-draft-p))
+  :if (lambda () (equal (file-name-nondirectory buffer-file-name) "new-pullreq")))
 
 ;;; Notes
 
