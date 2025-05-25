@@ -1936,7 +1936,9 @@ When point is on the answer, then unmark it and mark no other."
                                     :object-type 'alist
                                     :sequence-type 'list
                                     :null-object nil)
-        `((prompt    . ,(format "%s — %s" (propertize .name 'face 'bold) .about))
+        `((prompt    . ,(format "%s — %s"
+                                (and .name (propertize .name 'face 'bold))
+                                .about))
           (title     . ,(and .title (string-trim .title)))
           (text      . ,(magit--buffer-string (point) nil ?\n))
           (labels    . ,(ensure-list .labels))
