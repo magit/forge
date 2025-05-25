@@ -576,52 +576,30 @@ With prefix argument MENU, also show the topic menu."
   "Create a new discussion for the current repository."
   (interactive
    (list (forge-read-topic-category nil "Category for new discussion")))
-  (let* ((repo (forge-get-repository :tracked))
-         (buf (forge--prepare-post-buffer
-               "new-discussion"
-               (forge--format repo "Create new discussion on %p"))))
-    (when buf
-      (with-current-buffer buf
-        (setq forge--buffer-category category)
-        (setq forge--buffer-post-object repo)
-        (setq forge--submit-post-function #'forge--submit-create-discussion))
-      (forge--display-post-buffer buf))))
+  (forge--setup-post-buffer nil #'forge--submit-create-discussion
+    "new-discussion" "Create new discussion on %p"
+   `((forge--buffer-category ,category))))
 
-(defun forge-create-issue ()
+(defun forge-create-issue (template)
   "Create a new issue for the current repository."
-  (interactive)
-  (let* ((repo (forge-get-repository :tracked))
-         (template (forge--topic-template repo 'forge-issue)))
-    (let-alist template
-      (pcase-exhaustive .type
-        ('redirect (browse-url .url))
-        ('forge-discussion (forge-create-discussion .category))
-        ('forge-issue
-         (when-let ((buf (forge--prepare-post-buffer
-                          "new-issue"
-                          (forge--format repo "Create new issue on %p")
-                          template)))
-           (with-current-buffer buf
-             (setq forge--buffer-post-object repo)
-             (setq forge--submit-post-function #'forge--submit-create-issue))
-           (forge--display-post-buffer buf)))))))
+  (interactive (list (forge--topic-template nil 'forge-issue)))
+  (let-alist template
+    (pcase-exhaustive .type
+      ('redirect (browse-url .url))
+      ('forge-discussion (forge-create-discussion .category))
+      ('forge-issue
+       (forge--setup-post-buffer nil #'forge--submit-create-issue
+         "new-issue" "Create new issue on %p"
+         `((forge--buffer-template ,template)))))))
 
 (defun forge-create-pullreq (source target)
   "Create a new pull-request for the current repository."
   (interactive (forge-create-pullreq--read-args))
-  (let* ((repo (forge-get-repository :tracked))
-         (buf (forge--prepare-post-buffer
-               "new-pullreq"
-               (forge--format repo "Create new pull-request on %p")
-               `(,@(forge--topic-template repo 'forge-pullreq)
-                 (source . ,source)
-                 (target . ,target)))))
-    (with-current-buffer buf
-      (setq forge--buffer-base-branch target)
-      (setq forge--buffer-head-branch source)
-      (setq forge--buffer-post-object repo)
-      (setq forge--submit-post-function #'forge--submit-create-pullreq))
-    (forge--display-post-buffer buf)))
+  (forge--setup-post-buffer nil #'forge--submit-create-pullreq
+    "new-pullreq" "Create new pull-request on %p"
+    `((forge--buffer-base-branch ,target)
+      (forge--buffer-head-branch ,source)
+      (forge--buffer-template    ,(forge--topic-template nil 'forge-pullreq)))))
 
 (transient-define-suffix forge-create-pullreq-from-issue (issue source target)
   "Convert an existing ISSUE into a pull-request."
@@ -684,31 +662,26 @@ point is currently on."
                  (quote
                   (with-slots (content end) (magit-current-section)
                     (magit--buffer-string content end t)))))
+         (quote (and quote
+                     (lambda ()
+                       (goto-char (point-max))
+                       (unless (bobp)
+                         (insert "\n"))
+                       (insert (replace-regexp-in-string "^" "> " quote))
+                       (insert "\n\n"))))
          (obj (if (forge-discussion-p forge-buffer-topic)
                   (forge--select-discussion-reply-target)
-                forge-buffer-topic))
-         (buf (cond
-               ((forge-discussion-post-p obj)
-                (forge--prepare-post-buffer
-                 (forge--format obj "%i;%I;new-reply")
-                 (forge--format obj "New comment on #%i;%I of %p")))
-               ((forge-discussion-p obj)
-                (forge--prepare-post-buffer
-                 (forge--format obj "%i;new-answer")
-                 (forge--format obj "New comment on #%i of %p")))
-               (t
-                (forge--prepare-post-buffer
-                 (forge--format obj "%i;new-comment")
-                 (forge--format obj "New comment on #%i of %p"))))))
-    (with-current-buffer buf
-      (setq forge--buffer-post-object obj)
-      (setq forge--submit-post-function #'forge--submit-create-post)
-      (when quote
-        (goto-char (point-max))
-        (unless (bobp)
-          (insert "\n"))
-        (insert (replace-regexp-in-string "^" "> " quote) "\n\n")))
-    (forge--display-post-buffer buf)))
+                forge-buffer-topic)))
+    (cl-typecase obj
+      (forge-discussion-post
+       (forge--setup-post-buffer obj #'forge--submit-create-post
+         "%i;%I;new-reply" "New comment on #%i;%I of %p" nil quote))
+      (forge-discussion
+       (forge--setup-post-buffer obj #'forge--submit-create-post
+         "%i;new-answer" "New comment on #%i of %p" nil quote))
+      (t
+       (forge--setup-post-buffer obj #'forge--submit-create-post
+         "%i;new-comment" "New comment on #%i of %p" nil quote)))))
 
 (transient-define-suffix forge-approve-pullreq ()
   "Approve the current pull-request."
@@ -719,13 +692,8 @@ point is currently on."
   (let ((pullreq (forge-current-pullreq t)))
     (unless (forge-github-repository-p (forge-get-repository pullreq))
       (user-error "This command is only available for Github"))
-    (when-let ((buf (forge--prepare-post-buffer
-                     (forge--format pullreq "%i;new-approval")
-                     (forge--format pullreq "Approve pull-request #%i of %p"))))
-      (with-current-buffer buf
-        (setq forge--buffer-post-object pullreq)
-        (setq forge--submit-post-function #'forge--submit-approve-pullreq))
-      (forge--display-post-buffer buf))))
+    (forge--setup-post-buffer pullreq #'forge--submit-approve-pullreq
+      "%i;new-approval" "Approve pull-request #%i of %p")))
 
 (transient-define-suffix forge-request-changes ()
   "Request changes to the current pull-request."
@@ -736,38 +704,27 @@ point is currently on."
   (let ((pullreq (forge-current-pullreq t)))
     (unless (forge-github-repository-p (forge-get-repository pullreq))
       (user-error "This command is only available for Github"))
-    (when-let ((buf (forge--prepare-post-buffer
-                     (forge--format pullreq "%i;new-request")
-                     (forge--format
-                      pullreq "Request changes for pull-request #%i of %p"))))
-      (with-current-buffer buf
-        (setq forge--buffer-post-object pullreq)
-        (setq forge--submit-post-function #'forge--submit-request-changes))
-      (forge--display-post-buffer buf))))
+    (forge--setup-post-buffer pullreq #'forge--submit-request-changes
+      "%i;new-request" "Request changes for pull-request #%i of %p")))
 
 ;;; Edit
 
 (defun forge-edit-post ()
   "Edit the current post."
   (interactive)
-  (let* ((post (forge-post-at-point t))
-         (buf (cl-typecase post
-                (forge-topic
-                 (forge--prepare-post-buffer
-                  (forge--format post "%i")
-                  (forge--format post "Edit #%i of %p")))
-                (forge-post
-                 (forge--prepare-post-buffer
-                  (forge--format post "%i;%I")
-                  (forge--format post "Edit comment on #%i of %p"))))))
-    (with-current-buffer buf
-      (setq forge--buffer-post-object post)
-      (setq forge--submit-post-function #'forge--submit-edit-post)
-      (erase-buffer)
-      (when (cl-typep post 'forge-topic)
-        (insert "# " (oref post title) "\n\n"))
-      (insert (oref post body)))
-    (forge--display-post-buffer buf)))
+  (let ((post (forge-post-at-point t)))
+    (cl-typecase post
+      (forge-topic
+       (forge--setup-post-buffer post #'forge--submit-edit-post
+         "%i" "Edit #%i of %p" nil
+         (lambda ()
+           (insert "# " (oref post title) "\n\n")
+           (insert (oref post body)))))
+      (forge-post
+       (forge--setup-post-buffer post #'forge--submit-edit-post
+         "%i;%I" "Edit comment on #%i of %p" nil
+         (lambda ()
+           (insert (oref post body))))))))
 
 (transient-define-suffix forge-edit-topic-note ()
   "Edit your private note about the current topic."
@@ -785,18 +742,12 @@ point is currently on."
   (interactive)
   (if-let* ((topic (forge-current-topic t))
             (repo (forge-get-repository topic))
-            (default-directory (forge-get-worktree repo))
-            (buf (forge--prepare-post-buffer
-                  (forge--format topic "%i;note")
-                  (forge--format topic "New note on #%i of %p"))))
-      (progn
-        (with-current-buffer buf
-          (setq forge--buffer-post-object topic)
-          (setq forge--submit-post-function #'forge--save-note)
-          (erase-buffer)
+            (default-directory (forge-get-worktree repo)))
+      (forge--setup-post-buffer topic #'forge--save-note
+        "%i;note" "New note on #%i of %p" nil
+        (lambda ()
           (when-let ((note (oref topic note)))
-            (save-excursion (insert note ?\n))))
-        (forge--display-post-buffer buf))
+            (save-excursion (insert note ?\n)))))
     (message "Cannot determine topic or worktree")))
 
 ;;; Delete

@@ -1862,6 +1862,8 @@ When point is on the answer, then unmark it and mark no other."
 ;;; Templates
 
 (defun forge--topic-template (repo class)
+  (unless repo
+    (setq repo (forge-get-repository :tracked)))
   (let* ((templates (forge--topic-templates repo class))
          (template
           (if (cdr templates)
