@@ -1942,7 +1942,8 @@ When point is on the answer, then unmark it and mark no other."
           (title     . ,(and .title (string-trim .title)))
           (text      . ,(magit--buffer-string (point) nil ?\n))
           (labels    . ,(ensure-list .labels))
-          (assignees . ,(ensure-list .assignees))))
+          (assignees . ,(ensure-list .assignees))
+          (draft     . , .draft)))
     `((text . ,(magit--buffer-string)))))
 
 (defun forge--topic-parse-buffer (&optional file)
