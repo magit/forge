@@ -89,7 +89,7 @@ an error."
 ;;; Mode
 
 (defvar-keymap forge-post-mode-map
-  "C-c C-e"                                #'forge-post-dispatch
+  "C-c C-e"                                #'forge-post-menu
   "C-c C-c"                                #'forge-post-submit
   "<remap> <evil-save-and-close>"          #'forge-post-submit
   "<remap> <evil-save-modified-and-close>" #'forge-post-submit
@@ -220,7 +220,7 @@ an error."
 
 ;;; Commands
 
-(transient-define-prefix forge-post-dispatch ()
+(transient-define-prefix forge-post-menu ()
   "Dispatch a post creation command."
   ["Variables"
    ("d" "Create draft" forge-post-toggle-draft)]
