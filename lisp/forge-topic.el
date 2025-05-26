@@ -1078,10 +1078,11 @@ can be selected from the start."
     (mapconcat #'forge--format-person review-requests ", ")))
 
 (defun forge--format-person (person)
-  (pcase-let ((`(,_id ,login ,name) person))
-    (format "%s%s (@%s)"
-            (forge--format-avatar login)
-            name login)))
+  (pcase-let* ((`(,_id ,login ,name) person)
+               (avatar (forge--format-avatar login)))
+    (if name
+        (format "%s%s (@%s)" avatar name login)
+      (format "%s@%s" avatar login))))
 
 (defun forge--format-avatar (person)
   (if forge-format-avatar-function
