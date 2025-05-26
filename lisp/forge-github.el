@@ -711,7 +711,7 @@
 ;;; Mutations
 
 (cl-defmethod forge--submit-create-discussion ((_ forge-github-repository) repo)
-  (let-alist (forge--topic-parse-buffer)
+  (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
     (ghub--graphql
      '(mutation (createDiscussion
                  [(input $input CreateDiscussionInput!)]
@@ -724,20 +724,22 @@
                                                  (= name $s2))]
                                     (oref repo id)
                                     forge--buffer-category)))
-              (title . , .title)
-              (body . , .body)))
+              (title . ,title)
+              (body  . ,body)))
      :callback  (forge--post-submit-callback)
      :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-issue ((_ forge-github-repository) repo)
-  (let-alist (forge--topic-parse-buffer)
-    (forge--ghub-post repo "/repos/:owner/:repo/issues"
-      `((title . , .title)
-        (body  . , .body)
-        ,@(and .labels    `((labels    . , .labels)))
-        ,@(and .assignees `((assignees . , .assignees))))
-      :callback  (forge--post-submit-callback)
-      :errorback (forge--post-submit-errorback))))
+  (forge--ghub-post repo "/repos/:owner/:repo/issues"
+    (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
+      `((title . ,title)
+        (body  . ,body)
+        ,@(and forge--buffer-labels
+               `((labels . ,(vconcat forge--buffer-labels))))
+        ,@(and forge--buffer-assignees
+               `((assignees . ,(vconcat forge--buffer-assignees))))))
+    :callback  (forge--post-submit-callback)
+    :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--create-pullreq-from-issue ((repo forge-github-repository)
                                                 (issue forge-issue)
@@ -761,24 +763,23 @@
       :errorback (lambda (&rest _) (forge-pull)))))
 
 (cl-defmethod forge--submit-create-pullreq ((_ forge-github-repository) repo)
-  (let-alist (forge--topic-parse-buffer)
-    (pcase-let* ((`(,base-remote . ,base-branch)
+  (forge--ghub-post repo "/repos/:owner/:repo/pulls"
+    (pcase-let* ((`(,title . ,body) (forge--post-buffer-text))
+                 (`(,base-remote . ,base-branch)
                   (magit-split-branch-name forge--buffer-base-branch))
                  (`(,head-remote . ,head-branch)
                   (magit-split-branch-name forge--buffer-head-branch))
                  (head-repo (forge-get-repository :stub head-remote)))
-      (forge--ghub-post repo "/repos/:owner/:repo/pulls"
-        `((title . , .title)
-          (body  . , .body)
-          (base  . ,base-branch)
-          (head  . ,(if (equal head-remote base-remote)
-                        head-branch
-                      (concat (oref head-repo owner) ":"
-                              head-branch)))
-          (draft . ,forge--buffer-draft-p)
-          (maintainer_can_modify . t))
-        :callback  (forge--post-submit-callback)
-        :errorback (forge--post-submit-errorback)))))
+      `((title . ,title)
+        (body  . ,body)
+        (base  . ,base-branch)
+        (head  . ,(if (equal head-remote base-remote)
+                      head-branch
+                    (concat (oref head-repo owner) ":" head-branch)))
+        (draft . ,forge--buffer-draft-p)
+        (maintainer_can_modify . t)))
+    :callback  (forge--post-submit-callback)
+    :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--submit-create-post ((_ forge-github-repository) post)
   (cond
@@ -808,9 +809,9 @@
       (forge-issue   "/repos/:owner/:repo/issues/:number")
       (forge-post    "/repos/:owner/:repo/issues/comments/:number"))
     (if (cl-typep post 'forge-topic)
-        (let-alist (forge--topic-parse-buffer)
-          `((title . , .title)
-            (body  . , .body)))
+        (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
+          `((title . ,title)
+            (body  . ,body)))
       `((body . ,(magit--buffer-string nil nil t))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))

@@ -451,32 +451,32 @@
 ;;; Mutations
 
 (cl-defmethod forge--submit-create-issue ((_ forge-gitlab-repository) repo)
-  (let-alist (forge--topic-parse-buffer)
-    (forge--glab-post repo "/projects/:project/issues"
-      `((title       . , .title)
-        (description . , .body))
-      :callback  (forge--post-submit-callback)
-      :errorback (forge--post-submit-errorback))))
+  (forge--glab-post repo "/projects/:project/issues"
+    (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
+      `((title        . ,title)
+        (description  . ,body)))
+    :callback  (forge--post-submit-callback)
+    :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--submit-create-pullreq ((_ forge-gitlab-repository) base-repo)
-  (let-alist (forge--topic-parse-buffer)
-    (pcase-let* ((`(,base-remote . ,base-branch)
-                  (magit-split-branch-name forge--buffer-base-branch))
-                 (`(,head-remote . ,head-branch)
-                  (magit-split-branch-name forge--buffer-head-branch))
-                 (head-repo (forge-get-repository :stub head-remote)))
-      (forge--glab-post head-repo "/projects/:project/merge_requests"
-        `((title . ,(if forge--buffer-draft-p
-                        (concat "Draft: " .title)
-                      .title))
-          (description . , .body)
-          ,@(and (not (equal head-remote base-remote))
-                 `((target_project_id . ,(oref base-repo forge-id))))
-          (target_branch . ,base-branch)
-          (source_branch . ,head-branch)
-          (allow_collaboration . t))
-        :callback  (forge--post-submit-callback)
-        :errorback (forge--post-submit-errorback)))))
+  (pcase-let* ((`(,title . ,body) (forge--post-buffer-text))
+               (`(,_base-remote . ,base-branch)
+                (magit-split-branch-name forge--buffer-base-branch))
+               (`(,head-remote . ,head-branch)
+                (magit-split-branch-name forge--buffer-head-branch))
+               (head-repo (forge-get-repository :stub head-remote)))
+    (forge--glab-post head-repo "/projects/:project/merge_requests"
+      `((title . ,(if forge--buffer-draft-p
+                      (concat "Draft: " title)
+                    title))
+        (description . ,body)
+        ;; ,@(and (not (equal head-remote base-remote))
+        (target_project_id . ,(oref base-repo forge-id))
+        (target_branch . ,base-branch)
+        (source_branch . ,head-branch)
+        (allow_collaboration . t))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-post ((_ forge-gitlab-repository) topic)
   (forge--glab-post topic
@@ -495,15 +495,14 @@
       (forge-issue-post   "/projects/:project/issues/:topic/notes/:number")
       (forge-pullreq-post "/projects/:project/merge_requests/:topic/notes/:number"))
     (if (cl-typep post 'forge-topic)
-        (let-alist (forge--topic-parse-buffer)
-          ;; Keep Gitlab from claiming that the user
-          ;; changed the description when that isn't
-          ;; true.  The same isn't necessary for the
-          ;; title; in that case Gitlab performs the
-          ;; necessary check itself.
-          `((title . , .title)
-            ,@(and (not (equal .body (oref post body)))
-                   `((description . , .body)))))
+        (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
+          `((title . ,title)
+            ;; Keep Gitlab from claiming that the user changed
+            ;; the description when that isn't true.  The same
+            ;; isn't necessary for the title; for that, Gitlab
+            ;; performs the necessary check itself.
+            ,@(and (not (equal body (oref post body)))
+                   `((description . ,body)))))
       `((body . ,(magit--buffer-string nil nil t))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))

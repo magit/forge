@@ -1959,68 +1959,6 @@ When point is on the answer, then unmark it and mark no other."
           (draft     . , .draft)))
     `((text . ,(magit--buffer-string)))))
 
-(defun forge--topic-parse-buffer (&optional file)
-  (save-match-data
-    (save-excursion
-      (goto-char (point-min))
-      (let ((alist (save-excursion (forge--topic-parse-yaml))))
-        (if alist
-            (setf (alist-get 'yaml alist) t)
-          (setq alist (save-excursion (forge--topic-parse-plain))))
-        (setf (alist-get 'file alist) file)
-        (setf (alist-get 'text alist) (magit--buffer-string nil nil ?\n))
-        (when (and file (not (alist-get 'prompt alist)))
-          (setf (alist-get 'prompt alist)
-                (file-name-sans-extension (file-name-nondirectory file))))
-        ;; If there is a yaml front-matter, then it is supposed
-        ;; to have a `title' field, but this may not be the case.
-        (when (and (not file)
-                   (not (alist-get 'title alist)))
-          (setf (alist-get 'title alist)
-                (read-string "Title: ")))
-        alist))))
-
-(defun forge--topic-parse-yaml ()
-  (let (alist beg end)
-    (when (looking-at "^---[\s\t]*$")
-      (forward-line)
-      (setq beg (point))
-      (when (re-search-forward "^---[\s\t]*$" nil t)
-        (setq end (match-beginning 0))
-        (setq alist (yaml-parse-string (magit--buffer-string beg end)
-                                       :object-type 'alist
-                                       :sequence-type 'list
-                                       :false-object nil))
-        (let-alist alist
-          (when (and .name .about)
-            (setf (alist-get 'prompt alist)
-                  (format "%s -- %s" .name .about)))
-          (when (and .labels (atom .labels))
-            (setf (alist-get 'labels alist) (list .labels)))
-          (when (and .assignees (atom .assignees))
-            (setf (alist-get 'assignees alist) (list .assignees))))
-        (forward-line)
-        (when (and (not (alist-get 'title alist))
-                   (looking-at "^\n?#*"))
-          (goto-char (match-end 0))
-          (setf (alist-get 'title alist)
-                (string-trim
-                 (magit--buffer-string (point) (line-end-position) t)))
-          (forward-line))
-        (setf (alist-get 'body alist)
-              (string-trim (magit--buffer-string (point) nil ?\n)))))
-    alist))
-
-(defun forge--topic-parse-plain ()
-  (let (title body)
-    (when (looking-at "\\`#*")
-      (goto-char (match-end 0)))
-    (setq title (magit--buffer-string (point) (line-end-position) t))
-    (forward-line)
-    (setq body (magit--buffer-string (point) nil ?\n))
-    `((title . ,(string-trim title))
-      (body  . ,(string-trim body)))))
-
 ;;; Bug-Reference
 
 (defvar forge-bug-reference-remote-files t
