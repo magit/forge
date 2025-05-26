@@ -1080,9 +1080,10 @@ can be selected from the start."
 (defun forge--format-person (person)
   (pcase-let* ((`(,_id ,login ,name) person)
                (avatar (forge--format-avatar login)))
-    (if name
-        (format "%s%s (@%s)" avatar name login)
-      (format "%s@%s" avatar login))))
+    (propertize (if name
+                    (format "%s%s (@%s)" avatar name login)
+                  (format "%s@%s" avatar login))
+                'face 'transient-value)))
 
 (defun forge--format-avatar (person)
   (if forge-format-avatar-function
