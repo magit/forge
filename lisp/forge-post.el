@@ -112,6 +112,7 @@ an error."
 (defvar-local forge--buffer-post-object nil)
 (defvar-local forge--buffer-template nil)
 (defvar-local forge--buffer-category nil)
+(defvar-local forge--buffer-milestone nil)
 (defvar-local forge--buffer-labels nil)
 (defvar-local forge--buffer-assignees nil)
 (defvar-local forge--buffer-base-branch nil)
@@ -249,6 +250,7 @@ an error."
           (and (forge-github-repository-p (forge-get-repository :tracked))
                (string-prefix-p "new-"
                                 (file-name-nondirectory buffer-file-name))))
+    ("-m" forge-new-topic-set-milestone)
     ("-l" forge-new-topic-set-labels)
     ("-a" forge-new-topic-set-assignees)
     ("-d" forge-new-pullreq-toggle-draft)]
@@ -285,6 +287,15 @@ an error."
                                         (value (funcall formatter value)))
                                   (format "%s %s" name value)
                                 (format "%s" name)))))))
+
+(transient-define-infix forge-new-topic-set-milestone ()
+  "Set milestone for the topic being created."
+  :class 'forge--new-topic-set-slot-command
+  :variable 'forge--buffer-milestone
+  :name "milestone"
+  :reader (lambda (&rest _) (forge-read-topic-milestone))
+  :formatter (lambda (milestone) (propertize milestone 'face 'forge-topic-label))
+  :if (lambda () (equal (file-name-nondirectory buffer-file-name) "new-issue")))
 
 (transient-define-infix forge-new-topic-set-labels ()
   "Set labels for the topic being created."

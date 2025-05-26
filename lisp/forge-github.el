@@ -734,6 +734,12 @@
     (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
       `((title . ,title)
         (body  . ,body)
+        ,@(and forge--buffer-milestone
+               `((milestone
+                  . ,(caar (forge-sql [:select [number]
+                                       :from milestone
+                                       :where (= title $s1)]
+                                      forge--buffer-milestone)))))
         ,@(and forge--buffer-labels
                `((labels . ,(vconcat forge--buffer-labels))))
         ,@(and forge--buffer-assignees
