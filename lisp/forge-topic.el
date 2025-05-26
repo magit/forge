@@ -852,7 +852,7 @@ can be selected from the start."
   (let ((crm-separator ","))
     (magit-completing-read-multiple
      "Labels: "
-     (forge--format-labels (and obj (forge-get-repository obj)))
+     (forge--format-labels (forge-get-repository (or obj :tracked)))
      nil t
      (and (cl-typep obj 'forge-topic)
           (forge--format-labels obj crm-separator)))))
