@@ -1947,7 +1947,8 @@ When point is on the answer, then unmark it and mark no other."
       (let-alist (yaml-parse-string (magit--buffer-string beg end)
                                     :object-type 'alist
                                     :sequence-type 'list
-                                    :null-object nil)
+                                    :null-object nil
+                                    :false-object nil)
         `((prompt    . ,(format "%s — %s"
                                 (and .name (propertize .name 'face 'bold))
                                 .about))
