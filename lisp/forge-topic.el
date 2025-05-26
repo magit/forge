@@ -1069,8 +1069,18 @@ can be selected from the start."
        ('pending 'forge-topic-pending)
        ('done    'forge-topic-done)))))
 
-(defun forge--format-topic-assignees (topic)
-  (and-let* ((assignees (oref topic assignees)))
+(defun forge--format-topic-assignees (arg)
+  (and-let* ((assignees
+              (cond ((eieio-object-p arg)
+                     (oref arg assignees))
+                    ((forge-buffer-repository)
+                     (forge-sql-cdr [:select * :from assignee
+                                     :where
+                                     (and (= repository $s1)
+                                          (in login $v2))
+                                     :order-by [(asc login)]]
+                                    forge-buffer-repository
+                                    (vconcat arg))))))
     (mapconcat #'forge--format-person assignees ", ")))
 
 (defun forge--format-topic-review-requests (topic)
