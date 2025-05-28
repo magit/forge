@@ -712,7 +712,7 @@
 
 (cl-defmethod forge--submit-create-discussion ((_ forge-github-repository) repo)
   (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
-    (ghub--graphql
+    (forge--graphql
      '(mutation (createDiscussion
                  [(input $input CreateDiscussionInput!)]
                  clientMutationId))
@@ -864,13 +864,13 @@
    state)
   (with-slots (their-id) topic
     (cond ((eq state 'open)
-           (ghub--graphql
+           (forge--graphql
             '(mutation (reopenDiscussion
                         [(input $input ReopenDiscussionInput!)]
                         clientMutationId))
             `((input (discussionId . ,their-id)))
             :callback (forge--set-field-callback topic t)))
-          ((ghub--graphql
+          ((forge--graphql
             '(mutation (closeDiscussion
                         [(input $input CloseDiscussionInput!)]
                         clientMutationId))
@@ -905,7 +905,7 @@
   ((_repo forge-github-repository)
    (topic forge-discussion)
    category)
-  (ghub--graphql
+  (forge--graphql
    '(mutation (updateDiscussion
                [(input $input UpdateDiscussionInput!)]
                clientMutationId))
@@ -926,7 +926,7 @@
   (let* ((old (oref topic answer))
          (old (and old (forge--their-id old)))
          (new (and answer (oref answer their-id))))
-    (ghub--graphql
+    (forge--graphql
      `(mutation
        ,@(and old '((unmarkDiscussionCommentAsAnswer
                      [(input $old UnmarkDiscussionCommentAsAnswerInput!)]
@@ -965,7 +965,7 @@
          (add (cl-set-difference new old :test #'equal))
          (del (cl-set-difference old new :test #'equal)))
     (when (or add del)
-      (ghub--graphql
+      (forge--graphql
        `(mutation
          ,@(and add '((addLabelsToLabelable
                        [(input $add AddLabelsToLabelableInput!)]
@@ -991,7 +991,7 @@
          (add (cl-set-difference new old :test #'equal))
          (del (cl-set-difference old new :test #'equal)))
     (when (or add del)
-      (ghub--graphql
+      (forge--graphql
        `(mutation
          ,@(and add '((addAssigneesToAssignable
                        [(input $add AddAssigneesToAssignableInput!)]
@@ -1014,7 +1014,7 @@
                 (oref repo id)
                 (vconcat (seq-remove (##string-match "/" %) reviewers))))
         (teams nil)) ;TODO Investigate #742, track id, then use it here.
-    (ghub--graphql
+    (forge--graphql
      `(mutation (requestReviews
                  [(input $input RequestReviewsInput!)]
                  clientMutationId))

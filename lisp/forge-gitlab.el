@@ -674,6 +674,20 @@
                :callback callback
                :errorback (or errorback (and callback t))))
 
+(cl-defun forge--graphql (graphql
+                         &optional variables
+                         &key username host forge
+                         headers
+                         callback errorback)
+  (let ((ghub-graphql-message-progress nil))
+    (ghub--graphql-vacuum graphql variables callback nil
+                          :username  username
+                          :auth      'forge
+                          :host      host
+                          :forge     forge
+                          :headers   headers
+                          :errorback errorback)))
+
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
