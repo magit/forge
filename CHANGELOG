@@ -1,16 +1,24 @@
 # -*- mode: org -*-
-* v0.5.1    UNRELEASED
+* v0.5.1    2025-06-01
 
-PENDING Improve template handling and creation of topics.
+- During topic creation users can now set metadata using a transient
+  menu, instead of having to blindly edit embedded yaml.  Topic
+  creation also saw numerous other improvements, refactorings and
+  fixes.  49c8a78cc et al.
 
-- ~forge-post-submit-callback-hook~ when a post is submitted using a
-  GraphQL mutation.  76c9d001e
+- ~forge-post-submit-callback-hook~ is now also run when a post is
+  submitted using a GraphQL mutation.  76c9d001e
 
-- Fixed updating local state after merging a pull-request using the API.
-  3aee91da1
+- Fixed updating local state after merging a pull-request using the
+  API.  3aee91da1
 
-- ~forge-pullreq-state-set-merged~ is no longer a no-op and offers to merge
-  using either Git or the API.  64d02997d
+- ~forge-pullreq-state-set-merged~ is no longer a no-op and offers to
+  merge using either Git or the API.  64d02997d
+
+- GraphQL mutations used the ghub token instead of the forge token.
+  #782
+
+Contains additional code cleanups and fixes.
 
 * v0.5.0    2025-04-01
 
