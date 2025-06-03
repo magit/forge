@@ -146,8 +146,8 @@ then return that repository.
 Otherwise return the repository for `default-directory', if that
 exists and satisfies DEMAND.  If that fails too, then return nil
 or signal an error, depending on DEMAND."
-  (or (and-let* ((repo (and (not notatpt)
-                            (forge-repository-at-point))))
+  (or (and-let* (((not notatpt))
+                 (repo (forge-repository-at-point)))
         (forge-get-repository repo 'noerror demand))
       (and-let* (((not remote))
                  (repo (or (forge-buffer-repository)
