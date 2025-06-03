@@ -955,8 +955,15 @@
 (cl-defmethod forge--set-topic-labels
   ((repo forge-github-repository) topic labels)
   (let* ((topic-id (oref topic their-id))
-         (old (mapcar (##forge--their-id (car %)) (oref topic labels)))
-         (new (mapcar (##forge--their-id (car %))
+         (their-id ; I really messed up IDs! :(
+          (pcase-lambda (`(,id))
+            (let* ((parts (split-string (base64-decode-string id) ":"))
+                   (maybe-id (car (last parts))))
+              (if (string-prefix-p "Label" maybe-id)
+                  (base64-encode-string (string-join (last parts 2) ":"))
+                maybe-id))))
+         (old (mapcar their-id (oref topic labels)))
+         (new (mapcar their-id
                       (forge-sql [:select [id] :from label
                                   :where (and (= repository $s1)
                                               (in name $v2))]
