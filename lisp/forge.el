@@ -7,7 +7,7 @@
 ;; Homepage: https://github.com/magit/forge
 ;; Keywords: git tools vc
 
-;; Package-Version: 0.5.1
+;; Package-Version: 0.5.2
 ;; Package-Requires: (
 ;;     (emacs "29.1")
 ;;     (compat "30.1")

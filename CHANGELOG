@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v0.5.2    UNRELEASED
+* v0.5.2    2025-06-03
 
 - Fixed a regression in v0.5.1, which prevented the creation of a
   pull-request for a branch on a fork.
