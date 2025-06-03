@@ -149,7 +149,8 @@ or signal an error, depending on DEMAND."
   (or (and-let* ((repo (and (not notatpt)
                             (forge-repository-at-point))))
         (forge-get-repository repo 'noerror demand))
-      (and-let* ((repo (or (forge-buffer-repository)
+      (and-let* (((not remote))
+                 (repo (or (forge-buffer-repository)
                            (and forge-buffer-topic
                                 (forge-get-repository forge-buffer-topic)))))
         (forge-get-repository repo 'noerror demand))

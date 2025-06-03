@@ -1,4 +1,9 @@
 # -*- mode: org -*-
+* v0.5.2    UNRELEASED
+
+- Fixed a regression in v0.5.1, which prevented the creation of a
+  pull-request for a branch on a fork.
+
 * v0.5.1    2025-06-01
 
 - During topic creation users can now set metadata using a transient
