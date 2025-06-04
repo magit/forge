@@ -347,13 +347,13 @@ A face attribute should be used that is not already used by any
   (if (< number 0)
       (forge-get-pullreq (abs number))
     (or (forge-get-discussion number)
-        (forge-get-issue number)
-        (forge-get-pullreq number))))
+        (forge-get-issue      number)
+        (forge-get-pullreq    number))))
 
 (cl-defmethod forge-get-topic ((id string))
   (or (forge-get-discussion id)
-      (forge-get-issue id)
-      (forge-get-pullreq id)))
+      (forge-get-issue      id)
+      (forge-get-pullreq    id)))
 
 ;;;; Current
 
