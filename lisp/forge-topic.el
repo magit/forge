@@ -1313,8 +1313,10 @@ This mode itself is never used directly."
     (magit-set-header-line-format (forge--format-topic-line topic))
     (magit-insert-section (topicbuf)
       (magit-insert-headers
-       (intern (format "%s-headers-hook"
-                       (substring (symbol-name major-mode) 0 -5))))
+       (pcase major-mode
+         ('forge-discussion-mode forge-discussion-headers-hook)
+         ('forge-issue-mode      forge-issue-headers-hook)
+         ('forge-pullreq-mode    forge-pullreq-headers-hook)))
       (when (forge-pullreq-p topic)
         (magit-insert-section (pullreq topic)
           (magit-insert-heading "Commits")
