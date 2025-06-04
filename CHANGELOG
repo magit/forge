@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v0.5.3    UNRELEASED
+* v0.5.3    2025-06-04
 
 - Fixed a regression in v0.5.1, which prevented labeling topics
   with labels that were created before Github changed the format
