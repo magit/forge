@@ -1314,9 +1314,9 @@ This mode itself is never used directly."
     (magit-insert-section (topicbuf)
       (magit-insert-headers
        (pcase major-mode
-         ('forge-discussion-mode forge-discussion-headers-hook)
-         ('forge-issue-mode      forge-issue-headers-hook)
-         ('forge-pullreq-mode    forge-pullreq-headers-hook)))
+         ('forge-discussion-mode 'forge-discussion-headers-hook)
+         ('forge-issue-mode      'forge-issue-headers-hook)
+         ('forge-pullreq-mode    'forge-pullreq-headers-hook)))
       (when (forge-pullreq-p topic)
         (magit-insert-section (pullreq topic)
           (magit-insert-heading "Commits")
