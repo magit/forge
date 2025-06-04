@@ -999,6 +999,15 @@ topic in a separate buffer, it at the same time displays
 These commands read a topic, issue or pull-request and visit it in a
 separate buffer.
 
+@item @kbd{N v u} (@code{forge-visit-topic-from-url})
+@kindex N v u
+@findex forge-visit-topic-from-url
+This commands reads an URL and visits the corresponding topic.
+Normally users would yank that URL into the minibuffer, after
+having copied it from an email or a browser's address bar.
+
+This command is disabled in the menu by default.
+
 @item @kbd{C-c C-o} (@code{forge-browse})
 @itemx @kbd{o [on topic in topic list]} (@code{forge-browse-this-topic})
 @itemx @kbd{o [on repository in repository list]} (@code{forge-browse-this-repository})

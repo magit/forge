@@ -876,6 +876,14 @@ argument, i.e., ~C-u RET~.
   These commands read a topic, issue or pull-request and visit it in a
   separate buffer.
 
+- Key: N v u (forge-visit-topic-from-url) ::
+
+  This commands reads an URL and visits the corresponding topic.
+  Normally users would yank that URL into the minibuffer, after
+  having copied it from an email or a browser's address bar.
+
+  This command is disabled in the menu by default.
+
 - Key: C-c C-o (forge-browse) ::
 - Key: o [on topic in topic list] (forge-browse-this-topic) ::
 - Key: o [on repository in repository list] (forge-browse-this-repository) ::

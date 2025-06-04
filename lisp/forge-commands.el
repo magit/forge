@@ -90,6 +90,7 @@ Takes the pull-request as only argument and must return a directory."
    ["Visit"
     :inapt-if-not (##forge-get-repository :tracked?)
     ("v t" "topic"          forge-visit-topic)
+    ("v u" "topic from url" forge-visit-topic-from-url :level 0)
     ("v d" "discussion"     forge-visit-discussion)
     ("v i" "issue"          forge-visit-issue)
     ("v p" "pull-request"   forge-visit-pullreq)]
@@ -536,6 +537,20 @@ prefix argument offer all topics.  While completion is in progress,
 lifts the limitation to active pull-requests."
   (interactive (list (forge-read-pullreq "View pull-request")))
   (forge-topic-setup-buffer (forge-get-pullreq pull-request)))
+
+;;;###autoload
+(defun forge-visit-topic-from-url (url)
+  "Visit the topic specified by web URL."
+  (interactive (list (read-string "Topic URL: ")))
+  (if (string-match
+       "/\\(issues\\|pull\\|discussions\\|merge_requests\\)/\\([0-9]+\\)\\'"
+       url)
+      (forge-topic-setup-buffer
+       (forge-get-topic (forge-get-repository
+                         (substring url 0 (match-beginning 1))
+                         nil :tracked)
+                        (string-to-number (match-string 2 url))))
+    (user-error "Not recognized as a topic URL: %s" url)))
 
 ;;;###autoload
 (defun forge-visit-this-topic (&optional menu)
