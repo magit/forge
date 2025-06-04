@@ -59,6 +59,8 @@
   '(;; Forges
     ("github.com" "api.github.com"
      "github.com" forge-github-repository)
+    ("ssh.github.com" "api.github.com"
+     "github.com" forge-github-repository)
     ("gitlab.com" "gitlab.com/api/v4"
      "gitlab.com" forge-gitlab-repository)
     ("salsa.debian.org" "salsa.debian.org/api/v4"
