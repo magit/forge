@@ -339,9 +339,9 @@ A face attribute should be used that is not already used by any
   (if (and (numberp number-or-id)
            (< number-or-id 0))
       (forge-get-pullreq repo (abs number-or-id))
-    (or (forge-get-discussion number-or-id)
-        (forge-get-issue number-or-id)
-        (forge-get-pullreq number-or-id))))
+    (or (forge-get-discussion repo number-or-id)
+        (forge-get-issue      repo number-or-id)
+        (forge-get-pullreq    repo number-or-id))))
 
 (cl-defmethod forge-get-topic ((number integer))
   (if (< number 0)
