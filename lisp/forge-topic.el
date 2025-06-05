@@ -22,6 +22,7 @@
 
 ;;; Code:
 
+(require 'bookmark)
 (require 'bug-reference)
 (require 'eieio-custom)
 (require 'markdown-mode)
@@ -1297,15 +1298,16 @@ This mode itself is never used directly."
 (defun forge-topic-setup-buffer (topic)
   (let* ((repo (forge-get-repository topic))
          (name (format "*forge: %s %s*" (oref repo slug) (oref topic slug)))
-         (magit-generate-buffer-name-function (lambda (_mode _value) name)))
-    (magit-setup-buffer-internal
-     (pcase-exhaustive (eieio-object-class topic)
-       ('forge-discussion #'forge-discussion-mode)
-       ('forge-issue      #'forge-issue-mode)
-       ('forge-pullreq    #'forge-pullreq-mode))
-     t `((forge-buffer-topic ,topic))
-     name (or (forge-get-worktree repo) "/"))
-    (forge-topic-mark-read topic)))
+         (magit-generate-buffer-name-function (lambda (_mode _value) name))
+         (buffer (magit-setup-buffer-internal
+                  (pcase-exhaustive (eieio-object-class topic)
+                    ('forge-discussion #'forge-discussion-mode)
+                    ('forge-issue      #'forge-issue-mode)
+                    ('forge-pullreq    #'forge-pullreq-mode))
+                  t `((forge-buffer-topic ,topic))
+                  name (or (forge-get-worktree repo) "/"))))
+    (forge-topic-mark-read topic)
+    buffer))
 
 (defun forge-topic-refresh-buffer ()
   (let ((topic (closql-reload forge-buffer-topic)))
@@ -1385,6 +1387,28 @@ This mode itself is never used directly."
 
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
   (oref forge-buffer-topic slug))
+
+;;; Bookmarks
+
+(cl-defmethod magit-bookmark-name
+  (&context (major-mode forge-topic-mode))
+  (concat (oref (forge-get-repository forge-buffer-topic) slug)
+          (oref forge-buffer-topic slug)))
+
+(cl-defmethod magit-bookmark-get-value
+  (bookmark &context (major-mode forge-topic-mode))
+  (bookmark-prop-set bookmark 'forge-topic (oref forge-buffer-topic id)))
+
+(cl-defmethod magit-bookmark-get-buffer-create
+  (bookmark (_mode (derived-mode forge-topic-mode)))
+  (let ((magit-display-buffer-function #'identity)
+        (magit-display-buffer-noselect t))
+    (forge-topic-setup-buffer
+     (forge-get-topic (bookmark-prop-get bookmark 'forge-topic)))))
+
+(put 'forge-discussion-mode 'magit-bookmark-variables t)
+(put 'forge-issue-mode      'magit-bookmark-variables t)
+(put 'forge-pullreq-mode    'magit-bookmark-variables t)
 
 ;;; Headers
 
