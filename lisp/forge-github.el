@@ -266,7 +266,9 @@
      (lambda (data)
        (forge--update-pullreq repo data)
        (forge-refresh-buffer buffer)
-       (when callback (funcall callback)))
+       (if callback
+           (funcall callback)
+         (forge--maybe-git-fetch repo)))
      nil
      :host (oref repo apihost)
      :auth 'forge
@@ -726,7 +728,7 @@
                                     forge--buffer-category)))
               (title . ,title)
               (body  . ,body)))
-     :callback  (forge--post-submit-callback)
+     :callback  (forge--post-submit-callback t)
      :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-issue ((_ forge-github-repository) repo)
@@ -744,7 +746,7 @@
                `((labels . ,(vconcat forge--buffer-labels))))
         ,@(and forge--buffer-assignees
                `((assignees . ,(vconcat forge--buffer-assignees))))))
-    :callback  (forge--post-submit-callback)
+    :callback  (forge--post-submit-callback t)
     :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--create-pullreq-from-issue ((repo forge-github-repository)
@@ -784,7 +786,7 @@
                     (concat (oref head-repo owner) ":" head-branch)))
         (draft . ,forge--buffer-draft-p)
         (maintainer_can_modify . t)))
-    :callback  (forge--post-submit-callback)
+    :callback  (forge--post-submit-callback t)
     :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--submit-create-post ((_ forge-github-repository) post)

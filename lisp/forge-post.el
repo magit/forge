@@ -213,12 +213,12 @@ an error."
         (cons (string-trim title)
               (string-trim body))))))
 
-(defun forge--post-submit-callback ()
+(defun forge--post-submit-callback (&optional full-pull)
   (let* ((file    buffer-file-name)
          (editbuf (current-buffer))
          (prevbuf forge--pre-post-buffer)
          (topic   (ignore-errors (forge-get-topic forge--buffer-post-object)))
-         (repo    (forge-get-repository topic)))
+         (repo    (forge-get-repository (or topic forge--buffer-post-object))))
     (lambda (value &optional headers status req)
       (run-hook-with-args 'forge-post-submit-callback-hook
                           value headers status req)
@@ -231,9 +231,8 @@ an error."
           (magit-mode-bury-buffer 'kill)))
       (with-current-buffer
           (if (buffer-live-p prevbuf) prevbuf (current-buffer))
-        (if (and topic
-                 (forge--childp repo 'forge-github-repository)
-                 (oref repo selective-p))
+        (if (or (not full-pull)
+                (oref repo selective-p))
             (forge--pull-topic repo topic)
           (forge-pull))))))
 
