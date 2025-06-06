@@ -125,7 +125,7 @@ an error."
          (obj     (or obj (forge-get-repository :tracked)))
          (repo    (forge-get-repository obj))
          (header  (forge--format obj header))
-         (file    (forge--post-expand-file-name file repo))
+         (file    (forge--post-expand-file-name (forge--format obj file) repo))
          (_       (make-directory (file-name-directory file) t))
          (buffer  (find-file-noselect file))
          (resume  (forge--post-resume-p file buffer)))
