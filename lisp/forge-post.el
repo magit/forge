@@ -31,12 +31,23 @@
 (defcustom forge-post-mode-hook
   '(visual-line-mode
     turn-on-flyspell)
-  "Hook run after entering Forge-Post mode."
+  "Hook run after entering Forge-Post mode.
+This hook is run early on while setting up a buffer to edit a post.
+If you want to make changes to the already populated buffer, instead
+use `forge-edit-post-hook'."
   :package-version '(forge . "0.2.0")
   :group 'forge
   :type 'hook
   :options '(visual-line-mode
              turn-on-flyspell))
+
+(defcustom forge-edit-post-hook nil
+  "Hook run after setting up a buffer to edit a post.
+Consult the variable `forge-edit-post-action' to determine the action;
+one of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'."
+  :package-version '(forge . "0.5.4")
+  :group 'forge
+  :type 'hook)
 
 (defcustom forge-post-fallback-directory
   (locate-user-emacs-file "forge-drafts/")
