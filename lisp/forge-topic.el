@@ -1969,20 +1969,37 @@ When point is on the answer, then unmark it and mark no other."
                      (point)))
            (end (and (zerop (forward-line))
                      (re-search-forward "^---[\s\t]*$" nil t)
-                     (match-beginning 0))))
+                     (match-beginning 0)))
+           (repoid (oref (forge-get-repository :tracked) id)))
       (let-alist (yaml-parse-string (magit--buffer-string beg end)
                                     :object-type 'alist
                                     :sequence-type 'list
                                     :null-object nil
                                     :false-object nil)
         `((prompt    . ,(format "%s — %s"
-                                (and .name (propertize .name 'face 'bold))
+                                (and .name
+                                     (stringp .name)
+                                     (propertize .name 'face 'bold))
                                 .about))
-          (title     . ,(and .title (string-trim .title)))
+          (title     . ,(and .title
+                             (stringp .title)
+                             (string-trim .title)))
           (text      . ,(magit--buffer-string (point) nil ?\n))
-          (labels    . ,(ensure-list .labels))
-          (assignees . ,(ensure-list .assignees))
-          (draft     . , .draft)))
+          ;; Prevent ad hock creation or previously unknown labels.
+          (labels    . ,(cl-intersection
+                         (ensure-list .labels)
+                         (forge-sql-car [:select name :from label
+                                         :where (= repository $s1)]
+                                        repoid)
+                         :test #'equal))
+          ;; Server errors on invalid assignees.
+          (assignees . ,(cl-intersection
+                         (ensure-list .assignees)
+                         (forge-sql-car [:select login :from assignee
+                                         :where (= repository $s1)]
+                                        repoid)
+                         :test #'equal))
+          (draft     . ,(and (booleanp .draft) .draft))))
     `((text . ,(magit--buffer-string)))))
 
 ;;; Bug-Reference
