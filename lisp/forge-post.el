@@ -41,13 +41,15 @@ use `forge-edit-post-hook'."
   :options '(visual-line-mode
              turn-on-flyspell))
 
-(defcustom forge-edit-post-hook nil
+(defcustom forge-edit-post-hook
+  '(forge-create-pullreq-insert-single-commit-message)
   "Hook run after setting up a buffer to edit a post.
 Consult the variable `forge-edit-post-action' to determine the action;
 one of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'."
   :package-version '(forge . "0.5.4")
   :group 'forge
-  :type 'hook)
+  :type 'hook
+  :options '(forge-create-pullreq-insert-single-commit-message))
 
 (defcustom forge-post-fallback-directory
   (locate-user-emacs-file "forge-drafts/")
@@ -166,7 +168,12 @@ One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
             (setq forge--buffer-labels .labels)
             (setq forge--buffer-draft-p .draft))))
       (when (and (not resume) forge--buffer-template)
-        (forge--post-insert-template forge--buffer-template))
+        (if-let ((template (alist-get 'text forge--buffer-template)))
+            (progn (unless (string-prefix-p "# " template)
+                     (insert "# \n\n"))
+                   (insert template)
+                   (goto-char 3))
+          (insert "# ")))
       (when fn
         (funcall fn))
       (run-hooks 'forge-edit-post-hook))
@@ -194,32 +201,20 @@ One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
                   (progn (erase-buffer)
                          nil)))))
 
-(defun forge--post-insert-template (template)
-  (let-alist template
-    (cond
-     (.name
-      ;; A Github issue with yaml frontmatter.
-      (save-excursion (insert .text))
-      (unless (re-search-forward "^title: " nil t)
-        (when (re-search-forward "^---" nil t 2)
-          (beginning-of-line)
-          (insert "title: \n")
-          (backward-char))))
-     (t
-      (insert "# ")
-      (let* ((source (alist-get 'source template))
-             (target (alist-get 'target template))
-             (single (and source
-                          (= (car (magit-rev-diff-count source target)) 1))))
-        (save-excursion
-          (when single
-            ;; A pull-request.
-            (magit-rev-insert-format "%B" source))
-          (when .text
-            (if single
-                (insert "-------\n")
-              (insert "\n"))
-            (insert "\n" .text))))))))
+(defun forge-create-pullreq-insert-single-commit-message ()
+  "When creating a pull-request from a single commit, insert its message."
+  (when-let* ((source forge--buffer-head-branch)
+              (target forge--buffer-base-branch)
+              ((= (car (magit-rev-diff-count source target)) 1)))
+    (when (alist-get 'text forge--buffer-template)
+      (goto-char (point-max))
+      (unless (eq (char-before) ?\n)
+        (insert ?\n))
+      (insert "\n<!-- Message of single commit: -->\n\n"))
+    (magit-rev-insert-format "%B" source)
+    (when (= (char-before (1- (point))) ?\n)
+      (delete-char -1))
+    (goto-char 3)))
 
 (defun forge--post-buffer-text ()
   (save-match-data
