@@ -49,7 +49,8 @@ one of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'."
   :package-version '(forge . "0.5.4")
   :group 'forge
   :type 'hook
-  :options '(forge-create-pullreq-insert-single-commit-message))
+  :options '(forge-create-pullreq-insert-single-commit-message
+             forge-create-pullreq-insert-branch-description))
 
 (defcustom forge-post-fallback-directory
   (locate-user-emacs-file "forge-drafts/")
@@ -214,6 +215,22 @@ One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
     (magit-rev-insert-format "%B" source)
     (when (= (char-before (1- (point))) ?\n)
       (delete-char -1))
+    (goto-char 3)))
+
+(defun forge-create-pullreq-insert-branch-description ()
+  "When creating a pull-request, insert branch description, if any.
+Insert the value of `branch.BRANCH.description' of the source BRANCH."
+  (when-let* ((source forge--buffer-head-branch)
+              (description (magit-get "branch"
+                                      (cdr (magit-split-branch-name source))
+                                      "description")))
+    (when (or (alist-get 'text forge--buffer-template)
+              (> (point-max) 3))
+      (goto-char (point-max))
+      (unless (eq (char-before) ?\n)
+        (insert ?\n))
+      (insert "\n<!-- Branch description: -->\n\n"))
+    (insert description)
     (goto-char 3)))
 
 (defun forge--post-buffer-text ()
