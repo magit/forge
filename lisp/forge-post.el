@@ -234,7 +234,7 @@ an error."
         (if (or (not full-pull)
                 (oref repo selective-p))
             (forge--pull-topic repo topic)
-          (forge-pull))))))
+          (forge--pull repo))))))
 
 (defun forge--post-submit-errorback ()
   (lambda (error &rest _)

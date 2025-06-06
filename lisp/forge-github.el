@@ -767,8 +767,8 @@
         (maintainer_can_modify . t))
       :callback  (lambda (&rest _)
                    (closql-delete issue)
-                   (forge-pull))
-      :errorback (lambda (&rest _) (forge-pull)))))
+                   (forge--pull repo))
+      :errorback (lambda (&rest _) (forge--pull repo)))))
 
 (cl-defmethod forge--submit-create-pullreq ((_ forge-github-repository) repo)
   (forge--ghub-post repo "/repos/:owner/:repo/pulls"

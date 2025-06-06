@@ -145,7 +145,6 @@ repository cannot be determined, instead invoke `forge-add-repository'."
                  (if (forge-get-repository :tracked?)
                      "forge topics"
                    "new forge repository"))
-  (declare (interactive-only nil))
   (interactive)
   (if-let ((repo (forge-get-repository :tracked?)))
       (forge--pull repo)
