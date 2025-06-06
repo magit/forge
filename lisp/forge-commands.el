@@ -590,7 +590,7 @@ With prefix argument MENU, also show the topic menu."
   "Create a new discussion for the current repository."
   (interactive
    (list (forge-read-topic-category nil "Category for new discussion")))
-  (forge--setup-post-buffer nil #'forge--submit-create-discussion
+  (forge--setup-post-buffer 'new-discussion #'forge--submit-create-discussion
     "new-discussion" "Create new discussion on %p"
    `((forge--buffer-category ,category))))
 
@@ -602,14 +602,14 @@ With prefix argument MENU, also show the topic menu."
       ('redirect (browse-url .url))
       ('forge-discussion (forge-create-discussion .category))
       ('forge-issue
-       (forge--setup-post-buffer nil #'forge--submit-create-issue
+       (forge--setup-post-buffer 'new-issue #'forge--submit-create-issue
          "new-issue" "Create new issue on %p"
          `((forge--buffer-template ,template)))))))
 
 (defun forge-create-pullreq (source target)
   "Create a new pull-request for the current repository."
   (interactive (forge-create-pullreq--read-args))
-  (forge--setup-post-buffer nil #'forge--submit-create-pullreq
+  (forge--setup-post-buffer 'new-pullreq #'forge--submit-create-pullreq
     "new-pullreq" "Create new pull-request on %p"
     `((forge--buffer-base-branch ,target)
       (forge--buffer-head-branch ,source)

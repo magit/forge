@@ -109,6 +109,10 @@ an error."
 (defvar-local forge--submit-post-function nil)
 (defvar-local forge--cancel-post-function nil)
 
+(defvar-local forge-edit-post-action nil
+  "The action being carried out by editing this post buffer.
+One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
+
 (defvar-local forge--buffer-post-object nil)
 (defvar-local forge--buffer-template nil)
 (defvar-local forge--buffer-category nil)
@@ -119,10 +123,16 @@ an error."
 (defvar-local forge--buffer-head-branch nil)
 (defvar-local forge--buffer-draft-p nil)
 
-(defun forge--setup-post-buffer (obj submit file header &optional bindings fn)
+(defun forge--setup-post-buffer ( obj-or-action submit file header
+                                  &optional bindings fn)
   (declare (indent defun))
   (let* ((prevbuf (current-buffer))
-         (obj     (or obj (forge-get-repository :tracked)))
+         (action  (cond ((symbolp obj-or-action)             obj-or-action)
+                        ((forge--childp obj-or-action 'forge-topic) 'reply)
+                        ((forge--childp obj-or-action 'forge-post)   'edit)))
+         (obj     (if (symbolp obj-or-action)
+                      (forge-get-repository :tracked)
+                    obj-or-action))
          (repo    (forge-get-repository obj))
          (header  (forge--format obj header))
          (file    (forge--post-expand-file-name (forge--format obj file) repo))
@@ -134,6 +144,7 @@ an error."
       (magit-set-header-line-format header)
       (setq forge--pre-post-buffer prevbuf)
       (forge-set-buffer-repository)
+      (setq forge-edit-post-action action)
       (setq forge--buffer-post-object obj)
       (setq forge--submit-post-function submit)
       (pcase-dolist (`(,var ,val) bindings)
