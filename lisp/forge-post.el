@@ -307,7 +307,10 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
   (save-buffer)
   (if-let ((fn forge--cancel-post-function))
       (funcall fn forge--buffer-post-object)
-    (magit-mode-bury-buffer 'kill)))
+    (let ((file buffer-file-name))
+      (magit-mode-bury-buffer 'kill)
+      (when (yes-or-no-p "Also delete draft? ")
+        (dired-delete-file file nil magit-delete-by-moving-to-trash)))))
 
 (defclass forge--new-topic-set-slot-command (transient-lisp-variable)
   ((name :initarg :name)
