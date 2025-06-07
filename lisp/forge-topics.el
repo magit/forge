@@ -201,9 +201,7 @@ the Magit status buffer."
           (let ((repo (forge-get-repository (car topics))))
             (magit-insert-section (forge-repo repo)
               (magit-insert-heading
-                (concat (propertize (format "%s/%s"
-                                            (oref repo owner)
-                                            (oref repo name))
+                (concat (propertize (oref repo slug)
                                     'font-lock-face 'bold)
                         (format " (%s)" (length topics))))
               (dolist (topic topics)
