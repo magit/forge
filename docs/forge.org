@@ -827,6 +827,11 @@ Which topics are listed initially is customizable using option
 ~forge-status-buffer-default-topic-filters~ and can be changed
 temporarily for the current buffer, using ~N m f~ (~forge-topics-menu~).
 
+- Function: forge-insert-discussions ::
+
+  This function inserts a list of discussions, by default a list of
+  "active" discussions.
+
 - Function: forge-insert-issues ::
 
   This function inserts a list of issues, by default a list of "active"
