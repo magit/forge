@@ -1119,11 +1119,11 @@ can be selected from the start."
   "Insert a list of topics, according to PREPARE.
 
 This function is not intended to be added to section hooks directly.
-Instead create a function, which calls this function, and add wrapper
-to the section hook.
+Instead create a function, which calls this function, and add that
+wrapper to the mode's section hook.
 
 PREPARE is a function which takes one arguments the repository object,
-and must return an filter object of type `forge--topics-spec' or nil.
+and must return a filter object of type `forge--topics-spec' or nil.
 Insert no topics if PREPARE returns nil, or if the current repository
 isn't tracked or Forge hasn't been fully setup yet (in the latter two
 cases don't even call PREPARE).
@@ -1136,7 +1136,27 @@ See `forge--topics-spec' for the valid slots and their values.
 HEADING is used as the heading of the list section and TYPE is used as
 its type.  TYPE should be a symbol of the form `SUBSET-KIND', where KIND
 is one of `topics', `issues' or `pullreqs', and SUBSET should describe
-what subset of KIND is being listed."
+what subset of KIND is being listed.
+
+For example, to insert a list of issues assigned to you use something
+like:
+
+  (defun my-forge-insert-assigned-issues ()
+    \"Insert a list of issues that are assigned to me.\"
+    (forge-insert-topics 'assigned-issues \"Assigned issues\"
+      (lambda (repo)
+        (and-let* ((me (ghub--username repo)))
+          (forge--topics-spec :type \\='issue :active t
+                              :assignee me)))))
+
+  (magit-add-section-hook \\='magit-status-sections-hook
+                          #\\='my-forge-insert-assigned-issues
+                          #\\='forge-insert-issues)
+
+Grep Forge for more examples.
+
+Alternatively you can use `forge-topics-setup-buffer' to list a set
+of topics in a dedicated buffer."
   (declare (indent defun))
   (when-let (((forge-db t))
              (repo (forge-get-repository :tracked?))
