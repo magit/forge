@@ -114,6 +114,46 @@ Must be set before `forge-topics' is loaded.")
   (magit-hack-dir-local-variables))
 
 (defun forge-topics-setup-buffer (&optional repo spec &rest params)
+  "List a set of topics in a buffer.
+
+The buffer is determined using `forge-topics-buffer-name', which uses
+the same buffer for all global lists, and likewise just one buffer per
+repository for repository-local lists.  You could use `cl-letf' to use
+a different buffer for certain sets.
+
+If optional REPO is non-nil, it must be a `forge-repository' object.
+It is only relevant when not showing a global topic list, as determined
+by the value of `:global' in PARAMS.  Even when showing a local list,
+REPO may be nil, in that case the repository is determined from context.
+
+If optional SPEC is non-nil, it must be a `forge--topics-spec' object.
+If nil, a clone of the existing filter spec from the buffer determined
+above is used, provided that buffer already exists and has a local
+filter spec.  A clone of `forge-list-buffer-default-topic-filters' is
+used otherwise.
+
+Optional PARAMS can be used to set slots of SPEC.  PARAMS is a plist
+where each key is an initarg for a slot of the `forge--topics-spec'
+class.
+
+Usually you would use nil for SPEC, so that a clone of the currently
+effective filter spec is used, and then you would set only some of
+the available filters using PARAMS.
+
+  (transient-define-suffix my-forge-list-assigned-issues ()
+    \"List issues of the current repository that are assigned to me.\"
+    :description \"issues\"
+    (declare (interactive-only nil))
+    (interactive)
+    (when-let* ((repo (forge-get-repository :tracked))
+                (me (ghub--username repo)))
+      (forge-topics-setup-buffer repo nil :type \\='issue :assignee me)
+      (transient-setup 'forge-topics-menu)))
+
+Grep Forge for more examples.
+
+Alternatively you can use `forge-insert-topics' list topics in, e.g.,
+the Magit status buffer."
   (let* ((global (or (plist-get params :global)
                      (and spec (oref spec global))))
          (repo (or repo
