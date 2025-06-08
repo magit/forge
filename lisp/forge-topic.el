@@ -1143,7 +1143,7 @@ like:
 
   (defun my-forge-insert-assigned-issues ()
     \"Insert a list of issues that are assigned to me.\"
-    (forge-insert-topics 'assigned-issues \"Assigned issues\"
+    (forge-insert-topics \\='assigned-issues \"Assigned issues\"
       (lambda (repo)
         (and-let* ((me (ghub--username repo)))
           (forge--topics-spec :type \\='issue :active t

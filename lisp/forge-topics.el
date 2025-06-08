@@ -148,7 +148,7 @@ the available filters using PARAMS.
     (when-let* ((repo (forge-get-repository :tracked))
                 (me (ghub--username repo)))
       (forge-topics-setup-buffer repo nil :type \\='issue :assignee me)
-      (transient-setup 'forge-topics-menu)))
+      (transient-setup \\='forge-topics-menu)))
 
 Grep Forge for more examples.
 
