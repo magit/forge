@@ -302,10 +302,9 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
   "Cancel the post that is being edited in the current buffer."
   (interactive)
   (save-buffer)
-  (let ((file buffer-file-name))
-    (magit-mode-bury-buffer 'kill)
-    (when (yes-or-no-p "Also delete draft? ")
-      (dired-delete-file file nil magit-delete-by-moving-to-trash))))
+  (when (yes-or-no-p "Also delete draft? ")
+    (dired-delete-file buffer-file-name nil magit-delete-by-moving-to-trash))
+  (magit-mode-bury-buffer 'kill))
 
 (defclass forge--new-topic-set-slot-command (transient-lisp-variable)
   ((name :initarg :name)
