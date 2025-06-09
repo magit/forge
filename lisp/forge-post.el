@@ -121,7 +121,6 @@ an error."
 (defvar-local forge--pre-post-buffer nil)
 
 (defvar-local forge--submit-post-function nil)
-(defvar-local forge--cancel-post-function nil)
 
 (defvar-local forge-edit-post-action nil
   "The action being carried out by editing this post buffer.
@@ -295,22 +294,18 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
   "Submit the post that is being edited in the current buffer."
   (interactive)
   (save-buffer)
-  (if-let ((fn forge--submit-post-function))
-      (funcall fn
-               (forge-get-repository forge--buffer-post-object)
-               forge--buffer-post-object)
-    (error "forge--submit-post-function is nil")))
+  (funcall forge--submit-post-function
+           (forge-get-repository forge--buffer-post-object)
+           forge--buffer-post-object))
 
 (defun forge-post-cancel ()
   "Cancel the post that is being edited in the current buffer."
   (interactive)
   (save-buffer)
-  (if-let ((fn forge--cancel-post-function))
-      (funcall fn forge--buffer-post-object)
-    (let ((file buffer-file-name))
-      (magit-mode-bury-buffer 'kill)
-      (when (yes-or-no-p "Also delete draft? ")
-        (dired-delete-file file nil magit-delete-by-moving-to-trash)))))
+  (let ((file buffer-file-name))
+    (magit-mode-bury-buffer 'kill)
+    (when (yes-or-no-p "Also delete draft? ")
+      (dired-delete-file file nil magit-delete-by-moving-to-trash))))
 
 (defclass forge--new-topic-set-slot-command (transient-lisp-variable)
   ((name :initarg :name)
