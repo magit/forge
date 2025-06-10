@@ -180,8 +180,9 @@ One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
                    (goto-char 3))
           (insert "# ")))
       (when fn
-        (funcall fn))
-      (run-hooks 'forge-edit-post-hook))
+        (funcall fn)))
+    (run-hook-wrapped 'forge-edit-post-hook
+                      (lambda (fn) (with-current-buffer buffer (funcall fn)) nil))
     (message (substitute-command-keys
               "Use \\[forge-post-menu] to set fields and submit or abort"))
     (forge--display-post-buffer buffer)))
