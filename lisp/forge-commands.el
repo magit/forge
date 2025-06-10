@@ -817,7 +817,7 @@ Please see the manual for more information."
            ;; longer does this, but we nevertheless have to deal
            ;; with merge-requests that have been lost in time.
            (error "Cannot check out this merge-request because %s"
-                  "on old Gitlab version discarded the source branch"))
+                  "an old Gitlab version discarded the source branch"))
           ((not (eq (oref pullreq state) 'open))
            (magit-git "branch" "--force" branch pullreq-ref))
           (t
