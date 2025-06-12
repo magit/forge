@@ -106,7 +106,13 @@
 (cl-defmethod forge-get-repository ((post forge-discussion-post))
   (forge-get-repository (forge-get-discussion post)))
 
+(cl-defmethod forge-get-repository ((post forge-discussion-reply))
+  (forge-get-repository (forge-get-discussion post)))
+
 (cl-defmethod forge-get-topic ((post forge-discussion-post))
+  (forge-get-discussion post))
+
+(cl-defmethod forge-get-topic ((post forge-discussion-reply))
   (forge-get-discussion post))
 
 (cl-defmethod forge-get-discussion ((disc forge-discussion))
@@ -129,15 +135,10 @@
               (oref post discussion)
               'forge-discussion))
 
-;; (cl-defmethod forge-get-discussion ((post forge-discussion-reply))
-;;   (closql-get (forge-db)
-;;               (oref post discussion)
-;;               'forge-discussion))
-
-;; (cl-defmethod forge-get-discussion-post ((reply forge-discussion-reply))
-;;   (closql-get (forge-db)
-;;               (oref reply post)
-;;               'forge-discussion-post))
+(cl-defmethod forge-get-discussion ((post forge-discussion-reply))
+  (closql-get (forge-db)
+              (oref post discussion)
+              'forge-discussion))
 
 ;;;; Current
 
