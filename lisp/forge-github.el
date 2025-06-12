@@ -853,11 +853,34 @@
       :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--set-topic-title
-  ((_repo forge-github-repository) topic title)
-  (forge--ghub-patch topic
-    "/repos/:owner/:repo/issues/:number"
-    `((title . ,title))
-    :callback (forge--set-field-callback topic)))
+  ((_repo forge-github-repository) (topic forge-discussion) title)
+  (ghub--graphql
+   `(mutation (updateDiscussion
+               [(input $input UpdateDiscussionInput!)]
+               clientMutationId))
+   `((input (discussionId . ,(oref topic their-id))
+            (title . ,title)))
+   :callback  (forge--set-field-callback topic)))
+
+(cl-defmethod forge--set-topic-title
+  ((_repo forge-github-repository) (topic forge-issue) title)
+  (ghub--graphql
+   `(mutation (updateIssue
+               [(input $input UpdateIssueInput!)]
+               clientMutationId))
+   `((input (id . ,(oref topic their-id))
+            (title . ,title)))
+   :callback  (forge--set-field-callback topic)))
+
+(cl-defmethod forge--set-topic-title
+  ((_repo forge-github-repository) (topic forge-pullreq) title)
+  (ghub--graphql
+   `(mutation (updatePullRequest
+               [(input $input UpdatePullRequestInput!)]
+               clientMutationId))
+   `((input (pullRequestId . ,(oref topic their-id))
+            (title . ,title)))
+   :callback  (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-state
   ((_repo forge-github-repository) topic state)
