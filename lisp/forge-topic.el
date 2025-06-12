@@ -1879,7 +1879,13 @@ inferior process."
   "Mark the post at point as the answer to the current question.
 When point is on the answer, then unmark it and mark no other."
   :class 'forge--topic-set-slot-command :slot 'answer
-  :inapt-if-not #'forge-current-discussion
+  :inapt-if-not (lambda ()
+                  (and-let* ((discussion (forge-current-discussion))
+                             (category (oref discussion category)))
+                    (forge-sql-caar [:select answerable-p
+                                     :from discussion-category
+                                     :where (= id $s1)]
+                                    category)))
   :description (##forge--format-boolean 'answer "answered")
   :reader #'forge--select-discussion-answer)
 
