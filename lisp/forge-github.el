@@ -790,25 +790,37 @@
     :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--submit-create-post ((_ forge-github-repository) post)
-  (cond
-   ((cl-typep post '(or forge-discussion forge-discussion-post))
-    (forge--graphql
-     `(mutation (addDiscussionComment
-                 [(input $input AddDiscussionCommentInput!)]
-                 clientMutationId))
-     `((input
-        ,@(if (cl-typep post 'forge-discussion-post)
-              `((discussionId . ,(oref (forge-get-discussion post) their-id))
-                (replyToId . ,(oref post their-id)))
-            `((discussionId . ,(oref post their-id))))
-        (body . ,(magit--buffer-string nil nil t))))
-     :callback  (forge--post-submit-callback)
-     :errorback (forge--post-submit-errorback)))
-   (t
-    (forge--ghub-post post "/repos/:owner/:repo/issues/:number/comments"
-      `((body . ,(magit--buffer-string nil nil t)))
-      :callback  (forge--post-submit-callback)
-      :errorback (forge--post-submit-errorback)))))
+  (forge--graphql
+   `(mutation (addComment
+               [(input $input AddCommentInput!)]
+               clientMutationId))
+   `((input (subjectId . ,(oref post their-id))
+            (body . ,(magit--buffer-string nil nil t))))
+   :callback  (forge--post-submit-callback)
+   :errorback (forge--post-submit-errorback)))
+
+(cl-defmethod forge--submit-create-post ((_ forge-github-repository)
+                                         (post forge-discussion-post))
+  (forge--graphql
+   `(mutation (addDiscussionComment
+               [(input $input AddDiscussionCommentInput!)]
+               clientMutationId))
+   `((input (discussionId . ,(oref (forge-get-discussion post) their-id))
+            (replyToId . ,(oref post their-id))
+            (body . ,(magit--buffer-string nil nil t))))
+   :callback  (forge--post-submit-callback)
+   :errorback (forge--post-submit-errorback)))
+
+(cl-defmethod forge--submit-create-post ((_ forge-github-repository)
+                                         (post forge-discussion))
+  (forge--graphql
+   `(mutation (addDiscussionComment
+               [(input $input AddDiscussionCommentInput!)]
+               clientMutationId))
+   `((input (discussionId . ,(oref post their-id))
+            (body . ,(magit--buffer-string nil nil t))))
+   :callback  (forge--post-submit-callback)
+   :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--submit-edit-post ((_ forge-github-repository) post)
   (forge--ghub-patch post
