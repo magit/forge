@@ -823,18 +823,54 @@
    :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--submit-edit-post ((_ forge-github-repository) post)
-  (forge--ghub-patch post
-    (cl-typecase post
-      (forge-pullreq "/repos/:owner/:repo/pulls/:number")
-      (forge-issue   "/repos/:owner/:repo/issues/:number")
-      (forge-post    "/repos/:owner/:repo/issues/comments/:number"))
-    (if (cl-typep post 'forge-topic)
-        (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
-          `((title . ,title)
-            (body  . ,body)))
-      `((body . ,(magit--buffer-string nil nil t))))
-    :callback  (forge--post-submit-callback)
-    :errorback (forge--post-submit-errorback)))
+  (cl-typecase post
+    ((or forge-issue-post forge-pullreq-post)
+     ;; Cannot use GraphQL because we made the mistake to derive our ID
+     ;; from the number instead of their ID.  `updatePullRequestComment'
+     ;; (or something equivalent under an inconsistent name) does not
+     ;; exist, so for that we would have to continue to use REST anyway.
+     (forge--ghub-patch post
+       "/repos/:owner/:repo/issues/comments/:number"
+       `((body . ,(magit--buffer-string nil nil t)))
+       :callback  (forge--post-submit-callback)
+       :errorback (forge--post-submit-errorback)))
+    (t
+     (forge--graphql
+      `(mutation (,(cl-etypecase post
+                     (forge-discussion       'updateDiscussion)
+                     (forge-issue            'updateIssue)
+                     (forge-pullreq          'updatePullRequest)
+                     (forge-discussion-post  'updateDiscussionComment)
+                     (forge-discussion-reply 'updateDiscussionComment)
+                     (forge-issue-post       'updateIssueComment)
+                     (forge-pullreq-post     'updatePullRequestComment))
+                  [(input
+                    $input
+                    ,(cl-etypecase post
+                       (forge-discussion       'UpdateDiscussionInput!)
+                       (forge-issue            'UpdateIssueInput!)
+                       (forge-pullreq          'UpdatePullRequestInput!)
+                       (forge-discussion-post  'UpdateDiscussionCommentInput!)
+                       (forge-discussion-reply 'UpdateDiscussionCommentInput!)
+                       (forge-issue-post       'UpdateIssueCommentInput!)
+                       (forge-pullreq-post     'UpdatePullRequestCommentInput!)))]
+                  clientMutationId))
+      `((input (,(cl-etypecase post
+                   (forge-discussion       'discussionId)
+                   (forge-issue            'id)
+                   (forge-pullreq          'pullRequestId)
+                   (forge-discussion-post  'commentId)
+                   (forge-discussion-reply 'commentId)
+                   (forge-issue-post       'id)
+                   (forge-pullreq-post     'id))
+                . ,(forge--their-id post))
+               ,@(if (cl-typep post 'forge-topic)
+                     (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
+                       `((title . ,title)
+                         (body  . ,body)))
+                   `((body . ,(magit--buffer-string nil nil t))))))
+      :callback  (forge--post-submit-callback)
+      :errorback (forge--post-submit-errorback)))))
 
 (cl-defmethod forge--submit-approve-pullreq ((_ forge-github-repository) repo)
   (let ((body (magit--buffer-string nil nil t)))
