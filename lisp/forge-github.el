@@ -885,23 +885,16 @@
 
 (cl-defmethod forge--set-topic-draft
   ((_repo forge-github-repository) topic value)
-  (let ((buffer (current-buffer)))
-    (ghub-graphql
-     `(mutation (,(if value
-                      'convertPullRequestToDraft
-                    'markPullRequestReadyForReview)
-                 [(input $input ,(if value
-                                     'ConvertPullRequestToDraftInput!
-                                   'MarkPullRequestReadyForReviewInput!))]
-                 (pullRequest isDraft)))
-     `((input (pullRequestId . ,(oref topic their-id))))
-     :host (oref (forge-get-repository topic) apihost)
-     :auth 'forge
-     :callback (lambda (data &rest _)
-                 (if (assq 'error data)
-                     (ghub--graphql-pp-response data)
-                   (oset topic draft-p value)
-                   (forge-refresh-buffer buffer))))))
+  (forge--graphql
+   `(mutation (,(if value
+                    'convertPullRequestToDraft
+                  'markPullRequestReadyForReview)
+               [(input $input ,(if value
+                                   'ConvertPullRequestToDraftInput!
+                                 'MarkPullRequestReadyForReviewInput!))]
+               (pullRequest isDraft)))
+   `((input (pullRequestId . ,(oref topic their-id))))
+   :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-category
   ((_repo forge-github-repository)
