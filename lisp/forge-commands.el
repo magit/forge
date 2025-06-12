@@ -592,7 +592,7 @@ With prefix argument MENU, also show the topic menu."
    (list (forge-read-topic-category nil "Category for new discussion")))
   (forge--setup-post-buffer 'new-discussion #'forge--submit-create-discussion
     "new-discussion" "Create new discussion on %p"
-   `((forge--buffer-category ,category))))
+    `((forge--buffer-category ,category))))
 
 (defun forge-create-issue (template)
   "Create a new issue for the current repository."
