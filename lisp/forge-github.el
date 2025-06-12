@@ -792,7 +792,7 @@
 (cl-defmethod forge--submit-create-post ((_ forge-github-repository) post)
   (cond
    ((cl-typep post '(or forge-discussion forge-discussion-post))
-    (ghub-graphql
+    (forge--graphql
      `(mutation (addDiscussionComment
                  [(input $input AddDiscussionCommentInput!)]
                  clientMutationId))
