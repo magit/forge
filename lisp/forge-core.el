@@ -33,6 +33,7 @@
 
 (require 'transient)
 
+(require 'ghub-graphql)
 (require 'forge-db)
 
 (eval-when-compile
@@ -375,6 +376,20 @@ parent object (determined using `forge-get-parent')."
       resource)))
 
 ;;; Miscellaneous
+
+(cl-defun forge--graphql (graphql
+                          &optional variables
+                          &key username host forge
+                          headers
+                          callback errorback)
+  (let ((ghub-graphql-message-progress nil))
+    (ghub--graphql-vacuum graphql variables callback nil
+                          :username  username
+                          :auth      'forge
+                          :host      host
+                          :forge     forge
+                          :headers   headers
+                          :errorback errorback)))
 
 (defun forge-refresh-buffer (&optional buffer)
   "Refresh the current buffer, if it is a Magit or Forge buffer.
