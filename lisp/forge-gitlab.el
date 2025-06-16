@@ -616,8 +616,9 @@
                                silent unpaginate noerror reader
                                host callback errorback)
   (declare (indent defun))
-  (glab-get (if obj (forge--format-resource obj resource) resource)
+  (ghub-get (if obj (forge--format-resource obj resource) resource)
             params
+            :forge 'gitlab
             :host (or host (oref (forge-get-repository obj) apihost))
             :auth 'forge
             :query query :payload payload :headers headers
@@ -632,8 +633,9 @@
                                silent unpaginate noerror reader
                                host callback errorback)
   (declare (indent defun))
-  (glab-put (if obj (forge--format-resource obj resource) resource)
+  (ghub-put (if obj (forge--format-resource obj resource) resource)
             params
+            :forge 'gitlab
             :host (or host (oref (forge-get-repository obj) apihost))
             :auth 'forge
             :query query :payload payload :headers headers
@@ -648,8 +650,9 @@
                                 silent unpaginate noerror reader
                                 host callback errorback)
   (declare (indent defun))
-  (glab-post (forge--format-resource obj resource)
+  (ghub-post (forge--format-resource obj resource)
              params
+             :forge 'gitlab
              :host (or host (oref (forge-get-repository obj) apihost))
              :auth 'forge
              :query query :payload payload :headers headers
@@ -664,8 +667,9 @@
                                   silent unpaginate noerror reader
                                   host callback errorback)
   (declare (indent defun))
-  (glab-delete (forge--format-resource obj resource)
+  (ghub-delete (forge--format-resource obj resource)
                params
+               :forge 'gitlab
                :host (or host (oref (forge-get-repository obj) apihost))
                :auth 'forge
                :query query :payload payload :headers headers
