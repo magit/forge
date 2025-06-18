@@ -119,6 +119,7 @@
   disc)
 
 (cl-defmethod forge-get-discussion ((repo forge-repository) number)
+  (cl-assert (numberp number) t)
   (closql-get (forge-db)
               (forge--object-id 'forge-discussion repo number)
               'forge-discussion))

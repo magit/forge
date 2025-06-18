@@ -138,6 +138,7 @@
   pullreq)
 
 (cl-defmethod forge-get-pullreq ((repo forge-repository) number)
+  (cl-assert (numberp number) t)
   (closql-get (forge-db)
               (forge--object-id 'forge-pullreq repo number)
               'forge-pullreq))

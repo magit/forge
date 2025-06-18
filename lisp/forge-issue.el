@@ -116,6 +116,7 @@
   issue)
 
 (cl-defmethod forge-get-issue ((repo forge-repository) number)
+  (cl-assert (numberp number) t)
   (closql-get (forge-db)
               (forge--object-id 'forge-issue repo number)
               'forge-issue))
