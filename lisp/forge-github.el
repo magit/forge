@@ -576,12 +576,12 @@
         (cb)))))
 
 (defun forge--ghub-notifications-since (forge)
-  (caar (forge-sql [:select :distinct [notification:updated]
-                    :from [notification repository]
-                    :where (and (= repository:forge $s1)
-                                (= repository:id notification:repository))
-                    :order-by [(desc notification:updated)]]
-                   forge)))
+  (forge-sql1 [:select :distinct [notification:updated]
+               :from [notification repository]
+               :where (and (= repository:forge $s1)
+                           (= repository:id notification:repository))
+               :order-by [(desc notification:updated)]]
+              forge))
 
 (defun forge--ghub-massage-notification (data githost)
   (let-alist data
@@ -717,13 +717,12 @@
                  [(input $input CreateDiscussionInput!)]
                  clientMutationId))
      `((input (repositoryId . ,(forge--their-id repo))
-              (categoryId
-               . , (caar (forge-sql [:select [their-id]
-                                     :from discussion-category
-                                     :where (and (= repository $s1)
-                                                 (= name $s2))]
-                                    (oref repo id)
-                                    forge--buffer-category)))
+              (categoryId . ,(forge-sql1 [:select [their-id]
+                                          :from discussion-category
+                                          :where (and (= repository $s1)
+                                                      (= name $s2))]
+                                         (oref repo id)
+                                         forge--buffer-category))
               (title . ,title)
               (body  . ,body)))
      :callback  (forge--post-submit-callback t)
@@ -735,11 +734,10 @@
       `((title . ,title)
         (body  . ,body)
         ,@(and forge--buffer-milestone
-               `((milestone
-                  . ,(caar (forge-sql [:select [number]
-                                       :from milestone
-                                       :where (= title $s1)]
-                                      forge--buffer-milestone)))))
+               `((milestone . ,(forge-sql1 [:select [number]
+                                            :from milestone
+                                            :where (= title $s1)]
+                                           forge--buffer-milestone))))
         ,@(and forge--buffer-labels
                `((labels . ,(vconcat forge--buffer-labels))))
         ,@(and forge--buffer-assignees
@@ -974,13 +972,12 @@
                [(input $input UpdateDiscussionInput!)]
                clientMutationId))
    `((input (discussionId . ,(oref topic their-id))
-            (categoryId
-             . , (caar (forge-sql [:select [their-id]
-                                   :from discussion-category
-                                   :where (and (= repository $s1)
-                                               (= name $s2))]
-                                  (oref (forge-get-repository :tracked) id)
-                                  category)))))
+            (categoryId . ,(forge-sql1 [:select [their-id]
+                                        :from discussion-category
+                                        :where (and (= repository $s1)
+                                                    (= name $s2))]
+                                       (oref (forge-get-repository :tracked) id)
+                                       category))))
    :callback (forge--set-field-callback topic t)))
 
 (cl-defmethod forge--set-topic-answer
@@ -1007,12 +1004,12 @@
   (forge--ghub-patch topic
     "/repos/:owner/:repo/issues/:number"
     (if milestone
-        `((milestone . ,(caar (forge-sql [:select [number]
-                                          :from milestone
-                                          :where (and (= repository $s1)
-                                                      (= title $s2))]
-                                         (oref repo id)
-                                         milestone))))
+        `((milestone . ,(forge-sql1 [:select [number]
+                                     :from milestone
+                                     :where (and (= repository $s1)
+                                                 (= title $s2))]
+                                    (oref repo id)
+                                    milestone)))
       `((milestone . :null)))
     :callback (forge--set-field-callback topic)))
 

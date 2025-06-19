@@ -603,21 +603,21 @@
                                  :where (isnull issues-until)]))
           (emacsql
            db [:update repository :set (= issues-until $s1) :where (= id $s2)]
-           (caar (forge-sql [:select [updated] :from issue
-                             :where (= repository $s1)
-                             :order-by [(desc updated)]
-                             :limit 1]
-                            id))
+           (forge-sql1 [:select [updated] :from issue
+                        :where (= repository $s1)
+                        :order-by [(desc updated)]
+                        :limit 1]
+                       id)
            id))
         (dolist (id (emacsql db [:select id :from repository
                                  :where (isnull pullreqs-until)]))
           (emacsql
            db [:update repository :set (= pullreqs-until $s1) :where (= id $s2)]
-           (caar (forge-sql [:select [updated] :from pullreq
-                             :where (= repository $s1)
-                             :order-by [(desc updated)]
-                             :limit 1]
-                            id))
+           (forge-sql1 [:select [updated] :from pullreq
+                        :where (= repository $s1)
+                        :order-by [(desc updated)]
+                        :limit 1]
+                       id)
            id))
         (emacsql db [:alter-table repository :rename-column sparse-p :to condition])
         (pcase-dolist (`(,id ,not-tracked)
