@@ -533,13 +533,14 @@
 (cl-defmethod forge--set-topic-draft
   ((repo forge-gitlab-repository) topic value)
   (let ((buffer (current-buffer)))
-    (glab-graphql
+    (forge--graphql
      `(mutation (mergeRequestSetDraft
                  [(input $input MergeRequestSetDraftInput!)]
                  (mergeRequest iid draft)))
      `((input (projectPath . ,(oref repo slug))
               (iid . ,(number-to-string (oref topic number)))
               (draft . ,value)))
+     :forge 'gitlab
      :host (oref (forge-get-repository topic) apihost)
      :auth 'forge
      :callback (lambda (data &rest _)
