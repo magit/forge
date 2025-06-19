@@ -22,8 +22,6 @@
 
 ;;; Code:
 
-(require 'ghub)
-
 (require 'forge)
 (require 'forge-discussion)
 (require 'forge-issue)
