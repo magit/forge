@@ -65,7 +65,7 @@
       (emacsql (forge-db) (apply #'format sql args))
     (apply #'emacsql (forge-db) sql args)))
 
-(defun forge-sql-caar (sql &rest args)
+(defun forge-sql1 (sql &rest args)
   (caar (apply #'forge-sql sql args)))
 
 (defun forge-sql-car (sql &rest args)

@@ -1885,10 +1885,10 @@ When point is on the answer, then unmark it and mark no other."
   :inapt-if-not (lambda ()
                   (and-let* ((discussion (forge-current-discussion))
                              (category (oref discussion category)))
-                    (forge-sql-caar [:select answerable-p
-                                     :from discussion-category
-                                     :where (= id $s1)]
-                                    category)))
+                    (forge-sql1 [:select answerable-p
+                                 :from discussion-category
+                                 :where (= id $s1)]
+                                category)))
   :description (##forge--format-boolean 'answer "answered")
   :reader #'forge--select-discussion-answer)
 
