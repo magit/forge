@@ -1191,33 +1191,31 @@
                                &optional params
                                &key query payload headers
                                silent unpaginate noerror reader
-                               host
-                               callback errorback)
+                               host callback errorback)
   (declare (indent defun))
-  (ghub-get (if obj (forge--format-resource obj resource) resource)
-            params
-            :host (or host (oref (forge-get-repository obj) apihost))
-            :auth 'forge
-            :query query :payload payload :headers headers
-            :silent silent :unpaginate unpaginate
-            :noerror noerror :reader reader
-            :callback callback :errorback errorback))
+  (ghub-request "GET" (if obj (forge--format-resource obj resource) resource)
+                params
+                :host (or host (oref (forge-get-repository obj) apihost))
+                :auth 'forge
+                :query query :payload payload :headers headers
+                :silent silent :unpaginate unpaginate
+                :noerror noerror :reader reader
+                :callback callback :errorback errorback))
 
 (cl-defun forge--ghub-put (obj resource
                                &optional params
                                &key query payload headers
                                silent unpaginate noerror reader
-                               host
-                               callback errorback)
+                               host callback errorback)
   (declare (indent defun))
-  (ghub-put (if obj (forge--format-resource obj resource) resource)
-            params
-            :host (or host (oref (forge-get-repository obj) apihost))
-            :auth 'forge
-            :query query :payload payload :headers headers
-            :silent silent :unpaginate unpaginate
-            :noerror noerror :reader reader
-            :callback callback :errorback errorback))
+  (ghub-request "PUT" (if obj (forge--format-resource obj resource) resource)
+                params
+                :host (or host (oref (forge-get-repository obj) apihost))
+                :auth 'forge
+                :query query :payload payload :headers headers
+                :silent silent :unpaginate unpaginate
+                :noerror noerror :reader reader
+                :callback callback :errorback errorback))
 
 (cl-defun forge--ghub-post (obj resource
                                 &optional params
@@ -1225,14 +1223,14 @@
                                 silent unpaginate noerror reader
                                 host callback errorback)
   (declare (indent defun))
-  (ghub-post (forge--format-resource obj resource)
-             params
-             :host (or host (oref (forge-get-repository obj) apihost))
-             :auth 'forge
-             :query query :payload payload :headers headers
-             :silent silent :unpaginate unpaginate
-             :noerror noerror :reader reader
-             :callback callback :errorback errorback))
+  (ghub-request "POST" (forge--format-resource obj resource)
+                params
+                :host (or host (oref (forge-get-repository obj) apihost))
+                :auth 'forge
+                :query query :payload payload :headers headers
+                :silent silent :unpaginate unpaginate
+                :noerror noerror :reader reader
+                :callback callback :errorback errorback))
 
 (cl-defun forge--ghub-patch (obj resource
                                  &optional params
@@ -1240,14 +1238,14 @@
                                  silent unpaginate noerror reader
                                  host callback errorback)
   (declare (indent defun))
-  (ghub-patch (forge--format-resource obj resource)
-              params
-              :host (or host (oref (forge-get-repository obj) apihost))
-              :auth 'forge
-              :query query :payload payload :headers headers
-              :silent silent :unpaginate unpaginate
-              :noerror noerror :reader reader
-              :callback callback :errorback errorback))
+  (ghub-request "PATCH" (forge--format-resource obj resource)
+                params
+                :host (or host (oref (forge-get-repository obj) apihost))
+                :auth 'forge
+                :query query :payload payload :headers headers
+                :silent silent :unpaginate unpaginate
+                :noerror noerror :reader reader
+                :callback callback :errorback errorback))
 
 (cl-defun forge--ghub-delete (obj resource
                                   &optional params
@@ -1255,14 +1253,14 @@
                                   silent unpaginate noerror reader
                                   host callback errorback)
   (declare (indent defun))
-  (ghub-delete (forge--format-resource obj resource)
-               params
-               :host (or host (oref (forge-get-repository obj) apihost))
-               :auth 'forge
-               :query query :payload payload :headers headers
-               :silent silent :unpaginate unpaginate
-               :noerror noerror :reader reader
-               :callback callback :errorback errorback))
+  (ghub-request "DELETE" (forge--format-resource obj resource)
+                params
+                :host (or host (oref (forge-get-repository obj) apihost))
+                :auth 'forge
+                :query query :payload payload :headers headers
+                :silent silent :unpaginate unpaginate
+                :noerror noerror :reader reader
+                :callback callback :errorback errorback))
 
 ;;; _
 ;; Local Variables:
