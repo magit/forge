@@ -22,7 +22,6 @@
 
 ;;; Code:
 
-(require 'gogs)
 (require 'forge)
 
 ;;; Class

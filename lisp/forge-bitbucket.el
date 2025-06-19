@@ -22,7 +22,6 @@
 
 ;;; Code:
 
-(require 'buck)
 (require 'forge)
 
 ;;; Class

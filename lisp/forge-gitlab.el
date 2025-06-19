@@ -22,8 +22,6 @@
 
 ;;; Code:
 
-(require 'glab)
-
 (require 'forge)
 (require 'forge-issue)
 (require 'forge-pullreq)
