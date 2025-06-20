@@ -382,14 +382,13 @@ parent object (determined using `forge-get-parent')."
                           &key username host forge
                           headers
                           callback errorback)
-  (let ((ghub-graphql-message-progress nil))
-    (ghub--graphql-vacuum graphql variables callback nil
-                          :username  username
-                          :auth      'forge
-                          :host      host
-                          :forge     forge
-                          :headers   headers
-                          :errorback errorback)))
+  (ghub--graphql-vacuum graphql variables callback nil
+                        :username  username
+                        :auth      'forge
+                        :host      host
+                        :forge     forge
+                        :headers   headers
+                        :errorback errorback))
 
 (defun forge-refresh-buffer (&optional buffer)
   "Refresh the current buffer, if it is a Magit or Forge buffer.
