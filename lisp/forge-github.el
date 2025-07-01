@@ -861,12 +861,7 @@
   (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
     (forge-mutate repo createDiscussion
       ((repositoryId (forge--their-id repo))
-       (categoryId (forge-sql1 [:select [their-id]
-                                :from discussion-category
-                                :where (and (= repository $s1)
-                                            (= name $s2))]
-                               (oref repo id)
-                               forge--buffer-category))
+       (categoryId (forge--their-id forge--buffer-category 'category repo))
        (title title)
        (body  body))
       :callback  (forge--post-submit-callback t)
@@ -1090,17 +1085,12 @@
            ((pullRequestId (oref topic their-id)))))))
 
 (cl-defmethod forge--set-topic-category
-  ((_repo forge-github-repository)
+  ((repo  forge-github-repository)
    (topic forge-discussion)
    category)
   (forge--mutate-field topic updateDiscussion
     ((discussionId (oref topic their-id))
-     (categoryId (forge-sql1 [:select [their-id]
-                              :from discussion-category
-                              :where (and (= repository $s1)
-                                          (= name $s2))]
-                             (oref (forge-get-repository :tracked) id)
-                             category)))))
+     (categoryId (forge--their-id category 'category repo)))))
 
 (cl-defmethod forge--set-topic-answer
   ((repo  forge-github-repository)
@@ -1179,11 +1169,7 @@
    assignees)
   (let* ((topic-id (oref topic their-id))
          (old (mapcar (##nth 3 %) (oref topic assignees)))
-         (new (forge-sql-car [:select [forge-id] :from assignee
-                              :where (and (= repository $s1)
-                                          (in login $v2))]
-                             (oref repo id)
-                             (vconcat assignees)))
+         (new (forge--their-id assignees 'assignees repo))
          (add (cl-set-difference new old :test #'equal))
          (del (cl-set-difference old new :test #'equal)))
     (when (or add del)
@@ -1205,12 +1191,8 @@
   ((repo  forge-github-repository)
    (topic forge-topic)
    reviewers)
-  (let ((users (forge-sql-car
-                [:select [forge-id] :from assignee
-                 :where (and (= repository $s1)
-                             (in login $v2))]
-                (oref repo id)
-                (vconcat (seq-remove (##string-match "/" %) reviewers))))
+  (let ((users (forge--their-id (seq-remove (##string-match "/" %) reviewers)
+                                'assignees repo))
         (teams nil)) ;TODO Investigate #742, track id, then use it here.
     (forge--mutate-field topic requestReviews
       ((pullRequestId (oref topic their-id))

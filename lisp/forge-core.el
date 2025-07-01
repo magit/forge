@@ -291,16 +291,50 @@ is non-nil."
                                        &optional stub noerror)
   "Return the database and forge ids for the specified CLASS object.")
 
-(defun forge--their-id (id/obj)
-  "Return the forge's id for the ID used in the local database."
+(defun forge--their-id (arg &optional type repo)
+  "Return the forge's ID for ARG.
+This deals with technical debt related to our handling of IDs."
   (cond
-   ((stringp id/obj)
-    (car (last (split-string (base64-decode-string id/obj) ":"))))
-   ((slot-exists-p id/obj 'their-id)
-    (oref id/obj their-id))
-   ((slot-exists-p id/obj 'forge-id)
-    (oref id/obj forge-id))
-   ((forge--their-id (oref id/obj id)))))
+   (type
+    (pcase type
+      ('assignee
+       (forge-sql1 [:select [forge-id]
+                    :from assignee
+                    :where (and (= repository $s1)
+                                (= login $s2))]
+                   (oref repo id) arg))
+      ('assignees
+       (forge-sql-car [:select [forge-id]
+                       :from assignee
+                       :where (and (= repository $s1)
+                                   (in login $v2))]
+                      (oref repo id)
+                      (vconcat arg)))
+      ('category
+       (forge-sql1 [:select [their-id]
+                    :from discussion-category
+                    :where (and (= repository $s1)
+                                (= name $s2))]
+                   (oref repo id) arg))
+      ('label
+       (forge--their-id
+        (forge-sql1 [:select [id]
+                     :from label
+                     :where (and (= repository $s1)
+                                 (= name $s2))]
+                    (oref repo id) arg)))
+      ('labels
+       (mapcar (##forge--their-id % 'label repo) arg))
+      ('milestone
+       (forge--their-id
+        (forge-sql1 [:select [id] :from milestone :where (= title $s1)] arg)))))
+   ((stringp arg)
+    (car (last (split-string (base64-decode-string arg) ":"))))
+   ((slot-exists-p arg 'their-id)
+    (oref arg their-id))
+   ((slot-exists-p arg 'forge-id)
+    (oref arg forge-id))
+   ((forge--their-id (oref arg id)))))
 
 (cl-defmethod magit-section-ident-value ((obj forge-object))
   "Return the value ob OBJ's `id' slot.
