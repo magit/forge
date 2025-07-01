@@ -1273,13 +1273,12 @@
   ((repo  forge-github-repository)
    (topic forge-pullreq)
    hash method)
-  (forge--ghub-put topic
-    "/repos/:owner/:repo/pulls/:number/merge"
-    `((merge_method . ,(symbol-name method))
-      ,@(and hash `((sha . ,hash))))
-    :errorback t
+  (forge-mutate topic mergePullRequest
+    ((pullRequestId (oref topic their-id))
+     (mergeMethod (upcase (symbol-name method)))
+     (and hash (expectedHeadOid hash)))
     :callback
-    (lambda (&rest _)
+    (lambda (_)
       (forge--pull
        repo
        (lambda ()
