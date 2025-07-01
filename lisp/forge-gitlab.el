@@ -476,7 +476,9 @@
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
-(cl-defmethod forge--submit-create-post ((_ forge-gitlab-repository) topic)
+(cl-defmethod forge--submit-create-post
+  ((_     forge-gitlab-repository)
+   (topic forge-topic))
   (forge--glab-post topic
     (if (forge-issue-p topic)
         "/projects/:project/issues/:number/notes"
@@ -485,7 +487,9 @@
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
-(cl-defmethod forge--submit-edit-post ((_ forge-gitlab-repository) post)
+(cl-defmethod forge--submit-edit-post
+  ((_    forge-gitlab-repository)
+   (post forge-post))
   (forge--glab-put post
     (cl-etypecase post
       (forge-pullreq      "/projects/:project/merge_requests/:number")
@@ -506,7 +510,9 @@
     :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--set-topic-field
-  ((_repo forge-gitlab-repository) topic field value)
+  ((_repo forge-gitlab-repository)
+   (topic forge-topic)
+   field value)
   (forge--glab-put topic
     (cl-typecase topic
       (forge-pullreq "/projects/:project/merge_requests/:number")
@@ -515,11 +521,15 @@
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-title
-  ((repo forge-gitlab-repository) topic title)
+  ((repo  forge-gitlab-repository)
+   (topic forge-topic)
+   title)
   (forge--set-topic-field repo topic 'title title))
 
 (cl-defmethod forge--set-topic-state
-  ((repo forge-gitlab-repository) topic state)
+  ((repo  forge-gitlab-repository)
+   (topic forge-topic)
+   state)
   (forge--set-topic-field repo topic 'state_event
                           (pcase-exhaustive state
                             ;; Merging isn't done through here.
@@ -529,7 +539,9 @@
                             ('open      "reopen"))))
 
 (cl-defmethod forge--set-topic-draft
-  ((repo forge-gitlab-repository) topic value)
+  ((repo  forge-gitlab-repository)
+   (topic forge-topic)
+   value)
   (let ((buffer (current-buffer)))
     (forge--graphql
      `(mutation (mergeRequestSetDraft
@@ -548,12 +560,16 @@
                    (forge-refresh-buffer buffer))))))
 
 (cl-defmethod forge--set-topic-labels
-  ((repo forge-gitlab-repository) topic labels)
+  ((repo  forge-gitlab-repository)
+   (topic forge-topic)
+   labels)
   (forge--set-topic-field repo topic 'labels
                           (string-join labels ",")))
 
 (cl-defmethod forge--set-topic-assignees
-  ((repo forge-gitlab-repository) topic assignees)
+  ((repo  forge-gitlab-repository)
+   (topic forge-topic)
+   assignees)
   (let ((users (mapcar #'cdr (oref repo assignees))))
     (cl-typecase topic
       (forge-pullreq ; Can only be assigned to a single user.
@@ -566,14 +582,17 @@
                                    0))))))
 
 (cl-defmethod forge--set-topic-review-requests
-  ((repo forge-gitlab-repository) topic reviewers)
+  ((repo  forge-gitlab-repository)
+   (topic forge-pullreq)
+   reviewers)
   (let ((users (mapcar #'cdr (oref repo assignees))))
     (forge--set-topic-field repo topic 'reviewer_ids
                             (or (mapcar (##caddr (assoc % users)) reviewers)
                                 0))))
 
 (cl-defmethod forge--delete-comment
-  ((_repo forge-gitlab-repository) post)
+  ((_    forge-gitlab-repository)
+   (post forge-post))
   (forge--glab-delete post
     (cl-etypecase post
       (forge-pullreq-post
@@ -600,8 +619,10 @@
     (ghub-wait (format "/projects/%s%%2F%s" (string-replace "/" "%2F" fork) name)
                nil :auth 'forge :host apihost :forge 'gitlab)))
 
-(cl-defmethod forge--merge-pullreq ((_repo forge-gitlab-repository)
-                                    topic hash method)
+(cl-defmethod forge--merge-pullreq
+  ((_repo forge-gitlab-repository)
+   (topic forge-topic)
+   hash method)
   (forge--glab-put topic
     "/projects/:project/merge_requests/:number/merge"
     `((squash . ,(eq method 'squash))

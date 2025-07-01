@@ -710,7 +710,7 @@
 
 ;;; Mutations
 
-(cl-defmethod forge--submit-create-discussion ((_ forge-github-repository) repo)
+(cl-defmethod forge--submit-create-discussion ((repo forge-github-repository) _)
   (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
     (forge--graphql
      '(mutation (createDiscussion
@@ -728,7 +728,7 @@
      :callback  (forge--post-submit-callback t)
      :errorback (forge--post-submit-errorback))))
 
-(cl-defmethod forge--submit-create-issue ((_ forge-github-repository) repo)
+(cl-defmethod forge--submit-create-issue ((repo forge-github-repository) _)
   (forge--ghub-post repo "/repos/:owner/:repo/issues"
     (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
       `((title . ,title)
@@ -745,9 +745,10 @@
     :callback  (forge--post-submit-callback t)
     :errorback (forge--post-submit-errorback)))
 
-(cl-defmethod forge--create-pullreq-from-issue ((repo forge-github-repository)
-                                                (issue forge-issue)
-                                                source target)
+(cl-defmethod forge--create-pullreq-from-issue
+  ((repo  forge-github-repository)
+   (issue forge-issue)
+   source target)
   (pcase-let* ((`(,base-remote . ,base-branch)
                 (magit-split-branch-name target))
                (`(,head-remote . ,head-branch)
@@ -766,7 +767,7 @@
                    (forge--pull repo))
       :errorback (lambda (&rest _) (forge--pull repo)))))
 
-(cl-defmethod forge--submit-create-pullreq ((_ forge-github-repository) repo)
+(cl-defmethod forge--submit-create-pullreq ((repo forge-github-repository) _)
   (forge--ghub-post repo "/repos/:owner/:repo/pulls"
     (pcase-let* ((`(,title . ,body) (forge--post-buffer-text))
                  (`(,base-remote . ,base-branch)
@@ -785,7 +786,9 @@
     :callback  (forge--post-submit-callback t)
     :errorback (forge--post-submit-errorback)))
 
-(cl-defmethod forge--submit-create-post ((_ forge-github-repository) post)
+(cl-defmethod forge--submit-create-post
+  ((_    forge-github-repository)
+   (post forge-post))
   (forge--graphql
    `(mutation (addComment
                [(input $input AddCommentInput!)]
@@ -795,8 +798,9 @@
    :callback  (forge--post-submit-callback)
    :errorback (forge--post-submit-errorback)))
 
-(cl-defmethod forge--submit-create-post ((_ forge-github-repository)
-                                         (post forge-discussion-post))
+(cl-defmethod forge--submit-create-post
+  ((_    forge-github-repository)
+   (post forge-discussion-post))
   (forge--graphql
    `(mutation (addDiscussionComment
                [(input $input AddDiscussionCommentInput!)]
@@ -807,8 +811,9 @@
    :callback  (forge--post-submit-callback)
    :errorback (forge--post-submit-errorback)))
 
-(cl-defmethod forge--submit-create-post ((_ forge-github-repository)
-                                         (post forge-discussion))
+(cl-defmethod forge--submit-create-post
+  ((_    forge-github-repository)
+   (post forge-discussion))
   (forge--graphql
    `(mutation (addDiscussionComment
                [(input $input AddDiscussionCommentInput!)]
@@ -818,7 +823,9 @@
    :callback  (forge--post-submit-callback)
    :errorback (forge--post-submit-errorback)))
 
-(cl-defmethod forge--submit-edit-post ((_ forge-github-repository) post)
+(cl-defmethod forge--submit-edit-post
+  ((_    forge-github-repository)
+   (post forge-post))
   (cl-typecase post
     ((or forge-issue-post forge-pullreq-post)
      ;; Cannot use GraphQL because we made the mistake to derive our ID
@@ -868,7 +875,7 @@
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback)))))
 
-(cl-defmethod forge--submit-approve-pullreq ((_ forge-github-repository) repo)
+(cl-defmethod forge--submit-approve-pullreq ((repo forge-github-repository) _)
   (let ((body (magit--buffer-string nil nil t)))
     (forge--ghub-post repo "/repos/:owner/:repo/pulls/:number/reviews"
       `((event . "APPROVE")
@@ -876,7 +883,7 @@
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
-(cl-defmethod forge--submit-request-changes ((_ forge-github-repository) repo)
+(cl-defmethod forge--submit-request-changes ((repo forge-github-repository) _)
   (let ((body (magit--buffer-string nil nil t)))
     (forge--ghub-post repo "/repos/:owner/:repo/pulls/:number/reviews"
       `((event . "REQUEST_CHANGES")
@@ -885,7 +892,9 @@
       :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--set-topic-title
-  ((_repo forge-github-repository) (topic forge-discussion) title)
+  ((_repo forge-github-repository)
+   (topic forge-discussion)
+   title)
   (ghub--graphql
    `(mutation (updateDiscussion
                [(input $input UpdateDiscussionInput!)]
@@ -895,7 +904,9 @@
    :callback  (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-title
-  ((_repo forge-github-repository) (topic forge-issue) title)
+  ((_repo forge-github-repository)
+   (topic forge-issue)
+   title)
   (ghub--graphql
    `(mutation (updateIssue
                [(input $input UpdateIssueInput!)]
@@ -905,7 +916,9 @@
    :callback  (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-title
-  ((_repo forge-github-repository) (topic forge-pullreq) title)
+  ((_repo forge-github-repository)
+   (topic forge-pullreq)
+   title)
   (ghub--graphql
    `(mutation (updatePullRequest
                [(input $input UpdatePullRequestInput!)]
@@ -915,7 +928,9 @@
    :callback  (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-state
-  ((_repo forge-github-repository) topic state)
+  ((_repo forge-github-repository)
+   (topic forge-topic)
+   state)
   (forge--ghub-patch topic
     "/repos/:owner/:repo/issues/:number"
     (pcase-exhaustive state
@@ -951,7 +966,9 @@
             :callback (forge--set-field-callback topic t))))))
 
 (cl-defmethod forge--set-topic-draft
-  ((_repo forge-github-repository) topic value)
+  ((_repo forge-github-repository)
+   (topic forge-topic)
+   value)
   (forge--graphql
    `(mutation (,(if value
                     'convertPullRequestToDraft
@@ -1000,7 +1017,9 @@
      :callback (forge--set-field-callback topic t))))
 
 (cl-defmethod forge--set-topic-milestone
-  ((repo forge-github-repository) topic milestone)
+  ((repo  forge-github-repository)
+   (topic forge-topic)
+   milestone)
   (forge--ghub-patch topic
     "/repos/:owner/:repo/issues/:number"
     (if milestone
@@ -1014,7 +1033,9 @@
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-labels
-  ((repo forge-github-repository) topic labels)
+  ((repo  forge-github-repository)
+   (topic forge-topic)
+   labels)
   (let* ((topic-id (oref topic their-id))
          (their-id ; I really messed up IDs! :(
           (pcase-lambda (`(,id))
@@ -1048,7 +1069,9 @@
        :callback (forge--set-field-callback topic)))))
 
 (cl-defmethod forge--set-topic-assignees
-  ((repo forge-github-repository) topic assignees)
+  ((repo  forge-github-repository)
+   (topic forge-topic)
+   assignees)
   (let* ((topic-id (oref topic their-id))
          (old (mapcar (##nth 3 %) (oref topic assignees)))
          (new (forge-sql-car [:select [forge-id] :from assignee
@@ -1074,7 +1097,9 @@
        :callback (forge--set-field-callback topic)))))
 
 (cl-defmethod forge--set-topic-review-requests
-  ((repo forge-github-repository) topic reviewers)
+  ((repo  forge-github-repository)
+   (topic forge-topic)
+   reviewers)
   (let ((users (forge-sql-car
                 [:select [forge-id] :from assignee
                  :where (and (= repository $s1)
@@ -1092,7 +1117,8 @@
      :callback (forge--set-field-callback topic))))
 
 (cl-defmethod forge--delete-comment
-  ((_repo forge-github-repository) post)
+  ((_    forge-github-repository)
+   (post forge-post))
   (forge--ghub-delete post "/repos/:owner/:repo/issues/comments/:number")
   (closql-delete post)
   (forge-refresh-buffer))
@@ -1159,9 +1185,11 @@
     (ghub-wait (format "/repos/%s/%s" fork name)
                nil :auth 'forge :host apihost)))
 
-(cl-defmethod forge--merge-pullreq ((repo forge-github-repository)
-                                    pullreq hash method)
-  (forge--ghub-put pullreq
+(cl-defmethod forge--merge-pullreq
+  ((repo  forge-github-repository)
+   (topic forge-pullreq)
+   hash method)
+  (forge--ghub-put topic
     "/repos/:owner/:repo/pulls/:number/merge"
     `((merge_method . ,(symbol-name method))
       ,@(and hash `((sha . ,hash))))
@@ -1171,8 +1199,8 @@
       (forge--pull
        repo
        (lambda ()
-         (when-let* ((branch (or (forge--pullreq-branch-active pullreq)
-                                 (forge--branch-pullreq pullreq)))
+         (when-let* ((branch (or (forge--pullreq-branch-active topic)
+                                 (forge--branch-pullreq topic)))
                      (upstream (magit-get-local-upstream-branch branch))
                      (remote (oref repo remote)))
            (magit-call-git "checkout" upstream)
