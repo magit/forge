@@ -1152,12 +1152,13 @@
   (magit-call-git "fetch" "--prune" (oref repo remote)))
 
 (cl-defmethod forge--fork-repository ((repo forge-github-repository) fork)
-  (with-slots (owner name) repo
+  (with-slots (owner name apihost) repo
     (forge--ghub-post repo
       (format "/repos/%s/%s/forks" owner name)
       (and (not (equal fork (ghub--username (ghub--host nil))))
            `((organization . ,fork))))
-    (ghub-wait (format "/repos/%s/%s" fork name) nil :auth 'forge)))
+    (ghub-wait (format "/repos/%s/%s" fork name)
+               nil :auth 'forge :host apihost)))
 
 (cl-defmethod forge--merge-pullreq ((repo forge-github-repository)
                                     pullreq hash method)

@@ -592,13 +592,13 @@
   (forge--topic-template-files-1 repo "md" ".gitlab/merge_request_templates"))
 
 (cl-defmethod forge--fork-repository ((repo forge-gitlab-repository) fork)
-  (with-slots (owner name) repo
+  (with-slots (owner name apihost) repo
     (forge--glab-post repo (format "/projects/%s%%2F%s/fork" owner name)
       (and (not (equal fork (ghub--username (ghub--host nil))))
            `((namespace . ,fork)))
       :noerror t)
     (ghub-wait (format "/projects/%s%%2F%s" fork name)
-               nil :auth 'forge :forge 'gitlab)))
+               nil :auth 'forge :host apihost :forge 'gitlab)))
 
 (cl-defmethod forge--merge-pullreq ((_repo forge-gitlab-repository)
                                     topic hash method)
