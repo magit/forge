@@ -881,31 +881,28 @@
       :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--set-topic-title
-  ((repo  forge-github-repository)
+  ((_repo forge-github-repository)
    (topic forge-discussion)
    title)
-  (forge-mutate repo updateDiscussion
+  (forge--mutate-field topic updateDiscussion
     ((discussionId (oref topic their-id))
-     (title        title))
-    :callback (forge--set-field-callback topic)))
+     (title        title))))
 
 (cl-defmethod forge--set-topic-title
-  ((repo  forge-github-repository)
+  ((_repo forge-github-repository)
    (topic forge-issue)
    title)
-  (forge-mutate repo updateIssue
+  (forge--mutate-field topic updateIssue
     ((id    (oref topic their-id))
-     (title title))
-    :callback (forge--set-field-callback topic)))
+     (title title))))
 
 (cl-defmethod forge--set-topic-title
-  ((repo  forge-github-repository)
+  ((_repo forge-github-repository)
    (topic forge-pullreq)
    title)
-  (forge-mutate repo updatePullRequest
+  (forge--mutate-field topic updatePullRequest
     ((pullRequestId (oref topic their-id))
-     (title         title))
-    :callback (forge--set-field-callback topic)))
+     (title         title))))
 
 (cl-defmethod forge--set-topic-state
   ((_repo forge-github-repository)
@@ -923,46 +920,41 @@
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-state
-  ((repo  forge-github-repository)
+  ((_repo forge-github-repository)
    (topic forge-discussion)
    state)
   (cond ((eq state 'open)
-         (forge-mutate repo reopenDiscussion
-           ((discussionId (oref topic their-id)))
-           :callback (forge--set-field-callback topic)))
-        ((forge-mutate repo closeDiscussion
+         (forge--mutate-field topic reopenDiscussion
+           ((discussionId (oref topic their-id)))))
+        ((forge--mutate-field topic closeDiscussion
            ((discussionId (oref topic their-id))
             (reason (pcase-exhaustive state
                       ('completed "RESOLVED")
                       ('duplicate "DUPLICATE")
-                      ('outdated  "OUTDATED"))))
-           :callback (forge--set-field-callback topic)))))
+                      ('outdated  "OUTDATED"))))))))
 
 (cl-defmethod forge--set-topic-draft
-  ((repo  forge-github-repository)
+  ((_repo forge-github-repository)
    (topic forge-topic)
    value)
   (cond (value
-         (forge-mutate repo convertPullRequestToDraft
-           ((pullRequestId (oref topic their-id)))
-           :callback (forge--set-field-callback topic)))
-        ((forge-mutate repo markPullRequestReadyForReview
-           ((pullRequestId (oref topic their-id)))
-           :callback (forge--set-field-callback topic)))))
+         (forge--mutate-field topic convertPullRequestToDraft
+           ((pullRequestId (oref topic their-id)))))
+        ((forge--mutate-field topic markPullRequestReadyForReview
+           ((pullRequestId (oref topic their-id)))))))
 
 (cl-defmethod forge--set-topic-category
-  ((repo  forge-github-repository)
+  ((_repo forge-github-repository)
    (topic forge-discussion)
    category)
-  (forge-mutate repo updateDiscussion
+  (forge--mutate-field topic updateDiscussion
     ((discussionId (oref topic their-id))
      (categoryId (forge-sql1 [:select [their-id]
                               :from discussion-category
                               :where (and (= repository $s1)
                                           (= name $s2))]
                              (oref (forge-get-repository :tracked) id)
-                             category)))
-    :callback (forge--set-field-callback topic)))
+                             category)))))
 
 (cl-defmethod forge--set-topic-answer
   ((repo  forge-github-repository)
@@ -1074,11 +1066,10 @@
                 (oref repo id)
                 (vconcat (seq-remove (##string-match "/" %) reviewers))))
         (teams nil)) ;TODO Investigate #742, track id, then use it here.
-    (forge-mutate repo requestReviews
+    (forge--mutate-field topic requestReviews
       ((pullRequestId (oref topic their-id))
        (and users (userIds (vconcat users)))
-       (and teams (teamIds (vconcat teams))))
-      :callback (forge--set-field-callback topic))))
+       (and teams (teamIds (vconcat teams)))))))
 
 (cl-defmethod forge--delete-comment
   ((_    forge-github-repository)
