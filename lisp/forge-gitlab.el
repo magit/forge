@@ -592,8 +592,8 @@
   (forge--topic-template-files-1 repo "md" ".gitlab/merge_request_templates"))
 
 (cl-defmethod forge--fork-repository ((repo forge-gitlab-repository) fork)
-  (with-slots (owner name apihost) repo
-    (forge--glab-post repo (format "/projects/%s%%2F%s/fork" owner name)
+  (with-slots (name apihost) repo
+    (forge--glab-post repo "/projects/:project/fork"
       (and (not (equal fork (ghub--username apihost 'gitlab)))
            `((namespace . ,fork)))
       :noerror t)
