@@ -111,19 +111,18 @@
       ;; See comment in `forge--update-status'.
       (let ((status (oref topic status)))
         (lambda (&rest _)
-          (let ((buffer (current-buffer)))
-            (ghub-fetch-discussion
-             (oref repo owner)
-             (oref repo name)
-             (oref topic number)
-             (lambda (data)
-               (forge--update-discussion repo data)
-               (oset topic status status)
-               (forge-refresh-buffer buffer))
-             nil
-             :host (oref repo apihost)
-             :auth 'forge)))))
-     ((forge--pull-topic (forge-get-repository topic) topic)))))
+          (forge--query repo
+            (ghub--graphql-prepare-query
+             forge--github-repository-query
+             `(repository discussions (discussion . ,(oref topic number))))
+            `((owner . ,(oref repo owner))
+              (name  . ,(oref repo name)))
+            :callback (lambda (data)
+                        (forge--update-discussion repo (cdr (cadr (cadr data))))
+                        (oset topic status status)
+                        (forge-refresh-buffer))))))
+     ((lambda (&rest _)
+        (forge--pull-topic (forge-get-repository topic) topic))))))
 
 ;;; _
 ;; Local Variables:
