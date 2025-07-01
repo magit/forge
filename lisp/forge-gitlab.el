@@ -597,7 +597,7 @@
       (and (not (equal fork (ghub--username apihost 'gitlab)))
            `((namespace . ,fork)))
       :noerror t)
-    (ghub-wait (format "/projects/%s%%2F%s" fork name)
+    (ghub-wait (format "/projects/%s%%2F%s" (string-replace "/" "%2F" fork) name)
                nil :auth 'forge :host apihost :forge 'gitlab)))
 
 (cl-defmethod forge--merge-pullreq ((_repo forge-gitlab-repository)
