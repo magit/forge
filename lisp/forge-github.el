@@ -1155,7 +1155,7 @@
   (with-slots (owner name apihost) repo
     (forge--ghub-post repo
       (format "/repos/%s/%s/forks" owner name)
-      (and (not (equal fork (ghub--username (ghub--host nil))))
+      (and (not (equal fork (ghub--username apihost)))
            `((organization . ,fork))))
     (ghub-wait (format "/repos/%s/%s" fork name)
                nil :auth 'forge :host apihost)))

@@ -594,7 +594,7 @@
 (cl-defmethod forge--fork-repository ((repo forge-gitlab-repository) fork)
   (with-slots (owner name apihost) repo
     (forge--glab-post repo (format "/projects/%s%%2F%s/fork" owner name)
-      (and (not (equal fork (ghub--username (ghub--host nil))))
+      (and (not (equal fork (ghub--username apihost 'gitlab)))
            `((namespace . ,fork)))
       :noerror t)
     (ghub-wait (format "/projects/%s%%2F%s" fork name)
