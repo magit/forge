@@ -505,12 +505,7 @@ forges and hosts."
                    ;; when it comes to this function.
                    (when preserve-status
                      (oset topic status status))
-                   (forge-refresh-buffer)
-                   (when (transient-active-prefix
-                          '(forge-topic-menu
-                            forge-topics-menu
-                            forge-notifications-menu))
-                     (transient--refresh-transient)))))))
+                   (forge-refresh-buffer))))))
 
 (defvar forge--mode-line-buffer nil)
 
