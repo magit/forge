@@ -22,7 +22,7 @@
 
 ;;; Code:
 
-(require 'forge)
+(require 'forge-client)
 (require 'forge-discussion)
 (require 'forge-issue)
 (require 'forge-pullreq)

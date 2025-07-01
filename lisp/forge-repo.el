@@ -487,26 +487,6 @@ forges and hosts."
        (?p . ,path)
        (?P . ,(string-replace "/" "%2F" path))))))
 
-(defun forge--set-field-callback (topic &optional preserve-status)
-  (let ((status (oref topic status)))
-    (lambda (&rest _)
-      (forge--pull-topic
-       (forge-get-repository topic)
-       topic
-       :callback (lambda ()
-                   ;; Necessary when setting a discussion field because
-                   ;; the API provides even less information about the
-                   ;; status of discussions compared to other topics and
-                   ;; as a result we would otherwise always switch the
-                   ;; status to `unread'.  This is not needed for every
-                   ;; modification of a discussion because some of them
-                   ;; (e.g., setting labels) do not cause `updated_at' to
-                   ;; be bumped; this second defect cancels out the first
-                   ;; when it comes to this function.
-                   (when preserve-status
-                     (oset topic status status))
-                   (forge-refresh-buffer))))))
-
 (defvar forge--mode-line-buffer nil)
 
 (defun forge--msg (repo echo done format &rest args)

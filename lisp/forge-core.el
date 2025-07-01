@@ -38,12 +38,9 @@
 
 (eval-when-compile
   (cl-pushnew 'forge-id eieio--known-slot-names)
-  (cl-pushnew 'id       eieio--known-slot-names)
-  (cl-pushnew 'name     eieio--known-slot-names)
   (cl-pushnew 'number   eieio--known-slot-names)
   (cl-pushnew 'owner    eieio--known-slot-names)
-  (cl-pushnew 'their-id eieio--known-slot-names)
-  (cl-pushnew 'worktree eieio--known-slot-names))
+  (cl-pushnew 'their-id eieio--known-slot-names))
 
 ;;; Options
 
@@ -376,19 +373,6 @@ parent object (determined using `forge-get-parent')."
       resource)))
 
 ;;; Miscellaneous
-
-(cl-defun forge--graphql (graphql
-                          &optional variables
-                          &key username host forge
-                          headers
-                          callback errorback)
-  (ghub--graphql-vacuum graphql variables callback nil
-                        :username  username
-                        :auth      'forge
-                        :host      host
-                        :forge     forge
-                        :headers   headers
-                        :errorback errorback))
 
 (defun forge-refresh-buffer (&optional buffer)
   "Refresh the current buffer, if it is a Magit or Forge buffer.
