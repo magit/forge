@@ -540,14 +540,8 @@ forges and hosts."
 
 (defun forge--ghub-type-symbol (class)
   (pcase-exhaustive class
-    ;; This package does not define a `forge-gitlab-http-repository'
-    ;; class, but we used to suggest at #9 that users define such a class
-    ;; if they must connect to a Gitlab instance that uses http instead
-    ;; of https.  Doing that isn't necessary anymore, but we have to keep
-    ;; supporting it here.  It is now sufficient to add an entry to
-    ;; `ghub-insecure-hosts'.
-    ((or 'forge-gitlab-repository 'forge-gitlab-http-repository) 'gitlab)
     ('forge-github-repository    'github)
+    ('forge-gitlab-repository    'gitlab)
     ('forge-gitea-repository     'gitea)
     ('forge-gogs-repository      'gogs)
     ('forge-bitbucket-repository 'bitbucket)))
