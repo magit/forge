@@ -1122,38 +1122,29 @@ and check out branches and work trees in a more generic fashion
     fork, even if they have push access to the upstream, so
     ~branch.<name>.pushRemote~ is set anyway.
 
-  - If the pull-request branch is located inside a fork, then you are
-    usually able to push to that branch, because Github by default
-    allows the recipient of a pull-request to push to the remote
-    pull-request branch even if it is located in a fork.  The
-    contributor has to explicitly disable this.
-
-    - If you are not allowed to push to the pull-request branch on
-      the fork, then a branch by the same name located in the
-      upstream repository is configured as the push-target.
-
-    - A—sadly rather common—special case is when the contributor
-      didn't bother to use a dedicated branch for the pull-request.
-
-      The most likely such case is when you are being asked to merge
-      something like "fork/master" into "origin/master".  The special
-      push permission mentioned above is never granted for the branch
-      that is the repository's default branch, and that would almost
-      certainly be the case in this scenario.
-
-      To enable you to easily push somewhere anyway, the local branch
-      is named "pr-N" (where ~N~ is the pull-request number) and the
-      upstream repository is used as the push-remote.
-
-    - Finally, if you are allowed to push to the pull-request branch
-      and the contributor had the foresight to use a dedicated branch,
-      then the fork is configured as the push-remote.
-
-    The push-remote is configured using ~branch.<name>.pushRemote~, even
+  - The push-remote is configured using ~branch.<name>.pushRemote~, even
     if the used value is identical to that of ~remote.pushDefault~, just
     in case you change the value of the latter later on.  Additionally
     the variable ~branch.<name>.pullRequestRemote~ is set to the remote
     on which the pull-request branch is located.
+
+  - If the pull-request branch is located on the contributor's fork,
+    then you, as a maintainer of the upstream repository, are usually
+    allowed to push to that branch anyway.  (However, the contributor
+    could explicitly disallow this, but in my experience that rarely
+    happens.)
+
+  - As mentioned above, contributors sometimes fail to use a dedicated
+    branch for their pull-requests and this command is thus forced to
+    make up a branch name such as "pr-313".
+
+    Usually a maintainer would use ~magit-push-current-to-pushremote~
+    (on ~p~) to push to the contributor's pull-request branch on their
+    fork.  For a branch named "pr-313" that does not work. (Instead
+    of pushing to "fork/main", it would unsuccessfully attempt to
+    create a new branch "pr-313" on the fork.)  In such situations
+    the ~magit-push~ menu offers an alternative command for pushing to
+    the pull-request branch: ~forge-push-to-unnamed-pullreq~ (on ~N~).
 
 - Key: b f (forge-checkout-pullreq) ::
 

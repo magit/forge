@@ -963,6 +963,44 @@ information."
       (user-error "The empty string isn't a valid path"))
     path))
 
+;;;###autoload (autoload 'forge-push-to-unnamed-pullreq "forge-commands" nil t)
+(transient-define-suffix forge-push-to-unnamed-pullreq (args)
+  "Push the current branch to the branch on the contributor's fork.
+
+Usually a maintainer would use `magit-push-current-to-pushremote' to
+push to the branch, the contributor asks to be merged.  That does not
+work if they did not create a dedicated branch and instead committed
+directly to \"main\", or some other branch, that also exists in the
+upstream repository.
+
+If this is the case then the branch, which is used to check out the
+pull-request locally, is named \"pr-N\" (where N is the pull-request
+number) and this command is made available as a substitute in the
+`magit-push' menu."
+  :if (lambda ()
+        (and-let* ((branch (magit-get-current-branch)))
+          (and (forge-get-pullreq :branch branch)
+               (string-match-p "\\`pr-[0-9]+\\'" branch))))
+  :description (lambda ()
+                 (and-let* ((branch (magit-get-current-branch))
+                            (pullreq (forge-get-pullreq :branch branch)))
+                   (format "contributor's %s branch"
+                           (magit--propertize-face
+                            (format "%s/%s"
+                                    (oref pullreq head-user)
+                                    (oref pullreq head-ref))
+                            'magit-branch-remote))))
+  (interactive (list (magit-push-arguments)))
+  (if-let* ((branch (magit-get-current-branch))
+            (pullreq (forge-get-pullreq :branch branch)))
+      (progn
+        (run-hooks 'magit-credential-hook)
+        (magit-run-git-async "push" "-v"
+                             (delete "--tags" (delete "--follow-tags" args))
+                             (oref pullreq head-user)
+                             (format "%s:%s" branch (oref pullreq head-ref))))
+    (error "Checked out branch is not an unnamed pull-request branch")))
+
 ;;; Marks
 
 (defun forge-create-mark (name face description)

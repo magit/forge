@@ -133,6 +133,9 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
   (transient-append-suffix 'magit-pull  "m" '("n" forge-pull))
   (transient-append-suffix 'magit-pull  "n" '("N" forge-pull-notifications))
 
+  (transient-insert-suffix 'magit-push "p"
+    '("N" forge-push-to-unnamed-pullreq))
+
   (transient-append-suffix 'magit-branch "w"
     '("f" "pull-request" forge-checkout-pullreq))
   (transient-append-suffix 'magit-branch "W"
