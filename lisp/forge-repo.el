@@ -550,6 +550,7 @@ forges and hosts."
     ('forge-github-repository    'github)
     ('forge-gitea-repository     'gitea)
     ('forge-gogs-repository      'gogs)
+    ('forge-forgejo-repository   'forgejo)
     ('forge-bitbucket-repository 'bitbucket)))
 
 ;;; _
