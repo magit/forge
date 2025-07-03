@@ -542,6 +542,7 @@ forges and hosts."
   (pcase-exhaustive class
     ('forge-github-repository    'github)
     ('forge-gitlab-repository    'gitlab)
+    ('forge-forgejo-repository   'forgejo)
     ('forge-gitea-repository     'gitea)
     ('forge-gogs-repository      'gogs)
     ('forge-bitbucket-repository 'bitbucket)))
