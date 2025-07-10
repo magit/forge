@@ -922,8 +922,8 @@ can be selected from the start."
        ,(pcase state
           ('open                    'forge-topic-slug-open)
           ((or 'completed 'merged)  'forge-topic-slug-completed)
-          ((or 'unplanned 'duplicate 'rejected)
-           'forge-topic-slug-unplanned))))))
+          ((or 'unplanned 'outdated 'duplicate 'rejected)
+           'forge-topic-slug-expunged))))))
 
 (defun forge--format-topic-refs (topic)
   (pcase-let
@@ -967,7 +967,7 @@ can be selected from the start."
             ,(pcase (list (eieio-object-class topic) state)
                (`(forge-discussion  open)       'forge-discussion-open)
                (`(forge-discussion  completed)  'forge-discussion-completed)
-               (`(forge-discussion  unplanned)  'forge-discussion-expunged)
+               (`(forge-discussion  outdated)   'forge-discussion-expunged)
                (`(forge-discussion  duplicate)  'forge-discussion-expunged)
                (`(forge-issue       open)       'forge-issue-open)
                (`(forge-issue       completed)  'forge-issue-completed)
@@ -1054,7 +1054,7 @@ can be selected from the start."
      (pcase (list (if (forge-issue-p topic) 'issue 'pullreq) state)
        ('(discussion  open)       'forge-discussion-open)
        ('(discussion  completed)  'forge-discussion-completed)
-       ('(discussion  unplanned)  'forge-discussion-expunged)
+       ('(discussion  outdated)   'forge-discussion-expunged)
        ('(discussion  duplicate)  'forge-discussion-expunged)
        ('(issue       open)       'forge-issue-open)
        ('(issue       completed)  'forge-issue-completed)
