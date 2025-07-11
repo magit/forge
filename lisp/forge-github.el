@@ -675,9 +675,10 @@
                       ;; which we suppress.  See #164.
                       (with-demoted-errors "forge--pull-notifications: %S"
                         (forge--ghub-massage-notification data githost)))
-                    (forge--ghub-get nil "/notifications"
-                      `((all . t) ,@(and since `((since . ,since))))
-                      :host apihost :unpaginate t)))
+                    (forge-rest apihost "GET" "/notifications"
+                      ((all t)
+                       (and since (since since)))
+                      :unpaginate t)))
          ;; Split into multiple requests to reduce risk of timeouts.
          (groups (seq-partition notifs 50))
          (pages  (length groups))
@@ -894,37 +895,38 @@
                (`(,head-remote . ,head-branch)
                 (magit-split-branch-name source))
                (head-repo (forge-get-repository :stub head-remote)))
-    (forge--ghub-post repo "/repos/:owner/:repo/pulls"
-      `((issue . ,(oref issue number))
-        (base  . ,base-branch)
-        (head  . ,(if (equal head-remote base-remote)
-                      head-branch
-                    (concat (oref head-repo owner) ":"
-                            head-branch)))
-        (maintainer_can_modify . t))
+    (forge-rest repo "POST" "/repos/:owner/:repo/pulls"
+      ((issue (oref issue number))
+       (base base-branch)
+       (head (if (equal head-remote base-remote)
+                 head-branch
+               (concat (oref head-repo owner) ":" head-branch)))
+       (maintainer_can_modify t))
       :callback  (lambda (&rest _)
                    (closql-delete issue)
                    (forge--pull repo))
       :errorback (lambda (&rest _) (forge--pull repo)))))
 
 (cl-defmethod forge--submit-create-pullreq ((repo forge-github-repository) _)
-  (forge--ghub-post repo "/repos/:owner/:repo/pulls"
-    (pcase-let* ((`(,title . ,body) (forge--post-buffer-text))
-                 (`(,base-remote . ,base-branch)
-                  (magit-split-branch-name forge--buffer-base-branch))
-                 (`(,head-remote . ,head-branch)
-                  (magit-split-branch-name forge--buffer-head-branch))
-                 (head-repo (forge-get-repository :stub head-remote)))
-      `((title . ,title)
-        (body  . ,body)
-        (base  . ,base-branch)
-        (head  . ,(if (equal head-remote base-remote)
-                      head-branch
-                    (concat (oref head-repo owner) ":" head-branch)))
-        (draft . ,forge--buffer-draft-p)
-        (maintainer_can_modify . t)))
-    :callback  (forge--post-submit-callback t)
-    :errorback (forge--post-submit-errorback)))
+  (pcase-let* ((`(,title . ,body) (forge--post-buffer-text))
+               (`(,base-remote . ,base-branch)
+                (magit-split-branch-name forge--buffer-base-branch))
+               (`(,head-remote . ,head-branch)
+                (magit-split-branch-name forge--buffer-head-branch))
+               (head-repo (forge-get-repository :stub head-remote)))
+    ;; Cannot use `createPullRequest' because value for
+    ;; `headRepositoryId' is unavailable.
+    (forge-rest repo "POST" "/repos/:owner/:repo/pulls"
+      ((title title)
+       (body  body)
+       (base  base-branch)
+       (head  (if (equal head-remote base-remote)
+                  head-branch
+                (concat (oref head-repo owner) ":" head-branch)))
+       (draft forge--buffer-draft-p)
+       (maintainer_can_modify t))
+      :callback  (forge--post-submit-callback t)
+      :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-post
   ((repo forge-github-repository)
@@ -963,9 +965,8 @@
      ;; from the number instead of their ID.  `updatePullRequestComment'
      ;; (or something equivalent under an inconsistent name) does not
      ;; exist, so for that we would have to continue to use REST anyway.
-     (forge--ghub-patch post
-       "/repos/:owner/:repo/issues/comments/:number"
-       `((body . ,(magit--buffer-string nil nil t)))
+     (forge-rest post "PATCH" "/repos/:owner/:repo/issues/comments/:number"
+       ((body (magit--buffer-string nil nil t)))
        :callback  (forge--post-submit-callback)
        :errorback (forge--post-submit-errorback)))
     (t
@@ -1006,19 +1007,23 @@
        :callback  (forge--post-submit-callback)
        :errorback (forge--post-submit-errorback)))))
 
-(cl-defmethod forge--submit-approve-pullreq ((repo forge-github-repository) _)
+(cl-defmethod forge--submit-approve-pullreq
+  ((_repo forge-github-repository)
+   (topic forge-pullreq))
   (let ((body (magit--buffer-string nil nil t)))
-    (forge--ghub-post repo "/repos/:owner/:repo/pulls/:number/reviews"
-      `((event . "APPROVE")
-        ,@(and (not (equal body "")) `((body . ,body))))
+    (forge-rest topic "POST" "/repos/:owner/:repo/pulls/:number/reviews"
+      ((event "APPROVE")
+       (and (not (equal body "")) (body body)))
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
-(cl-defmethod forge--submit-request-changes ((repo forge-github-repository) _)
+(cl-defmethod forge--submit-request-changes
+  ((_repo forge-github-repository)
+   (topic forge-pullreq))
   (let ((body (magit--buffer-string nil nil t)))
-    (forge--ghub-post repo "/repos/:owner/:repo/pulls/:number/reviews"
-      `((event . "REQUEST_CHANGES")
-        ,@(and (not (equal body "")) `((body . ,body))))
+    (forge-rest topic "POST" "/repos/:owner/:repo/pulls/:number/reviews"
+      ((event "REQUEST_CHANGES")
+       (and (not (equal body "")) (body body)))
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
@@ -1050,8 +1055,7 @@
   ((_repo forge-github-repository)
    (topic forge-topic)
    state)
-  (forge--ghub-patch topic
-    "/repos/:owner/:repo/issues/:number"
+  (forge--rest topic "PATCH" "/repos/:owner/:repo/issues/:number"
     (pcase-exhaustive state
       ;; Merging isn't done through here.
       ;; Marking as a duplicate isn't supported via API.
@@ -1116,16 +1120,15 @@
   ((repo  forge-github-repository)
    (topic forge-topic)
    milestone)
-  (forge--ghub-patch topic
-    "/repos/:owner/:repo/issues/:number"
-    (if milestone
-        `((milestone . ,(forge-sql1 [:select [number]
-                                     :from milestone
-                                     :where (and (= repository $s1)
-                                                 (= title $s2))]
-                                    (oref repo id)
-                                    milestone)))
-      `((milestone . :null)))
+  (forge-rest topic "POST" "/repos/:owner/:repo/issues/:number"
+    ((milestone (if milestone
+                    (forge-sql1 [:select [number]
+                                 :from milestone
+                                 :where (and (= repository $s1)
+                                             (= title $s2))]
+                                (oref repo id)
+                                milestone)
+                  :null)))
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-labels
@@ -1203,7 +1206,7 @@
 (cl-defmethod forge--delete-comment
   ((_    forge-github-repository)
    (post forge-post))
-  (forge--ghub-delete post "/repos/:owner/:repo/issues/comments/:number")
+  (forge-rest post "DELETE" "/repos/:owner/:repo/issues/comments/:number")
   (closql-delete post)
   (forge-refresh-buffer))
 
@@ -1241,9 +1244,8 @@
                                "-r" branch))))
 
 (cl-defmethod forge--set-default-branch ((repo forge-github-repository) branch)
-  (forge--ghub-patch repo
-    "/repos/:owner/:repo"
-    `((default_branch . ,branch)))
+  (forge-rest repo "PATCH" "/repos/:owner/:repo"
+    ((default_branch branch)))
   (message "Waiting 5 seconds for GitHub to complete update...")
   (sleep-for 5)
   (message "Waiting 5 seconds for GitHub to complete update...done")
@@ -1253,9 +1255,9 @@
 
 (cl-defmethod forge--rename-branch ((repo forge-github-repository)
                                     newname oldname)
-  (forge--ghub-post repo
+  (forge-rest repo "POST"
     (format "/repos/:owner/:name/branches/%s/rename" oldname)
-    `((new_name . ,newname)))
+    ((new_name newname)))
   (message "Waiting 5 seconds for GitHub to complete rename...")
   (sleep-for 5)
   (message "Waiting 5 seconds for GitHub to complete rename...done")
@@ -1263,9 +1265,9 @@
 
 (cl-defmethod forge--fork-repository ((repo forge-github-repository) fork)
   (with-slots (name apihost) repo
-    (forge--ghub-post repo "/repos/:owner/:name/forks"
-      (and (not (equal fork (ghub--username apihost)))
-           `((organization . ,fork))))
+    (forge-rest repo "POST" "/repos/:owner/:name/forks"
+      ((and (not (equal fork (ghub--username apihost)))
+            (organization fork))))
     (ghub-wait (format "/repos/%s/%s" fork name)
                nil :auth 'forge :host apihost)))
 
