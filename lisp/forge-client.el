@@ -24,18 +24,32 @@
 
 (require 'forge)
 
-(cl-defun forge--graphql (graphql
-                          &optional variables
-                          &key username host forge
-                          headers
-                          callback errorback)
-  (ghub--graphql-vacuum graphql variables callback nil
-                        :username  username
-                        :auth      'forge
-                        :host      host
-                        :forge     forge
-                        :headers   headers
-                        :errorback errorback))
+;;; GraphQL
+
+(cl-defun forge--query ( obj-or-host query variables
+                         &key callback errorback noerror narrow until)
+  (declare (indent defun))
+  (pcase-let ((`(,host ,forge) (forge--host-arguments obj-or-host)))
+    (ghub-query query variables
+      :auth 'forge :host host :forge forge
+      :callback callback :errorback errorback :noerror noerror
+      :narrow narrow :until until)))
+
+;;; Internal
+
+(defun forge--host-arguments (obj-or-host)
+  (let* ((repo (and (cl-typep obj-or-host 'forge-object)
+                    (forge-get-repository obj-or-host)))
+         (host (if (stringp obj-or-host)
+                   obj-or-host
+                 (oref repo apihost))))
+    (list host (pcase (if repo
+                          (eieio-object-class-name repo)
+                        (nth 3 (cl-find host forge-alist
+                                        :key #'cadr :test #'equal)))
+                 ('forge-github-repository 'github)
+                 ('forge-gitlab-repository 'gitlab)
+                 (_ 'github)))))
 
 (defun forge--set-field-callback (topic)
   (let ((repo (forge-get-repository topic)))
