@@ -542,22 +542,17 @@
   ((repo  forge-gitlab-repository)
    (topic forge-topic)
    value)
-  (let ((buffer (current-buffer)))
-    (forge--graphql
-     `(mutation (mergeRequestSetDraft
-                 [(input $input MergeRequestSetDraftInput!)]
-                 (mergeRequest iid draft)))
-     `((input (projectPath . ,(oref repo slug))
-              (iid . ,(number-to-string (oref topic number)))
-              (draft . ,value)))
-     :forge 'gitlab
-     :host (oref (forge-get-repository topic) apihost)
-     :auth 'forge
-     :callback (lambda (data &rest _)
-                 (if (assq 'error data)
-                     (ghub--graphql-pp-response data)
-                   (oset topic draft-p value)
-                   (forge-refresh-buffer buffer))))))
+  (forge--graphql
+   `(mutation (mergeRequestSetDraft
+               [(input $input MergeRequestSetDraftInput!)]
+               (mergeRequest iid draft)))
+   `((input (projectPath . ,(oref repo slug))
+            (iid . ,(number-to-string (oref topic number)))
+            (draft . ,value)))
+   :forge 'gitlab
+   :host (oref (forge-get-repository topic) apihost)
+   :auth 'forge
+   :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-labels
   ((repo  forge-gitlab-repository)
