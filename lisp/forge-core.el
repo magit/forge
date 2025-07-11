@@ -370,7 +370,7 @@ of SLOT.")
 
 (cl-defmethod forge--format-resource ((object forge-object) resource)
   "Return an API resource based on RESOURCE and slots of OBJECT.
-For use in `forge--FORGE-METHOD' such as `forge--ghub-get'.
+This is used by `forge--rest' and by extension `forge-rest'.
 RESOURCE is a string separated by slashes.  Each part that begins
 with a colon is replaced with a value from OBJECT.  `:repo' is a
 synonym for `:name'.  `:project' is a like `:owner/:name', but the
