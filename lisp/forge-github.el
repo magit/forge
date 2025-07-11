@@ -53,6 +53,155 @@
   (forge-github-repository-p (forge-get-repository :stub?)))
 
 ;;; Pull
+;;;; GraphQL
+
+(defconst forge--github-sparse-repository-query
+  '(query
+    (  repository
+       [(owner $owner String!)
+        (name  $name  String!)]
+       name
+       id
+       createdAt
+       updatedAt
+       nameWithOwner
+       (parent nameWithOwner)
+       description
+       homepageUrl
+       (defaultBranchRef name)
+       isArchived
+       isFork
+       isLocked
+       isMirror
+       isPrivate
+       hasDiscussionsEnabled
+       hasIssuesEnabled
+       hasWikiEnabled
+       (licenseInfo name)
+       (stargazers totalCount)
+       (watchers totalCount))))
+
+(defconst forge--github-repository-query
+  `(query
+    (  repository
+       ,@(cdr (cadr forge--github-sparse-repository-query))
+       (  assignableUsers [(:edges t)]
+          id
+          login
+          name)
+       (  discussionCategories [(:edges t)]
+          id
+          name
+          emoji
+          isAnswerable
+          description)
+       (  discussions [(:edges t)
+                       (:singular discussion number)
+                       (orderBy ((field UPDATED_AT) (direction DESC)))]
+          id
+          databaseId
+          number
+          url
+          stateReason
+          ;; Discussions lack isReadByViewer.
+          (answer id)
+          (author login)
+          title
+          createdAt
+          updatedAt
+          closedAt
+          locked
+          (category id)
+          body
+          (  comments [(:edges t)]
+             id
+             databaseId
+             (author login)
+             createdAt
+             updatedAt
+             body
+             (  replies [(:edges 20)]
+                id
+                databaseId
+                (author login)
+                createdAt
+                updatedAt
+                body))
+          (   labels [(:edges t)] id))
+       (  issues [(:edges t)
+                  (:singular issue number)
+                  (orderBy ((field UPDATED_AT) (direction DESC)))]
+          number
+          id
+          state
+          stateReason
+          isReadByViewer
+          (author login)
+          title
+          createdAt
+          updatedAt
+          closedAt
+          locked
+          (milestone id)
+          body
+          (  assignees [(:edges t)] id)
+          (  comments [(:edges t)]
+             id
+             databaseId
+             (author login)
+             createdAt
+             updatedAt
+             body)
+          (  labels [(:edges t)] id))
+       (  labels [(:edges t) (:singular label id)]
+          id
+          name
+          color
+          description)
+       (  milestones [(:edges t) (:singular milestone id)]
+          id
+          number
+          title
+          createdAt
+          updatedAt
+          dueOn
+          closedAt
+          description)
+       (  pullRequests [(:edges t)
+                        (:singular pullRequest number)
+                        (orderBy ((field UPDATED_AT) (direction DESC)))]
+          number
+          id
+          state
+          isReadByViewer
+          (author login)
+          title
+          createdAt
+          updatedAt
+          closedAt
+          mergedAt
+          isDraft
+          locked
+          maintainerCanModify
+          isCrossRepository
+          (milestone id)
+          body
+          (baseRef name (repository nameWithOwner))
+          baseRefOid
+          (headRef name (repository (owner login) nameWithOwner))
+          headRefOid
+          (  assignees [(:edges t)] id)
+          (  reviewRequests [(:edges t)]
+             (requestedReviewer "... on User { id }\n"))
+          (  comments [(:edges t)]
+             id
+             databaseId
+             (author login)
+             createdAt
+             updatedAt
+             body)
+          (  labels [(:edges t)] id)))))
+
 ;;;; Repository
 
 (cl-defmethod forge--pull ((repo forge-github-repository)
@@ -61,38 +210,41 @@
   (setq forge--mode-line-buffer (current-buffer))
   (forge--msg repo t nil "Pulling REPO")
   (let ((buf (current-buffer)))
-    (ghub-fetch-repository
-     (oref repo owner)
-     (oref repo name)
-     (lambda (data)
-       (forge--msg repo t t   "Pulling REPO")
-       (forge--msg repo t nil "Storing REPO")
-       (closql-with-transaction (forge-db)
-         (let-alist data
-           (forge--update-repository  repo data)
-           (forge--update-assignees   repo .assignableUsers)
-           (forge--update-forks       repo .forks)
-           (forge--update-labels      repo .labels)
-           (forge--update-milestones  repo .milestones)
-           (forge--update-discussion-categories repo .discussionCategories)
-           (forge--update-discussions repo .discussions t)
-           (forge--update-issues      repo .issues t)
-           (forge--update-pullreqs    repo .pullRequests t)
-           (forge--update-revnotes    repo .commitComments))
-         (oset repo condition :tracked))
-       (forge--msg repo t t   "Storing REPO")
-       (cond
-        ((oref repo selective-p))
-        (callback (funcall callback))
-        ((forge--maybe-git-fetch repo buf))))
-     ;; Keys have the form `FIELD-until', where FIELD is the name of a
-     ;; field of Repository objects.  See `ghub--graphql-walk-response'.
-     `((discussions-until  . ,(or since (oref repo discussions-until)))
-       (issues-until       . ,(or since (oref repo issues-until)))
-       (pullRequests-until . ,(or since (oref repo pullreqs-until))))
-     :host (oref repo apihost)
-     :auth 'forge
-     :sparse (oref repo selective-p))))
+    (forge--query repo
+      (if (oref repo selective-p)
+          forge--github-sparse-repository-query
+        forge--github-repository-query)
+      `((owner . ,(oref repo owner))
+        (name  . ,(oref repo name)))
+      :callback
+      (lambda (data)
+        (forge--msg repo t t   "Pulling REPO")
+        (forge--msg repo t nil "Storing REPO")
+        (closql-with-transaction (forge-db)
+          (let-alist data
+            (forge--update-repository  repo data)
+            (forge--update-assignees   repo .assignableUsers)
+            (forge--update-forks       repo .forks)
+            (forge--update-labels      repo .labels)
+            (forge--update-milestones  repo .milestones)
+            (forge--update-discussion-categories repo .discussionCategories)
+            (forge--update-discussions repo .discussions t)
+            (forge--update-issues      repo .issues t)
+            (forge--update-pullreqs    repo .pullRequests t)
+            (forge--update-revnotes    repo .commitComments))
+          (oset repo condition :tracked))
+        (forge--msg repo t t   "Storing REPO")
+        (cond
+         ((oref repo selective-p))
+         (callback (funcall callback))
+         ((forge--maybe-git-fetch repo buf))))
+      :narrow '(repository)
+      :until
+      ;; Keys have the form `FIELD-until', where FIELD is the name of a
+      ;; field of Repository objects.  See `ghub--graphql-walk-response'.
+      `((discussions-until  . ,(or since (oref repo discussions-until)))
+        (issues-until       . ,(or since (oref repo issues-until)))
+        (pullRequests-until . ,(or since (oref repo pullreqs-until)))))))
 
 (cl-defmethod forge--update-repository ((repo forge-github-repository) data)
   (let-alist data
@@ -202,65 +354,59 @@
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (number number))
-  (let ((id (oref repo id)))
-    (forge--pull-topic
-     repo
-     (forge-issue :repository id :number number)
-     :errorback
-     (lambda (err _headers _status _req)
-       (when (equal (cdr (assq 'type (cadr err))) "NOT_FOUND")
-         (forge--pull-topic
-          repo
-          (forge-pullreq :repository id :number number)
-          :errorback
-          (lambda (err _headers _status _req)
-            (when (equal (cdr (assq 'type (cadr err))) "NOT_FOUND")
-              (forge--pull-topic
-               repo
-               (forge-discussion :repository id :number number))))))))))
+  (forge--query repo
+    `(query
+      [($owner String!)
+       ($name  String!)]
+      (repository
+      [(owner $owner)
+       (name  $name)]
+       ,(caddr (caddr (ghub--graphql-prepare-query
+                       forge--github-repository-query
+                       `(repository discussions (discussion . ,number)))))
+       ,(caddr (caddr (ghub--graphql-prepare-query
+                       forge--github-repository-query
+                       `(repository issues (issue . ,number)))))
+       ,(caddr (caddr (ghub--graphql-prepare-query
+                       forge--github-repository-query
+                       `(repository pullRequests (pullreq . ,number)))))))
+    `((owner . ,(oref repo owner))
+      (name  . ,(oref repo name)))
+    :noerror t
+    :callback (lambda (data)
+                (let-alist data
+                  (cond ((setq data .data.repository.discussion)
+                         (forge--update-discussion repo data))
+                        ((setq data .data.repository.issue)
+                         (forge--update-issue repo data))
+                        ((setq data .data.repository.pullRequest)
+                         (forge--update-pullreq repo data))))
+                (forge-refresh-buffer))))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-discussion))
-  (let ((buffer (current-buffer)))
-    (ghub-fetch-discussion
-     (oref repo owner)
-     (oref repo name)
-     (oref topic number)
-     (lambda (data)
-       (forge--update-discussion repo data)
-       (forge-refresh-buffer buffer))
-     nil
-     :host (oref repo apihost)
-     :auth 'forge)))
+  (forge--pull-topic-1 repo #'forge--update-discussion
+    `(repository discussions (discussion . ,(oref topic number)))))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-issue))
-  (let ((buffer (current-buffer)))
-    (ghub-fetch-issue
-     (oref repo owner)
-     (oref repo name)
-     (oref topic number)
-     (lambda (data)
-       (forge--update-issue repo data)
-       (forge-refresh-buffer buffer))
-     nil
-     :host (oref repo apihost)
-     :auth 'forge)))
+  (forge--pull-topic-1 repo #'forge--update-issue
+    `(repository issues (issue . ,(oref topic number)))))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-pullreq))
-  (let ((buffer (current-buffer)))
-    (ghub-fetch-pullreq
-     (oref repo owner)
-     (oref repo name)
-     (oref topic number)
-     (lambda (data)
-       (forge--update-pullreq repo data)
-       (forge-refresh-buffer buffer)
-       (forge--maybe-git-fetch repo))
-     nil
-     :host (oref repo apihost)
-     :auth 'forge)))
+  (forge--pull-topic-1 repo #'forge--update-pullreq
+    `(repository pullRequests (pullRequest . ,(oref topic number)))))
+
+(cl-defun forge--pull-topic-1 (repo update narrow)
+  (declare (indent defun))
+  (forge--query repo
+    (ghub--graphql-prepare-query forge--github-repository-query narrow)
+    `((owner . ,(oref repo owner))
+      (name  . ,(oref repo name)))
+    :callback (lambda (data)
+                (funcall update repo (cdr (cadr (cadr data))))
+                (forge-refresh-buffer))))
 
 (cl-defmethod forge--update-status ((repo forge-github-repository)
                                     topic data bump initial-pull)
@@ -621,7 +767,7 @@
                    ,@(cddr
                       (caddr
                        (ghub--graphql-prepare-query
-                        ghub-fetch-repository
+                        forge--github-repository-query
                         (pcase type
                           ('discussion `(repository
                                          discussions
