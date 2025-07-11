@@ -542,14 +542,10 @@
   ((repo  forge-gitlab-repository)
    (topic forge-topic)
    value)
-  (forge--query repo
-    `(mutation (mergeRequestSetDraft
-                [(input $input MergeRequestSetDraftInput!)]
-                (mergeRequest iid draft)))
-    `((input (projectPath . ,(oref repo slug))
-             (iid . ,(number-to-string (oref topic number)))
-             (draft . ,value)))
-     :callback (forge--set-field-callback topic)))
+  (forge--mutate-field topic mergeRequestSetDraft
+    ((projectPath (oref repo slug))
+     (iid (number-to-string (oref topic number)))
+     (draft value))))
 
 (cl-defmethod forge--set-topic-labels
   ((repo  forge-gitlab-repository)

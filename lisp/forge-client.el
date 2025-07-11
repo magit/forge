@@ -52,6 +52,14 @@
      (list (cons 'input ,(forge--prepare-variables variables)))
      :callback ,callback :errorback ,errorback :noerror ,noerror))
 
+(cl-defmacro forge--mutate-field (topic mutation variables)
+  (declare (indent defun))
+  `(let ((topic ,topic))
+     (forge--query topic
+       ',(ghub--prepare-mutation mutation)
+       (list (cons 'input ,(forge--prepare-variables variables)))
+       :callback (forge--set-field-callback topic))))
+
 ;;; Internal
 
 (defun forge--host-arguments (obj-or-host)
