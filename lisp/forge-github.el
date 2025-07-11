@@ -868,21 +868,22 @@
       :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-issue ((repo forge-github-repository) _)
-  (forge--ghub-post repo "/repos/:owner/:repo/issues"
-    (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
-      `((title . ,title)
-        (body  . ,body)
-        ,@(and forge--buffer-milestone
-               `((milestone . ,(forge-sql1 [:select [number]
-                                            :from milestone
-                                            :where (= title $s1)]
-                                           forge--buffer-milestone))))
-        ,@(and forge--buffer-labels
-               `((labels . ,(vconcat forge--buffer-labels))))
-        ,@(and forge--buffer-assignees
-               `((assignees . ,(vconcat forge--buffer-assignees))))))
-    :callback  (forge--post-submit-callback t)
-    :errorback (forge--post-submit-errorback)))
+  (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
+    (forge-mutate repo createIssue
+      ((repositoryId (forge--their-id repo))
+       (title title)
+       (body  body)
+       (and forge--buffer-milestone
+            (milestoneId
+             (forge--their-id forge--buffer-milestone 'milestone)))
+       (and forge--buffer-labels
+            (labelIds
+             (vconcat (forge--their-id forge--buffer-labels 'labels repo))))
+       (and forge--buffer-assignees
+            (assigneeIds
+             (vconcat (forge--their-id forge--buffer-assignees 'assignees repo)))))
+      :callback  (forge--post-submit-callback t)
+      :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--create-pullreq-from-issue
   ((repo  forge-github-repository)
