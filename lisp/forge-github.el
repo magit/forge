@@ -675,14 +675,10 @@
 
 (cl-defmethod forge--fetch-user-repos
   ((_ (subclass forge-github-repository)) host user callback)
-  (forge--query host
-    '(query (user
-             [(login $login String!)]
-             (repositories
-              [(:edges t)
-               (ownerAffiliations . (OWNER))]
-              name)))
-    `((login . ,user))
+  (forge-query host
+    (user [(login $login String!)]
+          (repositories [(:edges t) (ownerAffiliations . (OWNER))] name))
+    ((login user))
     :callback (lambda (d)
                 (funcall callback
                          (mapcar (##alist-get 'name %)
@@ -690,11 +686,10 @@
 
 (cl-defmethod forge--fetch-organization-repos
   ((_ (subclass forge-github-repository)) host org callback)
-  (forge--query host
-    '(query (organization
-             [(login $login String!)]
-             (repositories [(:edges t)] name)))
-    `((login . ,org))
+  (forge-query host
+    (organization [(login $login String!)]
+                  (repositories [(:edges t)] name))
+    ((login org))
     :callback (lambda (d)
                 (funcall callback
                          (mapcar (##alist-get 'name %)
@@ -718,19 +713,16 @@
 
 (cl-defmethod forge--submit-create-discussion ((repo forge-github-repository) _)
   (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
-    (forge--query repo
-      '(mutation (createDiscussion
-                  [(input $input CreateDiscussionInput!)]
-                  clientMutationId))
-      `((input (repositoryId . ,(forge--their-id repo))
-               (categoryId . ,(forge-sql1 [:select [their-id]
-                                           :from discussion-category
-                                           :where (and (= repository $s1)
-                                                       (= name $s2))]
-                                          (oref repo id)
-                                          forge--buffer-category))
-               (title . ,title)
-               (body  . ,body)))
+    (forge-mutate repo createDiscussion
+      ((repositoryId (forge--their-id repo))
+       (categoryId (forge-sql1 [:select [their-id]
+                                :from discussion-category
+                                :where (and (= repository $s1)
+                                            (= name $s2))]
+                               (oref repo id)
+                               forge--buffer-category))
+       (title title)
+       (body  body))
       :callback  (forge--post-submit-callback t)
       :errorback (forge--post-submit-errorback))))
 
@@ -795,37 +787,28 @@
 (cl-defmethod forge--submit-create-post
   ((repo forge-github-repository)
    (post forge-post))
-  (forge--query repo
-    `(mutation (addComment
-                [(input $input AddCommentInput!)]
-                clientMutationId))
-    `((input (subjectId . ,(oref post their-id))
-             (body . ,(magit--buffer-string nil nil t))))
+  (forge-mutate repo addComment
+    ((subjectId (oref post their-id))
+     (body      (magit--buffer-string nil nil t)))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--submit-create-post
   ((repo forge-github-repository)
    (post forge-discussion-post))
-  (forge--query repo
-    `(mutation (addDiscussionComment
-                [(input $input AddDiscussionCommentInput!)]
-                clientMutationId))
-    `((input (discussionId . ,(oref (forge-get-discussion post) their-id))
-             (replyToId . ,(oref post their-id))
-             (body . ,(magit--buffer-string nil nil t))))
+  (forge-mutate repo addDiscussionComment
+    ((discussionId (oref (forge-get-discussion post) their-id))
+     (replyToId    (oref post their-id))
+     (body         (magit--buffer-string nil nil t)))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
 (cl-defmethod forge--submit-create-post
   ((repo forge-github-repository)
    (post forge-discussion))
-  (forge--query repo
-    `(mutation (addDiscussionComment
-                [(input $input AddDiscussionCommentInput!)]
-                clientMutationId))
-    `((input (discussionId . ,(oref post their-id))
-             (body . ,(magit--buffer-string nil nil t))))
+  (forge-mutate repo addDiscussionComment
+    ((discussionId (oref post their-id))
+     (body         (magit--buffer-string nil nil t)))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
@@ -901,36 +884,27 @@
   ((repo  forge-github-repository)
    (topic forge-discussion)
    title)
-  (forge--query repo
-    `(mutation (updateDiscussion
-                [(input $input UpdateDiscussionInput!)]
-                clientMutationId))
-    `((input (discussionId . ,(oref topic their-id))
-             (title . ,title)))
+  (forge-mutate repo updateDiscussion
+    ((discussionId (oref topic their-id))
+     (title        title))
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-title
   ((repo  forge-github-repository)
    (topic forge-issue)
    title)
-  (forge--query repo
-    `(mutation (updateIssue
-                [(input $input UpdateIssueInput!)]
-                clientMutationId))
-    `((input (id . ,(oref topic their-id))
-             (title . ,title)))
+  (forge-mutate repo updateIssue
+    ((id    (oref topic their-id))
+     (title title))
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-title
   ((repo  forge-github-repository)
    (topic forge-pullreq)
    title)
-  (forge--query repo
-    `(mutation (updatePullRequest
-                [(input $input UpdatePullRequestInput!)]
-                clientMutationId))
-    `((input (pullRequestId . ,(oref topic their-id))
-             (title . ,title)))
+  (forge-mutate repo updatePullRequest
+    ((pullRequestId (oref topic their-id))
+     (title         title))
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-state
@@ -953,53 +927,41 @@
    (topic forge-discussion)
    state)
   (cond ((eq state 'open)
-         (forge--query repo
-           '(mutation (reopenDiscussion
-                       [(input $input ReopenDiscussionInput!)]
-                       clientMutationId))
-           `((input (discussionId . ,(oref topic their-id))))
+         (forge-mutate repo reopenDiscussion
+           ((discussionId (oref topic their-id)))
            :callback (forge--set-field-callback topic)))
-        ((forge--query repo
-           '(mutation (closeDiscussion
-                       [(input $input CloseDiscussionInput!)]
-                       clientMutationId))
-           `((input (discussionId . ,(oref topic their-id))
-                    (reason . ,(pcase-exhaustive state
-                                 ('completed "RESOLVED")
-                                 ('duplicate "DUPLICATE")
-                                 ('outdated  "OUTDATED")))))
+        ((forge-mutate repo closeDiscussion
+           ((discussionId (oref topic their-id))
+            (reason (pcase-exhaustive state
+                      ('completed "RESOLVED")
+                      ('duplicate "DUPLICATE")
+                      ('outdated  "OUTDATED"))))
            :callback (forge--set-field-callback topic)))))
 
 (cl-defmethod forge--set-topic-draft
   ((repo  forge-github-repository)
    (topic forge-topic)
    value)
-  (forge--query repo
-    `(mutation (,(if value
-                     'convertPullRequestToDraft
-                   'markPullRequestReadyForReview)
-                [(input $input ,(if value
-                                    'ConvertPullRequestToDraftInput!
-                                  'MarkPullRequestReadyForReviewInput!))]
-                (pullRequest isDraft)))
-    `((input (pullRequestId . ,(oref topic their-id))))
-    :callback (forge--set-field-callback topic)))
+  (cond (value
+         (forge-mutate repo convertPullRequestToDraft
+           ((pullRequestId (oref topic their-id)))
+           :callback (forge--set-field-callback topic)))
+        ((forge-mutate repo markPullRequestReadyForReview
+           ((pullRequestId (oref topic their-id)))
+           :callback (forge--set-field-callback topic)))))
 
 (cl-defmethod forge--set-topic-category
   ((repo  forge-github-repository)
    (topic forge-discussion)
    category)
-  (forge--query repo
-    '(mutation (updateDiscussion
-                [(input $input UpdateDiscussionInput!)]
-                clientMutationId))
-    `((input (discussionId . ,(oref topic their-id))
-             (categoryId . ,(forge-sql1 [:select [their-id]
-                                         :from discussion-category
-                                         :where (and (= repository $s1)
-                                                     (= name $s2))]
-                                        (oref (forge-get-repository :tracked) id)
-                                        category))))
+  (forge-mutate repo updateDiscussion
+    ((discussionId (oref topic their-id))
+     (categoryId (forge-sql1 [:select [their-id]
+                              :from discussion-category
+                              :where (and (= repository $s1)
+                                          (= name $s2))]
+                             (oref (forge-get-repository :tracked) id)
+                             category)))
     :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-answer
@@ -1112,13 +1074,10 @@
                 (oref repo id)
                 (vconcat (seq-remove (##string-match "/" %) reviewers))))
         (teams nil)) ;TODO Investigate #742, track id, then use it here.
-    (forge--query repo
-      `(mutation (requestReviews
-                  [(input $input RequestReviewsInput!)]
-                  clientMutationId))
-      `((input (pullRequestId . ,(oref topic their-id))
-               ,@(and users `((userIds . ,(vconcat users))))
-               ,@(and teams `((teamIds . ,(vconcat teams))))))
+    (forge-mutate repo requestReviews
+      ((pullRequestId (oref topic their-id))
+       (and users (userIds (vconcat users)))
+       (and teams (teamIds (vconcat teams))))
       :callback (forge--set-field-callback topic))))
 
 (cl-defmethod forge--delete-comment

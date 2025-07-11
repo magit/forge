@@ -35,6 +35,23 @@
       :callback callback :errorback errorback :noerror noerror
       :narrow narrow :until until)))
 
+(cl-defmacro forge-query ( obj-or-host query variables
+                           &key callback errorback noerror narrow until)
+  (declare (indent defun))
+  `(forge--query ,obj-or-host
+     '(query ,query)
+     ,(forge--prepare-variables variables)
+     :callback ,callback :errorback ,errorback :noerror ,noerror
+     :narrow ,narrow :until ,until))
+
+(cl-defmacro forge-mutate ( obj-or-host mutation variables
+                            &key callback errorback noerror)
+  (declare (indent defun))
+  `(forge--query ,obj-or-host
+     ',(ghub--prepare-mutation mutation)
+     (list (cons 'input ,(forge--prepare-variables variables)))
+     :callback ,callback :errorback ,errorback :noerror ,noerror))
+
 ;;; Internal
 
 (defun forge--host-arguments (obj-or-host)
@@ -50,6 +67,30 @@
                  ('forge-github-repository 'github)
                  ('forge-gitlab-repository 'gitlab)
                  (_ 'github)))))
+
+(defun ghub--prepare-mutation (mutation &optional var)
+  `(mutation
+    (,mutation
+     [(input ,(if var (intern (format "$%s" var)) '$input)
+             ,(let ((name (symbol-name mutation)))
+                (intern (format "%s%sInput!"
+                                (upcase (substring name 0 1))
+                                (substring name 1)))))]
+     ;; We ignore the payload, but GraphQL requires that at least one
+     ;; field is specified.  On Github this field is available for all
+     ;; mutations.  On Gitlab there is no field that is available for
+     ;; all mutations, but luckily using an invalid fields does not
+     ;; result in an error.
+     clientMutationId)))
+
+(defun forge--prepare-variables (variables)
+  `(delq nil (list ,@(mapcar (lambda (binding)
+                               (pcase-exhaustive binding
+                                 (`(,var ,val)
+                                  `(cons ',var ,val))
+                                 (`(and ,cond (,var ,val))
+                                  `(and ,cond (cons ',var ,val)))))
+                             variables))))
 
 (defun forge--set-field-callback (topic)
   (let ((repo (forge-get-repository topic)))
