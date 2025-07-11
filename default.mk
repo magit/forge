@@ -13,6 +13,7 @@ ELS  += $(PKG)-issue.el
 ELS  += $(PKG)-pullreq.el
 ELS  += $(PKG)-revnote.el
 ELS  += $(PKG)-notify.el
+ELS  += $(PKG)-client.el
 ELS  += $(PKG)-github.el
 ELS  += $(PKG)-gitlab.el
 ELS  += $(PKG)-forgejo.el

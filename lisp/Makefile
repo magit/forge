@@ -16,9 +16,11 @@ $(PKG)-issue.elc:      $(PKG)-topic.elc
 $(PKG)-pullreq.elc:    $(PKG)-topic.elc
 $(PKG)-revnote.elc:    $(PKG)-topic.elc
 $(PKG)-notify.elc:     $(PKG).elc
-$(PKG)-github.elc:     $(PKG)-discussion.elc \
+$(PKG)-client.elc:     $(PKG).elc
+$(PKG)-github.elc:     $(PKG)-client.elc $(PKG)-discussion.elc \
                        $(PKG)-topic.elc $(PKG)-pullreq.elc
-$(PKG)-gitlab.elc:     $(PKG)-topic.elc $(PKG)-pullreq.elc
+$(PKG)-gitlab.elc:     $(PKG)-client.elc \
+                       $(PKG)-topic.elc $(PKG)-pullreq.elc
 $(PKG)-forgejo.elc:    $(PKG).elc
 $(PKG)-gitea.elc:      $(PKG).elc
 $(PKG)-gogs.elc:       $(PKG).elc
