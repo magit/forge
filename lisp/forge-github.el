@@ -220,8 +220,7 @@
                (forge-discussion :repository id :number number))))))))))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
-                                 (topic forge-discussion)
-                                 &key callback errorback)
+                                 (topic forge-discussion))
   (let ((buffer (current-buffer)))
     (ghub-fetch-discussion
      (oref repo owner)
@@ -229,16 +228,13 @@
      (oref topic number)
      (lambda (data)
        (forge--update-discussion repo data)
-       (forge-refresh-buffer buffer)
-       (when callback (funcall callback)))
+       (forge-refresh-buffer buffer))
      nil
      :host (oref repo apihost)
-     :auth 'forge
-     :errorback errorback)))
+     :auth 'forge)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
-                                 (topic forge-issue)
-                                 &key callback errorback)
+                                 (topic forge-issue))
   (let ((buffer (current-buffer)))
     (ghub-fetch-issue
      (oref repo owner)
@@ -246,16 +242,13 @@
      (oref topic number)
      (lambda (data)
        (forge--update-issue repo data)
-       (forge-refresh-buffer buffer)
-       (when callback (funcall callback)))
+       (forge-refresh-buffer buffer))
      nil
      :host (oref repo apihost)
-     :auth 'forge
-     :errorback errorback)))
+     :auth 'forge)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
-                                 (topic forge-pullreq)
-                                 &key callback errorback)
+                                 (topic forge-pullreq))
   (let ((buffer (current-buffer)))
     (ghub-fetch-pullreq
      (oref repo owner)
@@ -264,13 +257,10 @@
      (lambda (data)
        (forge--update-pullreq repo data)
        (forge-refresh-buffer buffer)
-       (if callback
-           (funcall callback)
-         (forge--maybe-git-fetch repo)))
+       (forge--maybe-git-fetch repo))
      nil
      :host (oref repo apihost)
-     :auth 'forge
-     :errorback errorback)))
+     :auth 'forge)))
 
 (cl-defmethod forge--update-status ((repo forge-github-repository)
                                     topic data bump initial-pull)
@@ -278,7 +268,26 @@
     (let ((updated (or .updatedAt .createdAt))
           (current-status (oref topic status)))
       (if (forge-discussion-p topic)
-          ;; Discussions lack `isReadByViewer'.
+          ;; Discussions lack `isReadByViewer', so we have to use a
+          ;; heuristic, which is even worse than what we use for other
+          ;; topic types.  Except during the repository's initial pull,
+          ;; all new discussions start out as `unread'.
+          ;;
+          ;; If we pull a discussion after the user mutated it, setting
+          ;; the status to `unread' is highly undesirable (since they made
+          ;; the mutation, they have already "read" it), yet that is what
+          ;; we do here.  However, the callback used by the discussion
+          ;; method of `forge--pull-topic', afterwards resets the status
+          ;; to the previous value.
+          ;;
+          ;; Of course it is possible that we pull other changes by other
+          ;; people at the same time, but we have no (reasonable) way of
+          ;; knowing that.  So in that case too the status sadly doesn't
+          ;; end up as `unread'.
+          ;;
+          ;; The callback kludge is not needed for all mutations.  Some
+          ;; mutations (e.g., setting labels) do not cause `updated_at'
+          ;; to be bumped; this second defect cancels out the first.
           (cond (initial-pull
                  (oset topic status 'done))
                 ((null current-status)
@@ -953,7 +962,7 @@
                         [(input $input ReopenDiscussionInput!)]
                         clientMutationId))
             `((input (discussionId . ,their-id)))
-            :callback (forge--set-field-callback topic t)))
+            :callback (forge--set-field-callback topic)))
           ((forge--graphql
             '(mutation (closeDiscussion
                         [(input $input CloseDiscussionInput!)]
@@ -963,7 +972,7 @@
                                   ('completed "RESOLVED")
                                   ('duplicate "DUPLICATE")
                                   ('outdated  "OUTDATED")))))
-            :callback (forge--set-field-callback topic t))))))
+            :callback (forge--set-field-callback topic))))))
 
 (cl-defmethod forge--set-topic-draft
   ((_repo forge-github-repository)
@@ -995,7 +1004,7 @@
                                                     (= name $s2))]
                                        (oref (forge-get-repository :tracked) id)
                                        category))))
-   :callback (forge--set-field-callback topic t)))
+   :callback (forge--set-field-callback topic)))
 
 (cl-defmethod forge--set-topic-answer
   ((_repo forge-github-repository)
@@ -1014,7 +1023,7 @@
                      clientMutationId))))
      `(,@(and old `((old (id . ,old))))
        ,@(and new `((new (id . ,new)))))
-     :callback (forge--set-field-callback topic t))))
+     :callback (forge--set-field-callback topic))))
 
 (cl-defmethod forge--set-topic-milestone
   ((repo  forge-github-repository)

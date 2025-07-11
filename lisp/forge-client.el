@@ -37,25 +37,30 @@
                         :headers   headers
                         :errorback errorback))
 
-(defun forge--set-field-callback (topic &optional preserve-status)
-  (let ((status (oref topic status)))
-    (lambda (&rest _)
-      (forge--pull-topic
-       (forge-get-repository topic)
-       topic
-       :callback (lambda ()
-                   ;; Necessary when setting a discussion field because
-                   ;; the API provides even less information about the
-                   ;; status of discussions compared to other topics and
-                   ;; as a result we would otherwise always switch the
-                   ;; status to `unread'.  This is not needed for every
-                   ;; modification of a discussion because some of them
-                   ;; (e.g., setting labels) do not cause `updated_at' to
-                   ;; be bumped; this second defect cancels out the first
-                   ;; when it comes to this function.
-                   (when preserve-status
-                     (oset topic status status))
-                   (forge-refresh-buffer))))))
+(defun forge--set-field-callback (topic)
+  (let ((repo (forge-get-repository topic)))
+    (cond
+     ((forge-gitlab-repository--eieio-childp repo)
+      ;; TODO Fetch single topic for Gitlab as well.
+      (lambda (&rest _)
+        (forge--pull repo #'forge-refresh-buffer)))
+     ((forge-discussion--eieio-childp topic)
+      ;; See comment in `forge--update-status'.
+      (let ((status (oref topic status)))
+        (lambda (&rest _)
+          (let ((buffer (current-buffer)))
+            (ghub-fetch-discussion
+             (oref repo owner)
+             (oref repo name)
+             (oref topic number)
+             (lambda (data)
+               (forge--update-discussion repo data)
+               (oset topic status status)
+               (forge-refresh-buffer buffer))
+             nil
+             :host (oref repo apihost)
+             :auth 'forge)))))
+     ((forge--pull-topic (forge-get-repository topic) topic)))))
 
 ;;; _
 ;; Local Variables:
