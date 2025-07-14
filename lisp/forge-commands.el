@@ -77,13 +77,15 @@ Takes the pull-request as only argument and must return a directory."
                     ((or (magit-gitdir) (forge-repository-at-point))
                      "Forge does not yet track this repository")
                     ("Not inside a Git repository")))
-    ("/a" forge-add-repository
+    ("/ a" forge-add-repository
      :description (lambda () (let ((repo (forge-get-repository :stub?)))
                           (if (or (not repo)
                                   (eq (oref repo condition) :tracked))
                             "track some repo"
                           "track this repository"))))
-    ("/M" "merge with api" forge-merge
+    ("c f" "fork this repository" forge-fork
+     :if-not (##forge-get-repository :tracked?))
+    ("/ M" "merge with api" forge-merge
      :if (##forge-get-repository :tracked?)
      :level 7)]]
   [forge--lists-group
