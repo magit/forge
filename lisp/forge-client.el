@@ -62,19 +62,23 @@
 
 ;;; REST
 
-(cl-defun forge--rest ( obj method resource &optional params
+(cl-defun forge--rest ( obj-or-host method resource &optional params
                         &key callback errorback noerror unpaginate)
   (declare (indent defun))
-  (pcase-let ((`(,host ,forge) (forge--host-arguments obj)))
-    (ghub-request method (forge--format-resource obj resource) params
+  (pcase-let ((`(,host ,forge) (forge--host-arguments obj-or-host)))
+    (ghub-request method
+      (if (cl-typep obj-or-host 'forge-object)
+          (forge--format-resource obj-or-host resource)
+        resource)
+      params
       :auth 'forge :host host :forge forge
       :callback callback :errorback errorback :noerror noerror
       :unpaginate unpaginate)))
 
-(cl-defmacro forge-rest ( obj method resource &optional params
+(cl-defmacro forge-rest ( obj-or-host method resource &optional params
                           &key callback errorback noerror unpaginate)
   (declare (indent defun))
-  `(forge--rest ,obj ,method ,resource
+  `(forge--rest ,obj-or-host ,method ,resource
      ,(forge--prepare-variables params)
      :callback ,callback :errorback ,errorback :noerror ,noerror
      :unpaginate ,unpaginate))
