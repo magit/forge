@@ -1329,7 +1329,7 @@ This mode itself is never used directly."
          (buffer (magit-setup-buffer mode t
                    :buffer name
                    :directory (or (forge-get-worktree repo) "/")
-                   ((forge-buffer-topic topic)))))
+                   (forge-buffer-topic topic))))
     (forge-topic-mark-read topic)
     buffer))
 
