@@ -176,13 +176,12 @@ the Magit status buffer."
     (forge--cast-topics-spec-state spec)
     (unless (or repo global)
       (error "Cannot determine repository"))
-    (magit-setup-buffer-internal #'forge-topics-mode nil
-                                 `((forge-buffer-repository
-                                    ,(and repo (oref repo id)))
-                                   (forge--buffer-topics-spec   ,spec)
-                                   (forge-buffer-unassociated-p ,global))
-                                 (get-buffer-create buf)
-                                 dir)))
+    (magit-setup-buffer #'forge-topics-mode nil
+      :buffer    (get-buffer-create buf)
+      :directory dir
+      (forge-buffer-repository     (and repo (oref repo id)))
+      (forge--buffer-topics-spec   spec)
+      (forge-buffer-unassociated-p global))))
 
 (defun forge-topics-refresh-buffer ()
   (magit-set-header-line-format (forge-topics-buffer-desc))

@@ -125,10 +125,10 @@ signal an error."
   (magit-hack-dir-local-variables))
 
 (defun forge-notifications-setup-buffer ()
-  (magit-setup-buffer-internal #'forge-notifications-mode nil
-                               '((default-directory "/")
-                                 (forge-buffer-unassociated-p t))
-                               (get-buffer-create "*forge-notifications*")))
+  (magit-setup-buffer #'forge-notifications-mode nil
+    :buffer (get-buffer-create "*forge-notifications*")
+    (default-directory "/")
+    (forge-buffer-unassociated-p t)))
 
 (defun forge-notifications-refresh-buffer ()
   (magit-set-header-line-format (forge-notifications-buffer-desc))

@@ -1322,13 +1322,14 @@ This mode itself is never used directly."
   (let* ((repo (forge-get-repository topic))
          (name (format "*forge: %s %s*" (oref repo slug) (oref topic slug)))
          (magit-generate-buffer-name-function (lambda (_mode _value) name))
-         (buffer (magit-setup-buffer-internal
-                  (pcase-exhaustive (eieio-object-class topic)
-                    ('forge-discussion #'forge-discussion-mode)
-                    ('forge-issue      #'forge-issue-mode)
-                    ('forge-pullreq    #'forge-pullreq-mode))
-                  t `((forge-buffer-topic ,topic))
-                  name (or (forge-get-worktree repo) "/"))))
+         (mode (pcase-exhaustive (eieio-object-class topic)
+                 ('forge-discussion #'forge-discussion-mode)
+                 ('forge-issue      #'forge-issue-mode)
+                 ('forge-pullreq    #'forge-pullreq-mode)))
+         (buffer (magit-setup-buffer mode t
+                   :buffer name
+                   :directory (or (forge-get-worktree repo) "/")
+                   ((forge-buffer-topic topic)))))
     (forge-topic-mark-read topic)
     buffer))
 
