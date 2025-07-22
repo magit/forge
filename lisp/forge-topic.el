@@ -1960,7 +1960,7 @@ When point is on the answer, then unmark it and mark no other."
               (magit-git-insert "cat-file" "-p" file)
               (if (equal (file-name-nondirectory file) "config.yml")
                   (forge--topic-parse-template-config)
-                (list (forge--topic-parse-template)))))
+                (list (forge--topic-parse-template (file-name-base file))))))
           (forge--topic-template-files repo class)))
 
 (cl-defgeneric forge--topic-template-files (repo class))
@@ -1992,7 +1992,7 @@ When point is on the answer, then unmark it and mark no other."
                                       " — " .about)))))
              .contact_links))))
 
-(defun forge--topic-parse-template ()
+(defun forge--topic-parse-template (filename)
   (goto-char (point-min))
   (skip-chars-forward "\s\t\n\r")
   (if-let ((beg (and (looking-at "^---[\s\t]*$")
@@ -2006,11 +2006,15 @@ When point is on the answer, then unmark it and mark no other."
                                     :sequence-type 'list
                                     :null-object nil
                                     :false-object nil)
-        `((prompt    . ,(format "%s — %s"
-                                (and .name
-                                     (stringp .name)
-                                     (propertize .name 'face 'bold))
-                                .about))
+        `((prompt    . ,(cond
+                           ((and (stringp .name) (stringp .about)
+                             (format "%s — %s"
+                                 (and .name
+                                      (stringp .name)
+                                      (propertize .name 'face 'bold))
+                                 .about)))
+                           ((and (stringp .name) (propertize .name 'face 'bold)))
+                           ((and (stringp filename) (propertize filename 'face 'bold)))))
           (title     . ,(and .title
                              (stringp .title)
                              (string-trim .title)))
@@ -2030,7 +2034,8 @@ When point is on the answer, then unmark it and mark no other."
                                         repoid)
                          :test #'equal))
           (draft     . ,(and (booleanp .draft) .draft))))
-    `((text . ,(magit--buffer-string)))))
+    `((prompt . ,(propertize filename 'face 'bold))
+      (text . ,(magit--buffer-string)))))
 
 ;;; Bug-Reference
 
