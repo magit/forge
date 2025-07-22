@@ -1960,7 +1960,7 @@ When point is on the answer, then unmark it and mark no other."
               (magit-git-insert "cat-file" "-p" file)
               (if (equal (file-name-nondirectory file) "config.yml")
                   (forge--topic-parse-template-config)
-                (list (forge--topic-parse-template)))))
+                (list (forge--topic-parse-template (file-name-base file))))))
           (forge--topic-template-files repo class)))
 
 (cl-defgeneric forge--topic-template-files (repo class))
@@ -1992,7 +1992,7 @@ When point is on the answer, then unmark it and mark no other."
                                       " — " .about)))))
              .contact_links))))
 
-(defun forge--topic-parse-template ()
+(defun forge--topic-parse-template (name)
   (goto-char (point-min))
   (skip-chars-forward "\s\t\n\r")
   (if-let ((beg (and (looking-at "^---[\s\t]*$")
@@ -2006,11 +2006,10 @@ When point is on the answer, then unmark it and mark no other."
                                     :sequence-type 'list
                                     :null-object nil
                                     :false-object nil)
-        `((prompt    . ,(format "%s — %s"
-                                (and .name
-                                     (stringp .name)
-                                     (propertize .name 'face 'bold))
-                                .about))
+        (when (stringp .name)
+          (setq name .name))
+        (setq name (propertize .name 'face 'bold))
+        `((prompt    . ,(if .about (format "%s — %s" name .about) name))
           (title     . ,(and .title
                              (stringp .title)
                              (string-trim .title)))
