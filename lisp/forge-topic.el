@@ -2029,7 +2029,8 @@ When point is on the answer, then unmark it and mark no other."
                                         repoid)
                          :test #'equal))
           (draft     . ,(and (booleanp .draft) .draft))))
-    `((text . ,(magit--buffer-string)))))
+    `((prompt . ,(propertize name 'face 'bold))
+      (text   . ,(magit--buffer-string)))))
 
 ;;; Bug-Reference
 
