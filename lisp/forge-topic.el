@@ -2030,7 +2030,7 @@ When point is on the answer, then unmark it and mark no other."
                          :test #'equal))
           (draft     . ,(and (booleanp .draft) .draft))))
     `((prompt . ,(propertize name 'face 'bold))
-      (text   . ,(magit--buffer-string)))))
+      (text   . ,(string-trim (magit--buffer-string))))))
 
 ;;; Bug-Reference
 
