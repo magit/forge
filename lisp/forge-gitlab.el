@@ -483,7 +483,7 @@
     (if (forge-issue-p topic)
         "/projects/:project/issues/:number/notes"
       "/projects/:project/merge_requests/:number/notes")
-    `((body . ,(magit--buffer-string nil nil t)))
+    `((body . ,(string-trim (magit--buffer-string))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
@@ -505,7 +505,7 @@
             ;; performs the necessary check itself.
             ,@(and (not (equal body (oref post body)))
                    `((description . ,body)))))
-      `((body . ,(magit--buffer-string nil nil t))))
+      `((body . ,(string-trim (magit--buffer-string)))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 

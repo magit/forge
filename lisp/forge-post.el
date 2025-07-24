@@ -256,9 +256,9 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
       (let (title body)
         (when (looking-at "^#*[\s\t]*")
           (goto-char (match-end 0)))
-        (setq title (magit--buffer-string (point) (line-end-position) t))
+        (setq title (magit--buffer-string (point) (line-end-position)))
         (forward-line)
-        (setq body (magit--buffer-string (point) nil ?\n))
+        (setq body (magit--buffer-string (point)))
         (cons (string-trim title)
               (string-trim body))))))
 

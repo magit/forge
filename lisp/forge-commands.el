@@ -677,7 +677,7 @@ point is currently on."
                   (magit--buffer-string (region-beginning) (region-end)))
                  (quote
                   (with-slots (content end) (magit-current-section)
-                    (magit--buffer-string content end t)))))
+                    (string-trim (magit--buffer-string content end))))))
          (quote (and quote
                      (lambda ()
                        (goto-char (point-max))

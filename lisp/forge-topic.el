@@ -2013,7 +2013,7 @@ When point is on the answer, then unmark it and mark no other."
           (title     . ,(and .title
                              (stringp .title)
                              (string-trim .title)))
-          (text      . ,(magit--buffer-string (point) nil ?\n))
+          (text      . ,(string-trim (magit--buffer-string (point))))
           ;; Prevent ad hock creation or previously unknown labels.
           (labels    . ,(cl-intersection
                          (ensure-list .labels)

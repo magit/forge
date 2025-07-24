@@ -933,7 +933,7 @@
    (post forge-post))
   (forge-mutate repo addComment
     ((subjectId (oref post their-id))
-     (body      (magit--buffer-string nil nil t)))
+     (body      (string-trim (magit--buffer-string))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
@@ -943,7 +943,7 @@
   (forge-mutate repo addDiscussionComment
     ((discussionId (oref (forge-get-discussion post) their-id))
      (replyToId    (oref post their-id))
-     (body         (magit--buffer-string nil nil t)))
+     (body         (string-trim (magit--buffer-string))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
@@ -952,7 +952,7 @@
    (post forge-discussion))
   (forge-mutate repo addDiscussionComment
     ((discussionId (oref post their-id))
-     (body         (magit--buffer-string nil nil t)))
+     (body         (string-trim (magit--buffer-string))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
@@ -966,7 +966,7 @@
      ;; (or something equivalent under an inconsistent name) does not
      ;; exist, so for that we would have to continue to use REST anyway.
      (forge-rest post "PATCH" "/repos/:owner/:repo/issues/comments/:number"
-       ((body (magit--buffer-string nil nil t)))
+       ((body (string-trim (magit--buffer-string))))
        :callback  (forge--post-submit-callback)
        :errorback (forge--post-submit-errorback)))
     (t
@@ -1003,14 +1003,14 @@
                       (pcase-let ((`(,title . ,body) (forge--post-buffer-text)))
                         `((title . ,title)
                           (body  . ,body)))
-                    `((body . ,(magit--buffer-string nil nil t))))))
+                    `((body . ,(string-trim (magit--buffer-string)))))))
        :callback  (forge--post-submit-callback)
        :errorback (forge--post-submit-errorback)))))
 
 (cl-defmethod forge--submit-approve-pullreq
   ((_repo forge-github-repository)
    (topic forge-pullreq))
-  (let ((body (magit--buffer-string nil nil t)))
+  (let ((body (string-trim (magit--buffer-string))))
     (forge-rest topic "POST" "/repos/:owner/:repo/pulls/:number/reviews"
       ((event "APPROVE")
        (and (not (equal body "")) (body body)))
@@ -1020,7 +1020,7 @@
 (cl-defmethod forge--submit-request-changes
   ((_repo forge-github-repository)
    (topic forge-pullreq))
-  (let ((body (magit--buffer-string nil nil t)))
+  (let ((body (string-trim (magit--buffer-string))))
     (forge-rest topic "POST" "/repos/:owner/:repo/pulls/:number/reviews"
       ((event "REQUEST_CHANGES")
        (and (not (equal body "")) (body body)))
