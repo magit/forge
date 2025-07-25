@@ -483,7 +483,7 @@
     (if (forge-issue-p topic)
         "/projects/:project/issues/:number/notes"
       "/projects/:project/merge_requests/:number/notes")
-    `((body . ,(string-trim (magit--buffer-string))))
+    `((body . ,(string-trim (buffer-str))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
@@ -505,7 +505,7 @@
             ;; performs the necessary check itself.
             ,@(and (not (equal body (oref post body)))
                    `((description . ,body)))))
-      `((body . ,(string-trim (magit--buffer-string)))))
+      `((body . ,(string-trim (buffer-str)))))
     :callback  (forge--post-submit-callback)
     :errorback (forge--post-submit-errorback)))
 
@@ -687,5 +687,10 @@
                 :errorback (or errorback (and callback t))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("buffer-string" . "buffer-string")
+;;   ("buffer-str" . "forge--buffer-substring-no-properties"))
+;; End:
 (provide 'forge-gitlab)
 ;;; forge-gitlab.el ends here

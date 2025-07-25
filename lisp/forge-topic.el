@@ -978,7 +978,7 @@ can be selected from the start."
                (`(forge-pullreq     rejected)   'forge-pullreq-rejected)))))))
     (run-hook-wrapped 'forge-topic-wash-title-hook
                       (##prog1 nil (save-excursion (funcall %))))
-    (buffer-string)))
+    (buffer-str)))
 
 (defun forge--format-topic-category (topic)
   (and-let* ((id (oref topic category))
@@ -1916,7 +1916,7 @@ When point is on the answer, then unmark it and mark no other."
       (fill-region (point-min) (point-max)))
     (when indent
       (indent-rigidly (point-min) (point-max) indent))
-    (buffer-string)))
+    (buffer-str)))
 
 (defun forge--markdown-translate-filename-function (file)
   (if (string-match-p "\\`https?://" file)
@@ -1978,7 +1978,7 @@ When point is on the answer, then unmark it and mark no other."
                                branch "--" paths))))
 
 (defun forge--topic-parse-template-config ()
-  (let-alist (yaml-parse-string (magit--buffer-string)
+  (let-alist (yaml-parse-string (buffer-str)
                                 :object-type 'alist
                                 :sequence-type 'list)
     (nconc
@@ -2001,7 +2001,7 @@ When point is on the answer, then unmark it and mark no other."
                      (re-search-forward "^---[\s\t]*$" nil t)
                      (match-beginning 0)))
            (repoid (oref (forge-get-repository :tracked) id)))
-      (let-alist (yaml-parse-string (magit--buffer-string beg end)
+      (let-alist (yaml-parse-string (buffer-str beg end)
                                     :object-type 'alist
                                     :sequence-type 'list
                                     :null-object nil
@@ -2013,7 +2013,7 @@ When point is on the answer, then unmark it and mark no other."
           (title     . ,(and .title
                              (stringp .title)
                              (string-trim .title)))
-          (text      . ,(string-trim (magit--buffer-string (point))))
+          (text      . ,(string-trim (buffer-str (point))))
           ;; Prevent ad hock creation or previously unknown labels.
           (labels    . ,(cl-intersection
                          (ensure-list .labels)
@@ -2030,7 +2030,7 @@ When point is on the answer, then unmark it and mark no other."
                          :test #'equal))
           (draft     . ,(and (booleanp .draft) .draft))))
     `((prompt . ,(propertize name 'face 'bold))
-      (text   . ,(string-trim (magit--buffer-string))))))
+      (text   . ,(string-trim (buffer-str))))))
 
 ;;; Bug-Reference
 
@@ -2079,6 +2079,8 @@ modify `bug-reference-bug-regexp' if appropriate."
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
+;;   ("buffer-string" . "buffer-string")
+;;   ("buffer-str" . "forge--buffer-substring-no-properties")
 ;;   ("partial" . "llama--left-apply-partially"))
 ;; End:
 (provide 'forge-topic)

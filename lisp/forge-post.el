@@ -256,9 +256,9 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
       (let (title body)
         (when (looking-at "^#*[\s\t]*")
           (goto-char (match-end 0)))
-        (setq title (magit--buffer-string (point) (line-end-position)))
+        (setq title (buffer-str (point) (line-end-position)))
         (forward-line)
-        (setq body (magit--buffer-string (point)))
+        (setq body (buffer-str (point)))
         (cons (string-trim title)
               (string-trim body))))))
 
@@ -393,7 +393,7 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
   "<remap> <magit-edit-thing>" #'forge-edit-topic-note)
 
 (defun forge--save-note (_repo topic)
-  (let ((value (string-trim (magit--buffer-string))))
+  (let ((value (string-trim (buffer-str))))
     (oset topic note (if (equal value "") nil value)))
   (delete-file buffer-file-name t)
   (let ((dir (file-name-directory buffer-file-name)))
@@ -404,5 +404,10 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
     (forge-refresh-buffer prevbuf)))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("buffer-string" . "buffer-string")
+;;   ("buffer-str" . "forge--buffer-substring-no-properties"))
+;; End:
 (provide 'forge-post)
 ;;; forge-post.el ends here

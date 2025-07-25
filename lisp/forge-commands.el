@@ -674,10 +674,10 @@ point is currently on."
   (let* ((quote (cond
                  ((not (magit-section-match 'post)) nil)
                  ((use-region-p)
-                  (magit--buffer-string (region-beginning) (region-end)))
+                  (buffer-str (region-beginning) (region-end)))
                  (quote
                   (with-slots (content end) (magit-current-section)
-                    (string-trim (magit--buffer-string content end))))))
+                    (string-trim (buffer-str content end))))))
          (quote (and quote
                      (lambda ()
                        (goto-char (point-max))
@@ -1499,6 +1499,8 @@ context."
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
+;;   ("buffer-string" . "buffer-string")
+;;   ("buffer-str" . "forge--buffer-substring-no-properties")
 ;;   ("partial" . "llama--left-apply-partially"))
 ;; End:
 (provide 'forge-commands)
