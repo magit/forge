@@ -187,10 +187,5 @@ Only Github is supported for now."
   (transient-setup 'forge-repositories-menu))
 
 ;;; _
-;; Local Variables:
-;; read-symbol-shorthands: (
-;;   ("partial" . "llama--left-apply-partially")
-;;   ("rpartial" . "llama--right-apply-partially"))
-;; End:
 (provide 'forge-repos)
 ;;; forge-repos.el ends here

@@ -404,10 +404,5 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
     (forge-refresh-buffer prevbuf)))
 
 ;;; _
-;; Local Variables:
-;; read-symbol-shorthands: (
-;;   ("partial" . "llama--left-apply-partially")
-;;   ("rpartial" . "llama--right-apply-partially"))
-;; End:
 (provide 'forge-post)
 ;;; forge-post.el ends here

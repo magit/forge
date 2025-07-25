@@ -2079,8 +2079,7 @@ modify `bug-reference-bug-regexp' if appropriate."
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
-;;   ("partial" . "llama--left-apply-partially")
-;;   ("rpartial" . "llama--right-apply-partially"))
+;;   ("partial" . "llama--left-apply-partially"))
 ;; End:
 (provide 'forge-topic)
 ;;; forge-topic.el ends here

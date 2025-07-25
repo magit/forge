@@ -148,10 +148,5 @@
         (forge--pull-topic (forge-get-repository topic) topic))))))
 
 ;;; _
-;; Local Variables:
-;; read-symbol-shorthands: (
-;;   ("partial" . "llama--left-apply-partially")
-;;   ("rpartial" . "llama--right-apply-partially"))
-;; End:
 (provide 'forge-client)
 ;;; forge-client.el ends here

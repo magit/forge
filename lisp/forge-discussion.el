@@ -271,10 +271,5 @@ and optional HEADING to change the section heading."
                           (forge--list-topics spec repo))))
 
 ;;; _
-;; Local Variables:
-;; read-symbol-shorthands: (
-;;   ("partial" . "llama--left-apply-partially")
-;;   ("rpartial" . "llama--right-apply-partially"))
-;; End:
 (provide 'forge-discussion)
 ;;; forge-discussion.el ends here

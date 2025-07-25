@@ -1296,8 +1296,7 @@
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
-;;   ("partial" . "llama--left-apply-partially")
-;;   ("rpartial" . "llama--right-apply-partially"))
+;;   ("partial" . "llama--left-apply-partially"))
 ;; End:
 (provide 'forge-github)
 ;;; forge-github.el ends here

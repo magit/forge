@@ -530,8 +530,7 @@ forges and hosts."
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
-;;   ("partial" . "llama--left-apply-partially")
-;;   ("rpartial" . "llama--right-apply-partially"))
+;;   ("partial" . "llama--left-apply-partially"))
 ;; End:
 (provide 'forge-repo)
 ;;; forge-repo.el ends here
