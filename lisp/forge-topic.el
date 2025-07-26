@@ -978,7 +978,7 @@ can be selected from the start."
                (`(forge-pullreq     rejected)   'forge-pullreq-rejected)))))))
     (run-hook-wrapped 'forge-topic-wash-title-hook
                       (##prog1 nil (save-excursion (funcall %))))
-    (buffer-str)))
+    (buffer-string)))
 
 (defun forge--format-topic-category (topic)
   (and-let* ((id (oref topic category))
@@ -1916,7 +1916,7 @@ When point is on the answer, then unmark it and mark no other."
       (fill-region (point-min) (point-max)))
     (when indent
       (indent-rigidly (point-min) (point-max) indent))
-    (buffer-str)))
+    (buffer-string)))
 
 (defun forge--markdown-translate-filename-function (file)
   (if (string-match-p "\\`https?://" file)
