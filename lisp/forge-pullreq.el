@@ -186,12 +186,12 @@ an error."
 
 (put 'forge-pullreq 'thing-at-point #'forge-thingatpt--pullreq)
 (defun forge-thingatpt--pullreq ()
-  (and-let* (((thing-at-point-looking-at "\\([#!]\\)\\([0-9]+\\)\\_>"))
+  (and-let* ((_(thing-at-point-looking-at "\\([#!]\\)\\([0-9]+\\)\\_>"))
              (prefix (match-string-no-properties 1))
              (number (string-to-number (match-string-no-properties 2)))
              (repo (forge--repo-for-thingatpt))
-             ((or (equal prefix "#")
-                  (forge-gitlab-repository--eieio-childp repo))))
+             (_(or (equal prefix "#")
+                   (forge-gitlab-repository--eieio-childp repo))))
     (forge-get-pullreq repo number)))
 
 ;;; Read
@@ -264,10 +264,10 @@ can be selected from the start."
   "Insert a list of pull-requests, according to `forge--buffer-topics-spec'.
 Optional SPEC can be used to override that filtering specification,
 and optional HEADING to change the section heading."
-  (when-let (((forge-db t))
+  (when-let ((_(forge-db t))
              (repo (forge-get-repository :tracked?))
              (spec (if sspec spec (forge--clone-buffer-topics-spec)))
-             ((memq (oref spec type) '(topic pullreq))))
+             (_(memq (oref spec type) '(topic pullreq))))
     (oset spec type 'pullreq)
     (forge--insert-topics 'pullreqs
                           (or heading "Pull requests")

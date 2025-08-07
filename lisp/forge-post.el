@@ -212,7 +212,7 @@ One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
   "When creating a pull-request from a single commit, insert its message."
   (when-let* ((source forge--buffer-head-branch)
               (target forge--buffer-base-branch)
-              ((= (car (magit-rev-diff-count source target)) 1)))
+              (_(= (car (magit-rev-diff-count source target)) 1)))
     (when (alist-get 'text forge--buffer-template)
       (goto-char (point-max))
       (unless (eq (char-before) ?\n)

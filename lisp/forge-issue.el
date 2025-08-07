@@ -154,7 +154,7 @@ an error."
 
 (put 'forge-issue 'thing-at-point #'forge-thingatpt--issue)
 (defun forge-thingatpt--issue ()
-  (and-let* (((thing-at-point-looking-at "#\\([0-9]+\\)\\_>"))
+  (and-let* ((_(thing-at-point-looking-at "#\\([0-9]+\\)\\_>"))
              (number (string-to-number (match-string 1)))
              (repo (forge--repo-for-thingatpt)))
     (forge-get-issue repo number)))
@@ -211,11 +211,11 @@ can be selected from the start."
   "Insert a list of issues, according to `forge--buffer-topics-spec'.
 Optional SPEC can be used to override that filtering specification,
 and optional HEADING to change the section heading."
-  (when-let (((forge-db t))
+  (when-let ((_(forge-db t))
              (repo (forge-get-repository :tracked?))
-             ((oref repo issues-p))
+             (_(oref repo issues-p))
              (spec (if sspec spec (forge--clone-buffer-topics-spec)))
-             ((memq (oref spec type) '(topic issue))))
+             (_(memq (oref spec type) '(topic issue))))
     (oset spec type 'issue)
     (forge--insert-topics 'issues
                           (or heading "Issues")

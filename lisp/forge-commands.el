@@ -1320,15 +1320,15 @@ upstream remote."
                      :scope (forge-add-repository--scope repo)))
    (t
     (when-let*
-        (((not (eq limit :selective)))
-         ((magit-git-config-p "forge.autoPull" t))
+        ((_(not (eq limit :selective)))
+         (_(magit-git-config-p "forge.autoPull" t))
          (remote  (oref repo remote))
          (refspec (oref repo pullreq-refspec))
          (default-directory (forge-get-worktree repo))
-         ((and (not (member refspec (magit-get-all "remote" remote "fetch")))
-               (or (eq forge-add-pullreq-refspec t)
-                   (and (eq forge-add-pullreq-refspec 'ask)
-                        (y-or-n-p (format "Also add %S refspec? " refspec)))))))
+         (_(and (not (member refspec (magit-get-all "remote" remote "fetch")))
+                (or (eq forge-add-pullreq-refspec t)
+                    (and (eq forge-add-pullreq-refspec 'ask)
+                         (y-or-n-p (format "Also add %S refspec? " refspec)))))))
       (magit-call-git "config" "--add"
                       (format "remote.%s.fetch" remote)
                       refspec))
@@ -1434,9 +1434,9 @@ when that happens, because given how the APIs work, this would be too
 expensive."
   (interactive
    (list (if-let* ((topics (magit-region-values '(issue pullreq) t))
-                   ((magit-confirm 'remove-topics-locally nil
-                      "Delete %d topics locally" nil
-                      (mapcar #'forge--format-topic-line topics))))
+                   (_(magit-confirm 'remove-topics-locally nil
+                       "Delete %d topics locally" nil
+                       (mapcar #'forge--format-topic-line topics))))
              topics
            (forge-read-topic "Delete topic LOCALLY only"))))
   (if (listp topic)

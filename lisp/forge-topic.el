@@ -380,7 +380,7 @@ an error."
 
 (put 'forge-topic 'thing-at-point #'forge-thingatpt--topic)
 (defun forge-thingatpt--topic ()
-  (and-let* (((thing-at-point-looking-at "\\([#!]\\)\\([0-9]+\\)\\_>"))
+  (and-let* ((_(thing-at-point-looking-at "\\([#!]\\)\\([0-9]+\\)\\_>"))
              (prefix (match-string-no-properties 1))
              (number (string-to-number (match-string-no-properties 2)))
              (repo (forge--repo-for-thingatpt)))
@@ -1161,7 +1161,7 @@ Grep Forge for more examples.
 Alternatively you can use `forge-topics-setup-buffer' to list a set
 of topics in a dedicated buffer."
   (declare (indent defun))
-  (when-let (((forge-db t))
+  (when-let ((_(forge-db t))
              (repo (forge-get-repository :tracked?))
              (spec (funcall prepare repo)))
     (forge--insert-topics type heading (forge--list-topics spec repo))))

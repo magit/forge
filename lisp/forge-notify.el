@@ -308,7 +308,7 @@ signal an error."
                   (magit-log--wash-summary
                    (propertize title 'font-lock-face
                                (if-let* ((topic (oref notif topic))
-                                         ((eq (oref topic status) 'unread)))
+                                         (_(eq (oref topic status) 'unread)))
                                    'forge-topic-unread
                                  'forge-topic-open)))))))
       (_

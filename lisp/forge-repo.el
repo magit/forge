@@ -146,10 +146,10 @@ then return that repository.
 Otherwise return the repository for `default-directory', if that
 exists and satisfies DEMAND.  If that fails too, then return nil
 or signal an error, depending on DEMAND."
-  (or (and-let* (((not notatpt))
+  (or (and-let* ((_(not notatpt))
                  (repo (forge-repository-at-point)))
         (forge-get-repository repo 'noerror demand))
-      (and-let* (((not remote))
+      (and-let* ((_(not remote))
                  (repo (or (forge-buffer-repository)
                            (and forge-buffer-topic
                                 (forge-get-repository forge-buffer-topic)))))
@@ -341,8 +341,8 @@ If `default-directory' is within one of REPO's worktrees, record that
 location in its `worktree' slot and return it.  Otherwise, if a worktree
 has been recorded before, validate that.  If it still is a worktree of
 REPO, return it, else set the slot to nil and return nil."
-  (if-let (((forge-repository-equal
-             repo (forge-get-repository :dir default-directory)))
+  (if-let ((_(forge-repository-equal
+              repo (forge-get-repository :dir default-directory)))
            (current-tree (magit-toplevel)))
       (oset repo worktree current-tree)
     (and-let* ((saved-tree (oref repo worktree)))
