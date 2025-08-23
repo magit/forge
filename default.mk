@@ -29,6 +29,7 @@ ELCS  = $(ELS:.el=.elc)
 
 DEPS  = closql
 DEPS += compat
+DEPS += cond-let
 DEPS += emacsql
 DEPS += ghub/lisp
 DEPS += llama
