@@ -1916,7 +1916,16 @@ When point is on the answer, then unmark it and mark no other."
       (fill-region (point-min) (point-max)))
     (when indent
       (indent-rigidly (point-min) (point-max) indent))
-    (buffer-string)))
+    (let* ((string (buffer-string))
+           (beg 0)
+           (end (length string)))
+      (while (< beg end)
+        (let ((pos (next-single-property-change beg 'face string end))
+              (val (get-text-property beg 'face string)))
+          (put-text-property beg pos 'font-lock-face val string)
+          (remove-list-of-text-properties beg pos '(face) string)
+          (setq beg pos)))
+      string)))
 
 (defun forge--markdown-translate-filename-function (file)
   (if (string-match-p "\\`https?://" file)
