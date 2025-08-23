@@ -228,14 +228,17 @@ can be selected from the start."
                                       (substring text 0 (match-beginning 0))
                                     text))
                           answer)))))
+             (new-answer (cons "Add new top-level answer" forge-buffer-topic))
              (post (forge-post-at-point))
-             (answer (if (forge-discussion-reply-p post)
-                         (magit-section-parent-value
-                          (magit-current-section))
-                       post))
-             (default (and answer (funcall format-answer answer)))
-             (choices `(("Add new top-level answer" . ,forge-buffer-topic)
-                        ,@(mapcar format-answer answers))))
+             (default (cl-typecase post
+                        (forge-discussion-reply
+                         (funcall format-answer
+                                  (magit-section-parent-value
+                                   (magit-current-section))))
+                        (forge-discussion-post
+                         (funcall format-answer post))
+                        (forge-discussion new-answer)))
+             (choices (cons new-answer (mapcar format-answer answers))))
         (cdr (assoc (magit-completing-read "Reply to: "
                                            choices nil t nil nil default)
                     choices)))
