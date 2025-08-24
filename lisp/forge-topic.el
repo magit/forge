@@ -380,10 +380,10 @@ an error."
 
 (put 'forge-topic 'thing-at-point #'forge-thingatpt--topic)
 (defun forge-thingatpt--topic ()
-  (and-let* ((_(thing-at-point-looking-at "\\([#!]\\)\\([0-9]+\\)\\_>"))
-             (prefix (match-string-no-properties 1))
-             (number (string-to-number (match-string-no-properties 2)))
-             (repo (forge--repo-for-thingatpt)))
+  (and-let ((_(thing-at-point-looking-at "\\([#!]\\)\\([0-9]+\\)\\_>"))
+            (prefix (match-string-no-properties 1))
+            (number (string-to-number (match-string-no-properties 2)))
+            (repo (forge--repo-for-thingatpt)))
     (cond ((equal prefix "#")
            (forge-get-topic repo number))
           ((forge-gitlab-repository--eieio-childp repo)
@@ -1032,17 +1032,17 @@ can be selected from the start."
       (mapcar format labels))))
 
 (defun forge--format-marks (&optional arg concat)
-  (and-let* ((marks (if (forge-topic--eieio-childp arg)
-                        (oref arg marks)
-                      ;; Unlike labels, marks are not repo-specific.
-                      (when (forge-repository-p arg) (setq arg nil))
-                      (forge-sql-cdr `[:select * :from mark
-                                       ,@(and arg '(:where (in name $v1)))
-                                       :order-by [(asc name)]]
-                                     (vconcat arg))))
-             (format (pcase-lambda (`(,_id ,name ,face ,_description))
-                       (magit--propertize-face
-                        name (list face 'forge-topic-label)))))
+  (and-let ((marks (if (forge-topic--eieio-childp arg)
+                       (oref arg marks)
+                     ;; Unlike labels, marks are not repo-specific.
+                     (when (forge-repository-p arg) (setq arg nil))
+                     (forge-sql-cdr `[:select * :from mark
+                                      ,@(and arg '(:where (in name $v1)))
+                                      :order-by [(asc name)]]
+                                    (vconcat arg))))
+            (format (pcase-lambda (`(,_id ,name ,face ,_description))
+                      (magit--propertize-face
+                       name (list face 'forge-topic-label)))))
     (if concat
         (mapconcat format marks (if (stringp concat) concat " "))
       (mapcar format marks))))
@@ -1074,17 +1074,17 @@ can be selected from the start."
        ('done    'forge-topic-done)))))
 
 (defun forge--format-topic-assignees (arg)
-  (and-let* ((assignees
-              (cond ((eieio-object-p arg)
-                     (oref arg assignees))
-                    ((forge-buffer-repository)
-                     (forge-sql-cdr [:select * :from assignee
-                                     :where
-                                     (and (= repository $s1)
-                                          (in login $v2))
-                                     :order-by [(asc login)]]
-                                    forge-buffer-repository
-                                    (vconcat arg))))))
+  (and-let ((assignees
+             (cond ((eieio-object-p arg)
+                    (oref arg assignees))
+                   ((forge-buffer-repository)
+                    (forge-sql-cdr [:select * :from assignee
+                                    :where
+                                    (and (= repository $s1)
+                                         (in login $v2))
+                                    :order-by [(asc login)]]
+                                   forge-buffer-repository
+                                   (vconcat arg))))))
     (mapconcat #'forge--format-person assignees ", ")))
 
 (defun forge--format-topic-review-requests (topic)
@@ -1197,7 +1197,7 @@ of topics in a dedicated buffer."
         (forge--insert-pullreq-commits topic)))))
 
 (defun forge--insert-topic-labels (topic &optional separate)
-  (and-let* ((labels (oref topic labels)))
+  (and-let ((labels (oref topic labels)))
     (prog1 t
       (pcase-dolist (`(,_id ,name ,color ,description) labels)
         (let* ((background (forge--sanitize-color color))
@@ -1215,7 +1215,7 @@ of topics in a dedicated buffer."
               (overlay-put o 'help-echo description))))))))
 
 (defun forge--insert-topic-marks (topic &optional separate)
-  (and-let* ((marks (oref topic marks)))
+  (and-let ((marks (oref topic marks)))
     (prog1 t
       (pcase-dolist (`(,_id ,name ,face ,description) marks)
         (if separate (insert " ") (setq separate t))
@@ -1392,10 +1392,10 @@ This mode itself is never used directly."
     (font-lock-append-text-property
      0 (length heading)
      'font-lock-face (cond
-                      ((and (forge-discussion-p topic)
-                            (and-let* ((answer (oref topic answer)))
-                              (equal (oref post their-id)
-                                     (forge--their-id answer))))
+                      ((and-let ((_(forge-discussion-p topic))
+                                 (answer (oref topic answer)))
+                         (equal (oref post their-id)
+                                (forge--their-id answer)))
                        'forge-discussion-answer-heading)
                       ((forge-discussion-reply-p post)
                        '(magit-dimmed magit-diff-hunk-heading))
@@ -1658,9 +1658,9 @@ This mode itself is never used directly."
    (inapt-face
     :initform (lambda (obj)
                 (with-slots (getter state) (transient-suffix-object)
-                  (if (and (not (forge-region-topics))
-                           (and-let* ((topic (funcall getter)))
-                             (eq (oref topic state) state)))
+                  (if (and-let ((_(not (forge-region-topics)))
+                                (topic (funcall getter)))
+                        (eq (oref topic state) state))
                       'forge-suffix-active
                     'transient-inapt-suffix))))))
 

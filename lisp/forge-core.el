@@ -268,7 +268,7 @@ is non-nil."
                "\\(?:\\.git\\|/\\)?"
                "\\'")
        url)
-      (and-let* ((elt (forge--get-forge-host (match-string 1 url) (not relax))))
+      (and-let ((elt (forge--get-forge-host (match-string 1 url) (not relax))))
         ;; Return the WEBHOST (not the GITHOST, URLs passed to this
         ;; function usually contain a GITHOST) because the IDs used to
         ;; identify a repository in the database are based on WEBHOSTs.

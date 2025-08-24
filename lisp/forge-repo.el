@@ -146,13 +146,13 @@ then return that repository.
 Otherwise return the repository for `default-directory', if that
 exists and satisfies DEMAND.  If that fails too, then return nil
 or signal an error, depending on DEMAND."
-  (or (and-let* ((_(not notatpt))
-                 (repo (forge-repository-at-point)))
+  (or (and-let ((_(not notatpt))
+                (repo (forge-repository-at-point)))
         (forge-get-repository repo 'noerror demand))
-      (and-let* ((_(not remote))
-                 (repo (or (forge-buffer-repository)
-                           (and forge-buffer-topic
-                                (forge-get-repository forge-buffer-topic)))))
+      (and-let ((_(not remote))
+                (repo (or (forge-buffer-repository)
+                          (and forge-buffer-topic
+                               (forge-get-repository forge-buffer-topic)))))
         (forge-get-repository repo 'noerror demand))
       (magit--with-refresh-cache
           (list default-directory 'forge-get-repository demand)
@@ -303,26 +303,26 @@ See `forge-alist' for valid Git hosts."
 If there is no such repository and DEMAND is non-nil, then signal
 an error."
   (or (magit-section-value-if 'forge-repo)
-      (and-let* ((topic (forge-topic-at-point)))
+      (and-let ((topic (forge-topic-at-point)))
         (forge-get-repository topic))
-      (and (derived-mode-p 'forge-repository-list-mode)
-           (and-let* ((id (tabulated-list-get-id)))
-             (forge-get-repository :id id)))
-      (and (derived-mode-p 'magit-repolist-mode)
-           (and-let* ((dir (tabulated-list-get-id)))
-             (forge-get-repository :dir dir)))
+      (and-let ((_(derived-mode-p 'forge-repository-list-mode))
+                (id (tabulated-list-get-id)))
+        (forge-get-repository :id id))
+      (and-let ((_(derived-mode-p 'magit-repolist-mode))
+                (dir (tabulated-list-get-id)))
+        (forge-get-repository :dir dir))
       (and demand (user-error "No repository at point"))))
 
 (defun forge--repo-for-thingatpt ()
   (or (magit-section-value-if 'forge-repo)
-      (and-let* ((topic (magit-section-value-if '(issue pullreq))))
+      (and-let ((topic (magit-section-value-if '(issue pullreq))))
         (forge-get-repository topic))
       (and (not forge-buffer-unassociated-p)
            (or (forge-buffer-repository)
                (forge-get-repository :known? nil 'notatpt)))))
 
 (defun forge-buffer-repository ()
-  (and-let* ((id forge-buffer-repository))
+  (and-let ((id forge-buffer-repository))
     (forge-get-repository :id id)))
 
 (defun forge-set-buffer-repository ()
@@ -343,7 +343,7 @@ REPO, return it, else set the slot to nil and return nil."
               repo (forge-get-repository :dir default-directory)))
            (current-tree (magit-toplevel)))
       (oset repo worktree current-tree)
-    (and-let* ((saved-tree (oref repo worktree)))
+    (and-let ((saved-tree (oref repo worktree)))
       (and (file-accessible-directory-p saved-tree)
            (if (forge-repository-equal
                 repo (forge-get-repository :dir saved-tree))

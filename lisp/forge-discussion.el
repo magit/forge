@@ -173,9 +173,9 @@ an error."
 
 (put 'forge-discussion 'thing-at-point #'forge-thingatpt--discussion)
 (defun forge-thingatpt--discussion ()
-  (and-let* ((_(thing-at-point-looking-at "#\\([0-9]+\\)\\_>"))
-             (number (string-to-number (match-string 1)))
-             (repo (forge--repo-for-thingatpt)))
+  (and-let ((_(thing-at-point-looking-at "#\\([0-9]+\\)\\_>"))
+            (number (string-to-number (match-string 1)))
+            (repo (forge--repo-for-thingatpt)))
     (forge-get-discussion repo number)))
 
 ;;; Read

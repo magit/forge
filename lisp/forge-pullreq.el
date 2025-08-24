@@ -239,7 +239,7 @@ can be selected from the start."
     (and (magit-rev-verify ref) ref)))
 
 (defun forge--pullreq-range (pullreq &optional endpoints)
-  (and-let* ((head (forge--pullreq-ref pullreq)))
+  (and-let ((head (forge--pullreq-ref pullreq)))
     (concat (forge--get-remote) "/" (oref pullreq base-ref)
             (if endpoints "..." "..")
             head)))

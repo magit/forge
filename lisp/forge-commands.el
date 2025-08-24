@@ -633,11 +633,11 @@ With prefix argument MENU, also show the topic menu."
                    "Source branch"
                    (magit-list-remote-branch-names)
                    nil t nil 'magit-revision-history
-                   (or (and-let* ((d (magit-branch-at-point)))
+                   (or (and-let ((d (magit-branch-at-point)))
                          (if (magit-remote-branch-p d)
                              d
                            (magit-get-push-branch d t)))
-                       (and-let* ((d (magit-get-current-branch)))
+                       (and-let ((d (magit-get-current-branch)))
                          (if (magit-remote-branch-p d)
                              d
                            (magit-get-push-branch d t))))))
@@ -805,7 +805,7 @@ Please see the manual for more information."
          (branch-n (format "pr-%s" number))
          (branch (or (forge--pullreq-branch-internal pullreq) branch-n))
          (pullreq-ref (format "refs/pullreqs/%s" number)))
-    (cond ((and-let* ((pr-branch (oref pullreq head-ref)))
+    (cond ((and-let ((pr-branch (oref pullreq head-ref)))
              (string-search ":" pr-branch))
            ;; Such a branch name would be invalid.  If we encounter
            ;; it anyway, then that means that the source branch and
@@ -974,7 +974,7 @@ pull-request locally, is named \"pr-N\" (where N is the pull-request
 number) and this command is made available as a substitute in the
 `magit-push' menu."
   :if (lambda ()
-        (and-let* ((branch (magit-get-current-branch)))
+        (and-let ((branch (magit-get-current-branch)))
           (and (forge-get-pullreq :branch branch)
                (string-match-p "\\`pr-[0-9]+\\'" branch))))
   :description (lambda ()
