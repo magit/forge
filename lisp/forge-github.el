@@ -785,7 +785,7 @@
   (closql-with-transaction (forge-db)
     (pcase-dolist (`(,alias ,id ,_query ,repo ,type ,data) notifs)
       (let-alist data
-        (and-let*
+        (when-let*
             ((topic-data (cdr (cadr (assq alias topics))))
              (topic (funcall (pcase-exhaustive type
                                ('discussion #'forge--update-discussion)
