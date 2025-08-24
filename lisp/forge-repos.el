@@ -187,5 +187,12 @@ Only Github is supported for now."
   (transient-setup 'forge-repositories-menu))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let"))
+;; End:
 (provide 'forge-repos)
 ;;; forge-repos.el ends here

@@ -274,5 +274,12 @@ and optional HEADING to change the section heading."
                           (forge--list-topics spec repo))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let"))
+;; End:
 (provide 'forge-discussion)
 ;;; forge-discussion.el ends here

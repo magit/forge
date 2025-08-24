@@ -2088,9 +2088,13 @@ modify `bug-reference-bug-regexp' if appropriate."
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let")
 ;;   ("buffer-string" . "buffer-string")
-;;   ("buffer-str" . "forge--buffer-substring-no-properties")
-;;   ("partial" . "llama--left-apply-partially"))
+;;   ("buffer-str"    . "forge--buffer-substring-no-properties")
+;;   ("partial"       . "llama--left-apply-partially"))
 ;; End:
 (provide 'forge-topic)
 ;;; forge-topic.el ends here

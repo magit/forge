@@ -294,5 +294,12 @@ and optional HEADING to change the section heading."
           (magit-make-margin-overlay nil t))))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let"))
+;; End:
 (provide 'forge-pullreq)
 ;;; forge-pullreq.el ends here

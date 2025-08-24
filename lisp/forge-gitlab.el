@@ -689,8 +689,12 @@
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let")
 ;;   ("buffer-string" . "buffer-string")
-;;   ("buffer-str" . "forge--buffer-substring-no-properties"))
+;;   ("buffer-str"    . "forge--buffer-substring-no-properties"))
 ;; End:
 (provide 'forge-gitlab)
 ;;; forge-gitlab.el ends here

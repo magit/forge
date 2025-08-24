@@ -43,5 +43,12 @@
    (pullreq-refspec :initform "+refs/pull/*/head:refs/pullreqs/*")))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let"))
+;; End:
 (provide 'forge-gitea)
 ;;; forge-gitea.el ends here

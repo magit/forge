@@ -530,7 +530,11 @@ forges and hosts."
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
-;;   ("partial" . "llama--left-apply-partially"))
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let")
+;;   ("partial"       . "llama--left-apply-partially"))
 ;; End:
 (provide 'forge-repo)
 ;;; forge-repo.el ends here

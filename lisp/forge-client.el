@@ -148,5 +148,12 @@
         (forge--pull-topic (forge-get-repository topic) topic))))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let"))
+;; End:
 (provide 'forge-client)
 ;;; forge-client.el ends here

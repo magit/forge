@@ -26,6 +26,7 @@
 
 (require 'cl-lib)
 (require 'compat)
+(require 'cond-let)
 (require 'eieio)
 (require 'llama)
 (require 'seq)
@@ -476,5 +477,12 @@ Optional END defaults to the value of `point-max'."
             (substring rnd 20 32))))
 
 ;;; _
+;; Local Variables:
+;; read-symbol-shorthands: (
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let"))
+;; End:
 (provide 'forge-core)
 ;;; forge-core.el ends here

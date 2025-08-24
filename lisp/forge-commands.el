@@ -1499,9 +1499,13 @@ context."
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (
+;;   ("and$"          . "cond-let--and$")
+;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let"      . "cond-let--when-let")
 ;;   ("buffer-string" . "buffer-string")
-;;   ("buffer-str" . "forge--buffer-substring-no-properties")
-;;   ("partial" . "llama--left-apply-partially"))
+;;   ("buffer-str"    . "forge--buffer-substring-no-properties")
+;;   ("partial"       . "llama--left-apply-partially"))
 ;; End:
 (provide 'forge-commands)
 ;;; forge-commands.el ends here
