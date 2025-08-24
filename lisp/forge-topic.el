@@ -1721,17 +1721,17 @@ inferior process."
     (if (magit-read-char-case (format "Merge #%s " (oref pullreq number)) t
           (?g "using [g]it (recommended)" t)
           (?a "using [a]pi" nil))
-        (if-let ((branch (or (forge--pullreq-branch-active pullreq)
-                             (forge--branch-pullreq pullreq)))
-                 (upstream (magit-get-local-upstream-branch branch)))
-            (if (zerop (magit-call-git "checkout" upstream))
-                (magit--merge-absorb
-                 branch (magit-merge-arguments)
-                 ;; Users might be surprised that we
-                 ;; aren't done yet, so drop a hint.
-                 "Inspect the result, and if satisfied push")
-              (user-error "Could not checkout %S" upstream))
-          (user-error "No upstream configured for %S" branch))
+        (let ((branch (or (forge--pullreq-branch-active pullreq)
+                          (forge--branch-pullreq pullreq))))
+          (if-let ((upstream (magit-get-local-upstream-branch branch)))
+              (if (zerop (magit-call-git "checkout" upstream))
+                  (magit--merge-absorb
+                   branch (magit-merge-arguments)
+                   ;; Users might be surprised that we
+                   ;; aren't done yet, so drop a hint.
+                   "Inspect the result, and if satisfied push")
+                (user-error "Could not checkout %S" upstream))
+            (user-error "No upstream configured for %S" branch)))
       (forge-merge pullreq (forge-select-merge-method)))))
 
 (transient-define-suffix forge-pullreq-state-set-rejected ()
