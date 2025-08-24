@@ -172,14 +172,15 @@ One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
             (setq forge--buffer-assignees .assignees)
             (setq forge--buffer-labels .labels)
             (setq forge--buffer-draft-p .draft))))
-      (when (and (not resume)
-                 (memq action '(new-discussion new-issue new-pullreq)))
-        (if-let ((template (alist-get 'text forge--buffer-template)))
-            (progn (unless (string-prefix-p "# " template)
-                     (insert "# \n\n"))
-                   (insert template)
-                   (goto-char 3))
-          (insert "# ")))
+      (cond-let
+        (resume)
+        ((not (memq action '(new-discussion new-issue new-pullreq))))
+        ([template (alist-get 'text forge--buffer-template)]
+         (unless (string-prefix-p "# " template)
+           (insert "# \n\n"))
+         (insert template)
+         (goto-char 3))
+        ((insert "# ")))
       (when fn
         (funcall fn)))
     (run-hook-wrapped 'forge-edit-post-hook

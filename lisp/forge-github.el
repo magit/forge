@@ -704,19 +704,19 @@
                            (if (zerop tries)
                                (ghub--signal-error errors)
                              (cl-decf tries)
-                             (if-let ((notfound
-                                       (seq-keep
-                                        (lambda (err)
-                                          (and (equal (cdr (assq 'type err))
-                                                      "NOT_FOUND")
-                                               (cadr (assq 'path err))
-                                               (intern (cadr (assq 'path err)))))
-                                        (cdr errors))))
-                                 (progn
-                                   (setq query (cl-delete-if (##memq % notfound)
-                                                             query :key #'caar))
-                                   (funcall vacuum))
-                               (ghub--signal-error errors)))))
+                             (cond-let
+                               ([notfound
+                                 (seq-keep
+                                  (lambda (err)
+                                    (and (equal (cdr (assq 'type err))
+                                                "NOT_FOUND")
+                                         (cadr (assq 'path err))
+                                         (intern (cadr (assq 'path err)))))
+                                  (cdr errors))]
+                                (setq query (cl-delete-if (##memq % notfound)
+                                                          query :key #'caar))
+                                (funcall vacuum))
+                               ((ghub--signal-error errors))))))
                    (cl-incf page)
                    (forge--msg nil t nil
                                "Pulling notifications (page %s/%s)" page pages)

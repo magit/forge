@@ -156,35 +156,36 @@ or signal an error, depending on DEMAND."
         (forge-get-repository repo 'noerror demand))
       (magit--with-refresh-cache
           (list default-directory 'forge-get-repository demand)
-        (if (not (magit-gitdir))
-            (when (memq demand forge--signal-no-entry)
-              (error
-               "Cannot determine Forge repository outside of Git repository"))
-          (unless remote
-            (setq remote (forge--get-remote 'warn)))
-          (if-let ((url (and remote
-                             (magit-git-string "remote" "get-url" remote))))
-              (and$ (forge-get-repository url remote demand)
-                    (prog1 $ (oset $ worktree (magit-toplevel))))
-            (when (memq demand forge--signal-no-entry)
-              (error
-               "Cannot determine forge repository.  %s\nSee %s."
-               (cond (remote (format "No url configured for %S." remote))
-                     ((and$ (magit-get "forge.remote")
-                            (format "Value of `forge.remote' is %S but %s"
-                                    $ "that remote does not exist.")))
-                     ((magit-list-remotes) "Cannot decide on remote to use.")
-                     (t "No remote configured."))
-               "https://magit.vc/manual/forge/How-Forge-Detection-Works.html"
-               )))))))
+        (cond-let
+          ((not (magit-gitdir))
+           (when (memq demand forge--signal-no-entry)
+             (error
+              "Cannot determine Forge repository outside of Git repository")))
+          [[remote (or remote (forge--get-remote 'warn))]]
+          ([_ remote]
+           [url (magit-git-string "remote" "get-url" remote)]
+           (and$ (forge-get-repository url remote demand)
+                 (prog1 $ (oset $ worktree (magit-toplevel)))))
+          ((memq demand forge--signal-no-entry)
+           (error
+            "Cannot determine forge repository.  %s\nSee %s."
+            (cond (remote (format "No url configured for %S." remote))
+                  ((and$ (magit-get "forge.remote")
+                         (format "Value of `forge.remote' is %S but %s"
+                                 $ "that remote does not exist.")))
+                  ((magit-list-remotes) "Cannot decide on remote to use.")
+                  (t "No remote configured."))
+            "https://magit.vc/manual/forge/How-Forge-Detection-Works.html"
+            ))))))
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
-  (if-let ((parts (forge--split-forge-url url)))
-      (forge-get-repository parts remote (or demand :known?))
-    (when (memq demand forge--signal-no-entry)
-      (error "Cannot determine forge repository.  %s isn't a forge URL.  %s"
-             url "You might have to customize `forge-alist'."))))
+  (cond-let
+    ([parts (forge--split-forge-url url)]
+     (forge-get-repository parts remote (or demand :known?)))
+    ((memq demand forge--signal-no-entry)
+     (error "Cannot determine forge repository.  %s isn't a forge URL.  %s"
+            url "You might have to customize `forge-alist'."))))
 
 (cl-defmethod forge-get-repository (((host owner name) list)
                                     &optional remote demand)
@@ -195,75 +196,75 @@ See `forge-alist' for valid Git hosts."
   (setq host  (substring-no-properties host))
   (setq owner (substring-no-properties owner))
   (setq name  (substring-no-properties name))
-  (unless (memq demand '( :tracked :tracked?
-                          :known? :insert! :valid?
-                          :stub :stub?))
-    (if-let ((new (pcase demand
-                    ('t      :tracked)
-                    ('full   :tracked?)
-                    ('nil    :known?)
-                    ('create :insert!)
-                    ('stub   :stub)
-                    ('maybe  :stub?))))
-        (progn
-          (message "Obsolete value for `%s's DEMAND: `%s'; use `%s' instead"
-                   'forge-get-repository demand new)
-          (setq demand new))
-      (error "Unknown value for `%s's DEMAND: `%s'"
-             'forge-get-repository demand)))
-  (if-let ((spec (forge--get-forge-host host t)))
-      (pcase-let ((`(,githost ,apihost ,webhost ,class) spec))
-        ;; The `webhost' is used to identify the corresponding forge.
-        ;; For that reason it is stored in the `forge' slot.  The id
-        ;; stored in the `id' slot also derives from that value.
-        (let* ((row (car (forge-sql [:select * :from repository
-                                     :where (and (= forge $s1)
-                                                 (= owner $s2)
-                                                 (= name  $s3))]
-                                    webhost owner name)))
-               (obj (and row (closql--remake-instance class (forge-db) row))))
-          ;; Synchronize the object with the entry from `forge-alist'.
-          ;; This only has an effect if the entry was modified, which
-          ;; should rarely, if ever, happen.  Avoid confusion, by not
-          ;; mentioning this detail in any docstring.
-          (when obj
-            (oset obj apihost apihost)
-            (oset obj githost githost)
-            (oset obj remote  remote))
-          (pcase (list demand (and obj (eq (oref obj condition) :tracked)))
-            (`(:tracked? nil) (setq obj nil))
-            (`(:tracked  nil)
-             (error "Cannot use `%s' in %S yet.\n%s"
-                    this-command (magit-toplevel)
-                    "Use `M-x forge-add-repository' before trying again.")))
-          (when (and (memq demand '(:insert! :valid? :stub :stub?))
-                     (not obj))
-            (pcase-let ((`(,id . ,forge-id)
-                         (forge--repository-ids
-                          class webhost owner name
-                          (memq demand '(:stub :stub?))
-                          (eq demand :valid?))))
-              (if (not id)
-                  ;; `:valid?' was used and it turned out it is not.
-                  (setq obj nil)
-                ;; The repo might have been renamed on the forge.  #188
-                (unless (setq obj (forge-get-repository :id id))
-                  (setq obj (funcall class
-                                     :id       id
-                                     :forge-id forge-id
-                                     :forge    webhost
-                                     :owner    owner
-                                     :name     name
-                                     :apihost  apihost
-                                     :githost  githost
-                                     :remote   remote))
-                  (when (eq demand :insert!)
-                    (closql-insert (forge-db) obj)
-                    (oset obj condition :known))))))
-          obj))
-    (when (memq demand forge--signal-no-entry)
-      (error "Cannot determine forge repository.  No entry for %S in %s"
-             host 'forge-alist))))
+  (cond-let
+    ((memq demand '(:tracked :tracked? :known? :insert! :valid? :stub :stub?)))
+    ([corrected (pcase demand
+                  ('t      :tracked)
+                  ('full   :tracked?)
+                  ('nil    :known?)
+                  ('create :insert!)
+                  ('stub   :stub)
+                  ('maybe  :stub?))]
+     (message "Obsolete value for `%s's DEMAND: `%s'; use `%s' instead"
+              'forge-get-repository demand corrected)
+     (setq demand corrected))
+    ((error "Unknown value for `%s's DEMAND: `%s'"
+            'forge-get-repository demand)))
+  (cond-let
+    ([spec (forge--get-forge-host host t)]
+     (pcase-let*
+         ;; The `webhost' is used to identify the corresponding forge.
+         ;; For that reason it is stored in the `forge' slot.  The id
+         ;; stored in the `id' slot also derives from that value.
+         ((`(,githost ,apihost ,webhost ,class) spec)
+          (row (car (forge-sql [:select * :from repository
+                                :where (and (= forge $s1)
+                                            (= owner $s2)
+                                            (= name  $s3))]
+                               webhost owner name)))
+          (obj (and row (closql--remake-instance class (forge-db) row))))
+       ;; Synchronize the object with the entry from `forge-alist'.
+       ;; This only has an effect if the entry was modified, which
+       ;; should rarely, if ever, happen.  Avoid confusion, by not
+       ;; mentioning this detail in any docstring.
+       (when obj
+         (oset obj apihost apihost)
+         (oset obj githost githost)
+         (oset obj remote  remote))
+       (pcase (list demand (and obj (eq (oref obj condition) :tracked)))
+         (`(:tracked? nil) (setq obj nil))
+         (`(:tracked  nil)
+          (error "Cannot use `%s' in %S yet.\n%s"
+                 this-command (magit-toplevel)
+                 "Use `M-x forge-add-repository' before trying again.")))
+       (when (and (memq demand '(:insert! :valid? :stub :stub?))
+                  (not obj))
+         (pcase-let ((`(,id . ,forge-id)
+                      (forge--repository-ids
+                       class webhost owner name
+                       (memq demand '(:stub :stub?))
+                       (eq demand :valid?))))
+           (if (not id)
+               ;; `:valid?' was used and it turned out it is not.
+               (setq obj nil)
+             ;; The repo might have been renamed on the forge.  #188
+             (unless (setq obj (forge-get-repository :id id))
+               (setq obj (funcall class
+                                  :id       id
+                                  :forge-id forge-id
+                                  :forge    webhost
+                                  :owner    owner
+                                  :name     name
+                                  :apihost  apihost
+                                  :githost  githost
+                                  :remote   remote))
+               (when (eq demand :insert!)
+                 (closql-insert (forge-db) obj)
+                 (oset obj condition :known))))))
+       obj))
+    ((memq demand forge--signal-no-entry)
+     (error "Cannot determine forge repository.  No entry for %S in %s"
+            host 'forge-alist))))
 
 (cl-defmethod forge-get-repository ((repo forge-repository)
                                     &optional noerror demand)
@@ -339,16 +340,16 @@ If `default-directory' is within one of REPO's worktrees, record that
 location in its `worktree' slot and return it.  Otherwise, if a worktree
 has been recorded before, validate that.  If it still is a worktree of
 REPO, return it, else set the slot to nil and return nil."
-  (if-let ((_(forge-repository-equal
-              repo (forge-get-repository :dir default-directory)))
-           (current-tree (magit-toplevel)))
-      (oset repo worktree current-tree)
-    (and-let ((saved-tree (oref repo worktree)))
-      (and (file-accessible-directory-p saved-tree)
-           (if (forge-repository-equal
-                repo (forge-get-repository :dir saved-tree))
-               saved-tree
-             (oset repo worktree nil))))))
+  (cond-let*
+    ([_(forge-repository-equal
+        repo (forge-get-repository :dir default-directory))]
+     [current-tree (magit-toplevel)]
+     (oset repo worktree current-tree))
+    ([saved-tree (oref repo worktree)]
+     [_(file-accessible-directory-p saved-tree)]
+     (if (forge-repository-equal repo (forge-get-repository :dir saved-tree))
+         saved-tree
+       (oset repo worktree nil)))))
 
 ;;;; List
 

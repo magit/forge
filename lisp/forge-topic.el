@@ -1391,15 +1391,15 @@ This mode itself is never used directly."
       (setq heading (concat "    " heading)))
     (font-lock-append-text-property
      0 (length heading)
-     'font-lock-face (cond
-                      ((and-let ((_(forge-discussion-p topic))
-                                 (answer (oref topic answer)))
-                         (equal (oref post their-id)
-                                (forge--their-id answer)))
-                       'forge-discussion-answer-heading)
-                      ((forge-discussion-reply-p post)
-                       '(magit-dimmed magit-diff-hunk-heading))
-                      ('magit-diff-hunk-heading))
+     'font-lock-face (cond-let*
+                       ([_(forge-discussion-p topic)]
+                        [answer (oref topic answer)]
+                        [_(equal (oref post their-id)
+                                 (forge--their-id answer))]
+                        'forge-discussion-answer-heading)
+                       ((forge-discussion-reply-p post)
+                        '(magit-dimmed magit-diff-hunk-heading))
+                       ('magit-diff-hunk-heading))
      heading)
     (magit-insert-heading heading)))
 

@@ -398,13 +398,14 @@ parent object (determined using `forge-get-parent')."
                          (format "%s" $))
                    str)))
            resource t t))
-    (if (string-match ":[^/]*" resource)
-        (if-let ((parent (ignore-errors (forge-get-parent object))))
-            (forge--format-resource parent resource)
-          (error "Cannot resolve %s for a %s"
-                 (match-string 0 resource)
-                 (eieio-object-class object)))
-      resource)))
+    (cond-let
+      ((not (string-match ":[^/]*" resource))
+       resource)
+      ([parent (ignore-errors (forge-get-parent object))]
+       (forge--format-resource parent resource))
+      ((error "Cannot resolve %s for a %s"
+              (match-string 0 resource)
+              (eieio-object-class object))))))
 
 ;;; Miscellaneous
 

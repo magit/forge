@@ -175,17 +175,18 @@ repository cannot be determined, instead invoke `forge-add-repository'."
   (magit-git-fetch (oref repo remote) (magit-fetch-arguments)))
 
 (defun forge--maybe-git-fetch (repo &optional buffer)
-  (if (buffer-live-p buffer)
-      (with-current-buffer buffer
-        (if (and (derived-mode-p 'magit-mode)
-                 (forge-repository-equal (forge-get-repository :stub?) repo)
-                 (magit-toplevel))
-            (magit-git-fetch (oref repo remote) (magit-fetch-arguments))
-          (magit-refresh-buffer)))
-    (when-let ((worktree (forge-get-worktree repo)))
-      (let ((default-directory worktree)
-            (magit-inhibit-refresh t))
-        (magit-git-fetch (oref repo remote) (magit-fetch-arguments))))))
+  (cond-let
+    ((buffer-live-p buffer)
+     (with-current-buffer buffer
+       (if (and (derived-mode-p 'magit-mode)
+                (forge-repository-equal (forge-get-repository :stub?) repo)
+                (magit-toplevel))
+           (magit-git-fetch (oref repo remote) (magit-fetch-arguments))
+         (magit-refresh-buffer))))
+    ([worktree (forge-get-worktree repo)]
+     (let ((default-directory worktree)
+           (magit-inhibit-refresh t))
+       (magit-git-fetch (oref repo remote) (magit-fetch-arguments))))))
 
 ;;;###autoload(autoload 'forge-pull-notifications "forge-commands" nil t)
 (transient-define-suffix forge-pull-notifications ()
@@ -414,13 +415,14 @@ commit, and for a file."
 
 (cl-defmethod forge-get-url ((_(eql :commit)) commit)
   (let ((repo (forge-get-repository :stub)))
-    (unless (magit-list-containing-branches
-             commit "-r" (concat (oref repo remote) "/*"))
-      (if-let* ((branch (car (magit-list-containing-branches commit "-r")))
-                (remote (car (magit-split-branch-name branch))))
-          (setq repo (forge-get-repository :stub remote))
-        (message "%s does not appear to be available on any remote.  %s"
-                 commit "You might have to push it first.")))
+    (cond-let*
+      ((magit-list-containing-branches
+        commit "-r" (concat (oref repo remote) "/*")))
+      ([branch (car (magit-list-containing-branches commit "-r"))]
+       [remote (car (magit-split-branch-name branch))]
+       (setq repo (forge-get-repository :stub remote)))
+      ((message "%s does not appear to be available on any remote.  %s"
+                commit "You might have to push it first.")))
     (forge--format repo 'commit-url-format
                    `((?r . ,(magit-commit-p commit))))))
 
@@ -570,10 +572,11 @@ With prefix argument MENU, also show the topic menu."
     (cond
      ((and (eq transient-current-command 'forge-repositories-menu)
            (forge-get-repository repo nil :tracked?))
-      (if-let ((buffer (get-buffer (forge-topics-buffer-name repo))))
-          (progn (switch-to-buffer buffer)
-                 (transient-setup 'forge-topics-menu))
-        (forge-list-topics repo)))
+      (cond-let
+        ([buffer (get-buffer (forge-topics-buffer-name repo))]
+         (switch-to-buffer buffer)
+         (transient-setup 'forge-topics-menu))
+        ((forge-list-topics repo))))
      (worktree
       (magit-status-setup-buffer worktree))
      ((forge-get-repository repo nil :tracked?)
@@ -987,15 +990,15 @@ number) and this command is made available as a substitute in the
                                     (oref pullreq head-ref))
                             'magit-branch-remote))))
   (interactive (list (magit-push-arguments)))
-  (if-let* ((branch (magit-get-current-branch))
-            (pullreq (forge-get-pullreq :branch branch)))
-      (progn
-        (run-hooks 'magit-credential-hook)
-        (magit-run-git-async "push" "-v"
-                             (delete "--tags" (delete "--follow-tags" args))
-                             (oref pullreq head-user)
-                             (format "%s:%s" branch (oref pullreq head-ref))))
-    (error "Checked out branch is not an unnamed pull-request branch")))
+  (cond-let*
+    ([branch (magit-get-current-branch)]
+     [pullreq (forge-get-pullreq :branch branch)]
+     (run-hooks 'magit-credential-hook)
+     (magit-run-git-async "push" "-v"
+                          (delete "--tags" (delete "--follow-tags" args))
+                          (oref pullreq head-user)
+                          (format "%s:%s" branch (oref pullreq head-ref))))
+    ((error "Checked out branch is not an unnamed pull-request branch"))))
 
 ;;; Marks
 

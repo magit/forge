@@ -275,23 +275,25 @@ and optional HEADING to change the section heading."
 
 (defun forge--insert-pullreq-commits (pullreq &optional all)
   (cl-letf (((symbol-function #'magit-cancel-section) (lambda ())))
-    (if all
-        ;; Numeric pr ref, pr branch (if it exists) and api
-        ;; pr range may be out of sync.  Just show them all.
-        (magit-insert-section-body
-          (magit--insert-log nil
-            (delq nil (list (concat "^" (or (oref pullreq base-rev)
-                                            (concat (forge--get-remote) "/"
-                                                    (oref pullreq base-ref))))
-                            (forge--pullreq-ref pullreq)
-                            (forge--pullreq-branch-active pullreq)
-                            (and-let* ((branch (oref pullreq head-ref)))
-                              (and (magit-local-branch-p branch) branch))))
-            (seq-uniq (cons "--graph" magit-buffer-log-args))))
-      (when-let ((range (forge--pullreq-range pullreq)))
-        (magit-insert-section-body
-          (magit--insert-log nil range magit-buffer-log-args)
-          (magit-make-margin-overlay nil t))))))
+    (cond-let
+      (all
+       ;; Numeric pr ref, pr branch (if it exists) and api
+       ;; pr range may be out of sync.  Just show them all.
+       (magit-insert-section-body
+         (magit--insert-log nil
+           (delq nil (list (concat "^" (or (oref pullreq base-rev)
+                                           (concat (forge--get-remote) "/"
+                                                   (oref pullreq base-ref))))
+                           (forge--pullreq-ref pullreq)
+                           (forge--pullreq-branch-active pullreq)
+                           (and-let* ((branch (oref pullreq head-ref))
+                                      (_(magit-local-branch-p branch)))
+                             branch)))
+           (seq-uniq (cons "--graph" magit-buffer-log-args)))))
+      ([range (forge--pullreq-range pullreq)]
+       (magit-insert-section-body
+         (magit--insert-log nil range magit-buffer-log-args)
+         (magit-make-margin-overlay nil t))))))
 
 ;;; _
 ;; Local Variables:
