@@ -786,8 +786,8 @@ Please see the manual for more information."
   (interactive (list (forge-read-pullreq "Branch pull request")))
   (let ((pullreq (forge-get-pullreq pullreq)))
     (if-let ((branch (forge--pullreq-branch-active pullreq)))
-        (progn (message "Branch %S already exists and is configured" branch)
-               branch)
+        (prog1 branch
+          (message "Branch %S already exists and is configured" branch))
       (forge--branch-pullreq pullreq)
       (forge-refresh-buffer))))
 
