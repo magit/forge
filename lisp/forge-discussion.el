@@ -263,11 +263,11 @@ can be selected from the start."
   "Insert a list of discussions, according to `forge--buffer-topics-spec'.
 Optional SPEC can be used to override that filtering specification,
 and optional HEADING to change the section heading."
-  (when-let ((_(forge-db t))
-             (repo (forge-get-repository :tracked?))
-             (_(oref repo discussions-p))
-             (spec (if sspec spec (forge--clone-buffer-topics-spec)))
-             (_(memq (oref spec type) '(topic discussion))))
+  (when-let* ((_(forge-db t))
+              (repo (forge-get-repository :tracked?))
+              (_(oref repo discussions-p))
+              (spec (if sspec spec (forge--clone-buffer-topics-spec)))
+              (_(memq (oref spec type) '(topic discussion))))
     (oset spec type 'discussion)
     (forge--insert-topics 'discussions
                           (or heading "Discussions")

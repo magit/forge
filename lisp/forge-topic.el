@@ -1161,9 +1161,9 @@ Grep Forge for more examples.
 Alternatively you can use `forge-topics-setup-buffer' to list a set
 of topics in a dedicated buffer."
   (declare (indent defun))
-  (when-let ((_(forge-db t))
-             (repo (forge-get-repository :tracked?))
-             (spec (funcall prepare repo)))
+  (when-let* ((_(forge-db t))
+              (repo (forge-get-repository :tracked?))
+              (spec (funcall prepare repo)))
     (forge--insert-topics type heading (forge--list-topics spec repo))))
 
 (defun forge--insert-topics (type heading topics)
