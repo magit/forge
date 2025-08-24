@@ -125,8 +125,8 @@
               'forge-discussion))
 
 (cl-defmethod forge-get-discussion ((number integer))
-  (and-let* ((repo (forge-get-repository :tracked nil 'notatpt)))
-    (forge-get-discussion repo number)))
+  (and$ (forge-get-repository :tracked nil 'notatpt)
+        (forge-get-discussion $ number)))
 
 (cl-defmethod forge-get-discussion ((id string))
   (closql-get (forge-db) id 'forge-discussion))
@@ -210,9 +210,9 @@ can be selected from the start."
   (if-let ((post (forge-post-at-point)))
       (cond ((forge-discussion-p (forge-post-at-point))
              (user-error "Cannot pick the question as its own answer"))
-            ((and-let* ((answer (oref topic answer)))
-               (equal (oref post their-id)
-                      (forge--their-id answer)))
+            ((and$ (oref topic answer)
+                   (equal (oref post their-id)
+                          (forge--their-id $)))
              nil)
             (post))
     (user-error "Point must be on an reply to mark it as the answer")))

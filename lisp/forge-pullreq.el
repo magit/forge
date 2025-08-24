@@ -144,8 +144,8 @@
               'forge-pullreq))
 
 (cl-defmethod forge-get-pullreq ((number integer))
-  (and-let* ((repo (forge-get-repository :tracked nil 'notatpt)))
-    (forge-get-pullreq repo number)))
+  (and$ (forge-get-repository :tracked nil 'notatpt)
+        (forge-get-pullreq $ number)))
 
 (cl-defmethod forge-get-pullreq ((id string))
   (closql-get (forge-db) id 'forge-pullreq))

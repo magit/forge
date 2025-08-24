@@ -385,18 +385,17 @@ parent object (determined using `forge-get-parent')."
            ":\\([^/]+\\)"
            (lambda (str)
              (let ((slot (intern (substring str 1))))
-               (or (and-let*
-                       ((v (ignore-errors
-                             (pcase slot
-                               ('repo    (oref object name))
-                               ('project (concat (string-replace
-                                                  "/" "%2F" (oref object owner))
-                                                 "%2F"
-                                                 (oref object name)))
-                               ('topic   (and (forge--childp object 'forge-topic)
-                                              (oref object number)))
-                               (_        (eieio-oref object slot))))))
-                     (format "%s" v))
+               (or (and$ (ignore-errors
+                           (pcase slot
+                             ('repo    (oref object name))
+                             ('project (concat (string-replace
+                                                "/" "%2F" (oref object owner))
+                                               "%2F"
+                                               (oref object name)))
+                             ('topic   (and (forge--childp object 'forge-topic)
+                                            (oref object number)))
+                             (_        (eieio-oref object slot))))
+                         (format "%s" $))
                    str)))
            resource t t))
     (if (string-match ":[^/]*" resource)

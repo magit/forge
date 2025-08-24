@@ -1088,8 +1088,8 @@ can be selected from the start."
     (mapconcat #'forge--format-person assignees ", ")))
 
 (defun forge--format-topic-review-requests (topic)
-  (and-let* ((review-requests (oref topic review-requests)))
-    (mapconcat #'forge--format-person review-requests ", ")))
+  (and$ (oref topic review-requests)
+        (mapconcat #'forge--format-person $ ", ")))
 
 (defun forge--format-person (person)
   (pcase-let* ((`(,_id ,login ,name) person)

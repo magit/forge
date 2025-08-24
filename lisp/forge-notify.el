@@ -73,8 +73,8 @@
 If there is no such notification and DEMAND is non-nil, then
 signal an error."
   (or (magit-section-value-if 'notification)
-      (and-let* ((topic (forge-current-topic)))
-        (forge-get-notification topic))
+      (and$ (forge-current-topic)
+            (forge-get-notification $))
       (and demand (user-error "No current notification"))))
 
 (defun forge-notification-at-point (&optional demand)
@@ -82,8 +82,8 @@ signal an error."
 If there is no such notification and DEMAND is non-nil, then
 signal an error."
   (or (magit-section-value-if 'notification)
-      (and-let* ((topic (forge-topic-at-point)))
-        (forge-get-notification topic))
+      (and$ (forge-topic-at-point)
+            (forge-get-notification $))
       (and demand (user-error "No notification at point"))))
 
 ;;;; List

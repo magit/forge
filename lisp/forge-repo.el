@@ -164,17 +164,15 @@ or signal an error, depending on DEMAND."
             (setq remote (forge--get-remote 'warn)))
           (if-let ((url (and remote
                              (magit-git-string "remote" "get-url" remote))))
-              (and-let* ((repo (forge-get-repository url remote demand)))
-                (progn ; work around debbugs#31840
-                  (oset repo worktree (magit-toplevel))
-                  repo))
+              (and$ (forge-get-repository url remote demand)
+                    (prog1 $ (oset $ worktree (magit-toplevel))))
             (when (memq demand forge--signal-no-entry)
               (error
                "Cannot determine forge repository.  %s\nSee %s."
                (cond (remote (format "No url configured for %S." remote))
-                     ((and-let* ((config (magit-get "forge.remote")))
-                        (format "Value of `forge.remote' is %S but %s"
-                                config "that remote does not exist.")))
+                     ((and$ (magit-get "forge.remote")
+                            (format "Value of `forge.remote' is %S but %s"
+                                    $ "that remote does not exist.")))
                      ((magit-list-remotes) "Cannot decide on remote to use.")
                      (t "No remote configured."))
                "https://magit.vc/manual/forge/How-Forge-Detection-Works.html"
@@ -330,8 +328,8 @@ an error."
 (defun forge-set-buffer-repository ()
   "Initialize the value of variable `forge-buffer-repository'."
   (unless forge-buffer-repository
-    (and-let* ((repo (forge-get-repository :known?)))
-      (setq forge-buffer-repository (oref repo id)))))
+    (and$ (forge-get-repository :known?)
+          (setq forge-buffer-repository (oref $ id)))))
 
 (add-hook 'magit-mode-hook #'forge-set-buffer-repository)
 
@@ -434,11 +432,11 @@ forges and hosts."
                          (forge-sql [:select [githost owner name]
                                      :from repository]))
                  nil t nil nil
-                 (and-let* ((default (forge-get-repository :stub?)))
-                   (format "%s/%s @%s"
-                           (oref default owner)
-                           (oref default name)
-                           (oref default githost))))))
+                 (and$ (forge-get-repository :stub?)
+                       (format "%s/%s @%s"
+                               (oref $ owner)
+                               (oref $ name)
+                               (oref $ githost))))))
     (save-match-data
       (if (string-match "\\`\\(.+\\)/\\([^/]+\\) @\\(.+\\)\\'" choice)
           (forge-get-repository (list (match-string 3 choice)

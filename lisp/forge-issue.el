@@ -122,8 +122,8 @@
               'forge-issue))
 
 (cl-defmethod forge-get-issue ((number integer))
-  (and-let* ((repo (forge-get-repository :tracked nil 'notatpt)))
-    (forge-get-issue repo number)))
+  (and$ (forge-get-repository :tracked nil 'notatpt)
+        (forge-get-issue $ number)))
 
 (cl-defmethod forge-get-issue ((id string))
   (closql-get (forge-db) id 'forge-issue))

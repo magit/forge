@@ -207,8 +207,7 @@ repository cannot be determined, instead invoke `forge-add-repository'."
                            (forge--get-github-repository)))
   (interactive
    (list (read-number "Pull topic: "
-                      (and-let* ((topic (forge-current-topic)))
-                        (oref topic number)))))
+                      (and$ (forge-current-topic) (oref $ number)))))
   (forge--pull-topic (forge-get-repository :tracked) number))
 
 ;;;###autoload(autoload 'forge-pull-this-topic "forge-commands" nil t)
@@ -367,16 +366,11 @@ commit, and for a file."
     (user-error "Nothing to browse here")))
 
 (defun forge--browse-target ()
-  (or (and-let* ((branch (magit--painted-branch-at-point)))
-        (forge-get-url :branch branch))
-      (and-let* ((commit (magit-commit-at-point)))
-        (forge-get-url :commit commit))
-      (and-let* ((branch (magit-branch-at-point)))
-        (forge-get-url :branch branch))
-      (and-let* ((remote (magit-remote-at-point)))
-        (forge-get-url :remote remote))
-      (and-let* ((file (magit-file-at-point)))
-        (forge-get-url :blob nil file))
+  (or (and$ (magit--painted-branch-at-point) (forge-get-url :branch $))
+      (and$ (magit-commit-at-point)          (forge-get-url :commit $))
+      (and$ (magit-branch-at-point)          (forge-get-url :branch $))
+      (and$ (magit-remote-at-point)          (forge-get-url :remote $))
+      (and$ (magit-file-at-point)            (forge-get-url :blob nil $))
       (forge-post-at-point)
       (forge-current-topic)
       (and (or magit-buffer-file-name buffer-file-name)
