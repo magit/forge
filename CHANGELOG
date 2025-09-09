@@ -1,4 +1,76 @@
 # -*- mode: org -*-
+* v0.6.0    UNRELEASED
+
+- Switched to the new low-level functions, provided by Ghub v5.0.0,
+  for making REST and GraphQL requests.  These new functions address
+  shortcomings of the older implementations and take learned lessons
+  into account.  The required refactoring in both packages was quite
+  extensive.  This fixes many bugs and other shortcomings, but those
+  are not all explicitly listed below.  Implemented more API functions
+  in the new ~forge-client.el~ library.  Deprecated high-level functions
+  from Ghub, such as ~ghub-fetch-repositories~, are no longer being
+  used; Forge now implements such functions itself.  The deprecated
+  libraries ~buck~, ~glab~, ~gtea~ and ~gogs~, which are now deprecated and
+  were moved out of Ghub into dedicated packages, are no longer being
+  used.
+
+- For Github use GraphQL more, instead of REST.  It is not possible
+  to use just one of these APIs, because they both miss different
+  features.  The GraphQL API isn't necessarily better or at least a
+  better match than the REST API, but this is where Github is moving,
+  so we now use GraphQL whenever possible.  Also prepared for using
+  GraphQL for Gitlab, but without actually taking the leep just yet.
+
+- Add entry for ~ssh.github.com~ to ~forge-alist~.  #708
+
+- Added new command ~forge-visit-topic-from-url~.  #555
+
+- Added support for bookmarking topic buffers.  #555
+
+- Sped up fetching after replying to a topic or editing a post.  #786
+
+- ~forge-edit-post-hook~ is now define as an option.  b1e16d248
+
+- Added new function ~forge-create-pullreq-insert-branch-description~,
+  suitable for being added to ~forge-edit-post-hook~.  ac8ba91ac
+
+- The text initially inserted into buffers used to create or edit
+  posts has been improved, removing unnecessary and/or duplicated
+  noise, which was previously inserted.  13c046500, 443172cfe
+
+- When the user cancels creating or editing a post, they are given
+  the choice to discard the draft, and they are now shown the post
+  in question, while being asked to decide its fate.  98062b13f,
+  d6162bc8a
+
+- While creating a pull-request, the user is now shown the diff of
+  the included changes.  e605525be
+
+- Slightly extended the still very limited support for Forgejo.
+  I still plan to add proper support eventually.  ee44f2cfd
+
+- The menus are now being refreshed in more situations.  be4435d5a
+
+- Added new command ~forge-push-to-unnamed-pullreq~.  #789
+
+Bug fixes:
+
+- 1a792e7ac Call forge--pull directly instead of going through forge-pull
+- fa105ca50 forge--topic-parse-template: Discard more invalid template data
+- 443c74258 forge--setup-post-buffer: Format the filename
+- d30d5ef6d forge-edit-post-hook: Run all functions in correct buffer #790
+- ca41d9dd3 * forge-discussion-set-answer: Make inapt if category is not answerable
+- 11c931b36 * forge-get-topic(repo number-or-id): Actually support both number and id
+- f162b9404 * forge--fork-repository: Pass apihost to ghub-wait
+- f5f6b764d * forge--fork-repository: Compare against correct username
+- 1f65bf8d7 * Use intended face for outdated discussions
+- 984c00607 * forge--fork-repository: Use forge--format-resource for formatting
+- 18b1e59d6 * forge--fork-repository(gitlab): Escape fork destination in ghub-wait #795
+- b531c7de7 * forge--topic-parse-template: Deal incomplete yaml frontmatter
+- 12a99cd3d * forge--topic-parse-template: Deal missing yaml frontmatter
+- 8bacf2836 * forge--select-discussion-reply-target: Fix when on opening message
+- 2774ac242 * forge--fontify-markdown: Replace face with font-lock-face
+
 * v0.5.3    2025-06-04
 
 - Fixed a regression in v0.5.1, which prevented labeling topics
