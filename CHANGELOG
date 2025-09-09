@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v0.6.0    UNRELEASED
+* v0.6.0    2025-09-09
 
 - Switched to the new low-level functions, provided by Ghub v5.0.0,
   for making REST and GraphQL requests.  These new functions address

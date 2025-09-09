@@ -7,20 +7,20 @@
 ;; Homepage: https://github.com/magit/forge
 ;; Keywords: git tools vc
 
-;; Package-Version: 0.5.3
+;; Package-Version: 0.6.0
 ;; Package-Requires: (
-;;     (emacs "29.1")
-;;     (compat "30.1")
-;;     (cond-let "0.1")
-;;     (closql "2.2.2")
-;;     (emacsql "4.3.1")
-;;     (ghub "4.3.2")
-;;     (llama "1.0")
-;;     (magit "4.3.6")
+;;     (emacs        "29.1")
+;;     (compat       "30.1")
+;;     (closql        "2.3")
+;;     (cond-let      "0.1")
+;;     (emacsql       "4.3")
+;;     (ghub          "5.0")
+;;     (llama         "1.0")
+;;     (magit         "4.4")
 ;;     (markdown-mode "2.7")
-;;     (seq "2.24")
-;;     (transient "0.9.0")
-;;     (yaml "1.2.0"))
+;;     (seq           "2.24")
+;;     (transient     "0.10")
+;;     (yaml          "1.2"))
 
 ;; SPDX-License-Identifier: GPL-3.0-or-later
 
