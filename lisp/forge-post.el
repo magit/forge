@@ -47,7 +47,7 @@ use `forge-edit-post-hook'."
   "Hook run after setting up a buffer to edit a post.
 Consult the variable `forge-edit-post-action' to determine the action;
 one of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'."
-  :package-version '(forge . "0.5.4")
+  :package-version '(forge . "0.6.0")
   :group 'forge
   :type 'hook
   :options '(forge-create-pullreq-insert-single-commit-message
