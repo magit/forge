@@ -375,11 +375,11 @@
     :noerror t
     :callback (lambda (data)
                 (let-alist data
-                  (cond ((setq data .data.repository.discussion)
+                  (cond ((setq data .repository.discussion)
                          (forge--update-discussion repo data))
-                        ((setq data .data.repository.issue)
+                        ((setq data .repository.issue)
                          (forge--update-issue repo data))
-                        ((setq data .data.repository.pullRequest)
+                        ((setq data .repository.pullRequest)
                          (forge--update-pullreq repo data))))
                 (forge-refresh-buffer))))
 
