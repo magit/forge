@@ -570,7 +570,7 @@ at least enables the use of commands such as @code{forge-browse}.
 A few hosts, which use partially supported forge types, are available
 out-of-the-box, because they have an entry in the default value of
 option @code{forge-alist} (also see its docstring).  For example, the entry
-for @uref{https://github.com} in that variable looks like this:
+for @uref{https://codeberg.org} in that variable looks like this:
 
 @lisp
 ("codeberg.org"                     ; GITHOST

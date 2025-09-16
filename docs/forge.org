@@ -479,7 +479,7 @@ at least enables the use of commands such as ~forge-browse~.
 A few hosts, which use partially supported forge types, are available
 out-of-the-box, because they have an entry in the default value of
 option ~forge-alist~ (also see its docstring).  For example, the entry
-for https://github.com in that variable looks like this:
+for https://codeberg.org in that variable looks like this:
 
 #+begin_src emacs-lisp
   ("codeberg.org"                     ; GITHOST
