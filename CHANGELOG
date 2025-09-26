@@ -1,4 +1,8 @@
 # -*- mode: org -*-
+* v0.6.1    UNRELEASED
+
+- Fetching individual topics from Github was broken.  #808
+
 * v0.6.0    2025-09-09
 
 - Switched to the new low-level functions, provided by Ghub v5.0.0,
