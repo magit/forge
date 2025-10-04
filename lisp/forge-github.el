@@ -1234,7 +1234,7 @@
   ;; When there are multiple conflicting "default" templates, the rules
   ;; used by Github are more complex than just sorting alphabetically and
   ;; then taking the first found file.  Too bad; that's what we do.
-  (let ((branch (oref repo default-branch))
+  (let ((branch (forge--get-default-branch repo))
         (case-fold-search t))
     (seq-some (lambda (file)
                 (and (string-match-p "\

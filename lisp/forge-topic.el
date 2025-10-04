@@ -1976,7 +1976,7 @@ When point is on the answer, then unmark it and mark no other."
 
 (defun forge--topic-template-files-1 (repo suffix &rest paths)
   (setq suffix (ensure-list suffix))
-  (let ((branch (oref repo default-branch)))
+  (let ((branch (forge--get-default-branch repo)))
     (seq-keep (if suffix
                   (##and (member (file-name-extension %) suffix)
                          (concat branch ":" %))

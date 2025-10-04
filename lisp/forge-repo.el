@@ -127,6 +127,11 @@
                "https://magit.vc/manual/forge/How-Forge-Detection-Works.html"))
     remote))
 
+(defun forge--get-default-branch (repo)
+  (let ((default-directory (forge-get-worktree repo)))
+    (concat (forge--get-remote) "/"
+            (or (oref repo default-branch) "master"))))
+
 (cl-defmethod forge-get-repository ((_(eql :id)) id)
   (closql-get (forge-db) (substring-no-properties id) 'forge-repository))
 
