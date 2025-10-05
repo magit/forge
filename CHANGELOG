@@ -3,6 +3,9 @@
 
 - Fetching individual topics from Github was broken.  #808
 
+- Topic templates are now taken from the remote tracking ref for
+  the default branch, instead of the corresponding local ref.  #816
+
 * v0.6.0    2025-09-09
 
 - Switched to the new low-level functions, provided by Ghub v5.0.0,
