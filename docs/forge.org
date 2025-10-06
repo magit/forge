@@ -922,6 +922,10 @@ argument, i.e., ~C-u RET~.
   a file in the worktree with no active region, instead use the branch
   name as part of the URL, unless a prefix argument is used.
 
+  When invoked from a Dired buffer, visit the blob at point without
+  prompting.  If a prefix argument is used, the commit hash is
+  included in the URL.
+
   When invoked from any other buffer, prompt the user for a branch or
   commit, and for a file.
 

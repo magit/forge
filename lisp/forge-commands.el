@@ -326,6 +326,10 @@ jumping to a line, always use a commit hash as part of the URL.  From
 a file in the worktree with no active region, instead use the branch
 name as part of the URL, unless a prefix argument is used.
 
+When invoked from a Dired buffer, visit the blob at point without
+prompting. If a prefix argument is used, the commit hash is included
+in the URL.
+
 When invoked from any other buffer, prompt the user for a branch or
 commit, and for a file."
   (interactive (forge--browse-blob-args))
@@ -374,7 +378,9 @@ commit, and for a file."
       (and$ (magit-file-at-point)            (forge-get-url :blob nil $))
       (forge-post-at-point)
       (forge-current-topic)
-      (and (or magit-buffer-file-name buffer-file-name)
+      (and (or magit-buffer-file-name
+               buffer-file-name
+               (derived-mode-p 'dired-mode))
            (apply #'forge-get-url :blob (forge--browse-blob-args)))
       (and magit-buffer-revision
            (forge-get-url :commit magit-buffer-revision))
@@ -391,6 +397,10 @@ commit, and for a file."
     `(nil
       ,(magit-file-relative-name buffer-file-name)
       ,@(magit-file-region-line-numbers)
+      ,current-prefix-arg))
+   ((derived-mode-p 'dired-mode)
+    `(nil
+      ,(magit-file-relative-name (dired-get-filename))
       ,current-prefix-arg))
    ((let ((commit (magit-read-local-branch-or-commit
                    "Browse file from commit")))
