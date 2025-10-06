@@ -1,5 +1,5 @@
 # -*- mode: org -*-
-* v0.6.1    UNRELEASED
+* v0.6.1    2025-10-06
 
 - Fetching individual topics from Github was broken.  #808
 
