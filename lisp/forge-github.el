@@ -193,6 +193,20 @@
           (  assignees [(:edges t)] id)
           (  reviewRequests [(:edges t)]
              (requestedReviewer "... on User { id }\n"))
+          (  reviews [(:edges t)]
+             id
+             databaseId
+             (author login)
+             createdAt
+             updatedAt
+             ;; review is a start of threaded comments can be resolved
+             (  comments [(:edges t)]
+                id
+                databaseId
+                (author login)
+                createdAt
+                updatedAt
+                body))
           (  comments [(:edges t)]
              id
              databaseId
@@ -634,7 +648,8 @@
         (oset pullreq head-repo    .headRef.repository.nameWithOwner)
         (oset pullreq milestone    (forge--object-id repo-id .milestone.id))
         (oset pullreq body         (forge--sanitize-string .body))
-        (dolist (p .comments)
+        (dolist (p (append .comments
+                           (mapcar (lambda (r) (let-alist r (car .comments))) .reviews)))
           (let-alist p
             (closql-insert
              (forge-db)
