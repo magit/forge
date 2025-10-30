@@ -1,9 +1,9 @@
 -include ../config.mk
 include ../default.mk
 
-lisp: $(ELCS) loaddefs check-declare
+lisp: $(ELCS) autoloads check-declare
 
-loaddefs: $(PKG)-autoloads.el
+autoloads: $(PKG)-autoloads.el
 
 $(PKG)-db.elc:
 $(PKG)-core.elc:       $(PKG)-db.elc
