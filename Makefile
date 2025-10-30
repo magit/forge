@@ -6,21 +6,21 @@ include default.mk
 all: lisp docs
 
 help:
-	$(info make all          - generate lisp and manual)
-	$(info make lisp         - generate byte-code and autoloads)
-	$(info make redo         - re-generate byte-code and autoloads)
-	$(info make docs         - generate all manual formats)
-	$(info make redo-docs    - re-generate all manual formats)
-	$(info make texi         - generate texi manual)
-	$(info make info         - generate info manual)
-	$(info make html         - generate html manual file)
-	$(info make html-dir     - generate html manual directory)
-	$(info make pdf          - generate pdf manual)
-	$(info make publish      - publish snapshot manuals)
-	$(info make release      - publish release manuals)
-	$(info make stats        - generate statistics)
-	$(info make stats-upload - publish statistics)
-	$(info make clean        - remove most generated files)
+	$(info make all          -- Generate lisp and manual)
+	$(info make lisp         -- Generate byte-code and autoloads)
+	$(info make redo         -- Re-generate byte-code and autoloads)
+	$(info make docs         -- Generate all manual formats)
+	$(info make redo-docs    -- Re-generate all manual formats)
+	$(info make texi         -- Generate texi manual)
+	$(info make info         -- Generate info manual)
+	$(info make html         -- Generate html manual file)
+	$(info make html-dir     -- Generate html manual directory)
+	$(info make pdf          -- Generate pdf manual)
+	$(info make publish      -- Publish snapshot manuals)
+	$(info make release      -- Publish release manuals)
+	$(info make stats        -- Generate statistics)
+	$(info make stats-upload -- Publish statistics)
+	$(info make clean        -- Remove most generated files)
 	@printf "\n"
 
 lisp:
