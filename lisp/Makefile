@@ -48,15 +48,12 @@ clean:
 
 $(PKG)-autoloads.el: $(ELS)
 	@printf " Creating $@\n"
-	@$(EMACS) -Q --batch -l autoload -l cl-lib --eval "\
-(let ((file (expand-file-name \"$@\"))\
-      (autoload-timestamps nil) \
-      (backup-inhibited t)\
-      (version-control 'never)\
-      (coding-system-for-write 'utf-8-emacs-unix))\
-  (write-region (autoload-rubric file \"package\" nil) nil file nil 'silent)\
-  (cl-letf (((symbol-function 'progress-reporter-do-update) (lambda (&rest _)))\
-            ((symbol-function 'progress-reporter-done) (lambda (_))))\
-    (let ((generated-autoload-file file))\
-      (update-directory-autoloads default-directory))))" \
-	2>&1 | sed "/^Package autoload is deprecated$$/d"
+	@$(EMACS) -Q --batch --eval "\
+(let ((inhibit-message t))\
+  (loaddefs-generate\
+   default-directory \"$@\" nil\
+   (prin1-to-string\
+    '(add-to-list 'load-path\
+                  (or (and #$$ (directory-file-name (file-name-directory #$$)))\
+                      (car load-path)))))\
+   nil t)"
