@@ -1,4 +1,8 @@
 # -*- mode: org -*-
+* v0.6.2    2025-11-01
+
+- ~forge-browse-commit~ now supports Dired buffers.  #818
+
 * v0.6.1    2025-10-06
 
 - Fetching individual topics from Github was broken.  #808
