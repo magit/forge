@@ -972,7 +972,7 @@ information."
       (user-error "The empty string isn't a valid path"))
     path))
 
-;;;###autoload (autoload 'forge-push-to-unnamed-pullreq "forge-commands" nil t)
+;;;###autoload(autoload 'forge-push-to-unnamed-pullreq "forge-commands" nil t)
 (transient-define-suffix forge-push-to-unnamed-pullreq (args)
   "Push the current branch to the branch on the contributor's fork.
 
