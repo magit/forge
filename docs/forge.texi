@@ -1195,7 +1195,7 @@ faster to use the menu.
 
 The commands that fetch forge data are available the Forge's main menu
 (@code{forge-dispatch} on @code{N}) and from the same menu (@code{magit-fetch} on @code{f}) that
-is used to fetch Git data.  If @code{magit-pull-or-fetch} is non-nil, then
+is used to fetch Git data.  If @code{magit-pull-or-fetch} is non-@code{nil}, then
 they are also available from the @code{magit-pull} menu (on @code{F}).
 
 With Git you have to explicitly pull Git data to make it available in
