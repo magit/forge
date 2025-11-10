@@ -1203,6 +1203,9 @@ then the remote is never removed.
 
   Currently this only supports Github and Gitlab.
 
+  With a prefix argument, fork all branches, not just the default
+  branch.  On Gitlab it is not possible to fork only the default.
+
 - Key: N - H (forge-toggle-topic-legend) ::
 
   This command toggle whether to show a legend for faces used in topic

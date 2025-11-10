@@ -1059,10 +1059,14 @@ number) and this command is made available as a substitute in the
 ;;; Remotely
 
 ;;;###autoload
-(defun forge-fork (fork remote)
+(defun forge-fork (fork remote all)
   "Fork the current repository to FORK and add it as a REMOTE.
+
 If the fork already exists, then that isn't an error; the remote
-is added anyway.  Currently this only supports Github and Gitlab."
+is added anyway.  Currently this only supports Github and Gitlab.
+
+With prefix argument ALL, fork all branches, not just the default
+branch.  On Gitlab it is not possible to fork only the default."
   (interactive
    (let ((fork (magit-completing-read "Fork to"
                                       (mapcar #'car forge-owned-accounts))))
@@ -1070,9 +1074,10 @@ is added anyway.  Currently this only supports Github and Gitlab."
            (read-string "Remote name: "
                         (or (plist-get (cdr (assoc fork forge-owned-accounts))
                                        'remote-name)
-                            fork)))))
+                            fork))
+           current-prefix-arg)))
   (let ((repo (forge-get-repository :stub)))
-    (forge--fork-repository repo fork)
+    (forge--fork-repository repo fork all)
     (magit-remote-add remote
                       (magit-clone--format-url (oref repo githost) fork
                                                (oref repo name))

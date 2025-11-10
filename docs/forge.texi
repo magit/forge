@@ -1403,6 +1403,9 @@ access to.
 
 Currently this only supports Github and Gitlab.
 
+With a prefix argument, fork all branches, not just the default
+branch.  On Gitlab it is not possible to fork only the default.
+
 @item @kbd{N - H} (@code{forge-toggle-topic-legend})
 @kindex N - H
 @findex forge-toggle-topic-legend

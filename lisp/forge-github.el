@@ -1263,11 +1263,12 @@
   (message "Waiting 5 seconds for GitHub to complete rename...done")
   (magit-call-git "fetch" "--prune" (oref repo remote)))
 
-(cl-defmethod forge--fork-repository ((repo forge-github-repository) fork)
+(cl-defmethod forge--fork-repository ((repo forge-github-repository) fork all)
   (with-slots (name apihost) repo
     (forge-rest repo "POST" "/repos/:owner/:name/forks"
       ((and (not (equal fork (ghub--username apihost)))
-            (organization fork))))
+            (organization fork))
+       (default-branch-only (not all))))
     (ghub-wait (format "/repos/%s/%s" fork name)
                nil :auth 'forge :host apihost)))
 

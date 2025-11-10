@@ -598,7 +598,7 @@
                                            (_ (subclass forge-pullreq)))
   (forge--topic-template-files-1 repo "md" ".gitlab/merge_request_templates"))
 
-(cl-defmethod forge--fork-repository ((repo forge-gitlab-repository) fork)
+(cl-defmethod forge--fork-repository ((repo forge-gitlab-repository) fork _all)
   (with-slots (name apihost) repo
     (forge--glab-post repo "/projects/:project/fork"
       (and (not (equal fork (ghub--username apihost 'gitlab)))
