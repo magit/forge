@@ -39,13 +39,13 @@ dir: $(PKG).info
 	@printf "Generating $@\n"
 	@printf "%s" $^ | xargs -n 1 $(INSTALL_INFO) --dir=$@
 
-HTML_FIXUP_CSS    = '/<link rel="stylesheet" type="text\/css" href="\/assets\/page.css">/a\
-<link rel="icon" href="/assets/magit_alt1.ico">\
-\n<link class="s-css-s--style" rel="stylesheet"           title="Default"               href="/assets/themes/default.css">\
-\n<link class="s-css-s--style" rel="stylesheet alternate" title="Default high contrast" href="/assets/themes/default-high-contrast.css">\
-\n<link class="s-css-s--style" rel="stylesheet alternate" title="Solarized dark xterm"  href="/assets/themes/solarized-dark-xterm.css">\
-\n<link class="s-css-s--style" rel="stylesheet alternate" title="Black on white"        href="/assets/themes/black-on-white.css">\
-\n<script src="/assets/js/simple-css-switch.js"></script>'
+HTML_FIXUP_CSS    = '/<link rel="stylesheet" type="text\/css" href="https:\/\/$(DOMAIN)\/assets\/page.css">/a\
+<link rel="icon" href="https://$(DOMAIN)/assets/magit_alt1.ico">\
+\n<link class="s-css-s--style" rel="stylesheet"           title="Default"               href="https://$(DOMAIN)/assets/themes/default.css">\
+\n<link class="s-css-s--style" rel="stylesheet alternate" title="Default high contrast" href="https://$(DOMAIN)/assets/themes/default-high-contrast.css">\
+\n<link class="s-css-s--style" rel="stylesheet alternate" title="Solarized dark xterm"  href="https://$(DOMAIN)/assets/themes/solarized-dark-xterm.css">\
+\n<link class="s-css-s--style" rel="stylesheet alternate" title="Black on white"        href="https://$(DOMAIN)/assets/themes/black-on-white.css">\
+\n<script src="https://$(DOMAIN)/assets/js/simple-css-switch.js"></script>'
 HTML_FIXUP_ONLOAD = 's/<body lang="en">/<body lang="en" onload="simpleCssSwitch()">/'
 HTML_FIXUP_MENU   = '/<\/body>/i<div id="s-css-s--menu"><\/div>'
 
