@@ -1,6 +1,8 @@
 -include ../config.mk
 include ../default.mk
 
+.PHONY: stats
+
 docs: texi info html html-dir pdf
 
 texi:     $(PKG).texi
@@ -93,9 +95,8 @@ release: redo-docs
 	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
 	"$(subst $(space),$(comma),$(addprefix $(RELEASE_PATH),$(CFRONT_PATHS)))" > /dev/null
 
-.PHONY: stats
 stats:
-	@printf "Generating statistics\n"
+	@printf "Generating statistics...\n"
 	@$(GITSTATS) $(GITSTATS_ARGS) $(TOP) $(GITSTATS_DIR)
 
 stats-upload:
