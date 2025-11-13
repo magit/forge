@@ -66,34 +66,21 @@ HTML_FIXUP_MENU   = '/<\/body>/i<div id="s-css-s--menu"><\/div>'
 	@printf "Generating $@\n"
 	@texi2pdf --clean $< > /dev/null
 
-PUBLISH_PATH   ?= /manual/
-RELEASE_PATH   ?= /manual/$(VERSION)/
-S3_BUCKET      ?= s3://$(DOMAIN)
-PUBLISH_TARGET  = $(S3_BUCKET)$(PUBLISH_PATH)
-RELEASE_TARGET  = $(S3_BUCKET)$(RELEASE_PATH)
-CFRONT_PATHS    = $(PKG).html $(PKG).pdf $(PKG)/*
-
-comma := ,
-empty :=
-space := $(empty) $(empty)
+DOCS_DOMAIN = docs.$(DOMAIN)
+STAT_DOMAIN = stats.$(DOMAIN)
+SNAP_TARGET = $(subst .,_,$(DOCS_DOMAIN)):devel/$(PKG)/
+DOCS_TARGET = $(subst .,_,$(DOCS_DOMAIN)):$(PKG)/
+STAT_TARGET = $(subst .,_,$(STAT_DOMAIN)):$(PKG)/
 
 publish: redo-docs
-	@aws s3 cp $(PKG).html $(PUBLISH_TARGET)
-	@aws s3 cp $(PKG).pdf  $(PUBLISH_TARGET)
-	@aws s3 sync $(PKG)    $(PUBLISH_TARGET)$(PKG)/
-	@printf "Generating CDN invalidation\n"
-	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
-	"$(subst $(space),$(comma),$(addprefix $(PUBLISH_PATH),$(CFRONT_PATHS)))" > /dev/null
+	@printf "Publishing snapshot manual...\n"
+	@cp $(PKG).pdf $(PKG)/$(PKG).pdf
+	@$(RCLONE) sync $(RCLONE_ARGS) $(PKG) $(SNAP_TARGET)
 
 release: redo-docs
-	@aws s3 cp $(PKG).html $(RELEASE_TARGET)
-	@aws s3 cp $(PKG).pdf  $(RELEASE_TARGET)
-	@aws s3 sync $(PKG)    $(RELEASE_TARGET)$(PKG)/
-	@aws s3 cp $(PUBLISH_TARGET)dir.html $(RELEASE_TARGET)dir.html
-	@aws s3 cp $(PUBLISH_TARGET)dir/index.html $(RELEASE_TARGET)dir/index.html
-	@printf "Generating CDN invalidation\n"
-	@aws cloudfront create-invalidation --distribution-id $(CFRONT_DIST) --paths \
-	"$(subst $(space),$(comma),$(addprefix $(RELEASE_PATH),$(CFRONT_PATHS)))" > /dev/null
+	@printf "Publishing release manual...\n"
+	@cp $(PKG).pdf $(PKG)/$(PKG).pdf
+	@$(RCLONE) sync $(RCLONE_ARGS) $(PKG) $(DOCS_TARGET)
 
 stats:
 	@printf "Generating statistics...\n"
@@ -101,12 +88,7 @@ stats:
 
 stats-upload:
 	@printf "Uploading statistics...\n"
-	@aws s3 sync $(GITSTATS_DIR) $(S3_BUCKET)/stats/$(PKG)
-	@printf "Uploaded to $(S3_BUCKET)/stats/$(PKG)\n"
-	@printf "Generating CDN invalidation\n"
-	@aws cloudfront create-invalidation \
-	--distribution-id $(CFRONT_DIST) --paths "/stats/*" > /dev/null
-
+	@$(RCLONE) sync $(RCLONE_ARGS) stats $(STAT_TARGET)
 
 CLEAN = $(PKG).info dir $(PKG) $(PKG).html $(PKG).pdf $(GITSTATS_DIR)
 
