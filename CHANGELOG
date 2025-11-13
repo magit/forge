@@ -164,7 +164,7 @@ Contains additional code cleanups and fixes.
 
 - Addressed an incompatibility between some legacy behavior in Ghub and
   ~auth-source-pass~.  You will have to change your configuration for this
-  to be effective.  See the [[https://magit.vc/manual/forge/Setup-for-Gitlabcom.html][updated documentation]].  #720
+  to be effective.  See the [[https://docs.magit.vc/forge/Setup-for-Gitlabcom.html][updated documentation]].  #720
 
 - Added new commands ~forge-approve-pullreq~ and ~forge-request-changes~.  #377
 

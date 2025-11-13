@@ -7,7 +7,7 @@ of Magit and the rest of Emacs.
 
 [[http://readme.emacsair.me/forge-topic.png]]
 
-Please see the [[https://magit.vc/manual/forge][manual]] and the [[https://emacsair.me/2018/12/19/forge-0.1][announcement]] for more information.
+Please see the [[https://docs.magit.vc/forge][manual]] and the [[https://emacsair.me/2018/12/19/forge-0.1][announcement]] for more information.
 
 #+html: <br><br>
 #+html: <a href="https://github.com/magit/forge/actions/workflows/compile.yml"><img alt="Compile" src="https://github.com/magit/forge/actions/workflows/compile.yml/badge.svg"/></a>

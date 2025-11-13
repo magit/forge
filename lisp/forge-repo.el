@@ -124,7 +124,7 @@
                    (car remotes))))
     (when (and warn config remote (not (equal config remote)))
       (message "Ignored forge.remote=%s; no such remote.\nSee %s." config
-               "https://magit.vc/manual/forge/How-Forge-Detection-Works.html"))
+               "https://docs.magit.vc/forge/How-Forge-Detection-Works.html"))
     remote))
 
 (defun forge--get-default-branch (repo)
@@ -180,7 +180,7 @@ or signal an error, depending on DEMAND."
                                  $ "that remote does not exist.")))
                   ((magit-list-remotes) "Cannot decide on remote to use.")
                   (t "No remote configured."))
-            "https://magit.vc/manual/forge/How-Forge-Detection-Works.html"
+            "https://docs.magit.vc/forge/How-Forge-Detection-Works.html"
             ))))))
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)

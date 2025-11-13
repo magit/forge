@@ -13,8 +13,8 @@ contact_links:
     url: https://github.com/magit/forge/discussions/categories/q-a
     about: Please keep in mind that our bandwidth is limited.
   - name: "ℹ️ Forge FAQ"
-    url: https://magit.vc/manual/forge/FAQ.html
+    url: https://docs.magit.vc/forge/FAQ.html
     about: Others might have had the same question before.
   - name: "ℹ️ Forge Manual"
-    url: https://magit.vc/manual/forge/#Top
+    url: https://docs.magit.vc/forge/#Top
     about: The fine manual may also be of use.
