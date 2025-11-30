@@ -2083,7 +2083,7 @@ modify `bug-reference-bug-regexp' if appropriate."
 
 (unless noninteractive
   (dolist (hook forge-bug-reference-hooks)
-    (add-hook hook #'forge-bug-reference-setup)))
+    (add-hook hook #'forge-bug-reference-setup t)))
 
 ;;; _
 ;; Local Variables:
