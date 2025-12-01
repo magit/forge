@@ -1501,6 +1501,8 @@ This mode itself is never used directly."
 ;;; Commands
 ;;;; Groups
 
+(defvar forge--show-topic-legend t)
+
 (transient-define-group forge--lists-group
   ["List"
    ("l r" "repositories"  forge-list-repositories)
@@ -1554,8 +1556,6 @@ This mode itself is never used directly."
    (:info* (##propertize "done"             'face 'forge-topic-done))]
   ["" :if-non-nil forge--show-topic-legend
    (:info* (##propertize "draft"            'face 'forge-pullreq-draft))])
-
-(defvar forge--show-topic-legend t)
 
 (transient-define-suffix forge-toggle-topic-legend ()
   "Toggle whether to show legend for faces used in topic menus and lists."
