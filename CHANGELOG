@@ -6,6 +6,8 @@
   always fork all branches, because that is all that is supported.
   0b419c1bd
 
+- Various build improvements.
+
 * v0.6.2    2025-11-01
 
 - ~forge-browse-commit~ now supports Dired buffers.  #818
