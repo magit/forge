@@ -681,11 +681,11 @@ Expunged topics include:
             (propertize (format "%s" (oref forge--buffer-topics-spec order))
                         'face 'bold)))
   (interactive
-   (list (magit-read-char-case "Order by: " t
-           (?n "[n]ewest"            'newest)
-           (?o "[o]ldest"            'oldest)
-           (?r "[r]ecently updated"  'recently-updated)
-           (?a "[a]nciently updated" 'anciently-updated))))
+    (list (magit-read-char-case "Order by: " t
+            (?n "[n]ewest"            'newest)
+            (?o "[o]ldest"            'oldest)
+            (?r "[r]ecently updated"  'recently-updated)
+            (?a "[a]nciently updated" 'anciently-updated))))
   (oset forge--buffer-topics-spec order order)
   (forge-refresh-buffer))
 

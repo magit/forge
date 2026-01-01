@@ -1792,8 +1792,8 @@ inferior process."
    (definition
     :initform (lambda (value)
                 (interactive
-                 (list (funcall (oref (transient-suffix-object) reader)
-                                (forge-current-topic t))))
+                  (list (funcall (oref (transient-suffix-object) reader)
+                                 (forge-current-topic t))))
                 (let ((topic (forge-current-topic t)))
                   (funcall (oref (transient-suffix-object) setter)
                            (forge-get-repository topic)

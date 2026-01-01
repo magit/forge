@@ -288,11 +288,11 @@ argument also offer closed pull-requests."
 (defun forge-browse-commit (commit)
   "Read a COMMIT and visit it using a browser."
   (interactive
-   (list (or (magit-completing-read "Browse commit"
-                                    (magit-list-branch-names)
-                                    nil nil nil 'magit-revision-history
-                                    (magit-branch-or-commit-at-point))
-             (user-error "Nothing selected"))))
+    (list (or (magit-completing-read "Browse commit"
+                                     (magit-list-branch-names)
+                                     nil nil nil 'magit-revision-history
+                                     (magit-branch-or-commit-at-point))
+              (user-error "Nothing selected"))))
   (browse-url (forge-get-url :commit commit)))
 
 ;;;###autoload
@@ -598,7 +598,7 @@ With prefix argument MENU, also show the topic menu."
 (defun forge-create-discussion (category)
   "Create a new discussion for the current repository."
   (interactive
-   (list (forge-read-topic-category nil "Category for new discussion")))
+    (list (forge-read-topic-category nil "Category for new discussion")))
   (forge--setup-post-buffer 'new-discussion #'forge--submit-create-discussion
     "new-discussion" "Create new discussion on %p"
     `((forge--buffer-category ,category))))
@@ -945,10 +945,10 @@ This is like `forge-checkout-pullreq', except that it also
 creates a new worktree.  Please see the manual for more
 information."
   (interactive
-   (let ((id (forge-read-pullreq "Checkout pull request")))
-     (list (funcall forge-checkout-worktree-read-directory-function
-                    (forge-get-pullreq id))
-           id)))
+    (let ((id (forge-read-pullreq "Checkout pull request")))
+      (list (funcall forge-checkout-worktree-read-directory-function
+                     (forge-get-pullreq id))
+            id)))
   (when (and (file-exists-p path)
              (not (and (file-directory-p path)
                        (length= (directory-files path) 2))))
@@ -1015,42 +1015,42 @@ number) and this command is made available as a substitute in the
 (defun forge-create-mark (name face description)
   "Define a new mark that topics can be marked with."
   (interactive
-   (list (read-string "Name: ")
-         (magit-read-char-case "Set appearance using " nil
-           (?n "a face [n]ame"
-               (read-face-name "Face name: "))
-           (?s "face [s]exp"
-               (read-from-minibuffer
-                "Face sexp: "
-                "(:background \"\" :foreground \"\" :box t)"
-                read-expression-map t)))
-         (let ((str (read-string "Description: ")))
-           (and (not (equal str "")) str))))
+    (list (read-string "Name: ")
+          (magit-read-char-case "Set appearance using " nil
+            (?n "a face [n]ame"
+                (read-face-name "Face name: "))
+            (?s "face [s]exp"
+                (read-from-minibuffer
+                 "Face sexp: "
+                 "(:background \"\" :foreground \"\" :box t)"
+                 read-expression-map t)))
+          (let ((str (read-string "Description: ")))
+            (and (not (equal str "")) str))))
   (forge-sql [:insert-into mark :values $v1]
              (vector nil (forge--uuid) name face description)))
 
 (defun forge-edit-mark (id name face description)
   "Define a new mark that topics can be marked with."
   (interactive
-   (pcase-let*
-       ((marks (forge-sql [:select [name id face description] :from mark]))
-        (`(,name ,id ,face ,description)
-         (assoc (completing-read "Edit mark" (mapcar #'car marks) nil t)
-                marks)))
-     (list id
-           (read-string "Name: " name)
-           (magit-read-char-case "Set appearance using " nil
-             (?n "a face [n]ame"
-                 (read-face-name "Face name: " (and (symbolp face) face)))
-             (?s "face [s]exp"
-                 (read-from-minibuffer
-                  "Face sexp: "
-                  (if (listp face)
-                      (format "%S" face)
-                    "(:background \"\" :foreground \"\" :box t)")
-                  read-expression-map t)))
-           (let ((str (read-string "Description: " nil nil description)))
-             (and (not (equal str "")) str)))))
+    (pcase-let*
+        ((marks (forge-sql [:select [name id face description] :from mark]))
+         (`(,name ,id ,face ,description)
+          (assoc (completing-read "Edit mark" (mapcar #'car marks) nil t)
+                 marks)))
+      (list id
+            (read-string "Name: " name)
+            (magit-read-char-case "Set appearance using " nil
+              (?n "a face [n]ame"
+                  (read-face-name "Face name: " (and (symbolp face) face)))
+              (?s "face [s]exp"
+                  (read-from-minibuffer
+                   "Face sexp: "
+                   (if (listp face)
+                       (format "%S" face)
+                     "(:background \"\" :foreground \"\" :box t)")
+                   read-expression-map t)))
+            (let ((str (read-string "Description: " nil nil description)))
+              (and (not (equal str "")) str)))))
   (forge-sql [:update mark
               :set (= [name face description] $v1)
               :where (= id $s2)]
@@ -1068,14 +1068,14 @@ is added anyway.  Currently this only supports Github and Gitlab.
 With prefix argument ALL, fork all branches, not just the default
 branch.  On Gitlab it is not possible to fork only the default."
   (interactive
-   (let ((fork (magit-completing-read "Fork to"
-                                      (mapcar #'car forge-owned-accounts))))
-     (list fork
-           (read-string "Remote name: "
-                        (or (plist-get (cdr (assoc fork forge-owned-accounts))
-                                       'remote-name)
-                            fork))
-           current-prefix-arg)))
+    (let ((fork (magit-completing-read "Fork to"
+                                       (mapcar #'car forge-owned-accounts))))
+      (list fork
+            (read-string "Remote name: "
+                         (or (plist-get (cdr (assoc fork forge-owned-accounts))
+                                        'remote-name)
+                             fork))
+            current-prefix-arg)))
   (let ((repo (forge-get-repository :stub)))
     (forge--fork-repository repo fork all)
     (magit-remote-add remote
@@ -1307,8 +1307,8 @@ upstream remote."
     ("s" "pulling only topics since <date>"
      (lambda (repo date)
        (interactive
-        (list (forge--scope 'repo)
-              (forge-read-date "Limit pulling to topics updated since: ")))
+         (list (forge--scope 'repo)
+               (forge-read-date "Limit pulling to topics updated since: ")))
        (forge-add-repository repo date)))
     ("i" "to allow pulling of individual topics"
      (lambda (repo)
@@ -1376,22 +1376,22 @@ upstream remote."
 (defun forge-add-some-repository (url)
   "Read a repository and add it to the database."
   (interactive
-   (let (ret url)
-     (while (not ret)
-       (setq url (magit-read-string-ns
-                  "Add repository to database (url, owner/name, or name)" url))
-       (unless (string-match-p "\\(://\\|@\\)" url)
-         (setq url (magit-clone--name-to-url url)))
-       (cond ((forge-get-repository url nil :tracked?)
-              (message "%s is already being tracked locally"
-                       (propertize url 'face 'bold))
-              (sit-for 3))
-             ((not (forge-get-repository url nil :valid?))
-              (message "%s does not exist or is inaccessible"
-                       (propertize url 'face 'bold))
-              (sit-for 3))
-             ((setq ret url))))
-     (list ret)))
+    (let (ret url)
+      (while (not ret)
+        (setq url (magit-read-string-ns
+                   "Add repository to database (url, owner/name, or name)" url))
+        (unless (string-match-p "\\(://\\|@\\)" url)
+          (setq url (magit-clone--name-to-url url)))
+        (cond ((forge-get-repository url nil :tracked?)
+               (message "%s is already being tracked locally"
+                        (propertize url 'face 'bold))
+               (sit-for 3))
+              ((not (forge-get-repository url nil :valid?))
+               (message "%s does not exist or is inaccessible"
+                        (propertize url 'face 'bold))
+               (sit-for 3))
+              ((setq ret url))))
+      (list ret)))
   (forge-add-repository url))
 
 ;;;###autoload
@@ -1399,9 +1399,9 @@ upstream remote."
   "Add all of USER's repositories from HOST to the database.
 This may take a while.  Only Github is supported at the moment."
   (interactive
-   (list (forge-read-host "Add repositories from Github host"
-                          'forge-github-repository)
-         (read-string "User: ")))
+    (list (forge-read-host "Add repositories from Github host"
+                           'forge-github-repository)
+          (read-string "User: ")))
   (forge--add-user-repos 'forge-github-repository host user))
 
 ;;;###autoload
@@ -1409,9 +1409,9 @@ This may take a while.  Only Github is supported at the moment."
   "Add all of ORGANIZATION's repositories from HOST to the database.
 This may take a while.  Only Github is supported at the moment."
   (interactive
-   (list (forge-read-host "Add repositories from Github host"
-                          'forge-github-repository)
-         (read-string "Organization: ")))
+    (list (forge-read-host "Add repositories from Github host"
+                           'forge-github-repository)
+          (read-string "Organization: ")))
   (forge--add-organization-repos 'forge-github-repository host organization))
 
 ;;; Cleanup
@@ -1420,12 +1420,12 @@ This may take a while.  Only Github is supported at the moment."
 (defun forge-remove-repository (repository)
   "Remove a repository from the database."
   (interactive
-   (pcase-let* ((repo (forge-read-repository "Remove repository from db"))
-                ((eieio githost owner name) repo))
-     (if (yes-or-no-p (format "Do you really want to remove \"%s/%s @%s\" %s? "
-                              owner name githost "from the database"))
-         (list repo)
-       (user-error "Abort"))))
+    (pcase-let* ((repo (forge-read-repository "Remove repository from db"))
+                 ((eieio githost owner name) repo))
+      (if (yes-or-no-p (format "Do you really want to remove \"%s/%s @%s\" %s? "
+                               owner name githost "from the database"))
+          (list repo)
+        (user-error "Abort"))))
   (closql-delete repository)
   (forge-refresh-buffer))
 
@@ -1445,12 +1445,12 @@ forge (the service).  Forge (the package) cannot automatically detect
 when that happens, because given how the APIs work, this would be too
 expensive."
   (interactive
-   (list (if-let* ((topics (magit-region-values '(issue pullreq) t))
-                   (_(magit-confirm 'remove-topics-locally nil
-                       "Delete %d topics locally" nil
-                       (mapcar #'forge--format-topic-line topics))))
-             topics
-           (forge-read-topic "Delete topic LOCALLY only"))))
+    (list (if-let* ((topics (magit-region-values '(issue pullreq) t))
+                    (_(magit-confirm 'remove-topics-locally nil
+                        "Delete %d topics locally" nil
+                        (mapcar #'forge--format-topic-line topics))))
+              topics
+            (forge-read-topic "Delete topic LOCALLY only"))))
   (if (listp topic)
       (progn (mapc #'closql-delete topic)
              (forge-refresh-buffer))
