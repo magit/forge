@@ -73,10 +73,10 @@ Takes the pull-request as only argument and must return a directory."
     ("c f" "fork or remote" forge-fork)]
    [:description (lambda ()
                    (cond
-                    ((forge-get-repository :tracked?) "Actions")
-                    ((or (magit-gitdir) (forge-repository-at-point))
-                     "Forge does not yet track this repository")
-                    ("Not inside a Git repository")))
+                     ((forge-get-repository :tracked?) "Actions")
+                     ((or (magit-gitdir) (forge-repository-at-point))
+                      "Forge does not yet track this repository")
+                     ("Not inside a Git repository")))
     ("/ a" forge-add-repository
      :description (lambda () (let ((repo (forge-get-repository :stub?)))
                           (if (or (not repo)
@@ -388,23 +388,23 @@ commit, and for a file."
 
 (defun forge--browse-blob-args ()
   (cond
-   (magit-buffer-file-name
-    `(,(or magit-buffer-refname magit-buffer-revision)
-      ,(magit-file-relative-name magit-buffer-file-name)
-      ,@(magit-file-region-line-numbers)
-      ,current-prefix-arg))
-   (buffer-file-name
-    `(nil
-      ,(magit-file-relative-name buffer-file-name)
-      ,@(magit-file-region-line-numbers)
-      ,current-prefix-arg))
-   ((derived-mode-p 'dired-mode)
-    `(nil
-      ,(magit-file-relative-name (dired-get-filename))
-      ,current-prefix-arg))
-   ((let ((commit (magit-read-local-branch-or-commit
-                   "Browse file from commit")))
-      (list commit (magit-read-file-from-rev commit "Browse file"))))))
+    (magit-buffer-file-name
+     `(,(or magit-buffer-refname magit-buffer-revision)
+       ,(magit-file-relative-name magit-buffer-file-name)
+       ,@(magit-file-region-line-numbers)
+       ,current-prefix-arg))
+    (buffer-file-name
+     `(nil
+       ,(magit-file-relative-name buffer-file-name)
+       ,@(magit-file-region-line-numbers)
+       ,current-prefix-arg))
+    ((derived-mode-p 'dired-mode)
+     `(nil
+       ,(magit-file-relative-name (dired-get-filename))
+       ,current-prefix-arg))
+    ((let ((commit (magit-read-local-branch-or-commit
+                    "Browse file from commit")))
+       (list commit (magit-read-file-from-rev commit "Browse file"))))))
 
 ;;;; Urls
 
@@ -566,12 +566,12 @@ With prefix argument MENU, also show the topic menu."
   (interactive (list current-prefix-arg))
   (forge-topic-setup-buffer (forge-topic-at-point))
   (cond
-   ((eq transient-current-command 'forge-topic-menu)
-    (setq forge--quit-keep-topic-menu t))
-   ((or menu
-        (memq transient-current-command
-              '(forge-topics-menu forge-notifications-menu)))
-    (transient-setup 'forge-topic-menu))))
+    ((eq transient-current-command 'forge-topic-menu)
+     (setq forge--quit-keep-topic-menu t))
+    ((or menu
+         (memq transient-current-command
+               '(forge-topics-menu forge-notifications-menu)))
+     (transient-setup 'forge-topic-menu))))
 
 ;;;###autoload
 (defun forge-visit-this-repository ()
@@ -580,18 +580,18 @@ With prefix argument MENU, also show the topic menu."
   (let* ((repo (forge-repository-at-point))
          (worktree (forge-get-worktree repo)))
     (cond
-     ((and (eq transient-current-command 'forge-repositories-menu)
-           (forge-get-repository repo nil :tracked?))
-      (cond-let
-        ([buffer (get-buffer (forge-topics-buffer-name repo))]
-         (switch-to-buffer buffer)
-         (transient-setup 'forge-topics-menu))
-        ((forge-list-topics repo))))
-     (worktree
-      (magit-status-setup-buffer worktree))
-     ((forge-get-repository repo nil :tracked?)
-      (forge-list-topics repo))
-     ((user-error "Not tracked and location of clone is unknown")))))
+      ((and (eq transient-current-command 'forge-repositories-menu)
+            (forge-get-repository repo nil :tracked?))
+       (cond-let
+         ([buffer (get-buffer (forge-topics-buffer-name repo))]
+          (switch-to-buffer buffer)
+          (transient-setup 'forge-topics-menu))
+         ((forge-list-topics repo))))
+      (worktree
+       (magit-status-setup-buffer worktree))
+      ((forge-get-repository repo nil :tracked?)
+       (forge-list-topics repo))
+      ((user-error "Not tracked and location of clone is unknown")))))
 
 ;;; Create
 
@@ -679,12 +679,12 @@ point is currently on."
   (unless (derived-mode-p 'forge-topic-mode)
     (user-error "This command is only available from topic buffers"))
   (let* ((quote (cond
-                 ((not (magit-section-match 'post)) nil)
-                 ((use-region-p)
-                  (buffer-str (region-beginning) (region-end)))
-                 (quote
-                  (with-slots (content end) (magit-current-section)
-                    (string-trim (buffer-str content end))))))
+                  ((not (magit-section-match 'post)) nil)
+                  ((use-region-p)
+                   (buffer-str (region-beginning) (region-end)))
+                  (quote
+                   (with-slots (content end) (magit-current-section)
+                     (string-trim (buffer-str content end))))))
          (quote (and quote
                      (lambda ()
                        (goto-char (point-max))
@@ -1324,33 +1324,33 @@ upstream remote."
   (declare (interactive-only nil))
   (interactive)
   (cond
-   ((not repo)
-    (transient-setup 'forge-add-repository nil nil
-                     :scope (forge-add-repository--scope)))
-   ((stringp repo)
-    (transient-setup 'forge-add-repository nil nil
-                     :scope (forge-add-repository--scope repo)))
-   (t
-    (when-let*
-        ((_(not (eq limit :selective)))
-         (_(magit-git-config-p "forge.autoPull" t))
-         (remote  (oref repo remote))
-         (refspec (oref repo pullreq-refspec))
-         (default-directory (forge-get-worktree repo))
-         (_(and (not (member refspec (magit-get-all "remote" remote "fetch")))
-                (or (eq forge-add-pullreq-refspec t)
-                    (and (eq forge-add-pullreq-refspec 'ask)
-                         (y-or-n-p (format "Also add %S refspec? " refspec)))))))
-      (magit-call-git "config" "--add"
-                      (format "remote.%s.fetch" remote)
-                      refspec))
-    (setq repo (forge-get-repository repo nil :insert!))
-    (when (eq limit :selective)
-      (oset repo selective-p t)
-      (setq limit nil))
-    (forge--pull repo
-                 (and (not (forge-get-worktree repo)) #'ignore)
-                 limit))))
+    ((not repo)
+     (transient-setup 'forge-add-repository nil nil
+                      :scope (forge-add-repository--scope)))
+    ((stringp repo)
+     (transient-setup 'forge-add-repository nil nil
+                      :scope (forge-add-repository--scope repo)))
+    (t
+     (when-let*
+         ((_(not (eq limit :selective)))
+          (_(magit-git-config-p "forge.autoPull" t))
+          (remote  (oref repo remote))
+          (refspec (oref repo pullreq-refspec))
+          (default-directory (forge-get-worktree repo))
+          (_(and (not (member refspec (magit-get-all "remote" remote "fetch")))
+                 (or (eq forge-add-pullreq-refspec t)
+                     (and (eq forge-add-pullreq-refspec 'ask)
+                          (y-or-n-p (format "Also add %S refspec? " refspec)))))))
+       (magit-call-git "config" "--add"
+                       (format "remote.%s.fetch" remote)
+                       refspec))
+     (setq repo (forge-get-repository repo nil :insert!))
+     (when (eq limit :selective)
+       (oset repo selective-p t)
+       (setq limit nil))
+     (forge--pull repo
+                  (and (not (forge-get-worktree repo)) #'ignore)
+                  limit))))
 
 (defun forge-add-repository--scope (&optional directory)
   (let* ((repo      (if directory

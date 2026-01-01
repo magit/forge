@@ -126,26 +126,26 @@
 (defun forge--set-field-callback (topic)
   (let ((repo (forge-get-repository topic)))
     (cond
-     ((forge-gitlab-repository--eieio-childp repo)
-      ;; TODO Fetch single topic for Gitlab as well.
-      (lambda (&rest _)
-        (forge--pull repo #'forge-refresh-buffer)))
-     ((forge-discussion--eieio-childp topic)
-      ;; See comment in `forge--update-status'.
-      (let ((status (oref topic status)))
-        (lambda (&rest _)
-          (forge--query repo
-            (ghub--graphql-prepare-query
-             forge--github-repository-query
-             `(repository discussions (discussion . ,(oref topic number))))
-            `((owner . ,(oref repo owner))
-              (name  . ,(oref repo name)))
-            :callback (lambda (data)
-                        (forge--update-discussion repo (cdr (cadr (cadr data))))
-                        (oset topic status status)
-                        (forge-refresh-buffer))))))
-     ((lambda (&rest _)
-        (forge--pull-topic (forge-get-repository topic) topic))))))
+      ((forge-gitlab-repository--eieio-childp repo)
+       ;; TODO Fetch single topic for Gitlab as well.
+       (lambda (&rest _)
+         (forge--pull repo #'forge-refresh-buffer)))
+      ((forge-discussion--eieio-childp topic)
+       ;; See comment in `forge--update-status'.
+       (let ((status (oref topic status)))
+         (lambda (&rest _)
+           (forge--query repo
+             (ghub--graphql-prepare-query
+              forge--github-repository-query
+              `(repository discussions (discussion . ,(oref topic number))))
+             `((owner . ,(oref repo owner))
+               (name  . ,(oref repo name)))
+             :callback (lambda (data)
+                         (forge--update-discussion repo (cdr (cadr (cadr data))))
+                         (oset topic status status)
+                         (forge-refresh-buffer))))))
+      ((lambda (&rest _)
+         (forge--pull-topic (forge-get-repository topic) topic))))))
 
 ;;; _
 ;; Local Variables:

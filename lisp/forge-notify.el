@@ -137,11 +137,11 @@ signal an error."
 (defun forge-notifications-buffer-desc ()
   (let ((status forge-notifications-selection))
     (cond
-     ((not (listp status))
-      (format "%s notifications" (capitalize (symbol-name status))))
-     ((seq-set-equal-p status '(unread pending)) "Inbox")
-     ((seq-set-equal-p status '(unread pending done)) "All notifications")
-     ((format "Notifications %s" status)))))
+      ((not (listp status))
+       (format "%s notifications" (capitalize (symbol-name status))))
+      ((seq-set-equal-p status '(unread pending)) "Inbox")
+      ((seq-set-equal-p status '(unread pending done)) "All notifications")
+      ((format "Notifications %s" status)))))
 
 (defvar forge-notifications-display-style 'flat)
 (defvar forge-notifications-selection '(unread pending))
@@ -273,24 +273,24 @@ signal an error."
   (let ((notifs (forge--ls-notifications forge-notifications-selection)))
     (magit-insert-section (notifications)
       (cond
-       ((not notifs)
-        (insert "(empty)\n"))
-       ((eq forge-notifications-display-style 'flat)
-        (magit-insert-section-body
-          (dolist (notif notifs)
-            (forge-insert-notification notif))
-          (insert ?\n)))
-       ((pcase-dolist (`(,_ . ,notifs)
-                       (seq-group-by (##oref % repository) notifs))
-          (let ((repo (forge-get-repository (car notifs))))
-            (magit-insert-section (forge-repo repo)
-              (magit-insert-heading
-                (concat (propertize (oref repo slug) 'font-lock-face 'bold)
-                        (format " (%s)" (length notifs))))
-              (magit-insert-section-body
-                (dolist (notif notifs)
-                  (forge-insert-notification notif))
-                (insert ?\n))))))))))
+        ((not notifs)
+         (insert "(empty)\n"))
+        ((eq forge-notifications-display-style 'flat)
+         (magit-insert-section-body
+           (dolist (notif notifs)
+             (forge-insert-notification notif))
+           (insert ?\n)))
+        ((pcase-dolist (`(,_ . ,notifs)
+                        (seq-group-by (##oref % repository) notifs))
+           (let ((repo (forge-get-repository (car notifs))))
+             (magit-insert-section (forge-repo repo)
+               (magit-insert-heading
+                 (concat (propertize (oref repo slug) 'font-lock-face 'bold)
+                         (format " (%s)" (length notifs))))
+               (magit-insert-section-body
+                 (dolist (notif notifs)
+                   (forge-insert-notification notif))
+                 (insert ?\n))))))))))
 
 (defun forge-insert-notification (notif)
   (with-slots (type title url) notif

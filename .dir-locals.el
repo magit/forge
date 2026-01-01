@@ -1,5 +1,7 @@
 ((nil
   (indent-tabs-mode . nil))
+ (emacs-lisp-mode
+  (lisp-indent-local-overrides . ((cond . 0))))
  (makefile-mode
   (indent-tabs-mode . t))
  (git-commit-mode

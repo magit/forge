@@ -675,11 +675,11 @@ Limit list to topics for which a review by the given user was requested."
       (and
        ,@(and (not global) repo `((= topic:repository ,(oref repo id))))
        ,@(cond
-          ((and active state status)
-           `((or (in topic:state  ,(vconcat (ensure-list state)))
-                 (in topic:status ,(vconcat (ensure-list status))))))
-          (`(,@(and state  `((in topic:state  ,(vconcat (ensure-list state)))))
-             ,@(and status `((in topic:status ,(vconcat (ensure-list status))))))))
+           ((and active state status)
+            `((or (in topic:state  ,(vconcat (ensure-list state)))
+                  (in topic:status ,(vconcat (ensure-list status))))))
+           (`(,@(and state  `((in topic:state  ,(vconcat (ensure-list state)))))
+              ,@(and status `((in topic:status ,(vconcat (ensure-list status))))))))
        ,@(pcase type
            ((and 'discussion (guard category))
             '((= topic:category discussion-category:id)))
@@ -749,13 +749,13 @@ can be selected from the start."
                   (let (all-choices)
                     (lambda (_string)
                       (cond
-                       (all-choices)
-                       (forge-limit-topic-choices choices)
-                       (t
-                        (forge--replace-minibuffer-prompt (concat prompt ": "))
-                        (setq alist (forge--topic-collection
-                                     (forge--list-topics all repo)))
-                        (setq all-choices (mapcar #'car alist)))))))
+                        (all-choices)
+                        (forge-limit-topic-choices choices)
+                        (t
+                         (forge--replace-minibuffer-prompt (concat prompt ": "))
+                         (setq alist (forge--topic-collection
+                                      (forge--list-topics all repo)))
+                         (setq all-choices (mapcar #'car alist)))))))
                  nil t nil nil default))
             (magit-completing-read prompt choices nil t nil nil default))))
     (cdr (assoc choice alist))))
@@ -1000,23 +1000,23 @@ can be selected from the start."
   (and-let*
       ((local t)
        (labels (cond
-                ((eieio-object-p arg)
-                 (oref arg labels))
-                ((forge-buffer-repository)
-                 (forge-sql-cdr `[:select label:* :from label :where
-                                  ,(if arg
-                                       '(and (= repository $s1)
-                                             (in name $v2))
-                                     '(= repository $s1))
-                                  :order-by [(asc name)]]
-                                forge-buffer-repository
-                                (vconcat arg)))
-                (t
-                 (setq local nil)
-                 (forge-sql `[:select :distinct name :from label
-                             ,@(and arg '(:where (in name $v1)))
-                              :order-by [(asc name)]]
-                            (vconcat arg)))))
+                 ((eieio-object-p arg)
+                  (oref arg labels))
+                 ((forge-buffer-repository)
+                  (forge-sql-cdr `[:select label:* :from label :where
+                                   ,(if arg
+                                        '(and (= repository $s1)
+                                              (in name $v2))
+                                      '(= repository $s1))
+                                   :order-by [(asc name)]]
+                                 forge-buffer-repository
+                                 (vconcat arg)))
+                 (t
+                  (setq local nil)
+                  (forge-sql `[:select :distinct name :from label
+                               ,@(and arg '(:where (in name $v1)))
+                               :order-by [(asc name)]]
+                             (vconcat arg)))))
        (format (if local
                    (pcase-lambda (`(,_id ,name ,color ,_description))
                      (let* ((background (forge--sanitize-color color))
@@ -1447,12 +1447,12 @@ This mode itself is never used directly."
          (magit-insert-section (,(intern (format "topic-%s" name)))
            (insert ,(capitalize (string-pad (format "%s: " name) 11)))
            ,(cond
-             (insert
-              `(unless (funcall ,insert topic)
-                 (insert (magit--propertize-face "none" 'magit-dimmed))))
-             (format
-              `(insert (or (funcall ,format topic)
-                           (magit--propertize-face "none" 'magit-dimmed)))))
+              (insert
+               `(unless (funcall ,insert topic)
+                  (insert (magit--propertize-face "none" 'magit-dimmed))))
+              (format
+               `(insert (or (funcall ,format topic)
+                            (magit--propertize-face "none" 'magit-dimmed)))))
            (insert ?\n)))
        ,@(and (if command? command t)
               `((defvar-keymap ,map "<remap> <magit-edit-thing>"

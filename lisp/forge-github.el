@@ -235,9 +235,9 @@
           (oset repo condition :tracked))
         (forge--msg repo t t   "Storing REPO")
         (cond
-         ((oref repo selective-p))
-         (callback (funcall callback))
-         ((forge--maybe-git-fetch repo buf))))
+          ((oref repo selective-p))
+          (callback (funcall callback))
+          ((forge--maybe-git-fetch repo buf))))
       :narrow '(repository)
       :until
       ;; Keys have the form `FIELD-until', where FIELD is the name of a
