@@ -479,7 +479,7 @@ commit, and for a file."
 (cl-defmethod forge-get-url ((notify forge-notification))
   (oref notify url))
 
- ;; Transitional kludge for the infamous package.el defect.
+;; Transitional kludge for the infamous package.el defect.
 (require 'forge-forgejo)
 
 (cl-defmethod forge-format-blob-lines ((repo forge-repository) line end)
@@ -1279,11 +1279,11 @@ upstream remote."
                (propertize (forge--scope 'topdir) 'face 'bold))
        (if-let* ((remote (forge--get-remote))
                  (url (magit-git-string "remote" "get-url" remote)))
-             (format (propertize "because %s is not on a host known to Forge."
-                                 'face 'transient-heading)
-                     (propertize url 'face 'bold))
-           (propertize "because no suitable remote was detected."
-                       'face 'transient-heading))))
+           (format (propertize "because %s is not on a host known to Forge."
+                               'face 'transient-heading)
+                   (propertize url 'face 'bold))
+         (propertize "because no suitable remote was detected."
+                     'face 'transient-heading))))
     ("r" forge-forge.remote :format " %k Try another %d %v" :face 'bold)
     ("h" "Learn how to configure another Github host"
      (lambda () (interactive) (info "(forge)Setup for Another Github Instance")))

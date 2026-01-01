@@ -359,8 +359,8 @@
       [($owner String!)
        ($name  String!)]
       (repository
-      [(owner $owner)
-       (name  $name)]
+       [(owner $owner)
+        (name  $name)]
        ,(caddr (caddr (ghub--graphql-prepare-query
                        forge--github-repository-query
                        `(repository discussions (discussion . ,number)))))
