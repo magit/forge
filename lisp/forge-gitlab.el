@@ -625,15 +625,15 @@
                                host callback errorback)
   (declare (indent defun))
   (ghub-request "GET" (if obj (forge--format-resource obj resource) resource)
-                params
-                :forge 'gitlab
-                :host (or host (oref (forge-get-repository obj) apihost))
-                :auth 'forge
-                :query query :payload payload :headers headers
-                :silent silent :unpaginate unpaginate
-                :noerror noerror :reader reader
-                :callback callback
-                :errorback (or errorback (and callback t))))
+    params
+    :forge 'gitlab
+    :host (or host (oref (forge-get-repository obj) apihost))
+    :auth 'forge
+    :query query :payload payload :headers headers
+    :silent silent :unpaginate unpaginate
+    :noerror noerror :reader reader
+    :callback callback
+    :errorback (or errorback (and callback t))))
 
 (cl-defun forge--glab-put (obj resource
                                &optional params
@@ -642,15 +642,15 @@
                                host callback errorback)
   (declare (indent defun))
   (ghub-request "PUT" (if obj (forge--format-resource obj resource) resource)
-                params
-                :forge 'gitlab
-                :host (or host (oref (forge-get-repository obj) apihost))
-                :auth 'forge
-                :query query :payload payload :headers headers
-                :silent silent :unpaginate unpaginate
-                :noerror noerror :reader reader
-                :callback callback
-                :errorback (or errorback (and callback t))))
+    params
+    :forge 'gitlab
+    :host (or host (oref (forge-get-repository obj) apihost))
+    :auth 'forge
+    :query query :payload payload :headers headers
+    :silent silent :unpaginate unpaginate
+    :noerror noerror :reader reader
+    :callback callback
+    :errorback (or errorback (and callback t))))
 
 (cl-defun forge--glab-post (obj resource
                                 &optional params
@@ -659,15 +659,15 @@
                                 host callback errorback)
   (declare (indent defun))
   (ghub-request "POST" (forge--format-resource obj resource)
-                params
-                :forge 'gitlab
-                :host (or host (oref (forge-get-repository obj) apihost))
-                :auth 'forge
-                :query query :payload payload :headers headers
-                :silent silent :unpaginate unpaginate
-                :noerror noerror :reader reader
-                :callback callback
-                :errorback (or errorback (and callback t))))
+    params
+    :forge 'gitlab
+    :host (or host (oref (forge-get-repository obj) apihost))
+    :auth 'forge
+    :query query :payload payload :headers headers
+    :silent silent :unpaginate unpaginate
+    :noerror noerror :reader reader
+    :callback callback
+    :errorback (or errorback (and callback t))))
 
 (cl-defun forge--glab-delete (obj resource
                                   &optional params
@@ -676,15 +676,15 @@
                                   host callback errorback)
   (declare (indent defun))
   (ghub-request "DELETE" (forge--format-resource obj resource)
-                params
-                :forge 'gitlab
-                :host (or host (oref (forge-get-repository obj) apihost))
-                :auth 'forge
-                :query query :payload payload :headers headers
-                :silent silent :unpaginate unpaginate
-                :noerror noerror :reader reader
-                :callback callback
-                :errorback (or errorback (and callback t))))
+    params
+    :forge 'gitlab
+    :host (or host (oref (forge-get-repository obj) apihost))
+    :auth 'forge
+    :query query :payload payload :headers headers
+    :silent silent :unpaginate unpaginate
+    :noerror noerror :reader reader
+    :callback callback
+    :errorback (or errorback (and callback t))))
 
 ;;; _
 ;; Local Variables:
