@@ -89,7 +89,7 @@ stats-upload:
 	@printf "Uploading statistics...\n"
 	@$(RCLONE) sync $(RCLONE_ARGS) stats $(STAT_TARGET)
 
-CLEAN = $(PKG).info dir $(PKG) $(PKG).html $(PKG).pdf $(GITSTATS_DIR)
+CLEAN = .revdesc $(PKG).info dir $(PKG) $(PKG).html $(PKG).pdf $(GITSTATS_DIR)
 
 clean:
 	@printf " Cleaning docs/*...\n"
