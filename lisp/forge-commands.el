@@ -664,9 +664,11 @@ With prefix argument MENU, also show the topic menu."
                           (d (and d (if (magit-remote-branch-p d)
                                         d
                                       (magit-get-upstream-branch d))))
-                          (d (or d (concat remote "/"
-                                           (or (oref repo default-branch)
-                                               "master")))))
+                          (d (or d
+                                 (and-let* ((b (oref repo default-branch)))
+                                   (car (member (concat remote "/" b) targets)))
+                                 (car (member (concat remote "/main") targets))
+                                 (car (member (concat remote "/master") targets)))))
                      (car (member d targets))))))
     (list source target)))
 
