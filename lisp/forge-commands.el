@@ -658,16 +658,17 @@ With prefix argument MENU, also show the topic menu."
          (targets (delete source (magit-list-remote-branch-names remote)))
          (target  (magit-completing-read
                    "Target branch" targets nil t nil 'magit-revision-history
-                   (let* ((d (and> (cdr (magit-split-branch-name source))
-                                   (and (magit-branch-p $)
-                                        (magit-get-upstream-branch $))
-                                   (if (magit-remote-branch-p $)
-                                       $
-                                     (magit-get-upstream-branch $))))
-                          (d (or d (concat remote "/"
-                                           (or (oref repo default-branch)
-                                               "master")))))
-                     (car (member d targets))))))
+                   (or (and> (cdr (magit-split-branch-name source))
+                             (and (magit-branch-p $)
+                                  (magit-get-upstream-branch $))
+                             (if (magit-remote-branch-p $)
+                                 $
+                               (magit-get-upstream-branch $))
+                             (car (member $ targets)))
+                       (seq-some (##car (member (concat remote "/" %) targets))
+                                 (delete-dups
+                                  (cons (oref repo default-branch)
+                                        magit-main-branch-names)))))))
     (list source target)))
 
 (defun forge-create-post (&optional quote)
