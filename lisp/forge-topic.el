@@ -752,7 +752,6 @@ can be selected from the start."
                         (all-choices)
                         (forge-limit-topic-choices choices)
                         (t
-                         (forge--replace-minibuffer-prompt (concat prompt ": "))
                          (setq alist (forge--topic-collection
                                       (forge--list-topics all repo)))
                          (setq all-choices (mapcar #'car alist)))))))
@@ -774,31 +773,20 @@ can be selected from the start."
   (when (and (minibufferp)
              forge-limit-topic-choices)
     (setq-local forge-limit-topic-choices nil)
+    (forge-read-topic--remove-prompt-hint)
     (when (and (bound-and-true-p vertico-mode)
                (boundp 'vertico--input)
                (fboundp 'vertico--exhibit))
       (setq vertico--input t)
       (vertico--exhibit))))
 
-(defun forge--replace-minibuffer-prompt (prompt)
-  (save-excursion
-    (goto-char (point-min))
-    (let ((inhibit-read-only t)
-          (end (length prompt)))
-      ;; (insert-and-inherit prompt) would discard all faces already
-      ;; present in PROMPT, so instead we do it like `read_minibuf'.
-      (put-text-property 0 end 'front-sticky t prompt)
-      (put-text-property 0 end 'rear-nonsticky t prompt)
-      (put-text-property 0 end 'field t prompt)
-      (let ((props minibuffer-prompt-properties))
-        (while props
-          (let ((key (pop props))
-                (val (pop props)))
-            (if (eq key 'face)
-                (add-face-text-property 0 end val t prompt)
-              (put-text-property 0 end key val prompt)))))
-      (insert prompt)
-      (delete-region (point) (minibuffer-prompt-end)))))
+(defun forge-read-topic--remove-prompt-hint ()
+  (when (minibufferp)
+    (save-excursion
+      (goto-char (point-min))
+      (when (re-search-forward " (.+? for all)" (minibuffer-prompt-end) t)
+        (let ((inhibit-read-only t))
+          (replace-match ""))))))
 
 (defun forge-topic-completion-at-point ()
   (let ((bol (line-beginning-position))
