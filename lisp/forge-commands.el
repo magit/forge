@@ -646,24 +646,24 @@ With prefix argument MENU, also show the topic menu."
                    "Source branch"
                    (magit-list-remote-branch-names)
                    nil t nil 'magit-revision-history
-                   (or (and-let ((d (magit-branch-at-point)))
-                         (if (magit-remote-branch-p d)
-                             d
-                           (magit-get-push-branch d t)))
-                       (and-let ((d (magit-get-current-branch)))
-                         (if (magit-remote-branch-p d)
-                             d
-                           (magit-get-push-branch d t))))))
+                   (or (and> (magit-branch-at-point)
+                             (if (magit-remote-branch-p $)
+                                 $
+                               (magit-get-push-branch $ t)))
+                       (and> (magit-get-current-branch)
+                             (if (magit-remote-branch-p $)
+                                 $
+                               (magit-get-push-branch $ t))))))
          (remote  (oref repo remote))
          (targets (delete source (magit-list-remote-branch-names remote)))
          (target  (magit-completing-read
                    "Target branch" targets nil t nil 'magit-revision-history
-                   (let* ((d (cdr (magit-split-branch-name source)))
-                          (d (and (magit-branch-p d) d))
-                          (d (and d (magit-get-upstream-branch d)))
-                          (d (and d (if (magit-remote-branch-p d)
-                                        d
-                                      (magit-get-upstream-branch d))))
+                   (let* ((d (and> (cdr (magit-split-branch-name source))
+                                   (and (magit-branch-p $)
+                                        (magit-get-upstream-branch $))
+                                   (if (magit-remote-branch-p $)
+                                       $
+                                     (magit-get-upstream-branch $))))
                           (d (or d (concat remote "/"
                                            (or (oref repo default-branch)
                                                "master")))))
