@@ -742,7 +742,7 @@ can be selected from the start."
                                     (current-local-map))))
                 (magit-completing-read
                  (substitute-command-keys
-                  (format "%s \\<%s> (\\[%s] for all)" prompt
+                  (format "%s (\\<%s>\\[%s] for all)" prompt
                           'forge-read-topic-minibuffer-map
                           'forge-read-topic-lift-limit))
                  (completion-table-dynamic
