@@ -1567,8 +1567,9 @@ This mode itself is never used directly."
 ;;;; Menus
 
 ;;;###autoload(autoload 'forge-topic-menu "forge-topic" nil t)
-(transient-define-prefix forge-topic-menu ()
-  "Edit the topic at point."
+(transient-define-prefix forge-topic-menu (&optional visit)
+  "Show menu for the topic at point.
+With prefix argument VISIT, also visit the topic."
   :transient-suffix t
   :transient-non-suffix #'transient--do-call
   :transient-switch-frame nil
@@ -1602,7 +1603,11 @@ This mode itself is never used directly."
     ("-A" forge-discussion-set-answer)
     """Display"
     ("-H" forge-toggle-topic-legend)]]
-  [forge--topic-legend-group])
+  [forge--topic-legend-group]
+  (interactive (list current-prefix-arg))
+  (when visit
+    (forge-topic-setup-buffer (forge-topic-at-point)))
+  (transient-setup 'forge-topic-menu))
 
 (transient-augment-suffix forge-topic-menu
   :transient #'transient--do-replace

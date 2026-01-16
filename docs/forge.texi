@@ -1182,6 +1182,8 @@ the cursor is on or that is being visited in the current buffer.
 E.g., it can be used to change the status of the topic or to apply
 labels to it.  Additionally it features a few commands that act on
 that topic.
+
+With a prefix argument, this additionally visits the topic.
 @end table
 
 Details about a topic, such as its status and labels, can

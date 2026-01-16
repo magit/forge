@@ -1016,6 +1016,8 @@ has to be visited in its own buffer.
   labels to it.  Additionally it features a few commands that act on
   that topic.
 
+  With a prefix argument, this additionally visits the topic.
+
 Details about a topic, such as its status and labels, can
 alternatively be edited by visiting the topic in its own buffer,
 navigating to the header that displays the detail and then typing ~C-c
