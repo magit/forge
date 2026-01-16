@@ -1479,33 +1479,6 @@ heavy development."
 
 ;;; Miscellaneous
 
-(defun forge-mark-completed-topics-as-done ()
-  "Mark completed topics of the current repository as done.
-Change the private status to \"done\" for topics whose private status is
-\"unread\" or \"pending\" and whose public state is \"completed\".
-Whether this affects all such topics or only all such topics of a
-certain type (discussion, issue or pull-request), depends on the
-context."
-  (interactive)
-  (let* ((type (forge-current-topic-type))
-         (desc (if (eq type 'pullreq) 'pull-request type))
-         (topics (forge--list-topics
-                  (forge--topics-spec :type type
-                                      :active nil
-                                      :state 'closed
-                                      :status 'inbox)
-                  (forge-get-repository :tracked))))
-    (cond ((not topics)
-           (message "No completed %s that could be marked as done" desc))
-          ((magit-confirm t
-             "Mark \"%s\" as done"
-             (format "Mark %%d %ss as done" desc)
-             nil
-             (mapcar #'forge--format-topic-line topics))
-           (dolist (topic topics)
-             (oset topic status 'done))
-           (forge-refresh-buffer)))))
-
 (magit-define-section-jumper forge-jump-to-pullreqs "Pull requests" pullreqs)
 (magit-define-section-jumper forge-jump-to-issues "Issues" issues)
 
