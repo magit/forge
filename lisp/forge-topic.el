@@ -1500,7 +1500,13 @@ This mode itself is never used directly."
    ("l n" "notifications" forge-list-notifications)
    ("l g" "global topics" forge-list-global-topics)
    ("l t" "topics"        forge-list-topics)
-   ""])
+   ""
+   ( :info "Batch" :format "%d" :face transient-heading
+     :if (##memq (oref transient--prefix command)
+                 '(forge-topic-menu forge-topics-menu)))
+   ( "D" "done with closed" forge-mark-completed-topics-as-done
+     :if (##memq (oref transient--prefix command)
+                 '(forge-topic-menu forge-topics-menu)))])
 
 (transient-define-group forge--topic-menus-group
   ["Menu"
