@@ -46,7 +46,10 @@
 ;;; Options
 
 (defcustom forge-limit-topic-choices t
-  "Whether to initially limit completion candidates to active topics."
+  "Whether to initially limit completion candidates to active topics.
+
+For Helm users setting this option has no effect.  Instead they have
+to set the value of the variable `forge-limit-topic-choices-for-helm'."
   :package-version '(forge . "0.4.0")
   :group 'forge
   :type 'boolean)
@@ -719,7 +722,12 @@ can be selected from the start."
                      (forge--topics-spec :type 'topic :active t)
                      (forge--topics-spec :type 'topic :active nil :state nil)))
 
+(defvar forge-limit-topic-choices-for-helm t
+  "Like `forge-limit-topic-choices' (which see) but for Helm users.")
+
 (defun forge--read-topic (prompt current active all)
+  (when (bound-and-true-p helm-mode)
+    (setq forge-limit-topic-choices forge-limit-topic-choices-for-helm))
   (let* ((current (funcall current))
          (repo    (forge-get-repository (or current :tracked)))
          (default (and current (forge--format-topic-line current)))
@@ -772,16 +780,22 @@ can be selected from the start."
   (interactive)
   (when (and (minibufferp)
              forge-limit-topic-choices)
-    (setq-local forge-limit-topic-choices nil)
-    (forge-read-topic--remove-prompt-hint)
     (cond
       ((and (bound-and-true-p vertico-mode)
             (boundp 'vertico--input)
             (fboundp 'vertico--exhibit))
+       (setq-local forge-limit-topic-choices nil)
        (setq vertico--input t)
        (vertico--exhibit))
-      ((minibuffer-completion-help (minibuffer--completion-prompt-end)
-                                   (point-max))))))
+      ((and (bound-and-true-p helm-mode)
+            (fboundp 'helm-force-update))
+       (setq forge-limit-topic-choices nil)
+       (helm-force-update))
+      (t
+       (setq-local forge-limit-topic-choices nil)
+       (minibuffer-completion-help (minibuffer--completion-prompt-end)
+                                   (point-max))))
+    (forge-read-topic--remove-prompt-hint)))
 
 (defun forge-read-topic--remove-prompt-hint ()
   (when (minibufferp)
