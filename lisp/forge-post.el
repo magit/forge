@@ -285,7 +285,7 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
           (if (buffer-live-p prevbuf) prevbuf (current-buffer))
         (if (or (not full-pull)
                 (oref repo selective-p))
-            (forge--pull-topic repo topic)
+            (forge--pull-topic repo (or topic (alist-get 'number value)))
           (forge--pull repo))))))
 
 (defun forge--post-submit-errorback ()
