@@ -1102,7 +1102,7 @@ as merged."
   (let ((pullreq (forge-get-pullreq pullreq)))
     (forge--merge-pullreq (forge-get-repository pullreq)
                           pullreq
-                          (magit-rev-hash
+                          (magit-commit-oid
                            (forge--pullreq-branch-internal pullreq))
                           method)))
 
