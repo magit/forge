@@ -180,8 +180,7 @@ or signal an error, depending on DEMAND."
                                  $ "that remote does not exist.")))
                   ((magit-list-remotes) "Cannot decide on remote to use.")
                   (t "No remote configured."))
-            "https://docs.magit.vc/forge/How-Forge-Detection-Works.html"
-            ))))))
+            "https://docs.magit.vc/forge/How-Forge-Detection-Works.html"))))))
 
 (cl-defmethod forge-get-repository ((url string) &optional remote demand)
   "Return the repository at URL."
