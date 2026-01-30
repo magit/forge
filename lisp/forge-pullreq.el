@@ -211,7 +211,8 @@ can be selected from the start."
   (forge--read-topic prompt
                      #'forge-current-pullreq
                      (forge--topics-spec :type 'pullreq :active t)
-                     (forge--topics-spec :type 'pullreq :active nil :state nil)))
+                     (forge--topics-spec :type 'pullreq :active nil
+                                         :state nil :limit nil)))
 
 ;;; Utilities
 

@@ -195,7 +195,8 @@ can be selected from the start."
   (forge--read-topic prompt
                      #'forge-current-discussion
                      (forge--topics-spec :type 'discussion :active t)
-                     (forge--topics-spec :type 'discussion :active nil :state nil)))
+                     (forge--topics-spec :type 'discussion :active nil
+                                         :state nil :limit nil)))
 
 (defun forge-read-topic-category (&optional topic prompt)
   (magit-completing-read

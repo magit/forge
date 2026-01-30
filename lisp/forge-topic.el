@@ -720,7 +720,8 @@ can be selected from the start."
   (forge--read-topic prompt
                      #'forge-current-topic
                      (forge--topics-spec :type 'topic :active t)
-                     (forge--topics-spec :type 'topic :active nil :state nil)))
+                     (forge--topics-spec :type 'topic :active nil
+                                         :state nil :limit nil)))
 
 (defvar forge-limit-topic-choices-for-helm t
   "Like `forge-limit-topic-choices' (which see) but for Helm users.")
