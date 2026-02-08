@@ -751,7 +751,9 @@ can be selected from the start."
                     (lambda (_string)
                       ;; For other frameworks, the minibuffer is current
                       ;; when this function is called, but for Helm we
-                      ;; have to make it so.
+                      ;; have to make it so.  Starting with Helm commit
+                      ;; 5e7c8498, this isn't necessary anymore.  See
+                      ;; https://github.com/emacs-helm/helm/issues/2744.
                       (with-selected-window (minibuffer-window)
                         (cond
                           (all-choices)
