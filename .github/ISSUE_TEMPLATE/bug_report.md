@@ -25,6 +25,9 @@ Also post the output of:
 
     M-x magit-version RET
 
-Before reporting a defect, please try to reproduce it using an Emacs instance, in which only Forge and its dependencies have been loaded. Other packages or your configuration should not be loaded. This makes it easier to determine whether the issue lays with Forge or something else.
+Before reporting a defect, please try to reproduce it using an Emacs instance,
+in which only Forge and its dependencies have been loaded.  Other packages or
+your configuration should not be loaded.  This makes it easier to determine
+whether the issue lays with Forge or something else.
 
 <!--- Now delete this line and everything above. -->
