@@ -1514,7 +1514,7 @@ This mode itself is never used directly."
    ( :info "Batch" :format "%d" :face transient-heading
      :if (##memq (oref transient--prefix command)
                  '(forge-topic-menu forge-topics-menu)))
-   ( "D" "done with closed" forge-mark-completed-topics-as-done
+   ( "C" "done with closed" forge-mark-completed-topics-as-done
      :if (##memq (oref transient--prefix command)
                  '(forge-topic-menu forge-topics-menu)))])
 
