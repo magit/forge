@@ -153,14 +153,14 @@
                   (funcall cb cb value)))))
 
 (cl-defmethod forge--fetch-issue-posts ((repo forge-gitlab-repository) cur cb)
-  (let-alist (car cur)
-    (forge--glab-get repo
-      (format "/projects/%s/issues/%s/notes" .project_id .iid)
-      '((per_page . 100))
-      :unpaginate t
-      :callback (lambda (value)
-                  (setf (alist-get 'notes (car cur)) value)
-                  (funcall cb cb)))))
+  (forge--glab-get repo
+    (let-alist (car cur)
+      (format "/projects/%s/issues/%s/notes" .project_id .iid))
+    '((per_page . 100))
+    :unpaginate t
+    :callback (lambda (value)
+                (setf (alist-get 'notes (car cur)) value)
+                (funcall cb cb))))
 
 (cl-defmethod forge--update-issues ((repo forge-gitlab-repository) data)
   (dolist (v data)
@@ -253,14 +253,14 @@
 
 (cl-defmethod forge--fetch-pullreq-posts
   ((repo forge-gitlab-repository) cur cb)
-  (let-alist (car cur)
-    (forge--glab-get repo
-      (format "/projects/%s/merge_requests/%s/notes" .target_project_id .iid)
-      '((per_page . 100))
-      :unpaginate t
-      :callback (lambda (value)
-                  (setf (alist-get 'notes (car cur)) value)
-                  (funcall cb cb)))))
+  (forge--glab-get repo
+    (let-alist (car cur)
+      (format "/projects/%s/merge_requests/%s/notes" .target_project_id .iid))
+    '((per_page . 100))
+    :unpaginate t
+    :callback (lambda (value)
+                (setf (alist-get 'notes (car cur)) value)
+                (funcall cb cb))))
 
 (cl-defmethod forge--fetch-pullreq-source-repo
   ((repo forge-gitlab-repository) cur cb)
