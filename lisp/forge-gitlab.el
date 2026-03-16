@@ -78,8 +78,8 @@
                        (forge--update-repository repo val)
                        (forge--update-assignees  repo .assignees)
                        (forge--update-labels     repo .labels)
-                       (dolist (v .issues)   (forge--update-issue repo v))
-                       (dolist (v .pullreqs) (forge--update-pullreq repo v))
+                       (forge--update-issues     repo .issues)
+                       (forge--update-pullreqs   repo .pullreqs)
                        (oset repo condition :tracked))
                      (forge--msg repo t t "Storing REPO")
                      (cond
@@ -167,6 +167,10 @@
       :callback (lambda (value _headers _status _req)
                   (setf (alist-get 'notes (car cur)) value)
                   (funcall cb cb)))))
+
+(cl-defmethod forge--update-issues ((repo forge-gitlab-repository) data)
+  (dolist (v data)
+    (forge--update-issue repo v)))
 
 (cl-defmethod forge--update-issue ((repo forge-gitlab-repository) data)
   (closql-with-transaction (forge-db)
@@ -291,6 +295,10 @@
       :callback (lambda (value _headers _status _req)
                   (setf (alist-get 'target_project (car cur)) value)
                   (funcall cb cb)))))
+
+(cl-defmethod forge--update-pullreqs ((repo forge-gitlab-repository) data)
+  (dolist (v data)
+    (forge--update-pullreq repo v)))
 
 (cl-defmethod forge--update-pullreq ((repo forge-gitlab-repository) data)
   (closql-with-transaction (forge-db)
