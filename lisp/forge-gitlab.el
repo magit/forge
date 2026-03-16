@@ -90,7 +90,7 @@
 
 (cl-defmethod forge--fetch-repository ((repo forge-gitlab-repository) callback)
   (forge--glab-get repo "/projects/:project" nil
-    :callback (lambda (value _headers _status _req)
+    :callback (lambda (value)
                 (cond ((oref repo selective-p)
                        (setq value (append '((assignees) (forks) (labels)
                                              (issues) (pullreqs))
@@ -155,7 +155,7 @@
         ,@(and-let ((after (or since (oref repo issues-until))))
             `((updated_after . ,after))))
       :unpaginate t
-      :callback (lambda (value _headers _status _req)
+      :callback (lambda (value)
                   (funcall cb cb value)))))
 
 (cl-defmethod forge--fetch-issue-posts ((repo forge-gitlab-repository) cur cb)
@@ -164,7 +164,7 @@
       (format "/projects/%s/issues/%s/notes" .project_id .iid)
       '((per_page . 100))
       :unpaginate t
-      :callback (lambda (value _headers _status _req)
+      :callback (lambda (value)
                   (setf (alist-get 'notes (car cur)) value)
                   (funcall cb cb)))))
 
@@ -254,7 +254,7 @@
         ,@(and-let ((after (or since (oref repo pullreqs-until))))
             `((updated_after . ,after))))
       :unpaginate t
-      :callback (lambda (value _headers _status _req)
+      :callback (lambda (value)
                   (funcall cb cb value)))))
 
 (cl-defmethod forge--fetch-pullreq-posts
@@ -264,7 +264,7 @@
       (format "/projects/%s/merge_requests/%s/notes" .target_project_id .iid)
       '((per_page . 100))
       :unpaginate t
-      :callback (lambda (value _headers _status _req)
+      :callback (lambda (value)
                   (setf (alist-get 'notes (car cur)) value)
                   (funcall cb cb)))))
 
@@ -279,7 +279,7 @@
           :errorback (lambda (_err _headers _status _req)
                        (setf (alist-get 'source_project (car cur)) nil)
                        (funcall cb cb))
-          :callback (lambda (value _headers _status _req)
+          :callback (lambda (value)
                       (setf (alist-get 'source_project (car cur)) value)
                       (funcall cb cb)))
       (setf (alist-get 'source_project (car cur)) nil)
@@ -292,7 +292,7 @@
       :errorback (lambda (_err _headers _status _req)
                    (setf (alist-get 'target_project (car cur)) nil)
                    (funcall cb cb))
-      :callback (lambda (value _headers _status _req)
+      :callback (lambda (value)
                   (setf (alist-get 'target_project (car cur)) value)
                   (funcall cb cb)))))
 
@@ -374,7 +374,7 @@
   (forge--glab-get repo "/projects/:project/users"
     '((per_page . 100))
     :unpaginate t
-    :callback (lambda (value _headers _status _req)
+    :callback (lambda (value)
                 (funcall callback callback (cons 'assignees value)))))
 
 (cl-defmethod forge--update-assignees ((repo forge-gitlab-repository) data)
@@ -396,7 +396,7 @@
     '((per_page . 100)
       (simple . t))
     :unpaginate t
-    :callback (lambda (value _headers _status _req)
+    :callback (lambda (value)
                 (funcall callback callback (cons 'forks value)))))
 
 (cl-defmethod forge--update-forks ((repo forge-gitlab-repository) data)
@@ -417,7 +417,7 @@
   (forge--glab-get repo "/projects/:project/labels"
     '((per_page . 100))
     :unpaginate t
-    :callback (lambda (value _headers _status _req)
+    :callback (lambda (value)
                 (funcall callback callback (cons 'labels value)))))
 
 (cl-defmethod forge--update-labels ((repo forge-gitlab-repository) data)
