@@ -125,8 +125,9 @@
 ;;;; Issues
 
 (cl-defmethod forge--fetch-issues ((repo forge-gitlab-repository) callback since)
-  (let ((cb (let (val cur cnt pos)
-              (lambda (cb &optional v)
+  (letrec
+      (( cb (let (val cur cnt pos)
+              (lambda (&optional v)
                 (cond
                   ((and (not pos) v)
                    (setq val v)
@@ -149,8 +150,7 @@
         ,@(and$ (or since (oref repo issues-until))
                 `((updated_after . ,$))))
       :unpaginate t
-      :callback (lambda (value)
-                  (funcall cb cb value)))))
+      :callback cb)))
 
 (cl-defmethod forge--fetch-issue-posts ((repo forge-gitlab-repository) cur cb)
   (forge--glab-get repo
@@ -160,7 +160,7 @@
     :unpaginate t
     :callback (lambda (value)
                 (setf (alist-get 'notes (car cur)) value)
-                (funcall cb cb))))
+                (funcall cb))))
 
 (cl-defmethod forge--update-issues ((repo forge-gitlab-repository) data)
   (dolist (v data)
@@ -217,8 +217,9 @@
 ;;;; Pullreqs
 
 (cl-defmethod forge--fetch-pullreqs ((repo forge-gitlab-repository) callback since)
-  (let ((cb (let (val cur cnt pos)
-              (lambda (cb &optional v)
+  (letrec
+      (( cb (let (val cur cnt pos)
+              (lambda (&optional v)
                 (cond
                   ((and (not pos) v)
                    (setq val v)
@@ -248,8 +249,7 @@
         ,@(and$ (or since (oref repo pullreqs-until))
                 `((updated_after . ,$))))
       :unpaginate t
-      :callback (lambda (value)
-                  (funcall cb cb value)))))
+      :callback cb)))
 
 (cl-defmethod forge--fetch-pullreq-posts
   ((repo forge-gitlab-repository) cur cb)
@@ -260,7 +260,7 @@
     :unpaginate t
     :callback (lambda (value)
                 (setf (alist-get 'notes (car cur)) value)
-                (funcall cb cb))))
+                (funcall cb))))
 
 (cl-defmethod forge--fetch-pullreq-source-repo
   ((repo forge-gitlab-repository) cur cb)
@@ -272,12 +272,12 @@
         (forge--glab-get repo (format "/projects/%s" .source_project_id) nil
           :errorback (lambda (_err _headers _status _req)
                        (setf (alist-get 'source_project (car cur)) nil)
-                       (funcall cb cb))
+                       (funcall cb))
           :callback (lambda (value)
                       (setf (alist-get 'source_project (car cur)) value)
-                      (funcall cb cb)))
+                      (funcall cb)))
       (setf (alist-get 'source_project (car cur)) nil)
-      (funcall cb cb))))
+      (funcall cb))))
 
 (cl-defmethod forge--fetch-pullreq-target-repo
   ((repo forge-gitlab-repository) cur cb)
@@ -285,10 +285,10 @@
     (forge--glab-get repo (format "/projects/%s" .target_project_id) nil
       :errorback (lambda (_err _headers _status _req)
                    (setf (alist-get 'target_project (car cur)) nil)
-                   (funcall cb cb))
+                   (funcall cb))
       :callback (lambda (value)
                   (setf (alist-get 'target_project (car cur)) value)
-                  (funcall cb cb)))))
+                  (funcall cb)))))
 
 (cl-defmethod forge--update-pullreqs ((repo forge-gitlab-repository) data)
   (dolist (v data)
