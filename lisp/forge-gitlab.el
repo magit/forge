@@ -51,54 +51,51 @@
   (cl-assert (not (and since (forge-get-repository repo nil :tracked?))))
   (setq forge--mode-line-buffer (current-buffer))
   (forge--msg repo t nil "Pulling REPO")
-  (let ((cb (let ((buf (current-buffer))
-                  (val nil))
-              (lambda (cb &optional v)
-                (when v (if val (push v val) (setq val v)))
-                (let-alist val
-                  (cond
-                    ((not val)
-                     (forge--fetch-repository repo cb))
-                    ((not (assq 'assignees val))
-                     (forge--fetch-assignees repo cb))
-                    ((not (assq 'forks val))
-                     (forge--fetch-forks repo cb))
-                    ((not (assq 'labels val))
-                     (forge--fetch-labels repo cb))
-                    ((and .issues_enabled
-                          (not (assq 'issues val)))
-                     (forge--fetch-issues repo cb since))
-                    ((and .merge_requests_enabled
-                          (not (assq 'pullreqs val)))
-                     (forge--fetch-pullreqs repo cb since))
-                    (t
-                     (forge--msg repo t t   "Pulling REPO")
-                     (forge--msg repo t nil "Storing REPO")
-                     (closql-with-transaction (forge-db)
-                       (forge--update-repository repo val)
-                       (forge--update-assignees  repo .assignees)
-                       (forge--update-labels     repo .labels)
-                       (forge--update-issues     repo .issues)
-                       (forge--update-pullreqs   repo .pullreqs)
-                       (oset repo condition :tracked))
-                     (forge--msg repo t t "Storing REPO")
-                     (cond
-                       ((oref repo selective-p))
-                       (callback (funcall callback))
-                       ((forge--maybe-git-fetch repo buf))))))))))
-    (funcall cb cb)))
+  (let ((buffer (current-buffer))
+        (value nil)
+        (step nil)
+        (skip (cond ((oref repo selective-p)
+                     '(assignees forks labels issues pullreqs))
+                    ((magit-get-boolean "forge.omitExpensive")
+                     '(assignees forks labels)))))
+    (named-let step (data)
+      (cond ((not value)
+             (when data
+               (setq value data)
+               (let-alist value
+                 (unless .issues_enabled         (cl-pushnew 'issues   skip))
+                 (unless .merge_requests_enabled (cl-pushnew 'pullreqs skip)))))
+            ((push (cons step data) value)))
+      (cl-flet ((fetchp (sym)
+                  (unless (or (memq sym skip)
+                              (assq sym value))
+                    (setq step sym)
+                    t)))
+        (cond ((not value)         (forge--fetch-repository repo #'step))
+              ((fetchp 'assignees) (forge--fetch-assignees  repo #'step))
+              ((fetchp 'forks)     (forge--fetch-forks      repo #'step))
+              ((fetchp 'labels)    (forge--fetch-labels     repo #'step))
+              ((fetchp 'issues)    (forge--fetch-issues     repo #'step since))
+              ((fetchp 'pullreqs)  (forge--fetch-pullreqs   repo #'step since))
+              (t
+               (forge--msg repo t t   "Pulling REPO")
+               (forge--msg repo t nil "Storing REPO")
+               (let-alist value
+                 (closql-with-transaction (forge-db)
+                   (forge--update-repository repo value)
+                   (forge--update-assignees  repo .assignees)
+                   (forge--update-labels     repo .labels)
+                   (forge--update-issues     repo .issues)
+                   (forge--update-pullreqs   repo .pullreqs)
+                   (oset repo condition :tracked)))
+               (forge--msg repo t t "Storing REPO")
+               (cond ((oref repo selective-p))
+                     (callback (funcall callback))
+                     ((forge--maybe-git-fetch repo buffer)))))))))
 
 (cl-defmethod forge--fetch-repository ((repo forge-gitlab-repository) callback)
   (forge--glab-get repo "/projects/:project" nil
-    :callback (lambda (value)
-                (cond ((oref repo selective-p)
-                       (setq value (append '((assignees) (forks) (labels)
-                                             (issues) (pullreqs))
-                                           value)))
-                      ((magit-get-boolean "forge.omitExpensive")
-                       (setq value (append '((assignees) (forks) (labels))
-                                           value))))
-                (funcall callback callback value))))
+    :callback callback))
 
 (cl-defmethod forge--update-repository ((repo forge-gitlab-repository) data)
   (let-alist data
@@ -144,7 +141,7 @@
                    (forge--fetch-issue-posts repo cur cb))
                   (t
                    (forge--msg repo t t "Pulling REPO issues")
-                   (funcall callback callback (cons 'issues val))))))))
+                   (funcall callback val)))))))
     (forge--msg repo t nil "Pulling REPO issues")
     (forge--glab-get repo "/projects/:project/issues"
       `((per_page . 100)
@@ -232,7 +229,7 @@
                    (forge--fetch-pullreq-posts repo cur cb))
                   ((not pos)
                    (forge--msg repo t t "Pulling REPO pullreqs")
-                   (funcall callback callback (cons 'pullreqs val)))
+                   (funcall callback val))
                   ((not (assq 'source_project (car cur)))
                    (forge--fetch-pullreq-source-repo repo cur cb))
                   ((not (assq 'target_project (car cur)))
@@ -243,7 +240,7 @@
                    (forge--fetch-pullreq-posts repo cur cb))
                   (t
                    (forge--msg repo t t "Pulling REPO pullreqs")
-                   (funcall callback callback (cons 'pullreqs val))))))))
+                   (funcall callback val)))))))
     (forge--msg repo t nil "Pulling REPO pullreqs")
     (forge--glab-get repo "/projects/:project/merge_requests"
       `((per_page . 100)
@@ -371,8 +368,7 @@
   (forge--glab-get repo "/projects/:project/users"
     '((per_page . 100))
     :unpaginate t
-    :callback (lambda (value)
-                (funcall callback callback (cons 'assignees value)))))
+    :callback callback))
 
 (cl-defmethod forge--update-assignees ((repo forge-gitlab-repository) data)
   (oset repo assignees
@@ -393,8 +389,7 @@
     '((per_page . 100)
       (simple . t))
     :unpaginate t
-    :callback (lambda (value)
-                (funcall callback callback (cons 'forks value)))))
+    :callback callback))
 
 (cl-defmethod forge--update-forks ((repo forge-gitlab-repository) data)
   (oset repo forks
@@ -414,8 +409,7 @@
   (forge--glab-get repo "/projects/:project/labels"
     '((per_page . 100))
     :unpaginate t
-    :callback (lambda (value)
-                (funcall callback callback (cons 'labels value)))))
+    :callback callback))
 
 (cl-defmethod forge--update-labels ((repo forge-gitlab-repository) data)
   (oset repo labels
