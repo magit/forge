@@ -22,11 +22,11 @@
 
 ;;; Code:
 
-(require 'forge)
+(require 'forge-gitea)
 
 ;;; Class
 
-(defclass forge-forgejo-repository (forge-unusedapi-repository)
+(defclass forge-forgejo-repository (forge-gitea-repository)
   ((issues-url-format         :initform "https://%h/%o/%n/issues")
    (issue-url-format          :initform "https://%h/%o/%n/issues/%i")
    ;; The anchor for the issue itself is .../%i#issue-%i

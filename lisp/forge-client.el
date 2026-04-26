@@ -97,6 +97,10 @@
                                         :key #'cadr :test #'equal)))
                  ('forge-github-repository 'github)
                  ('forge-gitlab-repository 'gitlab)
+                 ('forge-forgejo-repository 'forgejo)
+                 ('forge-gitea-repository 'gitea)
+                 ('forge-gogs-repository 'gogs)
+                 ('forge-bitbucket-repository 'bitbucket)
                  (_ 'github)))))
 
 (defun ghub--prepare-mutation (mutation &optional var)
