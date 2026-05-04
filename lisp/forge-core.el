@@ -239,10 +239,11 @@ Entries have the form (GITHOST APIHOST WEBHOST CLASS).
 If no entry matches, return nil, or signal an error if optional DEMAND
 is non-nil."
   (or (assoc host forge-alist)
-      (assoc (any (##and (string-prefix-p "hostname" %)
-                         (substring % 9))
-                  (ignore-errors
-                    (process-lines-ignore-status "ssh" "-G" host)))
+      (assoc (seq-some (lambda (line)
+                         (and (string-prefix-p "hostname" line)
+                              (substring line 9)))
+                       (ignore-errors
+                         (process-lines-ignore-status "ssh" "-G" host)))
              forge-alist)
       (car (cl-member host forge-alist :test #'equal :key #'caddr))
       (and demand
