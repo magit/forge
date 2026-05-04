@@ -10,7 +10,7 @@
 ;; Package-Version: 0.6.5
 ;; Package-Requires: (
 ;;     (emacs        "29.1")
-;;     (compat       "30.1")
+;;     (compat       "31.0")
 ;;     (closql        "2.4")
 ;;     (cond-let      "1.0")
 ;;     (emacsql       "4.3")

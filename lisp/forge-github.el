@@ -703,7 +703,7 @@
                          (lambda (errors _headers _status _req)
                            (if (zerop tries)
                                (ghub--signal-error errors)
-                             (cl-decf tries)
+                             (decf tries)
                              (cond-let
                                ([notfound
                                  (seq-keep
@@ -717,7 +717,7 @@
                                                           query :key #'caar))
                                 (funcall vacuum))
                                ((ghub--signal-error errors))))))
-                   (cl-incf page)
+                   (incf page)
                    (forge--msg nil t nil
                                "Pulling notifications (page %s/%s)" page pages)
                    (funcall vacuum))
@@ -1236,12 +1236,12 @@
   ;; then taking the first found file.  Too bad; that's what we do.
   (let ((branch (forge--get-default-branch repo))
         (case-fold-search t))
-    (seq-some (lambda (file)
-                (and (string-match-p "\
+    (any (lambda (file)
+           (and (string-match-p "\
 \\`\\(.github/\\|docs/\\)?pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'" file)
-                     (list (concat branch ":" file))))
-              (magit-git-items "ls-tree" "-z" "--full-tree" "--name-only"
-                               "-r" branch))))
+                (list (concat branch ":" file))))
+         (magit-git-items "ls-tree" "-z" "--full-tree" "--name-only"
+                          "-r" branch))))
 
 (cl-defmethod forge--set-default-branch ((repo forge-github-repository) branch)
   (forge-rest repo "PATCH" "/repos/:owner/:repo"

@@ -166,7 +166,7 @@ One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
       (setq forge--buffer-post-object obj)
       (setq forge--submit-post-function submit)
       (pcase-dolist (`(,var ,val) bindings)
-        (set (make-local-variable var) val)
+        (set-local var val)
         (when (eq var 'forge--buffer-template)
           (let-alist forge--buffer-template
             (setq forge--buffer-assignees .assignees)

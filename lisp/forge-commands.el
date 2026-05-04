@@ -665,10 +665,9 @@ With prefix argument MENU, also show the topic menu."
                                  $
                                (magit-get-upstream-branch $))
                              (car (member $ targets)))
-                       (seq-some (##car (member (concat remote "/" %) targets))
-                                 (delete-dups
-                                  (cons (oref repo default-branch)
-                                        magit-main-branch-names)))))))
+                       (any (##car (member (concat remote "/" %) targets))
+                            (delete-dups (cons (oref repo default-branch)
+                                               magit-main-branch-names)))))))
     (list source target)))
 
 (defun forge-create-post (&optional quote)

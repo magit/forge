@@ -608,10 +608,11 @@ Limit list to topics for which a review by the given user was requested."
                                     ('oldest             '(< number))
                                     ('recently-updated   '(string> updated))
                                     ('anciently-updated  '(string< updated)))))
-        (cl-sort (nconc (forge--list-topics-1 spec repo 'discussion)
-                        (forge--list-topics-1 spec repo 'issue)
-                        (forge--list-topics-1 spec repo 'pullreq))
-                 pred :key (##eieio-oref % slot)))
+        (compat-call
+         sort (nconc (forge--list-topics-1 spec repo 'discussion)
+                     (forge--list-topics-1 spec repo 'issue)
+                     (forge--list-topics-1 spec repo 'pullreq))
+         :lessp pred :key (##eieio-oref % slot)))
     (forge--list-topics-1 spec repo type)))
 
 (defun forge--list-topics-1 (spec repo type)

@@ -137,7 +137,7 @@
                    (forge--msg nil nil nil "Pulling issue %s/%s" pos cnt)
                    (forge--fetch-issue-posts repo cur cb))
                   ((setq cur (cdr cur))
-                   (cl-incf pos)
+                   (incf pos)
                    (forge--msg nil nil nil "Pulling issue %s/%s" pos cnt)
                    (forge--fetch-issue-posts repo cur cb))
                   (t
@@ -236,7 +236,7 @@
                   ((not (assq 'target_project (car cur)))
                    (forge--fetch-pullreq-target-repo repo cur cb))
                   ((setq cur (cdr cur))
-                   (cl-incf pos)
+                   (incf pos)
                    (forge--msg nil nil nil "Pulling pullreq %s/%s" pos cnt)
                    (forge--fetch-pullreq-posts repo cur cb))
                   (t
