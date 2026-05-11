@@ -646,11 +646,11 @@ With prefix argument MENU, also show the topic menu."
                    "Source branch"
                    (magit-list-remote-branch-names)
                    nil t nil 'magit-revision-history
-                   (or (and> (magit-branch-at-point)
+                   (or (and$ (magit-branch-at-point)
                              (if (magit-remote-branch-p $)
                                  $
                                (magit-get-push-branch $ t)))
-                       (and> (magit-get-current-branch)
+                       (and$ (magit-get-current-branch)
                              (if (magit-remote-branch-p $)
                                  $
                                (magit-get-push-branch $ t))))))
@@ -658,7 +658,7 @@ With prefix argument MENU, also show the topic menu."
          (targets (delete source (magit-list-remote-branch-names remote)))
          (target  (magit-completing-read
                    "Target branch" targets nil t nil 'magit-revision-history
-                   (or (and> (cdr (magit-split-branch-name source))
+                   (or (and$ (cdr (magit-split-branch-name source))
                              (and (magit-branch-p $)
                                   (magit-get-upstream-branch $))
                              (if (magit-remote-branch-p $)
@@ -1486,10 +1486,16 @@ heavy development."
 ;; Local Variables:
 ;; read-symbol-shorthands: (
 ;;   ("and$"          . "cond-let--and$")
-;;   ("and>"          . "cond-let--and>")
+;;   ("thread$"       . "cond-let--thread$")
+;;   ("when$"         . "cond-let--when$")
+;;   ("and-let*"      . "cond-let--and-let*")
 ;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let*"       . "cond-let--if-let*")
 ;;   ("if-let"        . "cond-let--if-let")
+;;   ("when-let*"     . "cond-let--when-let*")
 ;;   ("when-let"      . "cond-let--when-let")
+;;   ("while-let*"    . "cond-let--while-let*")
+;;   ("while-let"     . "cond-let--while-let")
 ;;   ("buffer-string" . "buffer-string")
 ;;   ("buffer-str"    . "forge--buffer-substring-no-properties")
 ;;   ("partial"       . "llama--left-apply-partially"))

@@ -480,10 +480,16 @@ Optional END defaults to the value of `point-max'."
 ;; Local Variables:
 ;; read-symbol-shorthands: (
 ;;   ("and$"          . "cond-let--and$")
-;;   ("and>"          . "cond-let--and>")
+;;   ("thread$"       . "cond-let--thread$")
+;;   ("when$"         . "cond-let--when$")
+;;   ("and-let*"      . "cond-let--and-let*")
 ;;   ("and-let"       . "cond-let--and-let")
+;;   ("if-let*"       . "cond-let--if-let*")
 ;;   ("if-let"        . "cond-let--if-let")
-;;   ("when-let"      . "cond-let--when-let"))
+;;   ("when-let*"     . "cond-let--when-let*")
+;;   ("when-let"      . "cond-let--when-let")
+;;   ("while-let*"    . "cond-let--while-let*")
+;;   ("while-let"     . "cond-let--while-let"))
 ;; End:
 (provide 'forge-core)
 ;;; forge-core.el ends here
