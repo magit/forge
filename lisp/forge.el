@@ -12,7 +12,7 @@
 ;;     (emacs        "29.1")
 ;;     (compat       "31.0")
 ;;     (closql        "2.4")
-;;     (cond-let      "1.0")
+;;     (cond-let      "1.1")
 ;;     (emacsql       "4.3")
 ;;     (ghub          "5.2")
 ;;     (llama         "1.0")
