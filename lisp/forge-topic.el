@@ -1264,7 +1264,8 @@ commands in all Forge keymaps, one only has to change them here."
   "<remap> <forge--item-menu>"   #'forge-topic-menu
   "<remap> <forge--list-menu>"   #'forge-topic-menu
   "C-c C-n"                      #'forge-create-post
-  "C-c C-r"                      #'forge-create-post)
+  "C-c C-r"                      #'forge-create-post
+  "G"                            #'forge-pull-this-topic)
 
 (define-derived-mode forge-topic-mode magit-mode "Topic"
   "Parent major mode of `forge-{issue,pullreq}-mode'.
