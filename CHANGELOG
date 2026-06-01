@@ -1,4 +1,13 @@
 # -*- mode: org -*-
+* v0.6.6    2026-06-01
+
+- Fixed a regression in interaction with Ghub.  #848
+
+- No longer error if ~ssh~ is missing when looking up a host in
+  ~forge-alist~.
+
+- ~forge-pull-this-topic~ is now bound to ~G~ in ~forge-topic-mode-map~.
+
 * v0.6.5    2026-05-01
 
 - Fixed a pagination bug, which could completely prevent pulling API
