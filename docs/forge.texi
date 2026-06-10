@@ -1533,6 +1533,8 @@ topic lists; elsewhere it expands to the empty string.
 @code{%s} The slug of the topic (e.g., "#123"), padded to the width
 requested by the caller.
 @item
+@code{%a} The login of the topic's author.
+@item
 @code{%t} The title of the topic.
 @end itemize
 @end defopt

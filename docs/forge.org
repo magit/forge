@@ -1324,6 +1324,7 @@ then the remote is never removed.
     topic lists; elsewhere it expands to the empty string.
   - ~%s~ The slug of the topic (e.g., "#123"), padded to the width
     requested by the caller.
+  - ~%a~ The login of the topic's author.
   - ~%t~ The title of the topic.
 
 - User Option: forge-topic-slug-symbols ::

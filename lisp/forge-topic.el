@@ -75,6 +75,7 @@ The following %-sequences are supported:
      empty string.
 `%s' The slug of the topic (e.g., \"#123\"), padded to the width
      requested by the caller.
+`%a' The login of the topic's author.
 `%t' The title of the topic."
   :package-version '(forge . "0.5.0")
   :group 'forge
@@ -955,7 +956,12 @@ can be selected from the start."
                              " "))
                 ""))
      (?s . ,(string-pad (forge--format-topic-slug topic) (or width 5)))
+     (?a . ,(forge--format-topic-author topic))
      (?t . ,(forge--format-topic-title topic)))))
+
+(defun forge--format-topic-author (topic)
+  (magit--propertize-face (or (oref topic author) "(ghost)")
+                          'forge-post-author))
 
 (defun forge--format-topic-slug (topic)
   (with-slots (slug state status saved-p) topic
