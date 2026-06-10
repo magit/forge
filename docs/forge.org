@@ -1311,6 +1311,38 @@ then the remote is never removed.
   This option specifies the width of repository slugs (i.e.,
   "OWNER/NAME").
 
+- User Option: forge-topic-line-format ::
+
+  This option specifies the format for topic lines in topic and
+  notification lists.
+
+  The following ~%~-sequences are supported:
+
+  - ~%R~ The slug of the repository, padded to
+    ~forge-topic-repository-slug-width~, followed by a space.  This is
+    only non-empty in flat notification lists and in ungrouped, global
+    topic lists; elsewhere it expands to the empty string.
+  - ~%s~ The slug of the topic (e.g., "#123"), padded to the width
+    requested by the caller.
+  - ~%t~ The title of the topic.
+
+- User Option: forge-topic-slug-symbols ::
+
+  This option specifies the symbols used to prefix topic slugs, by
+  topic type.
+
+  Each entry maps a topic class (~forge-issue~, ~forge-pullreq~ or
+  ~forge-discussion~) to the symbol displayed in front of the topic's
+  number.  When the symbol is ~nil~, the slug provided by the forge is
+  used as-is; otherwise the forge's leading symbol is replaced with the
+  configured one at display time.
+
+  Note that forges use their own conventions: e.g., GitLab uses "!" for
+  merge requests and "#" for issues, while GitHub uses "#" for
+  everything.  By default these conventions are preserved.  For example,
+  setting ~forge-discussion~ to "@" displays GitHub discussions with an
+  at-sign prefix.
+
 - User Option: forge-buffer-draft-p ::
 
   This option controls whether new pull-requests start out as drafts

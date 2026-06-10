@@ -63,6 +63,47 @@ The following %-sequences are supported:
   :group 'forge
   :type 'string)
 
+(defcustom forge-topic-line-format "%R%s %t"
+  "Format for topic lines in topic and notification lists.
+
+The following %-sequences are supported:
+
+`%R' The slug of the repository, padded to
+     `forge-topic-repository-slug-width', followed by a space.
+     This is only non-empty in flat notification lists and in
+     ungrouped, global topic lists; elsewhere it expands to the
+     empty string.
+`%s' The slug of the topic (e.g., \"#123\"), padded to the width
+     requested by the caller.
+`%t' The title of the topic."
+  :package-version '(forge . "0.5.0")
+  :group 'forge
+  :type 'string)
+
+(defcustom forge-topic-slug-symbols
+  '((forge-issue      . nil)
+    (forge-pullreq    . nil)
+    (forge-discussion . nil))
+  "Symbols used to prefix topic slugs, by topic type.
+
+Each entry maps a topic class to the symbol displayed in front of
+the topic's number.  When the symbol is nil, the slug provided by
+the forge is used as-is; otherwise the forge's leading symbol is
+replaced with the configured one at display time.
+
+Note that forges use their own conventions: e.g., GitLab uses
+\"!\" for merge requests and \"#\" for issues, while GitHub uses
+\"#\" for everything.  By default these conventions are preserved.
+For example, setting `forge-discussion' to \"@\" displays GitHub
+discussions with an at-sign prefix."
+  :package-version '(forge . "0.5.0")
+  :group 'forge
+  :type '(alist :key-type (choice (const forge-issue)
+                                  (const forge-pullreq)
+                                  (const forge-discussion))
+                :value-type (choice (const :tag "Use forge's slug" nil)
+                                    string)))
+
 (defcustom forge-post-fill-region t
   "Whether to call `fill-region' before displaying forge posts."
   :package-version '(forge . "0.1.0")
@@ -900,25 +941,26 @@ can be selected from the start."
                  `(,@spec (?i . ,(oref topic number)))))
 
 (defun forge--format-topic-line (topic &optional width)
-  (concat
-   (and (or (and (derived-mode-p 'forge-notifications-mode)
-                 (eq forge-notifications-display-style 'flat))
-            (and (derived-mode-p 'forge-topics-mode)
-                 (oref forge--buffer-topics-spec global)
-                 (not (oref forge--buffer-topics-spec grouped))))
-        (concat (truncate-string-to-width
-                 (oref (forge-get-repository topic) slug)
-                 forge-topic-repository-slug-width
-                 nil ?\s t)
-                " "))
-   (string-pad (forge--format-topic-slug topic) (or width 5))
-   " "
-   (forge--format-topic-title topic)))
+  (format-spec
+   forge-topic-line-format
+   `((?R . ,(or (and (or (and (derived-mode-p 'forge-notifications-mode)
+                              (eq forge-notifications-display-style 'flat))
+                         (and (derived-mode-p 'forge-topics-mode)
+                              (oref forge--buffer-topics-spec global)
+                              (not (oref forge--buffer-topics-spec grouped))))
+                     (concat (truncate-string-to-width
+                              (oref (forge-get-repository topic) slug)
+                              forge-topic-repository-slug-width
+                              nil ?\s t)
+                             " "))
+                ""))
+     (?s . ,(string-pad (forge--format-topic-slug topic) (or width 5)))
+     (?t . ,(forge--format-topic-title topic)))))
 
 (defun forge--format-topic-slug (topic)
   (with-slots (slug state status saved-p) topic
     (magit--propertize-face
-     slug
+     (forge--apply-topic-slug-symbol topic slug)
      `(,@(and saved-p               '(forge-topic-slug-saved))
        ,@(and (eq status 'unread)   '(forge-topic-slug-unread))
        ,(pcase state
@@ -926,6 +968,20 @@ can be selected from the start."
           ((or 'completed 'merged)  'forge-topic-slug-completed)
           ((or 'unplanned 'outdated 'duplicate 'rejected)
            'forge-topic-slug-expunged))))))
+
+(defun forge--apply-topic-slug-symbol (topic slug)
+  "Return SLUG with its leading symbol replaced per `forge-topic-slug-symbols'.
+The replacement is chosen based on the type of TOPIC.  If no symbol is
+configured for that type, SLUG is returned unchanged."
+  (let ((symbol (cdr (assq (cond ((forge-discussion-p topic) 'forge-discussion)
+                                 ((forge-pullreq-p topic)    'forge-pullreq)
+                                 ((forge-issue-p topic)      'forge-issue))
+                           forge-topic-slug-symbols))))
+    (if symbol
+        (concat symbol (string-remove-prefix
+                        "@" (string-remove-prefix
+                             "!" (string-remove-prefix "#" slug))))
+      slug)))
 
 (defun forge--format-topic-refs (topic)
   (pcase-let
