@@ -228,7 +228,8 @@ can be selected from the start."
   (let* ((number (number-to-string (oref pullreq number)))
          (branch-n (format "pr-%s" number))
          (branch (forge--pullreq-branch-internal pullreq)))
-    (or (and (magit-branch-p branch)
+    (or (and branch
+             (magit-branch-p branch)
              (equal (magit-get "branch" branch "pullRequest") number)
              branch)
         (and (magit-branch-p branch-n)
