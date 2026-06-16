@@ -142,7 +142,7 @@
     (forge-get-repository :stub? nil 'notatpt)))
 
 (cl-defmethod forge-get-repository ((demand symbol) &optional remote notatpt)
-  "Return the current forge repository.
+   "Return the current forge repository.
 
 First check if `forge-buffer-repository', or if that is nil, then
 the repository for `forge-buffer-topic', satisfies DEMAND.  If so,
