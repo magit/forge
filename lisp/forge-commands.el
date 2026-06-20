@@ -401,7 +401,7 @@ commit, and for a file."
     ((derived-mode-p 'dired-mode)
      `("HEAD"
        ,(magit-file-relative-name (dired-get-filename))
-       ,current-prefix-arg))
+       nil nil ,current-prefix-arg))
     ((let ((commit (magit-read-local-branch-or-commit
                     "Browse file from commit")))
        (list commit (magit-read-file-from-rev commit "Browse file"))))))
