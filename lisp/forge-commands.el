@@ -389,17 +389,17 @@ commit, and for a file."
 (defun forge--browse-blob-args ()
   (cond
     (magit-buffer-file-name
-     `(,(or magit-buffer-refname magit-buffer-revision "HEAD")
+     `(,(or magit-buffer-refname magit-buffer-revision)
        ,(magit-file-relative-name magit-buffer-file-name)
        ,@(magit-file-region-line-numbers)
        ,current-prefix-arg))
     (buffer-file-name
-     `("HEAD"
+     `(nil
        ,(magit-file-relative-name buffer-file-name)
        ,@(magit-file-region-line-numbers)
        ,current-prefix-arg))
     ((derived-mode-p 'dired-mode)
-     `("HEAD"
+     `(nil
        ,(magit-file-relative-name (dired-get-filename))
        nil nil ,current-prefix-arg))
     ((let ((commit (magit-read-local-branch-or-commit
