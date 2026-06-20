@@ -455,11 +455,11 @@ commit, and for a file."
 
 (cl-defmethod forge-get-url ((_(eql :branch)) branch)
   (let (remote)
-    (if (magit-remote-branch-p branch)
-        (pcase-setq `(,remote . ,branch) (magit-split-branch-name branch))
-      (unless (setq remote (or (magit-get-push-remote branch)
-                               (magit-get-upstream-remote branch)))
-        (user-error "Cannot determine remote for %s" branch)))
+    (cond ((magit-remote-branch-p branch)
+           (pcase-setq `(,remote . ,branch) (magit-split-branch-name branch)))
+          ((not (setq remote (or (magit-get-push-remote branch)
+                                 (magit-get-upstream-remote branch))))
+           (user-error "Cannot determine remote for %s" branch)))
     (forge--format (forge-get-repository :stub remote)
                    'branch-url-format
                    `((?r . ,branch)))))
