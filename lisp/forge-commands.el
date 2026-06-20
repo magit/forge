@@ -424,6 +424,7 @@ commit, and for a file."
   (forge--format repo 'remote-url-format))
 
 (cl-defmethod forge-get-url ((_(eql :commit)) commit)
+  (cl-assert (stringp commit))
   (let ((repo (forge-get-repository :stub)))
     (cond-let*
       ((magit-list-containing-branches
@@ -438,9 +439,11 @@ commit, and for a file."
 
 (cl-defmethod forge-get-url ((_(eql :blob)) commit file
                              &optional line end force-hash)
+  (cl-assert (stringp commit))
+  (cl-assert (stringp file))
   (let* ((commit (or (and (magit-branch-p commit)
                           (cdr (magit-split-branch-name commit)))
-                     (and commit (magit-commit-p commit))
+                     (magit-commit-p commit)
                      (and (not (or line force-hash))
                           (magit-get-current-branch))
                      (magit-rev-parse "HEAD")))
@@ -454,6 +457,7 @@ commit, and for a file."
                                         (and (not (equal line end)) end))))))
 
 (cl-defmethod forge-get-url ((_(eql :branch)) branch)
+  (cl-assert (stringp branch))
   (let (remote)
     (cond ((magit-remote-branch-p branch)
            (pcase-setq `(,remote . ,branch) (magit-split-branch-name branch)))
@@ -465,6 +469,7 @@ commit, and for a file."
                    `((?r . ,branch)))))
 
 (cl-defmethod forge-get-url ((_(eql :remote)) remote)
+  (cl-assert (stringp remote))
   (forge--format (forge-get-repository :stub remote) 'remote-url-format))
 
 (cl-defmethod forge-get-url ((post forge-post))
