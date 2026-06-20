@@ -424,7 +424,8 @@ commit, and for a file."
   (forge--format repo 'remote-url-format))
 
 (cl-defmethod forge-get-url ((_(eql :commit)) commit)
-  (cl-assert (stringp commit))
+  (when (member commit '(nil "{worktree}" "{index}"))
+    (setq commit (or (magit-get-current-branch) "HEAD")))
   (let ((repo (forge-get-repository :stub)))
     (cond-let*
       ((magit-list-containing-branches
@@ -439,8 +440,9 @@ commit, and for a file."
 
 (cl-defmethod forge-get-url ((_(eql :blob)) commit file
                              &optional line end force-hash)
-  (cl-assert (stringp commit))
   (cl-assert (stringp file))
+  (when (member commit '(nil "{worktree}" "{index}"))
+    (setq commit (or (magit-get-current-branch) "HEAD")))
   (let* ((commit (or (and (magit-branch-p commit)
                           (cdr (magit-split-branch-name commit)))
                      (magit-commit-p commit)
