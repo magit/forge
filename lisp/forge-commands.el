@@ -391,12 +391,12 @@ commit, and for a file."
     (magit-buffer-file-name
      `(,(or magit-buffer-refname magit-buffer-revision)
        ,(magit-file-relative-name magit-buffer-file-name)
-       ,@(magit-file-region-line-numbers)
+       ,@(or (magit-file-region-line-numbers) (list nil nil))
        ,current-prefix-arg))
     (buffer-file-name
      `(nil
        ,(magit-file-relative-name buffer-file-name)
-       ,@(magit-file-region-line-numbers)
+       ,@(or (magit-file-region-line-numbers) (list nil nil))
        ,current-prefix-arg))
     ((derived-mode-p 'dired-mode)
      `(nil
