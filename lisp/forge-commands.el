@@ -375,7 +375,7 @@ commit, and for a file."
       (and$ (magit-commit-at-point)          (forge-get-url :commit $))
       (and$ (magit-branch-at-point)          (forge-get-url :branch $))
       (and$ (magit-remote-at-point)          (forge-get-url :remote $))
-      (and$ (magit-file-at-point)            (forge-get-url :blob nil $))
+      (and$ (magit-file-at-point)            (forge-get-url :blob "HEAD" $))
       (forge-post-at-point)
       (forge-current-topic)
       (and (or magit-buffer-file-name
