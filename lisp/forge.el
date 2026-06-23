@@ -18,7 +18,6 @@
 ;;     (llama         "1.0")
 ;;     (magit         "4.5")
 ;;     (markdown-mode "2.8")
-;;     (seq           "2.24")
 ;;     (transient     "0.13")
 ;;     (yaml          "1.2"))
 
