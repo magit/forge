@@ -701,7 +701,8 @@
                    ;; have been disabled.  Drop them and try again.
                    (setq errorback
                          (lambda (errors _headers _status _req)
-                           (if (zerop tries)
+                           (if (or (zerop tries)
+                                   (not (eq (car-safe errors) 'errors)))
                                (ghub--signal-error errors)
                              (decf tries)
                              (cond-let
