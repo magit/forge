@@ -1,4 +1,10 @@
 # -*- mode: org -*-
+* v0.6.7    2026-07-01
+
+- Adjusted to breaking change in ~magit-branch-p~.  f3ad5910
+
+- Fixed a regression when visiting blob or copying its URL.  #858
+
 * v0.6.6    2026-06-01
 
 - Fixed a regression in interaction with Ghub.  #848
