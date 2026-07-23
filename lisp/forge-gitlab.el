@@ -41,7 +41,8 @@
    (blob-url-format           :initform "https://%h/%o/%n/-/blob/%r/%f")
    (create-issue-url-format   :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format :initform "https://%h/%o/%n/merge_requests/new")
-   (pullreq-refspec :initform "+refs/merge-requests/*/head:refs/pullreqs/*")))
+   (pullreq-refspec :initform "+refs/merge-requests/*/head:refs/pullreqs/*")
+   (pull-topic-by-number-p :initform t)))
 
 ;;; Pull
 ;;;; Repository
@@ -89,8 +90,8 @@
                    (forge--update-pullreqs   repo .pullreqs)
                    (oset repo condition :tracked)))
                (forge--msg repo t t "Storing REPO")
-               (cond ((oref repo selective-p))
-                     (callback (funcall callback))
+               (cond (callback (funcall callback))
+                     ((oref repo selective-p) (forge-refresh-buffer))
                      ((forge--maybe-git-fetch repo buffer)))))))))
 
 (cl-defmethod forge--fetch-repository ((repo forge-gitlab-repository) callback)
@@ -121,6 +122,9 @@
 (cl-defmethod forge--pull-topic ((repo forge-gitlab-repository) _topic
                                  &key callback _errorback)
   (forge--pull repo callback)) ; TODO Pull only the one topic.
+
+(cl-defmethod forge--pull-topic ((repo forge-gitlab-repository) (_number number))
+  (forge--pull repo #'forge-refresh-buffer)) ; TODO Pull only the one topic.
 
 ;;;; Issues
 

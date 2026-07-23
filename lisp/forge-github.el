@@ -45,7 +45,8 @@
    (blob-url-format            :initform "https://%h/%o/%n/blob/%r/%f")
    (create-issue-url-format    :initform "https://%h/%o/%n/issues/new")
    (create-pullreq-url-format  :initform "https://%h/%o/%n/compare")
-   (pullreq-refspec            :initform "+refs/pull/*/head:refs/pullreqs/*")))
+   (pullreq-refspec            :initform "+refs/pull/*/head:refs/pullreqs/*")
+   (pull-topic-by-number-p     :initform t)))
 
 ;;; Query
 
@@ -235,8 +236,8 @@
           (oset repo condition :tracked))
         (forge--msg repo t t   "Storing REPO")
         (cond
-          ((oref repo selective-p))
           (callback (funcall callback))
+          ((oref repo selective-p) (forge-refresh-buffer))
           ((forge--maybe-git-fetch repo buf))))
       :narrow '(repository)
       :until

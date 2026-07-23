@@ -34,6 +34,10 @@
 
 (defvar bug-reference-auto-setup-functions)
 
+;; Forward declarations for `forge--topic-continue-loabding'
+(declare-function forge-add-repository "forge-commands")
+(declare-function forge-get-url "forge-commands")
+
 (define-obsolete-face-alias 'forge-topic-slug-completed
                             'forge-topic-slug-realized "Forge 0.5.0")
 
@@ -1337,30 +1341,156 @@ This mode itself is never used directly."
     buffer))
 
 (defun forge-topic-refresh-buffer ()
-  (let ((topic (closql-reload forge-buffer-topic)))
-    (setq forge-buffer-topic topic)
-    (magit-set-header-line-format (forge--format-topic-line topic))
-    (magit-insert-section (topicbuf)
-      (magit-insert-headers
-       (pcase major-mode
-         ('forge-discussion-mode 'forge-discussion-headers-hook)
-         ('forge-issue-mode      'forge-issue-headers-hook)
-         ('forge-pullreq-mode    'forge-pullreq-headers-hook)))
-      (when (forge-pullreq-p topic)
-        (magit-insert-section (pullreq topic)
-          (magit-insert-heading "Commits")
-          (forge--insert-pullreq-commits topic t)))
-      (when-let ((note (oref topic note)))
-        (magit-insert-section (note)
-          (magit-insert-heading "Note")
-          (insert (forge--fontify-markdown note) "\n\n")))
-      (forge-insert-post topic nil)
-      (dolist (post (oref topic posts))
-        (forge-insert-post post topic))
-      (when (and (display-images-p)
-                 (fboundp 'markdown-display-inline-images))
-        (let ((markdown-display-remote-images t))
-          (markdown-display-inline-images))))))
+  ;; Topic buffer can be either a real topic buffer or a placeholder
+  ;; "loading" buffer.  If loading, `forge-buffer-topic' is unset.
+  (let* ((loaded forge-buffer-topic)
+         (result (if loaded
+                     (closql-reload forge-buffer-topic)
+                   (forge--topic-continue-loading))))
+    (cond
+     ;; Topic is loading: show a progress line
+     ((stringp result)
+      (pcase-let ((`(,repo ,number) forge--loading-topic))
+        (magit-set-header-line-format
+         (format "%s #%s" (oref repo slug) number)))
+      (magit-insert-section (topicbuf)
+        (insert (propertize result 'font-lock-face 'font-lock-comment-face))))
+     ;; Topic available: render it
+     (result
+      (let ((topic result))
+        (setq forge-buffer-topic topic)
+        (magit-set-header-line-format (forge--format-topic-line topic))
+        (magit-insert-section (topicbuf)
+          (magit-insert-headers
+           (pcase major-mode
+             ('forge-discussion-mode 'forge-discussion-headers-hook)
+             ('forge-issue-mode      'forge-issue-headers-hook)
+             ('forge-pullreq-mode    'forge-pullreq-headers-hook)))
+          (when (forge-pullreq-p topic)
+            (magit-insert-section (pullreq topic)
+              (magit-insert-heading "Commits")
+              (forge--insert-pullreq-commits topic t)))
+          (when-let ((note (oref topic note)))
+            (magit-insert-section (note)
+              (magit-insert-heading "Note")
+              (insert (forge--fontify-markdown note) "\n\n")))
+          (forge-insert-post topic nil)
+          (dolist (post (oref topic posts))
+            (forge-insert-post post topic))
+          (when (and (display-images-p)
+                     (fboundp 'markdown-display-inline-images))
+            (let ((markdown-display-remote-images t))
+              (markdown-display-inline-images)))))))))
+
+;;; Placeholder "loading" buffers
+
+(defvar-local forge--loading-topic nil
+  "In a placeholder topic buffer, the (REPO NUMBER) being fetched.")
+
+(defvar-local forge--loading-tracking-pull-status nil
+  "Non-nil if the buffer has started a pull to track a new repository.")
+
+(defvar-local forge--loading-topic-pull-status nil
+  "State of the topic pull operation in a placeholder topic buffer.
+If the topic has not been pulled, nil.  Set to t if the topic pull has
+begun, or `failed' if the pull completed without a result.")
+
+(defvar-local forge--loading-topic-git-fetch-process nil
+  "State of the pull request's ref fetch in a placeholder topic buffer.
+If no fetch operation has been started, nil.  Holds a reference to the
+fetch process if the fetch has begun.")
+
+(defun forge--fetch-pullreq-ref (repo number)
+  "Start a fetch of pull-request NUMBER's ref for REPO, if available.
+
+This launches an asynchronous git fetch for just the single ref for the
+individual pull request.  Returns the fetch process, or nil if there is
+nothing to fetch (no local worktree, etc.)."
+  (let* ((worktree (forge-get-worktree repo))
+         ;; REPO's `remote' slot is unset when it was looked up by URL,
+         ;; so resolve the remote name from the worktree's git config.
+         (default-directory (or worktree default-directory))
+         (refspec (oref repo pullreq-refspec))
+         (remote  (and worktree refspec (forge--get-remote))))
+    (and remote
+         (magit-git-fetch
+          remote (string-replace "*" (number-to-string number) refspec)))))
+
+(defun forge--topic-continue-loading ()
+  (pcase-let ((`(,repo ,number) forge--loading-topic))
+    (let ((tracked (forge-get-repository
+                    (list (oref repo forge) (oref repo owner) (oref repo name))
+                    nil :tracked?)))
+      (cond
+       ;; Repo not tracked: prompt the user to pull by calling
+       ;; `forge-add-repository'.
+       ((and (not tracked) (not forge--loading-tracking-pull-status))
+        (forge-add-repository (forge-get-url repo))
+        (format "%s is not tracked" (oref repo slug)))
+       ;; Tracking pull started: show progress
+       ((not tracked)
+        (format "Pulling %s..." (oref repo slug)))
+       ;; Topic not in database: pull the topic
+       ((null (forge-get-topic tracked number))
+        (cond
+         ;; Not started: start the pull.
+         ((memq forge--loading-topic-pull-status '(nil failed))
+          (setq forge--loading-topic-pull-status t)
+          (forge--pull-topic tracked number)
+          (format "Fetching #%s from %s..." number (oref repo slug)))
+         ;; Pull started, but still no topic: the topic likely didn't
+         ;; exist on the server.
+         (t
+          ;; TODO we are just assuming that the absence of a topic on
+          ;; the next refresh after we called pull means it doesn't
+          ;; exist.  In the future, forge should implement an error
+          ;; propagation mechanism a la `magit-this-error'.
+          (setq forge--loading-topic-pull-status 'failed)
+          (format "#%s not found in %s" number (oref repo slug)))))
+       ;; Topic loaded: For pull-requests, also fetch the git ref for
+       ;; the topic (and defer rendering until completion).
+       (t
+        (let ((topic (forge-get-topic tracked number))
+              (fetching nil))
+          (cond
+           ((processp forge--loading-topic-git-fetch-process)
+            (setq fetching (process-live-p forge--loading-topic-git-fetch-process)))
+           ((forge-pullreq-p topic)
+            (when-let ((process (forge--fetch-pullreq-ref tracked number)))
+              (setq forge--loading-topic-git-fetch-process process
+                    fetching t))))
+          (if fetching
+              (format "Fetching #%s from %s..." number (oref repo slug))
+            ;; Mark the topic as read before returning it, matching
+            ;; the flow in `forge-topic-setup-buffer'
+            (forge-topic-mark-read topic)
+            topic)))))))
+
+(defun forge--loading-topic-url ()
+  (and forge--loading-topic
+       ;; Take a best guess at the URL.  Obviously we don't yet know
+       ;; if the topic actually exists.
+       (pcase-let ((`(,repo ,number) forge--loading-topic))
+         (when-let ((slot (pcase major-mode
+                            ('forge-issue-mode      'issue-url-format)
+                            ('forge-pullreq-mode    'pullreq-url-format)
+                            ('forge-discussion-mode 'discussion-url-format))))
+           (forge--format repo slot `((?i . ,number)))))))
+
+(defun forge-topic-setup-loading-buffer (repo number mode)
+  (unless (oref repo pull-topic-by-number-p)
+    (user-error "Topic %s is not pulled, and fetching topic by number is not supported for the %s forge"
+                number (oref repo forge)))
+  (magit-setup-buffer mode t
+    :buffer (format "*forge: %s #%s*" (oref repo slug) number)
+    :directory (or (forge-get-worktree repo) "/")
+    (forge--loading-topic (list repo number))
+    ;; TODO performing the git fetch on a new pull request raises the
+    ;; magit status buffer in the window ordering when it is refreshed
+    ;; by the process sentinel.  We disable that behavior, but this
+    ;; should probably be more narrowly-scoped to only when we visit a
+    ;; topic buffer from somewhere outside of magit/forge.
+    (magit-refresh-status-buffer nil)))
 
 (defun forge-insert-post (post topic)
   (magit-insert-section (post post)
@@ -1413,7 +1543,12 @@ This mode itself is never used directly."
   (insert "\n\n"))
 
 (cl-defmethod magit-buffer-value (&context (major-mode forge-topic-mode))
-  (oref forge-buffer-topic slug))
+  ;; Topic buffer can be either a real topic buffer or a placeholder
+  ;; "loading" buffer.  If loading, `forge-buffer-topic' is unset.
+  (if forge-buffer-topic
+      (oref forge-buffer-topic slug)
+    (and forge--loading-topic
+         (format "#%s" (cadr forge--loading-topic)))))
 
 ;;; Bookmarks
 
