@@ -1278,8 +1278,8 @@ upstream remote."
         (propertize (forge--scope 'url) 'face 'bold)))
      :format "%d")]
 
-   ;; Nothing to tracked.
-   [:if-not (##forge--scope 'topdir)
+   ;; Nothing to track.
+   [:if-not (##or (forge--scope 'topdir) (forge--scope 'repo))
     (:info*
      (lambda ()
        (format
@@ -1317,7 +1317,8 @@ upstream remote."
       (format
        (propertize "Adding %s to database," 'face 'transient-heading)
        (propertize (forge--scope 'url) 'face 'bold)))
-    ("r" forge-forge.remote :format " %k from %d %v," :face 'bold)
+    ("r" forge-forge.remote :if (##forge--scope 'wtree)
+     :format " %k from %d %v," :face 'bold)
     ("a" "pulling all topics"
      (lambda (repo)
        (interactive (list (forge--scope 'repo)))
