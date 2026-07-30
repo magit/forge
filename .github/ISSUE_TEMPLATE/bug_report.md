@@ -1,33 +1,37 @@
 ---
 title: 
-name: 🪳 Bug report
+name: 🪳 Report a bug
 about: Report a defect. Do not use this for support requests and feature suggestions.
 ---
 
-<!-- Do not use this for support requests and feature suggestions. -->
-
 Please use your own words.
-If you really must use a LLM, at least disclose that upfront.
+Please use your own brain.
 
-Please explain,
-    (0) without using these lines as headings,
-    (1) what behavior you expected,
-    (2) what behavior you observed,
-    (3) and how we can reproduce the issue.
+Avoid stochastic parrots!
+Avoid LLMs!
 
-Please include a backtrace in your report.  In most cases doing:
+▄████▄ ▄▄ ▄▄  ▄▄▄  ▄▄ ▄▄▄▄     ▄████  ▄▄▄▄▄ ▄▄  ▄▄ ▄████▄ ██
+██▄▄██ ██▄██ ██▀██ ██ ██▀██   ██  ▄▄▄ ██▄▄  ███▄██ ██▄▄██ ██
+██  ██  ▀█▀  ▀███▀ ██ ████▀    ▀███▀  ██▄▄▄ ██ ▀██ ██  ██ ██
 
-    M-x toggle-debug-on-error RET
+If you have already used an LLM to investigate an issue, don't post a generated wall of text.  A human has to read and verify all that.  Please do that work yourself and then use your own words to describe the relevant findings.
 
-and then going through the steps again, should result in a backtrace.
+Disclose the LLM usage upfront.
 
-Also post the output of:
+======================================================================
 
-    M-x magit-version RET
+We use this issue tracker only for issues suspected to be caused by bugs.  If you need help or want to make a suggestion, please instead open a discussion.
 
-Before reporting a defect, please try to reproduce it using an Emacs instance,
-in which only Forge and its dependencies have been loaded.  Other packages or
-your configuration should not be loaded.  This makes it easier to determine
-whether the issue lays with Forge or something else.
+======================================================================
 
-<!--- Now delete this line and everything above. -->
+Before reporting a defect, please try to reproduce the issue using the latest releases or snapshots of all involved packages.  Mention the versions you used, with the help of "M-x magit-version".
+
+Likewise try to reproduce it using an Emacs instance, in which only this package and its dependencies have been loaded.  Other packages or your configuration should not be loaded.
+
+Please consult https://docs.magit.vc/magit/Debugging-Tools.html and make use of the tools documented there.  Some of these tools are useful when dealing with dependencies and extensions of Magit.
+
+======================================================================
+
+Explain (1) what behavior you expected, (2) what behavior you observed, (3) and how we can reproduce the issue.
+
+Do "M-x magit-version", trigger the issue again, and post the backtrace.
