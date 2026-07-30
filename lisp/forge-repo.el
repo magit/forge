@@ -248,23 +248,24 @@ See `forge-alist' for valid Git hosts."
                        class webhost owner name
                        (memq demand '(:stub :stub?))
                        (eq demand :valid?))))
-           (if (not id)
-               ;; `:valid?' was used and it turned out it is not.
-               (setq obj nil)
+           (cond
+             ((not id)
+              ;; `:valid?' was used and it turned out it is not.
+              (setq obj nil))
              ;; The repo might have been renamed on the forge.  #188
-             (unless (setq obj (forge-get-repository :id id))
-               (setq obj (funcall class
-                                  :id       id
-                                  :forge-id forge-id
-                                  :forge    webhost
-                                  :owner    owner
-                                  :name     name
-                                  :apihost  apihost
-                                  :githost  githost
-                                  :remote   remote))
-               (when (eq demand :insert!)
-                 (closql-insert (forge-db) obj)
-                 (oset obj condition :known))))))
+             ((not (setq obj (forge-get-repository :id id)))
+              (setq obj (funcall class
+                                 :id       id
+                                 :forge-id forge-id
+                                 :forge    webhost
+                                 :owner    owner
+                                 :name     name
+                                 :apihost  apihost
+                                 :githost  githost
+                                 :remote   remote))
+              (when (eq demand :insert!)
+                (closql-insert (forge-db) obj)
+                (oset obj condition :known))))))
        obj))
     ((memq demand forge--signal-no-entry)
      (error "Cannot determine forge repository.  No entry for %S in %s"
