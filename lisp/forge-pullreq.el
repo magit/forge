@@ -242,9 +242,12 @@ can be selected from the start."
 
 (defun forge--pullreq-range (pullreq &optional endpoints)
   (and-let ((head (forge--pullreq-ref pullreq)))
-    (concat (forge--get-remote) "/" (oref pullreq base-ref)
-            (if endpoints "..." "..")
-            head)))
+    (let ((base (concat (forge--get-remote) "/" (oref pullreq base-ref))))
+      (concat (if (magit-rev-ancestor-p head base)
+                  (oref pullreq base-rev)
+                base)
+              (if endpoints "..." "..")
+              head))))
 
 ;;; Insert
 

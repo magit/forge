@@ -1,4 +1,10 @@
 # -*- mode: org -*-
+* v0.6.8    UNRELEASE
+
+- ~forge--pullreq-range~ no longer returns an empty range for a
+  pull-request that has been merged using a merge commit; fixing
+  ~magit-diff-dwim~ on such a pull-request.  #866
+
 * v0.6.7    2026-07-01
 
 - Adjusted to breaking change in ~magit-branch-p~.  f3ad5910
