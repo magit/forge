@@ -120,6 +120,33 @@ Must be set before `forge-list' is loaded.")
     ('t   "*")
     ('nil " ")))
 
+;; FIXME Not suitable for `forge-repository-list-columns'; only
+;; `magit-submodule-list-columns' and `magit-repolist-columns'.
+
+(defun forge-repolist-column-discussions (spec)
+  (and-let* ((repo (forge-get-repository :tracked? nil t))
+             (n (caar (forge-sql [:select (funcall count *) :from discussion
+                                  :where (and (= repository $s1)
+                                              (isnull closed))]
+                                 (oref repo id)))))
+    (magit-repolist-insert-count n spec)))
+
+(defun forge-repolist-column-issues (spec)
+  (and-let* ((repo (forge-get-repository :tracked? nil t))
+             (n (caar (forge-sql [:select (funcall count *) :from issue
+                                  :where (and (= repository $s1)
+                                              (isnull closed))]
+                                 (oref repo id)))))
+    (magit-repolist-insert-count n spec)))
+
+(defun forge-repolist-column-pullreqs (spec)
+  (and-let* ((repo (forge-get-repository :tracked? nil t))
+             (n (caar (forge-sql [:select (funcall count *) :from pullreq
+                                  :where (and (= repository $s1)
+                                              (isnull closed))]
+                                 (oref repo id)))))
+    (magit-repolist-insert-count n spec)))
+
 ;;; Commands
 ;;;; Menu
 
