@@ -48,6 +48,7 @@
    (create-issue-url-format    :initform nil :allocation :class)
    (create-pullreq-url-format  :initform nil :allocation :class)
    (pullreq-refspec            :initform nil :allocation :class)
+   (pull-topic-by-number-p     :initform nil :allocation :class)
    (id                         :initform nil :initarg :id)
    (forge-id                   :initform nil :initarg :forge-id)
    (forge                      :initform nil :initarg :forge)

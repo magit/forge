@@ -378,6 +378,7 @@ commit, and for a file."
       (and$ (magit-file-at-point)            (forge-get-url :blob nil $))
       (forge-post-at-point)
       (forge-current-topic)
+      (forge--loading-topic-url)
       (and (or magit-buffer-file-name
                buffer-file-name
                (derived-mode-p 'dired-mode))
@@ -559,11 +560,20 @@ lifts the limitation to active pull-requests."
   (if (string-match
        "/\\(issues\\|pull\\|discussions\\|merge_requests\\)/\\([0-9]+\\)\\'"
        url)
-      (forge-topic-setup-buffer
-       (forge-get-topic (forge-get-repository
-                         (substring url 0 (match-beginning 1))
-                         nil :tracked)
-                        (string-to-number (match-string 2 url))))
+      (let ((repo-url (substring url 0 (match-beginning 1)))
+            (number (string-to-number (match-string 2 url)))
+            (mode (pcase (match-string 1 url)
+                    ("issues"                     #'forge-issue-mode)
+                    ((or "pull" "merge_requests") #'forge-pullreq-mode)
+                    ("discussions"                #'forge-discussion-mode))))
+        (if-let ((repo (forge-get-repository repo-url nil :tracked?)))
+            (if-let ((topic (forge-get-topic repo number)))
+                (forge-topic-setup-buffer topic)
+              (forge-topic-setup-loading-buffer repo number mode))
+          ;; If the repo is not yet tracked, still set the placeholder
+          ;; buffer up with a stub.  It will prompt the user to track.
+          (forge-topic-setup-loading-buffer
+           (forge-get-repository repo-url nil :stub) number mode)))
     (user-error "Not recognized as a topic URL: %s" url)))
 
 ;;;###autoload
@@ -1268,8 +1278,8 @@ upstream remote."
         (propertize (forge--scope 'url) 'face 'bold)))
      :format "%d")]
 
-   ;; Nothing to tracked.
-   [:if-not (##forge--scope 'topdir)
+   ;; Nothing to track.
+   [:if-not (##or (forge--scope 'topdir) (forge--scope 'repo))
     (:info*
      (lambda ()
        (format
@@ -1307,7 +1317,8 @@ upstream remote."
       (format
        (propertize "Adding %s to database," 'face 'transient-heading)
        (propertize (forge--scope 'url) 'face 'bold)))
-    ("r" forge-forge.remote :format " %k from %d %v," :face 'bold)
+    ("r" forge-forge.remote :if (##forge--scope 'wtree)
+     :format " %k from %d %v," :face 'bold)
     ("a" "pulling all topics"
      (lambda (repo)
        (interactive (list (forge--scope 'repo)))
@@ -1356,9 +1367,15 @@ upstream remote."
      (when (eq limit :selective)
        (oset repo selective-p t)
        (setq limit nil))
-     (forge--pull repo
-                  (and (not (forge-get-worktree repo)) #'ignore)
-                  limit))))
+     (let ((in-loading-buffer (bound-and-true-p forge--loading-topic)))
+       (forge--pull repo
+                    (and (not (forge-get-worktree repo))
+                         (not in-loading-buffer)
+                         #'ignore)
+                    limit)
+       (when in-loading-buffer
+         (setq forge--loading-tracking-pull-status t)
+         (forge-refresh-buffer))))))
 
 (defun forge-add-repository--scope (&optional directory)
   (let* ((repo      (if directory
