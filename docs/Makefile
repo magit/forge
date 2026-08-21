@@ -14,8 +14,8 @@ pdf:      $(PKG).pdf
 ORG_EVAL += --eval "(setq indent-tabs-mode nil)"
 ORG_EVAL += --eval "(setq org-src-preserve-indentation nil)"
 ORG_EVAL += --eval "\
-(defun org-texinfo--sanitize-content (text)\
-  (replace-regexp-in-string \"[@@{}]\" \"@@\\&\" text))"
+(define-advice org-texinfo--sanitize-content (:override (text))\
+  (replace-regexp-in-string \"[@{}]\" \"@\\\\&\" text))"
 ORG_EVAL += --funcall org-texinfo-export-to-texinfo
 
 redo-docs:
