@@ -71,6 +71,8 @@
     ;; Forges (API unsupported)
     ("codeberg.org" "codeberg.org/api/v1"
      "codeberg.org" forge-forgejo-repository)
+    ("forge.fedoraproject.org" "forge.fedoraproject.org/api/v1"
+     "forge.fedoraproject.org" forge-forgejo-repository)
     ("bitbucket.org" "api.bitbucket.org/2.0"
      "bitbucket.org" forge-bitbucket-repository)
     ;; Semi-Forges
