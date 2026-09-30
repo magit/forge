@@ -16,4 +16,5 @@
   (nil (truncate-lines . nil)))
  ("CHANGELOG"
   (nil (fill-column . 70)
+       (eval . (forge-bug-reference-setup))
        (mode . display-fill-column-indicator))))

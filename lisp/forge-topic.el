@@ -2162,6 +2162,8 @@ modify `bug-reference-bug-regexp' if appropriate."
         (add-hook 'completion-at-point-functions
                   #'forge-topic-completion-at-point nil t)))))
 
+(put 'forge-bug-reference-setup 'safe-local-eval-function t)
+
 (define-advice bug-reference--run-auto-setup (:after () forge)
   "Change regexp to ignore references at bol in certain Magit/Forge buffers.
 Such references can be visited using `forge-visit-this-topic' and should
