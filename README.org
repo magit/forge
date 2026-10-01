@@ -14,3 +14,4 @@ Please see the [[https://docs.magit.vc/forge][manual]] and the [[https://emacsai
 #+html: <a href="https://github.com/magit/forge/actions/workflows/manual.yml"><img alt="Manual" src="https://github.com/magit/forge/actions/workflows/manual.yml/badge.svg"/></a>
 #+html: <a href="https://snapshots.melpa.org/#/forge"><img alt="MELPA Snapshots" src="https://snapshots.melpa.org/packages/forge-badge.svg"/></a>
 #+html: <a href="https://releases.melpa.org/#/forge"><img alt="MELPA Releases" src="https://releases.melpa.org/packages/forge-badge.svg"/></a>
+#+html: <a href="https://emacsair.me/human"><img alt="human made" src="https://emacsair.me/assets/badges/human.svg"/></a>
