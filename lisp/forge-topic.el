@@ -736,7 +736,7 @@ the completion candidates can be selected.  If such a topic is selected,
 no topic ID can be returned.  Instead return an integer or the input.
 For a Github repository the input must be an integer, which is returned.
 For a Gitlab repository the input must have the form \"#N\" or \"!N\",
-(because here just an integer N would be ambiguous), which is returned
+\(because here just an integer N would be ambiguous), which is returned
 as a string."
   (forge--read-topic prompt
                      #'forge-current-topic

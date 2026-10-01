@@ -329,7 +329,7 @@ a file in the worktree with no active region, instead use the branch
 name as part of the URL, unless a prefix argument is used.
 
 When invoked from a Dired buffer, visit the blob at point without
-prompting. If a prefix argument is used, the commit hash is included
+prompting.  If a prefix argument is used, the commit hash is included
 in the URL.
 
 When invoked from any other buffer, prompt the user for a branch or
@@ -1235,8 +1235,8 @@ you have previously fetched individually."
   (interactive (list (forge-read-repository "Remove repository from db")))
   (when (or (forge--repo-selective-p repository)
             (yes-or-no-p
-             (format "It appears we already fetch all topics for %s; %s"
-                     (oref repository slug) "(re-)fetch all topics?")))
+             (format "It appears we already fetch all topics for %s; %s?"
+                     (oref repository slug) "(re-)fetch all topics")))
     (oset repository selective-p nil)
     (forge--pull repository)))
 
