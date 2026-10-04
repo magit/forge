@@ -123,6 +123,8 @@
   (pcase-let
       ((`(,type ,number)
         (cond-let
+          ((cl-typep topic 'forge-issue)   `(issue   ,(oref topic number)))
+          ((cl-typep topic 'forge-pullreq) `(pullreq ,(oref topic number)))
           ((string-match "\\`#?\\([1-9][0-9]*\\)\\'" topic)
            `(issue   ,(string-to-number (match-string 1 topic))))
           ((string-match "\\`!\\([1-9][0-9]*\\)\\'" topic)
