@@ -69,6 +69,7 @@
     (  repository
        [(owner $owner String!)
         (name  $name  String!)]
+       (owner login)
        name
        id
        createdAt
@@ -243,19 +244,30 @@
   (cl-assert (not (and since (forge-get-repository repo nil :tracked?))))
   (setq forge--mode-line-buffer (current-buffer))
   (forge--msg repo t nil "Pulling REPO")
-  (let ((buf (current-buffer)))
+  (pcase-let ((buf (current-buffer))
+              ((eieio owner name remote) repo))
     (forge--query repo
       (if (oref repo selective-p)
           forge--github-sparse-repository-query
         forge--github-repository-query)
-      `((owner . ,(oref repo owner))
-        (name  . ,(oref repo name)))
+      `((owner . ,owner)
+        (name  . ,name))
       :callback
       (lambda (data)
         (forge--msg repo t t   "Pulling REPO")
         (forge--msg repo t nil "Storing REPO")
-        (closql-with-transaction (forge-db)
-          (let-alist data
+        (let-alist data
+          (when (and (not (and (equal owner .owner.login)
+                               (equal name .name)))
+                     (yes-or-no-p
+                      (format "Moved to %s/%s on forge.  Update remote.%s.url?"
+                              .owner.login .name remote)))
+            (oset repo owner .owner.login)
+            (oset repo name .name)
+            (magit-call-git "config"
+                            (format "remote.%s.url" remote)
+                            (forge-get-url repo)))
+          (closql-with-transaction (forge-db)
             (forge--update-repository  repo data)
             (forge--update-assignees   repo .assignableUsers)
             ;; (forge--update-forks    repo .forks)
