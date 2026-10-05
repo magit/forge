@@ -303,14 +303,12 @@
 
 (cl-defmethod forge--update-forks ((repo forge-github-repository) data)
   (oset repo forks
-        (with-slots (id) repo
+        (let ((class (eieio-object-class repo))
+              (host (oref repo githost)))
           (mapcar (lambda (row)
                     (let-alist row
                       (list (car (forge--repository-ids
-                                  (eieio-object-class repo)
-                                  (oref repo githost)
-                                  .owner.login
-                                  .name))
+                                  class host .owner.login .name))
                             .owner.login
                             .name)))
                   (delete-dups data)))))

@@ -426,14 +426,12 @@
 
 (cl-defmethod forge--update-forks ((repo forge-gitlab-repository) data)
   (oset repo forks
-        (with-slots (id) repo
+        (let ((class (eieio-object-class repo))
+              (host (oref repo githost)))
           (mapcar (lambda (row)
                     (let-alist row
                       (list (car (forge--repository-ids
-                                  (eieio-object-class repo)
-                                  (oref repo githost)
-                                  .namespace.path
-                                  .path))
+                                  class host .namespace.path .path))
                             .namespace.path
                             .path)))
                   data))))
