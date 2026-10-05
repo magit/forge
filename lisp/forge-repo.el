@@ -202,28 +202,28 @@ See `forge-alist' for valid Git hosts."
   (setq name  (substring-no-properties name))
   (unless (memq demand
                 '(:tracked :tracked? :known? :insert! :valid? :stub :stub?))
-    (error "Unknown value for `forge-get-repository's DEMAND: `%s'" demand))
+    (error "Unknown value %s for `forge-get-repository's DEMAND" demand))
   (cond-let
     ([spec (forge--get-forge-host host t)]
-     (pcase-let*
-         ;; The `webhost' is used to identify the corresponding forge.
-         ;; For that reason it is stored in the `forge' slot.  The id
-         ;; stored in the `id' slot also derives from that value.
-         ((`(,githost ,apihost ,webhost ,class) spec)
-          (row (car (forge-sql [:select * :from repository
-                                :where (and (= forge $s1)
-                                            (= owner $s2)
-                                            (= name  $s3))]
-                               webhost owner name)))
-          (obj (and row (closql--remake-instance class (forge-db) row))))
+     (pcase-let* ((db (forge-db))
+                  ;; The WEBHOST is used to identify the corresponding forge.
+                  ;; For that reason it is stored in the FORGE slot.  The ID
+                  ;; stored in the ID slot also derives from that value.
+                  (`(,githost ,apihost ,webhost ,class) spec)
+                  (obj (and$ (car (forge-sql [:select * :from repository
+                                              :where (and (= forge $s1)
+                                                          (= owner $s2)
+                                                          (= name  $s3))]
+                                             webhost owner name))
+                             (closql--remake-instance class (forge-db) $))))
        (pcase (list demand (and obj (eq (oref obj condition) :tracked)))
          (`(:tracked? nil) (setq obj nil))
          (`(:tracked  nil)
           (error "Cannot use `%s' in %S yet.\n%s"
                  this-command (magit-toplevel)
                  "Use `M-x forge-add-repository' before trying again.")))
-       (when (and (memq demand '(:insert! :valid? :stub :stub?))
-                  (not obj))
+       (when (and (not obj)
+                  (memq demand '(:insert! :valid? :stub :stub?)))
          (pcase-let ((`(,id . ,forge-id)
                       (forge--repository-ids
                        class webhost owner name
@@ -245,7 +245,7 @@ See `forge-alist' for valid Git hosts."
                                  :githost  githost
                                  :remote   remote))
               (when (eq demand :insert!)
-                (closql-insert (forge-db) obj)
+                (closql-insert db obj)
                 (oset obj condition :known))))))
        (when obj
          (oset obj remote remote)
