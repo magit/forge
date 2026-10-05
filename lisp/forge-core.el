@@ -285,9 +285,8 @@ is non-nil."
 (cl-defgeneric forge--object-id (class &rest args)
   "Return the database id for the CLASS object specified by ARGS.")
 
-(cl-defgeneric forge--identify-repo ( class host owner name
-                                       &optional stub noerror)
-  "Return (ID . THEIR-ID) of the specified repository.")
+(cl-defgeneric forge--identify-repo (arg host owner name)
+  "Return (ID OWNER NAME THEIR-ID) of the specified repository.")
 
 (defun forge--their-id (arg &optional type repo)
   "Return the forge's ID for ARG.

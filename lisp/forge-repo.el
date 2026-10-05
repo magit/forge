@@ -224,7 +224,7 @@ See `forge-alist' for valid Git hosts."
                  "Use `M-x forge-add-repository' before trying again.")))
        (when (and (not obj)
                   (memq demand '(:insert! :valid? :stub :stub?)))
-         (pcase-let ((`(,id . ,forge-id)
+         (pcase-let ((`(,id ,_ ,_ ,forge-id)
                       (forge--identify-repo
                        class webhost owner name
                        (memq demand '(:stub :stub?))
@@ -406,7 +406,7 @@ forges and hosts."
                                  (error their-id)))
                               (t their-id)))
                 t)
-               (or their-id path)))))
+               owner name (or their-id path)))))
 
 (cl-defmethod forge--identify-repo ((_class (subclass forge-noapi-repository))
                                      host owner name &optional _stub _noerror)
@@ -416,7 +416,7 @@ forges and hosts."
                    (nth 3 (forge--get-forge-host host t))
                    their-id)
            t)
-          their-id)))
+          owner name their-id)))
 
 ;;; Read
 

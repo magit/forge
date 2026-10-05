@@ -307,10 +307,8 @@
               (host (oref repo githost)))
           (mapcar (lambda (row)
                     (let-alist row
-                      (list (car (forge--identify-repo
-                                  class host .owner.login .name))
-                            .owner.login
-                            .name)))
+                      (butlast (forge--identify-repo
+                                class host .owner.login .name))))
                   (delete-dups data)))))
 
 (cl-defmethod forge--update-labels ((repo forge-github-repository) data)

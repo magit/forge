@@ -430,10 +430,8 @@
               (host (oref repo githost)))
           (mapcar (lambda (row)
                     (let-alist row
-                      (list (car (forge--identify-repo
-                                  class host .namespace.path .path))
-                            .namespace.path
-                            .path)))
+                      (butlast (forge--identify-repo
+                                class host .namespace.path .path))))
                   data))))
 
 (cl-defmethod forge--fetch-labels ((repo forge-gitlab-repository) callback)
