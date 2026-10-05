@@ -1336,7 +1336,7 @@ upstream remote."
      (lambda () (interactive) (info "(forge)Setup a Partially Supported Host")))]
 
    ;; Track it!
-   [:if (##forge--scope :untracked)
+   [:if-not (##forge--scope :tracked)
     :description
     (lambda ()
       (format
@@ -1396,20 +1396,14 @@ upstream remote."
                   limit))))
 
 (defun forge-add-repository--scope (&optional url)
-  (let* ((repo      (if url
-                        (forge-get-repository url nil :stub?)
-                      (forge-get-repository :stub?)))
-         (wtree     (and repo (forge-get-worktree repo)))
-         (condition (and repo (oref repo condition)))
-         (val
-          `((repo       . ,repo)
-            (wtree      . ,wtree)
-            (condition  . ,condition)
-            (:tracked   . ,(eq condition :tracked))
-            (:untracked . ,(memq condition '(:known :stub)))
-            (topdir     . ,(or wtree (magit-toplevel)))
-            (url        . ,(and repo (forge-get-url repo))))))
-    val))
+  (cond-let
+    ([repo (if url
+               (forge-get-repository url nil :stub?)
+             (forge-get-repository :stub?))]
+     `((url      . ,(or url (forge-get-url repo)))
+       (repo     . ,repo)
+       (topdir   . ,(if url (forge-get-worktree repo) (magit-toplevel)))
+       (:tracked . ,(eq (oref repo condition) :tracked))))))
 
 (defun forge--scope (&optional key)
   ;; `transient-scope' itself should probably offer optional KEY.
