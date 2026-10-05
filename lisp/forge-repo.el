@@ -216,31 +216,44 @@ See `forge-alist' for valid Git hosts."
                                                           (= name  $s3))]
                                              webhost owner name))
                              (closql--remake-instance class (forge-db) $))))
+       ;; The repository is known.  We might need it to be tracked as well.
        (pcase (list demand (and obj (eq (oref obj condition) :tracked)))
          (`(:tracked? nil) (setq obj nil))
          (`(:tracked  nil)
           (error "Cannot use `%s' in %S yet.\n%s"
                  this-command (magit-toplevel)
                  "Use `M-x forge-add-repository' before trying again.")))
+       ;; No repository found using OWNER/NAME.  Maybe it was renamed so
+       ;; maybe look it up using its ID, which we have to retrieve from
+       ;; the forge first.
        (when (and (not obj)
+                  ;; If a known or even tracked repository was requested
+                  ;; then there is nothing left to be done, regardless of
+                  ;; whether there is a known/tracked repository or not.
                   (memq demand '(:insert! :valid? :stub :stub?)))
-         (pcase-let ((`(,id ,_ ,_ ,forge-id)
-                      (forge--identify-repo
-                       class webhost owner name
-                       (memq demand '(:stub :stub?))
-                       (eq demand :valid?))))
+         (pcase-let ((`(,id ,current-owner ,current-name ,forge-id)
+                      ;; Make no network request, if we only need a stub.
+                      ;; For a stub we won't know whether it actually
+                      ;; exists on the forge.  Use :valid? if we must be
+                      ;; certain.
+                      (cond ((memq demand '(:stub :stub?))
+                             (forge--identify-repo :stub webhost owner name))
+                            ((forge--identify-repo class webhost owner name)))))
            (cond
              ((not id)
-              ;; `:valid?' was used and it turned out it is not.
-              (setq obj nil))
-             ;; The repo might have been renamed on the forge.  #188
-             ((not (setq obj (forge-get-repository :id id)))
-              (setq obj (funcall class
+              ;; Repository does not exist on the forge.
+              (when (eq demand :insert!)
+                (error "BUG: Use of :insert! without using :valid? first")))
+             ((setq obj (forge-get-repository :id id))
+              ;; Repository was renamed/moved on the forge.
+              (oset obj owner current-owner)
+              (oset obj name  current-name))
+             ((setq obj (funcall class
                                  :id       id
                                  :forge-id forge-id
                                  :forge    webhost
-                                 :owner    owner
-                                 :name     name
+                                 :owner    current-owner
+                                 :name     current-name
                                  :apihost  apihost
                                  :githost  githost
                                  :remote   remote))
@@ -373,50 +386,15 @@ REPO1 and/or REPO2 may also be nil, in which case return nil."
                 (equal (oref repo1 owner)   (oref repo2 owner))
                 (equal (oref repo1 name)    (oref repo2 name))))))
 
-(cl-defmethod forge--identify-repo ((class (subclass forge-repository))
-                                     host owner name &optional stub noerror)
-  "Return (OUR-ID . THEIR-ID) of the specified repository.
-If optional STUB is non-nil, then the IDs are not guaranteed to
-be unique.  Otherwise this method has to make an API request to
-retrieve THEIR-ID, the repository's ID on the forge.  In that
-case OUR-ID derives from THEIR-ID and is unique across all
-forges and hosts."
-  (pcase-let* ((`(,_githost ,apihost ,id ,_class)
-                (forge--get-forge-host host t))
-               (path (format "%s/%s" owner name))
-               (their-id (and (not stub)
-                              (ghub-repository-id
-                               owner name
-                               :host apihost
-                               :auth 'forge
-                               :forge (forge--ghub-type-symbol class)
-                               :noerror noerror))))
-    (and (or stub their-id (not noerror))
-         (cons (base64-encode-string
-                (format "%s:%s" id
-                        (cond (stub path)
-                              ((eq class 'forge-github-repository)
-                               ;; This is base64 encoded, according to
-                               ;; https://docs.github.com/en/graphql/
-                               ;; reference/scalars#id.  Unfortunately
-                               ;; that is not always true.  E.g.,
-                               ;; https://github.com/dit7ya/roamex.
-                               (condition-case nil
-                                   (base64-decode-string their-id)
-                                 (error their-id)))
-                              (t their-id)))
-                t)
-               owner name (or their-id path)))))
+(cl-defmethod forge--identify-repo ((_ (eql :stub)) host owner name)
+  (pcase-let ((`(,_ ,_ ,hostid ,_) (forge--get-forge-host host t))
+              (path (format "%s/%s" owner name)))
+    (list (base64-encode-string (format "%s:%s" hostid path) t)
+          owner name path)))
 
 (cl-defmethod forge--identify-repo ((_class (subclass forge-noapi-repository))
-                                     host owner name &optional _stub _noerror)
-  (let ((their-id (if owner (concat owner "/" name) name)))
-    (cons (base64-encode-string
-           (format "%s:%s"
-                   (nth 3 (forge--get-forge-host host t))
-                   their-id)
-           t)
-          owner name their-id)))
+                                     host owner name)
+  (forge--identify-repo :stub host owner name))
 
 ;;; Read
 

@@ -55,6 +55,15 @@
 ;;; Pull
 ;;;; GraphQL
 
+(defconst forge--github-identify-repo-query
+  '(query
+    (  repository
+       [(owner $owner String!)
+        (name  $name  String!)]
+       (owner login)
+       name
+       id)))
+
 (defconst forge--github-sparse-repository-query
   '(query
     (  repository
@@ -208,6 +217,26 @@
           (  labels [(:edges t)] id)))))
 
 ;;;; Repository
+
+(cl-defmethod forge--identify-repo ((_class (subclass forge-github-repository))
+                                    host owner name)
+  (pcase-let ((`(,_ ,apihost ,hostid ,_) (forge--get-forge-host host t)))
+    (let-alist (ghub-query forge--github-identify-repo-query
+                 `((owner . ,owner)
+                   (name  . ,name))
+                 :host apihost
+                 :auth 'forge :forge 'github :synchronous t :noerror t)
+      (and .repository.id
+           (list (base64-encode-string
+                  (format "%s:%s" hostid
+                          (condition-case nil
+                              (base64-decode-string .repository.id)
+                            ;; For some repos this is not base64 encoded.
+                            (error .repository.id)))
+                  t)
+                 .repository.owner.login
+                 .repository.name
+                 .repository.id)))))
 
 (cl-defmethod forge--pull ((repo forge-github-repository)
                            &optional callback since)

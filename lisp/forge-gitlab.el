@@ -46,6 +46,20 @@
 ;;; Pull
 ;;;; Repository
 
+(cl-defmethod forge--identify-repo ((_class (subclass forge-gitlab-repository))
+                                    host owner name)
+  (pcase-let ((`(,_ ,apihost ,hostid ,_) (forge--get-forge-host host t)))
+    (and-let ((data (ghub-get (format "/projects/%s%%2F%s"
+                                      (string-replace "/" "%2F" owner)
+                                      name)
+                              nil :host apihost
+                              :auth 'forge :forge 'gitlab :noerror t)))
+      (let-alist data
+        (list (base64-encode-string (format "%s:%s" hostid .id) t)
+              .owner.username
+              .name
+              (number-to-string .id))))))
+
 (cl-defmethod forge--pull ((repo forge-gitlab-repository)
                            &optional callback since)
   (cl-assert (not (and since (forge-get-repository repo nil :tracked?))))

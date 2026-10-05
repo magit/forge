@@ -1424,7 +1424,7 @@ upstream remote."
                         (propertize url 'face 'bold))
                (sit-for 3))
               ((not (forge-get-repository url nil :valid?))
-               (message "%s does not exist or is inaccessible"
+               (message "%s does not exist, was renamed or is inaccessible"
                         (propertize url 'face 'bold))
                (sit-for 3))
               ((setq ret url))))
