@@ -128,6 +128,11 @@
                 updatedAt
                 body))
           (   labels [(:edges t)] id))
+       ;; Disabled for now because likely too expensive.
+       ;; (  forks [(:edges t)]
+       ;;    id
+       ;;    (owner login)
+       ;;    name)
        (  issues [(:edges t)
                   (:singular issue number)
                   (orderBy ((field UPDATED_AT) (direction DESC)))]
@@ -224,7 +229,7 @@
           (let-alist data
             (forge--update-repository  repo data)
             (forge--update-assignees   repo .assignableUsers)
-            (forge--update-forks       repo .forks)
+            ;; (forge--update-forks    repo .forks)
             (forge--update-labels      repo .labels)
             (forge--update-milestones  repo .milestones)
             (forge--update-discussion-categories repo .discussionCategories)
