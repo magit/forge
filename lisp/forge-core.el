@@ -205,7 +205,7 @@ Given a repository object, you can query its `condition' slot to learn
 whether it is `:tracked', `:known' (i.e., has a valid ID and is stored
 in the database), or merely a `:stub'.
 
-You can also use (forge-get repository OBJECT nil DEMAND) to check the
+You can also use (forge-get-repository OBJECT nil DEMAND) to check the
 condition of a repository object, or even to ensure a repository object
 has a valid upstream ID (using `:valid?'), or that it is tracked in the
 database (using `:insert!').
