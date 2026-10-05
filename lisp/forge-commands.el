@@ -1395,9 +1395,9 @@ upstream remote."
                   (or callback (and (not (forge-get-worktree repo)) #'ignore))
                   limit))))
 
-(defun forge-add-repository--scope (&optional directory)
-  (let* ((repo      (if directory
-                        (forge-get-repository directory nil :stub?)
+(defun forge-add-repository--scope (&optional url)
+  (let* ((repo      (if url
+                        (forge-get-repository url nil :stub?)
                       (forge-get-repository :stub?)))
          (wtree     (and repo (forge-get-worktree repo)))
          (condition (and repo (oref repo condition)))
