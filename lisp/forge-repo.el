@@ -225,7 +225,7 @@ See `forge-alist' for valid Git hosts."
        (when (and (not obj)
                   (memq demand '(:insert! :valid? :stub :stub?)))
          (pcase-let ((`(,id . ,forge-id)
-                      (forge--repository-ids
+                      (forge--identify-repo
                        class webhost owner name
                        (memq demand '(:stub :stub?))
                        (eq demand :valid?))))
@@ -373,7 +373,7 @@ REPO1 and/or REPO2 may also be nil, in which case return nil."
                 (equal (oref repo1 owner)   (oref repo2 owner))
                 (equal (oref repo1 name)    (oref repo2 name))))))
 
-(cl-defmethod forge--repository-ids ((class (subclass forge-repository))
+(cl-defmethod forge--identify-repo ((class (subclass forge-repository))
                                      host owner name &optional stub noerror)
   "Return (OUR-ID . THEIR-ID) of the specified repository.
 If optional STUB is non-nil, then the IDs are not guaranteed to
@@ -408,7 +408,7 @@ forges and hosts."
                 t)
                (or their-id path)))))
 
-(cl-defmethod forge--repository-ids ((_class (subclass forge-noapi-repository))
+(cl-defmethod forge--identify-repo ((_class (subclass forge-noapi-repository))
                                      host owner name &optional _stub _noerror)
   (let ((their-id (if owner (concat owner "/" name) name)))
     (cons (base64-encode-string

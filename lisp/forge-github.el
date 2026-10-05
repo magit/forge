@@ -307,7 +307,7 @@
               (host (oref repo githost)))
           (mapcar (lambda (row)
                     (let-alist row
-                      (list (car (forge--repository-ids
+                      (list (car (forge--identify-repo
                                   class host .owner.login .name))
                             .owner.login
                             .name)))
