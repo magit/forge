@@ -1336,12 +1336,20 @@ upstream remote."
      (lambda () (interactive) (info "(forge)Setup a Partially Supported Host")))]
 
    ;; Track it!
-   [:if-not (##forge--scope :tracked)
+   [:if (##forge--scope :valid)
     :description
     (lambda ()
-      (format
-       (propertize "Adding %s to database," 'face 'transient-heading)
-       (propertize (forge--scope 'url) 'face 'bold)))
+      (if-let ((moved (forge--scope :moved)))
+          (format
+           (propertize "Repository renamed\nfrom %s\n  to %s\nUpdate %s and %s"
+                      'face 'transient-heading)
+           (propertize moved               'face 'magit-diff-removed)
+           (propertize (forge--scope 'url) 'face 'magit-diff-added)
+           (propertize (format "remote.%s.url" (oref (forge--scope 'repo) remote))
+                       'face 'bold)
+           "add to database,")
+        (format (propertize "Add %s to database," 'face 'transient-heading)
+                (propertize (forge--scope 'url) 'face 'bold))))
     ("r" forge-forge.remote :format " %k from %d %v," :face 'bold)
     ("a" "pulling all topics"
      (lambda (repo)
@@ -1374,19 +1382,23 @@ upstream remote."
      (transient-setup 'forge-add-repository nil nil
                       :scope (forge-add-repository--scope repo)))
     (t
-     (when-let*
-         ((_(not (eq limit :selective)))
-          (_(magit-git-config-p "forge.autoPull" t))
-          (remote  (oref repo remote))
-          (refspec (oref repo pullreq-refspec))
-          (default-directory (forge-get-worktree repo))
-          (_(and (not (member refspec (magit-get-all "remote" remote "fetch")))
-                 (or (eq forge-add-pullreq-refspec t)
-                     (and (eq forge-add-pullreq-refspec 'ask)
-                          (y-or-n-p (format "Also add %S refspec? " refspec)))))))
-       (magit-call-git "config" "--add"
-                       (format "remote.%s.fetch" remote)
-                       refspec))
+     (when-let ((remote (oref repo remote))
+                (default-directory (forge--scope 'topdir)))
+       (when (forge--scope :moved)
+         (magit-call-git "config"
+                         (format "remote.%s.url" remote)
+                         (forge--scope 'url)))
+       (when-let*
+           ((_(not (eq limit :selective)))
+            (_(magit-git-config-p "forge.autoPull" t))
+            (refspec (oref repo pullreq-refspec))
+            (_(and (not (member refspec (magit-get-all "remote" remote "fetch")))
+                   (or (eq forge-add-pullreq-refspec t)
+                       (and (eq forge-add-pullreq-refspec 'ask)
+                            (y-or-n-p (format "Also add %S refspec? " refspec)))))))
+         (magit-call-git "config" "--add"
+                         (format "remote.%s.fetch" remote)
+                         refspec)))
      (setq repo (forge-get-repository repo nil :insert!))
      (when (eq limit :selective)
        (oset repo selective-p t)
@@ -1397,13 +1409,27 @@ upstream remote."
 
 (defun forge-add-repository--scope (&optional url)
   (cond-let
-    ([repo (if url
+    [[stub (if url
                (forge-get-repository url nil :stub?)
-             (forge-get-repository :stub?))]
-     `((url      . ,(or url (forge-get-url repo)))
+             (forge-get-repository :stub?))]]
+    ([repo (if url
+               (forge-get-repository url nil :valid?)
+             (forge-get-repository :valid?))]
+     ;; Repository exists on forge...
+     `((url      . ,(forge-get-url repo))
        (repo     . ,repo)
        (topdir   . ,(if url (forge-get-worktree repo) (magit-toplevel)))
-       (:tracked . ,(eq (oref repo condition) :tracked))))))
+       ;; ...and it is either tracked or valid to be tracked
+       (:tracked . ,(eq (oref repo condition) :tracked))
+       (:valid   . ,(not (eq (oref repo condition) :tracked)))
+       ;; ...but it might have moved.
+       (:moved   . ,(and (not (and (equal (oref repo owner) (oref stub owner))
+                                   (equal (oref repo name)  (oref stub name))))
+                         (forge-get-url stub)))))
+    (stub
+     ;; Valid forge URL but it does actually exist.
+     `((url      . ,(forge-get-url stub))
+       (topdir   . ,(magit-toplevel))))))
 
 (defun forge--scope (&optional key)
   ;; `transient-scope' itself should probably offer optional KEY.
