@@ -306,13 +306,13 @@
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
-                      (nconc (forge--repository-ids
-                              (eieio-object-class repo)
-                              (oref repo githost)
-                              .owner.login
-                              .name)
-                             (list .owner.login
-                                   .name))))
+                      (list (car (forge--repository-ids
+                                  (eieio-object-class repo)
+                                  (oref repo githost)
+                                  .owner.login
+                                  .name))
+                            .owner.login
+                            .name)))
                   (delete-dups data)))))
 
 (cl-defmethod forge--update-labels ((repo forge-github-repository) data)

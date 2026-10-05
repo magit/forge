@@ -429,13 +429,13 @@
         (with-slots (id) repo
           (mapcar (lambda (row)
                     (let-alist row
-                      (nconc (forge--repository-ids
-                              (eieio-object-class repo)
-                              (oref repo githost)
-                              .namespace.path
-                              .path)
-                             (list .namespace.path
-                                   .path))))
+                      (list (car (forge--repository-ids
+                                  (eieio-object-class repo)
+                                  (oref repo githost)
+                                  .namespace.path
+                                  .path))
+                            .namespace.path
+                            .path)))
                   data))))
 
 (cl-defmethod forge--fetch-labels ((repo forge-gitlab-repository) callback)
