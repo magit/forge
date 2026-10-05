@@ -218,8 +218,7 @@ See `forge-alist' for valid Git hosts."
           (obj (and row (closql--remake-instance class (forge-db) row))))
        ;; Synchronize the object with the entry from `forge-alist'.
        ;; This only has an effect if the entry was modified, which
-       ;; should rarely, if ever, happen.  Avoid confusion, by not
-       ;; mentioning this detail in any docstring.
+       ;; should rarely, if ever, happen.
        (when obj
          (oset obj apihost apihost)
          (oset obj githost githost)
