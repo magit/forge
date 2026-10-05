@@ -216,13 +216,6 @@ See `forge-alist' for valid Git hosts."
                                             (= name  $s3))]
                                webhost owner name)))
           (obj (and row (closql--remake-instance class (forge-db) row))))
-       ;; Synchronize the object with the entry from `forge-alist'.
-       ;; This only has an effect if the entry was modified, which
-       ;; should rarely, if ever, happen.
-       (when obj
-         (oset obj apihost apihost)
-         (oset obj githost githost)
-         (oset obj remote  remote))
        (pcase (list demand (and obj (eq (oref obj condition) :tracked)))
          (`(:tracked? nil) (setq obj nil))
          (`(:tracked  nil)
@@ -254,6 +247,13 @@ See `forge-alist' for valid Git hosts."
               (when (eq demand :insert!)
                 (closql-insert (forge-db) obj)
                 (oset obj condition :known))))))
+       (when obj
+         (oset obj remote remote)
+         ;; Synchronize the object with the entry from `forge-alist'.
+         ;; This only has an effect if the entry was modified, which
+         ;; should rarely, if ever, happen.
+         (oset obj apihost apihost)
+         (oset obj githost githost))
        obj))
     ((memq demand forge--signal-no-entry)
      (error "Cannot determine forge repository.  No entry for %S in %s"
