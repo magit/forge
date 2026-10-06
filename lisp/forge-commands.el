@@ -1427,7 +1427,7 @@ upstream remote."
                                    (equal (oref repo name)  (oref stub name))))
                          (forge-get-url stub)))))
     (stub
-     ;; Valid forge URL but it does actually exist.
+     ;; Valid forge URL but it does not actually exist.
      `((url      . ,(forge-get-url stub))
        (topdir   . ,(magit-toplevel))))))
 
