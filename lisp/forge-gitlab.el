@@ -56,8 +56,8 @@
                               :auth 'forge :forge 'gitlab :noerror t)))
       (let-alist data
         (list (base64-encode-string (format "%s:%s" hostid .id) t)
-              .owner.username
-              .name
+              .namespace.full_path
+              .path
               (number-to-string .id))))))
 
 (cl-defmethod forge--pull ((repo forge-gitlab-repository)
