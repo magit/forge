@@ -379,6 +379,7 @@ commit, and for a file."
       (and$ (magit-commit-at-point)          (forge-get-url :commit $))
       (and$ (magit-branch-at-point)          (forge-get-url :branch $))
       (and$ (magit-remote-at-point)          (forge-get-url :remote $))
+      (and$ (magit-repository-at-point)      (forge-get-url :repo $))
       (and$ (magit-file-at-point)            (forge-get-url :blob nil $))
       (forge-post-at-point)
       (forge-current-topic)
@@ -477,6 +478,13 @@ commit, and for a file."
 (cl-defmethod forge-get-url ((_(eql :remote)) remote)
   (cl-assert (stringp remote))
   (forge--format (forge-get-repository :stub remote) 'remote-url-format))
+
+(cl-defmethod forge-get-url ((_(eql :repo)) path)
+  (cl-assert (stringp path))
+  (and-let* ((default-directory (expand-file-name path (magit-toplevel)))
+             (_(file-exists-p (expand-file-name ".git" default-directory)))
+             (remote (magit-get-some-remote)))
+    (forge--format (forge-get-repository :stub remote) 'remote-url-format)))
 
 (cl-defmethod forge-get-url ((post forge-post))
   (forge--format post (let ((topic (forge-get-parent post)))

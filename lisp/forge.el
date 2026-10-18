@@ -107,7 +107,8 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
     (keymap-set magit-mode-map "<remap> <magit-browse-thing>"
                 #'forge-browse)
     (keymap-set magit-mode-map "<remap> <magit-copy-thing>"
-                #'forge-copy-url-at-point-as-kill)))
+                #'forge-copy-url-at-point-as-kill)
+    (keymap-set magit-repolist-mode-map "C-c C-o" #'forge-browse)))
 
 ;;;###autoload
 (with-eval-after-load 'magit-repos
