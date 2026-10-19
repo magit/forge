@@ -107,13 +107,13 @@ is loaded, then `magit-mode-map' ends up being modified anyway.")
     (keymap-set magit-mode-map "<remap> <magit-browse-thing>"
                 #'forge-browse)
     (keymap-set magit-mode-map "<remap> <magit-copy-thing>"
-                #'forge-copy-url-at-point-as-kill)
-    (keymap-set magit-repolist-mode-map "C-c C-o" #'forge-browse)))
+                #'forge-copy-url-at-point-as-kill)))
 
 ;;;###autoload
 (with-eval-after-load 'magit-repos
   (when forge-add-default-bindings
-    (keymap-set magit-repolist-mode-map "N" #'forge-dispatch)))
+    (keymap-set magit-repolist-mode-map "N" #'forge-dispatch)
+    (keymap-set magit-repolist-mode-map "C-c C-o" #'forge-browse)))
 
 ;;;###autoload
 (with-eval-after-load 'git-commit
