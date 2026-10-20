@@ -945,8 +945,12 @@
                         (let-alist link
                           (let ((filename (format "zzz%s" (incf pos))))
                             (list (forge--object-id repoid filename)
-                                  'link filename .name .about
-                                  nil nil .url nil nil nil nil))))
+                                  'link filename
+                                  (if (string-suffix-p "\
+ 👉 Please open a discussion instead of an issue 👈" .name)
+                                      (substring .name 0 -49)
+                                    .name)
+                                  .about nil nil .url nil nil nil nil))))
                       links))))))))
 
 (defun forge--split-yaml-frontmatter (string)
