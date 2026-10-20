@@ -256,7 +256,7 @@
       (lambda (data)
         (forge--msg repo t t   "Pulling REPO")
         (forge--msg repo t nil "Storing REPO")
-        (let-alist data
+        (let-alist (alist-get 'repository data)
           (when (and (not (and (equal owner .owner.login)
                                (equal name .name)))
                      (yes-or-no-p
@@ -268,7 +268,7 @@
                             (format "remote.%s.url" remote)
                             (forge-get-url repo)))
           (closql-with-transaction (forge-db)
-            (forge--update-repository  repo data)
+            (forge--update-repository  repo (alist-get 'repository data))
             (forge--update-assignees   repo .assignableUsers)
             ;; (forge--update-forks    repo .forks)
             (forge--update-labels      repo .labels)
@@ -283,7 +283,6 @@
         (cond (callback (funcall callback repo))
               ((oref repo selective-p))
               ((forge--maybe-git-fetch repo buf))))
-      :narrow '(repository)
       :until
       ;; Keys have the form `FIELD-until', where FIELD is the name of a
       ;; field of Repository objects.  See `ghub--graphql-walk-response'.
