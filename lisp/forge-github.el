@@ -215,7 +215,34 @@
              createdAt
              updatedAt
              body)
-          (  labels [(:edges t)] id)))))
+          (  labels [(:edges t)] id))
+       (  issueTemplates
+          name
+          filename
+          about
+          title
+          body
+          (  type name )
+          (  assignees [(:edges t)] login)
+          (  labels [(:edges t)] name))
+       (  pullRequestTemplates
+          body
+          filename)
+       (  ("issueTemplateConfigA" object)
+          [(expression "HEAD:.github/ISSUE_TEMPLATE/config.yml")]
+          "... on Blob { text }\n")
+       (  ("issueTemplateConfigB" object)
+          [(expression "HEAD:.github/issue_template/config.yml")]
+          "... on Blob { text }\n"))
+    (  ("configRepository" repository)
+       [(owner $owner)
+        (name ".github")]
+       (  ("issueTemplateConfigC" object)
+          [(expression "HEAD:.github/ISSUE_TEMPLATE/config.yml")]
+          "... on Blob { text }\n")
+       (  ("issueTemplateConfigD" object)
+          [(expression "HEAD:.github/issue_template/config.yml")]
+          "... on Blob { text }\n"))))
 
 ;;;; Repository
 
@@ -277,7 +304,8 @@
             (forge--update-discussions repo .discussions t)
             (forge--update-issues      repo .issues t)
             (forge--update-pullreqs    repo .pullRequests t)
-            (forge--update-revnotes    repo .commitComments))
+            (forge--update-revnotes    repo .commitComments)
+            (forge--update-templates   repo data))
           (oset repo condition :tracked))
         (forge--msg repo t t   "Storing REPO")
         (cond (callback (funcall callback repo))
@@ -857,6 +885,88 @@
           (oset notif last-read .last_read_at)
           (oset notif updated   .updated_at))))))
 
+;;;; Templates
+
+(cl-defmethod forge--update-templates ((repo forge-github-repository) data)
+  (let ((repoid (oref repo id))
+        (pullreq-templates (let-alist data .repository.pullRequestTemplates))
+        (issue-templates   (let-alist data .repository.issueTemplates))
+        (issue-config      (let-alist data
+                             (or .repository.issueTemplateConfigA
+                                 .repository.issueTemplateConfigB
+                                 .configRepository.issueTemplateConfigC
+                                 .configRepository.issueTemplateConfigD))))
+    (oset
+     repo topic-templates
+     (nconc
+      (mapcar (lambda (tmpl)
+                (pcase-let*
+                    ((filename (alist-get 'filename tmpl))
+                     (`(,body . ,yaml)
+                      (forge--split-yaml-frontmatter (alist-get 'body tmpl)))
+                     (name (file-name-sans-extension filename)))
+                  (let-alist yaml
+                    (when .name (setq name .name))
+                    (list (forge--object-id repoid name)
+                          'pullreq filename name .about .title
+                          (string-trim body)
+                          nil nil nil nil nil))))
+              pullreq-templates)
+      (mapcar (lambda (tmpl)
+                (let-alist tmpl
+                  (list (forge--object-id repoid .name)
+                        'issue .filename .name .about
+                        (and-let* ((title .title)
+                                   (_(stringp title))
+                                   (title (string-trim title))
+                                   (_(not (equal title ""))))
+                          title)
+                        (string-trim .body)
+                        nil nil nil
+                        (mapcar (##alist-get 'login %) .assignees)
+                        (mapcar (##alist-get 'name  %) .labels))))
+              issue-templates)
+      (and issue-config
+           (let* ((yaml (yaml-parse-string (alist-get 'text issue-config)
+                                           :object-type 'alist
+                                           :sequence-type 'list))
+                  (blank (not (eq (alist-get 'blank_issues_enabled yaml)
+                                  :false))) ;Unset means enabled.
+                  (links (alist-get 'contact_links yaml))
+                  (pos 0))
+             (nconc
+              (and blank
+                   (let ((filename (format "zzz%s" (incf pos))))
+                     (list (list (forge--object-id repoid filename)
+                                 'issue filename "Blank issue"
+                                 "Create a new issue from scratch"
+                                 nil nil nil nil nil nil nil))))
+              (mapcar (lambda (link)
+                        (let-alist link
+                          (let ((filename (format "zzz%s" (incf pos))))
+                            (list (forge--object-id repoid filename)
+                                  'link filename .name .about
+                                  nil nil .url nil nil nil nil))))
+                      links))))))))
+
+(defun forge--split-yaml-frontmatter (string)
+  (with-temp-buffer
+    (save-excursion (insert string))
+    (skip-chars-forward "\s\t\n\r")
+    (if-let ((beg (and (looking-at "^---[\s\t]*$")
+                       (point)))
+             (end (and (zerop (forward-line))
+                       (re-search-forward "^---[\s\t]*$" nil t)
+                       (match-beginning 0)))
+             (body (match-end 0)))
+        (cons (string-trim (buffer-str body (point-max)))
+              (yaml-parse-string (buffer-str beg end)
+                                 :object-type 'alist
+                                 :sequence-type 'list
+                                 :null-object nil
+                                 :false-object nil))
+      (list (string-trim (buffer-str))))))
+
 ;;;; Miscellaneous
 
 (cl-defmethod forge--add-user-repos
@@ -1260,39 +1370,6 @@
   (forge-rest post "DELETE" "/repos/:owner/:repo/issues/comments/:number")
   (closql-delete post)
   (forge-refresh-buffer))
-
-(cl-defmethod forge--topic-template-files ((repo forge-github-repository)
-                                           (_ (subclass forge-issue)))
-  ;; Upstream documentation is unclear but experimentation indicates that
-  ;; placing the template directory in ./ or docs/ does not work, a single
-  ;; template file is not supported, and silly names like IsSuE_tEmPlAtE
-  ;; are supported (but we don't support that here anyway).  We do not
-  ;; support experimental issue *forms* for now.  Make sure the config
-  ;; file comes last.
-  (or (nconc (forge--topic-template-files-1
-              repo "md" ".github/issue_template")
-             (forge--topic-template-files-1
-              repo nil  ".github/issue_template/config.yml"))
-      (nconc (forge--topic-template-files-1
-              repo "md" ".github/ISSUE_TEMPLATE")
-             (forge--topic-template-files-1
-              repo nil  ".github/ISSUE_TEMPLATE/config.yml"))))
-
-(cl-defmethod forge--topic-template-files ((repo forge-github-repository)
-                                           (_ (subclass forge-pullreq)))
-  ;; The web interface does not support multiple pull-request templates,
-  ;; and while the API theoretically does, we don't support that here.
-  ;; When there are multiple conflicting "default" templates, the rules
-  ;; used by Github are more complex than just sorting alphabetically and
-  ;; then taking the first found file.  Too bad; that's what we do.
-  (let ((branch (forge--get-default-branch repo))
-        (case-fold-search t))
-    (seq-some (lambda (file)
-                (and (string-match-p "\
-\\`\\(.github/\\|docs/\\)?pull_request_template\\(\\.[a-zA-Z0-9]+\\)?\\'" file)
-                     (list (concat branch ":" file))))
-              (magit-git-items "ls-tree" "-z" "--full-tree" "--name-only"
-                               "-r" branch))))
 
 (cl-defmethod forge--set-default-branch ((repo forge-github-repository) branch)
   (forge-rest repo "PATCH" "/repos/:owner/:repo"

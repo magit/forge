@@ -638,24 +638,29 @@ With prefix argument MENU, also show the topic menu."
 
 (defun forge-create-issue (template)
   "Create a new issue for the current repository."
-  (interactive (list (forge--topic-template nil 'forge-issue)))
-  (let-alist template
-    (pcase-exhaustive .type
-      ('redirect (browse-url .url))
-      ('forge-discussion (forge-create-discussion .category))
-      ('forge-issue
-       (forge--setup-post-buffer 'new-issue #'forge--submit-create-issue
-         "new-issue" "Create new issue on %p"
-         `((forge--buffer-template ,template)))))))
+  (interactive (list (forge--read-topic-template 'issue)))
+  (if-let ((url (forge-sql1 [:select [url] :from topic-template
+                             :where (= id $s1)]
+                            template)))
+      (if (string-match (forge--format (forge-get-repository :tracked) "\
+\\`https://%h/[^/]+/[^/]+/discussions\\(?:/categories/\\(.+\\)\\)?") url)
+          (forge-create-discussion
+           (or (match-string 1 url)
+               (forge-read-topic-category nil "Category for new discussion")))
+        (browse-url url))
+    (forge--setup-post-buffer 'new-issue #'forge--submit-create-issue
+      "new-issue" "Create new issue on %p"
+      `((forge--buffer-template ,template)))))
 
-(defun forge-create-pullreq (source target)
+(defun forge-create-pullreq (source target template)
   "Create a new pull-request for the current repository."
-  (interactive (forge-create-pullreq--read-args))
+  (interactive (nconc (forge-create-pullreq--read-args)
+                      (list (forge--read-topic-template 'pullreq))))
   (forge--setup-post-buffer 'new-pullreq #'forge--submit-create-pullreq
     "new-pullreq" "Create new pull-request on %p"
     `((forge--buffer-base-branch ,target)
       (forge--buffer-head-branch ,source)
-      (forge--buffer-template    ,(forge--topic-template nil 'forge-pullreq)))))
+      (forge--buffer-template  ,template))))
 
 (transient-define-suffix forge-create-pullreq-from-issue (issue source target)
   "Convert an existing ISSUE into a pull-request."

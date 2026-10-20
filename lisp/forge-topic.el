@@ -927,6 +927,30 @@ as a string."
      'confirm
      (mapconcat #'cadr value ","))))
 
+(defun forge--read-topic-template (type &optional repo)
+  (let ((choices
+         (mapcar (pcase-lambda (`(,id ,name ,desc))
+                   (let ((prompt (propertize name 'face 'bold)))
+                     (cons (if desc (format "%s — %s" prompt desc) prompt)
+                           id)))
+                 (forge-sql [:select [id name description]
+                             :from topic-template
+                             :where (and (= repository $s1)
+                                         (in type $v2))
+                             :order-by [(asc filename)]]
+                            (oref (or repo (forge-get-repository :tracked)) id)
+                            (pcase-exhaustive type
+                              ('issue   [issue link])
+                              ('pullreq [pullreq]))))))
+    (if (cdr choices)
+        (cdr (assoc (magit-completing-read
+                     (pcase-exhaustive type
+                       ('issue   "Select issue template")
+                       ('pullreq "Select pull-request template"))
+                     choices nil t)
+                    choices))
+      (cdar choices))))
+
 ;;; Format
 
 (cl-defmethod forge--format ((topic forge-topic) slot &optional spec)
@@ -2010,111 +2034,6 @@ When point is on the answer, then unmark it and mark no other."
               host
               (and (not (string-prefix-p "/" file)) "/")
               file))))
-
-;;; Templates
-
-(defun forge--topic-template (repo class)
-  (unless repo
-    (setq repo (forge-get-repository :tracked)))
-  (let* ((templates (forge--topic-templates repo class))
-         (template
-          (if (cdr templates)
-              (let ((c (magit-completing-read
-                        (pcase class
-                          ('forge-issue   "Select issue template")
-                          ('forge-pullreq "Select pull-request template"))
-                        (mapcar (##alist-get 'prompt %) templates)
-                        nil t)))
-                (seq-find (##equal (alist-get 'prompt %) c) templates))
-            (car templates))))
-    (if-let ((url (alist-get 'url template)))
-        (if (string-match (forge--format repo "\
-\\`https://%h/[^/]+/[^/]+/discussions\\(?:/categories/\\(.+\\)\\)?")
-                          url)
-            `((type . forge-discussion)
-              (category . ,(or (match-string 1 url)
-                               (forge-read-topic-category
-                                nil "Category for new discussion"))))
-          `((type . redirect) ,@template))
-      `((type . ,class) ,@template))))
-
-(defun forge--topic-templates (repo class)
-  (mapcan (lambda (file)
-            (with-temp-buffer
-              (magit-git-insert "cat-file" "-p" file)
-              (if (equal (file-name-nondirectory file) "config.yml")
-                  (forge--topic-parse-template-config)
-                (list (forge--topic-parse-template (file-name-base file))))))
-          (forge--topic-template-files repo class)))
-
-(cl-defgeneric forge--topic-template-files (repo class))
-
-(defun forge--topic-template-files-1 (repo suffix &rest paths)
-  (setq suffix (ensure-list suffix))
-  (let ((branch (forge--get-default-branch repo)))
-    (seq-keep (if suffix
-                  (##and (member (file-name-extension %) suffix)
-                         (concat branch ":" %))
-                (##concat branch ":" %))
-              (magit-git-items "ls-tree" "-z"
-                               "--full-tree" "--name-only"
-                               (and suffix "-r")
-                               branch "--" paths))))
-
-(defun forge--topic-parse-template-config ()
-  (let-alist (yaml-parse-string (buffer-str)
-                                :object-type 'alist
-                                :sequence-type 'list)
-    (nconc
-     (and (not (eq .blank_issues_enabled :false)) ;unset means true
-          `(((prompt . ,(concat (propertize "Blank issue" 'face 'bold)
-                                " — Create a new issue from scratch")))))
-     (mapcar (lambda (link)
-               `((prompt . ,(let-alist link
-                              (concat (propertize .name 'face 'bold)
-                                      " — " .about)))
-                 ,@link))
-             .contact_links))))
-
-(defun forge--topic-parse-template (name)
-  (goto-char (point-min))
-  (skip-chars-forward "\s\t\n\r")
-  (if-let ((beg (and (looking-at "^---[\s\t]*$")
-                     (point)))
-           (end (and (zerop (forward-line))
-                     (re-search-forward "^---[\s\t]*$" nil t)
-                     (match-beginning 0)))
-           (repoid (oref (forge-get-repository :tracked) id)))
-      (let-alist (yaml-parse-string (buffer-str beg end)
-                                    :object-type 'alist
-                                    :sequence-type 'list
-                                    :null-object nil
-                                    :false-object nil)
-        (when (stringp .name)
-          (setq name .name))
-        (setq name (propertize .name 'face 'bold))
-        `((prompt    . ,(if .about (format "%s — %s" name .about) name))
-          (title     . ,(and .title
-                             (stringp .title)
-                             (string-trim .title)))
-          (text      . ,(string-trim (buffer-str (point))))
-          ;; Prevent ad hock creation or previously unknown labels.
-          (labels    . ,(cl-intersection
-                         (ensure-list .labels)
-                         (forge-sql-car [:select name :from label
-                                         :where (= repository $s1)]
-                                        repoid)
-                         :test #'equal))
-          ;; Server errors on invalid assignees.
-          (assignees . ,(cl-intersection
-                         (ensure-list .assignees)
-                         (forge-sql-car [:select login :from assignee
-                                         :where (= repository $s1)]
-                                        repoid)
-                         :test #'equal))
-          (draft     . ,(and (booleanp .draft) .draft))))
-    `((prompt . ,(propertize name 'face 'bold))
-      (text   . ,(string-trim (buffer-str))))))
 
 ;;; Browse-Url
 

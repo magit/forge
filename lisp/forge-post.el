@@ -155,7 +155,8 @@ One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
          (file    (forge--post-expand-file-name (forge--format obj file) repo))
          (_       (make-directory (file-name-directory file) t))
          (buffer  (find-file-noselect file))
-         (resume  (forge--post-resume-p file buffer)))
+         (resume  (forge--post-resume-p file buffer))
+         (body    nil))
     (with-current-buffer buffer
       (forge-post-mode)
       (magit-set-header-line-format header)
@@ -168,17 +169,21 @@ One of `new-discussion', `new-issue', `new-pullreq', `reply' and `edit'.")
       (pcase-dolist (`(,var ,val) bindings)
         (set-local var val)
         (when (eq var 'forge--buffer-template)
-          (let-alist forge--buffer-template
-            (setq forge--buffer-assignees .assignees)
-            (setq forge--buffer-labels .labels)
-            (setq forge--buffer-draft-p .draft))))
-      (cond-let
+          (pcase-setq `(,forge--buffer-assignees
+                        ,forge--buffer-labels
+                        ,forge--buffer-draft-p
+                        ,body)
+                      (car (forge-sql [:select [assignees labels draft body]
+                                       :from topic-template
+                                       :where (= id $s1)]
+                                      forge--buffer-template)))))
+      (cond
         (resume)
         ((not (memq action '(new-discussion new-issue new-pullreq))))
-        ([template (alist-get 'text forge--buffer-template)]
-         (unless (string-prefix-p "# " template)
+        (body
+         (unless (string-prefix-p "# " body)
            (insert "# \n\n"))
-         (insert template)
+         (insert body)
          (goto-char 3))
         ((insert "# ")))
       (when fn

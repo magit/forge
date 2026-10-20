@@ -88,7 +88,8 @@
    (discussion-categories      :closql-table discussion-category)
    (discussions                :closql-class forge-discussion)
    (discussions-p              :initform nil)
-   (discussions-until          :initform nil))
+   (discussions-until          :initform nil)
+   (topic-templates            :closql-table topic-template))
   :abstract t)
 
 (defclass forge-unusedapi-repository (forge-repository) () :abstract t)

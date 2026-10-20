@@ -103,6 +103,7 @@
                    (forge--update-pullreqs   repo .pullreqs)
                    (oset repo condition :tracked)))
                (forge--msg repo t t "Storing REPO")
+               (forge--update-templates repo)
                (cond (callback (funcall callback repo))
                      ((oref repo selective-p))
                      ((forge--maybe-git-fetch repo buffer)))))))))
@@ -488,6 +489,30 @@
 ;; and read events, so this is rather useless and we don't use it for
 ;; the time being.
 
+;;;; Templates
+
+(cl-defmethod forge--update-templates ((repo forge-gitlab-repository))
+  (when-let* ((default-directory (forge-get-worktree repo))
+              (branch (forge--get-default-branch repo))
+              (repoid (oref repo id)))
+    (oset repo topic-templates
+          (mapcan
+           (pcase-lambda (`(,type . ,dir))
+             (seq-keep (lambda (file)
+                         (let* ((file (file-name-nondirectory file))
+                                (name (file-name-sans-extension file)))
+                           (and (equal (file-name-extension file) "md")
+                                (list (forge--object-id repoid name)
+                                      type file name nil nil
+                                      (with-temp-buffer
+                                        (insert-file-contents file)
+                                        (buffer-str))
+                                      nil nil nil nil nil))))
+                       (magit-git-items "ls-tree" "-z" "--full-tree"
+                                        "--name-only" "-r" branch "--" dir)))
+           '((issue   . ".gitlab/issue_templates")
+             (pullreq . ".gitlab/merge_request_templates"))))))
+
 ;;; Mutations
 
 (cl-defmethod forge--submit-create-issue ((_ forge-gitlab-repository) repo)
@@ -631,14 +656,6 @@
        "/projects/:project/issues/:topic/notes/:number")))
   (closql-delete post)
   (forge-refresh-buffer))
-
-(cl-defmethod forge--topic-template-files ((repo forge-gitlab-repository)
-                                           (_ (subclass forge-issue)))
-  (forge--topic-template-files-1 repo "md" ".gitlab/issue_templates"))
-
-(cl-defmethod forge--topic-template-files ((repo forge-gitlab-repository)
-                                           (_ (subclass forge-pullreq)))
-  (forge--topic-template-files-1 repo "md" ".gitlab/merge_request_templates"))
 
 (cl-defmethod forge--fork-repository ((repo forge-gitlab-repository) fork _all)
   (with-slots (name apihost) repo
