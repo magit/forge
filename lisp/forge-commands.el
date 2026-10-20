@@ -642,8 +642,10 @@ With prefix argument MENU, also show the topic menu."
   (if-let ((url (forge-sql1 [:select [url] :from topic-template
                              :where (= id $s1)]
                             template)))
-      (if (string-match (forge--format (forge-get-repository :tracked) "\
+      (if (or (string-match (forge--format (forge-get-repository :tracked) "\
 \\`https://%h/[^/]+/[^/]+/discussions\\(?:/categories/\\(.+\\)\\)?") url)
+              (string-match (forge--format (forge-get-repository :tracked) "\
+\\`https://%h/.+/.github/blob/.+/discussions/\\(.+\\)\\.md\\'" url) url))
           (forge-create-discussion
            (or (match-string 1 url)
                (forge-read-topic-category nil "Category for new discussion")))
