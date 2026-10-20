@@ -257,9 +257,10 @@
       (and .repository.id
            (list (base64-encode-string
                   (format "%s:%s" hostid
+                          ;; For old repositories this is encoded
+                          ;; and we made the mistake to decode it.
                           (condition-case nil
                               (base64-decode-string .repository.id)
-                            ;; For some repos this is not base64 encoded.
                             (error .repository.id)))
                   t)
                  .repository.owner.login
