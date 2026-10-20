@@ -680,7 +680,7 @@
                      (format "-v%s" (caar (emacsql (oref db connection)
                                                    [:pragma user-version])))
                      (format-time-string "-%Y%m%d-%H%M")
-                     ".sqlite")))
+                     ".db")))
     (message "Copying Forge database to %s..." dst)
     (copy-file forge-database-file dst)
     (message "Copying Forge database to %s...done" dst)))
