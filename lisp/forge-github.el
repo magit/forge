@@ -312,6 +312,14 @@
         (cond (callback (funcall callback repo))
               ((oref repo selective-p))
               ((forge--maybe-git-fetch repo buf))))
+      ;; If the only error is about the "ACCOUNT/.github" repository
+      ;; not being found, simply drop that, as this is expected.
+      :noerror (lambda (errors)
+                 (and (or (length> errors 2) ;account for `errors' symbol
+                          (let-alist (cadr errors)
+                            (not (and (equal .type "NOT_FOUND")
+                                      (equal (car .path) "configRepository")))))
+                      errors))
       :until
       ;; Keys have the form `FIELD-until', where FIELD is the name of a
       ;; field of Repository objects.  See `ghub--graphql-walk-response'.
