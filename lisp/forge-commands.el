@@ -61,7 +61,13 @@ Takes the pull-request as only argument and must return a directory."
   :column-widths forge--topic-menus-column-widths
   [forge--topic-menus-group
    ["Fetch"
-    ("f f" "all topics"     forge-pull)
+    ("f f" forge-pull
+     :description (lambda ()
+                    (cond-let
+                      [[repo (forge-get-repository :tracked?)]]
+                      ((not repo) "a repository")
+                      ((oref repo selective-p) "repo only")
+                      ("updated topics"))))
     ("f t" "one topic"      forge-pull-topic)
     ("f n" "notifications"  forge-pull-notifications)]
    ["Create"
@@ -144,9 +150,11 @@ Takes the pull-request as only argument and must return a directory."
 If the current repository is still untracked locally, or the current
 repository cannot be determined, instead invoke `forge-add-repository'."
   :description (lambda ()
-                 (if (forge-get-repository :tracked?)
-                     "forge topics"
-                   "new forge repository"))
+                 (cond-let
+                   [[repo (forge-get-repository :tracked?)]]
+                   ((not repo) "new forge repository")
+                   ((oref repo selective-p) "forge repository")
+                   ("forge topics")))
   (interactive)
   (if-let ((repo (forge-get-repository :tracked?)))
       (forge--pull repo)
