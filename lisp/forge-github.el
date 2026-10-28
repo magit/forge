@@ -165,12 +165,8 @@
         body)
      (  labels [(:edges t)] id))))
 
-(defconst forge--github-sparse-repository-query
-  '(query
-    (  repository
-       [(owner $owner String!)
-        (name  $name  String!)]
-       (owner login)
+(defconst forge--github-repository-fragment
+  `(   (owner login)
        name
        id
        createdAt
@@ -190,10 +186,7 @@
        hasWikiEnabled
        (licenseInfo name)
        (stargazers totalCount)
-       (watchers totalCount))))
-
-(defconst forge--github-repository-fragment
-  `(   ,@(cdr (cadr forge--github-sparse-repository-query))
+       (watchers totalCount)
        (  assignableUsers [(:edges t)]
           id
           login
@@ -283,19 +276,18 @@
   (pcase-let ((buf (current-buffer))
               ((eieio owner name remote) repo))
     (forge--query repo
-      (if (oref repo selective-p)
-          forge--github-sparse-repository-query
-        `(query
-          (repository
-           ,@forge--github-repository-fragment
-           ,@forge--github-discussions-fragment
-           ,@forge--github-issues-fragment
-           ,@forge--github-pullreqs-fragment
-           ,@forge--github-issue-template-config-fragment)
-          (("configRepository" repository)
-           [(owner $owner)
-            (name ".github")]
-           ,@forge--github-issue-template-config-fragment)))
+      `(query
+        (repository
+         ,@forge--github-repository-fragment
+         ,@(and (not (oref repo selective-p))
+                (append forge--github-discussions-fragment
+                        forge--github-issues-fragment
+                        forge--github-pullreqs-fragment))
+         ,@forge--github-issue-template-config-fragment)
+        (("configRepository" repository)
+         [(owner $owner)
+          (name ".github")]
+         ,@forge--github-issue-template-config-fragment))
       `((owner . ,owner)
         (name  . ,name))
       :callback
