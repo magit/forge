@@ -55,15 +55,6 @@
 ;;; Pull
 ;;;; GraphQL
 
-(defconst forge--github-identify-repo-query
-  '(query
-    (  repository
-       [(owner $owner String!)
-        (name  $name  String!)]
-       (owner login)
-       name
-       id)))
-
 (defconst forge--github-discussions-fragment
   '((discussions
      [(:edges 20)
@@ -250,7 +241,8 @@
 (cl-defmethod forge--identify-repo ((_class (subclass forge-github-repository))
                                     host owner name)
   (pcase-let ((`(,_ ,apihost ,hostid ,_) (forge--get-forge-host host t)))
-    (let-alist (ghub-query forge--github-identify-repo-query
+    (let-alist (ghub-query
+                (forge--prepare-repo-query '((owner login) name id))
                  `((owner . ,owner)
                    (name  . ,name))
                  :host apihost
@@ -448,19 +440,17 @@
                                  (number number)
                                  &optional callback)
   (forge--query repo
-    `(query
-      (repository
-       [(owner $owner String!)
-        (name  $name  String!)]
-       ,(caddr (caddr (ghub--graphql-prepare-query
-                       forge--github-repository-query
-                       `(repository discussions (discussion . ,number)))))
-       ,(caddr (caddr (ghub--graphql-prepare-query
-                       forge--github-repository-query
-                       `(repository issues (issue . ,number)))))
-       ,(caddr (caddr (ghub--graphql-prepare-query
-                       forge--github-repository-query
-                       `(repository pullRequests (pullreq . ,number)))))))
+    (forge--prepare-repo-query
+     (list
+      (caddr (caddr (ghub--graphql-prepare-query
+                     forge--github-repository-query
+                     `(repository discussions (discussion . ,number)))))
+      (caddr (caddr (ghub--graphql-prepare-query
+                     forge--github-repository-query
+                     `(repository issues (issue . ,number)))))
+      (caddr (caddr (ghub--graphql-prepare-query
+                     forge--github-repository-query
+                     `(repository pullRequests (pullreq . ,number)))))))
     `((owner . ,(oref repo owner))
       (name  . ,(oref repo name)))
     :noerror t

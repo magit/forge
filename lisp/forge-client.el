@@ -44,6 +44,11 @@
      :callback ,callback :errorback ,errorback :noerror ,noerror
      :narrow ,narrow :until ,until))
 
+(defun forge--prepare-repo-query (fragments)
+  `(query (repository [(owner $owner String!)
+                       (name  $name  String!)]
+                      ,@fragments)))
+
 (cl-defmacro forge-mutate ( obj-or-host mutation variables
                             &key callback errorback noerror)
   (declare (indent defun))
