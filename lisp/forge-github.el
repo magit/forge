@@ -64,6 +64,107 @@
        name
        id)))
 
+(defconst forge--github-discussions-fragment
+  '((discussions
+     [(:edges 20)
+      (:singular discussion number)
+      (orderBy ((field UPDATED_AT) (direction DESC)))]
+     number
+     id
+     databaseId
+     url
+     stateReason
+     ;; Discussions lack isReadByViewer.
+     (answer id)
+     (author login)
+     title
+     createdAt
+     updatedAt
+     closedAt
+     locked
+     (category id)
+     body
+     (  comments [(:edges t)]
+        id
+        databaseId
+        (author login)
+        createdAt
+        updatedAt
+        body
+        (  replies [(:edges t)]
+           id
+           databaseId
+           (author login)
+           createdAt
+           updatedAt
+           body))
+     (  labels [(:edges t)] id))))
+
+(defconst forge--github-issues-fragment
+  '((issues
+     [(:edges t)
+      (:singular issue number)
+      (orderBy ((field UPDATED_AT) (direction DESC)))]
+     number
+     id
+     state
+     stateReason
+     isReadByViewer
+     (author login)
+     title
+     createdAt
+     updatedAt
+     closedAt
+     locked
+     (milestone id)
+     body
+     (  assignees [(:edges t)] id)
+     (  comments [(:edges t)]
+        id
+        databaseId
+        (author login)
+        createdAt
+        updatedAt
+        body)
+     (  labels [(:edges t)] id))))
+
+(defconst forge--github-pullreqs-fragment
+  '((pullRequests
+     [(:edges t)
+      (:singular pullRequest number)
+      (orderBy ((field UPDATED_AT) (direction DESC)))]
+     number
+     id
+     state
+     isReadByViewer
+     (author login)
+     title
+     createdAt
+     updatedAt
+     closedAt
+     mergedAt
+     isDraft
+     locked
+     maintainerCanModify
+     isCrossRepository
+     (milestone id)
+     body
+     (baseRef name (repository nameWithOwner))
+     baseRefOid
+     (headRef name (repository (owner login) nameWithOwner))
+     headRefOid
+     (  assignees [(:edges t)] id)
+     (  reviewRequests [(:edges t)]
+        (requestedReviewer "... on User { id }\n"))
+     (  comments [(:edges t)]
+        id
+        databaseId
+        (author login)
+        createdAt
+        updatedAt
+        body)
+     (  labels [(:edges t)] id))))
+
 (defconst forge--github-sparse-repository-query
   '(query
     (  repository
@@ -103,69 +204,11 @@
           emoji
           isAnswerable
           description)
-       (  discussions [(:edges 20)
-                       (:singular discussion number)
-                       (orderBy ((field UPDATED_AT) (direction DESC)))]
-          number
-          id
-          databaseId
-          url
-          stateReason
-          ;; Discussions lack isReadByViewer.
-          (answer id)
-          (author login)
-          title
-          createdAt
-          updatedAt
-          closedAt
-          locked
-          (category id)
-          body
-          (  comments [(:edges t)]
-             id
-             databaseId
-             (author login)
-             createdAt
-             updatedAt
-             body
-             (  replies [(:edges t)]
-                id
-                databaseId
-                (author login)
-                createdAt
-                updatedAt
-                body))
-          (   labels [(:edges t)] id))
        ;; Disabled for now because likely too expensive.
        ;; (  forks [(:edges t)]
        ;;    id
        ;;    (owner login)
        ;;    name)
-       (  issues [(:edges t)
-                  (:singular issue number)
-                  (orderBy ((field UPDATED_AT) (direction DESC)))]
-          number
-          id
-          state
-          stateReason
-          isReadByViewer
-          (author login)
-          title
-          createdAt
-          updatedAt
-          closedAt
-          locked
-          (milestone id)
-          body
-          (  assignees [(:edges t)] id)
-          (  comments [(:edges t)]
-             id
-             databaseId
-             (author login)
-             createdAt
-             updatedAt
-             body)
-          (  labels [(:edges t)] id))
        (  labels [(:edges t) (:singular label id)]
           id
           name
@@ -180,40 +223,6 @@
           dueOn
           closedAt
           description)
-       (  pullRequests [(:edges t)
-                        (:singular pullRequest number)
-                        (orderBy ((field UPDATED_AT) (direction DESC)))]
-          number
-          id
-          state
-          isReadByViewer
-          (author login)
-          title
-          createdAt
-          updatedAt
-          closedAt
-          mergedAt
-          isDraft
-          locked
-          maintainerCanModify
-          isCrossRepository
-          (milestone id)
-          body
-          (baseRef name (repository nameWithOwner))
-          baseRefOid
-          (headRef name (repository (owner login) nameWithOwner))
-          headRefOid
-          (  assignees [(:edges t)] id)
-          (  reviewRequests [(:edges t)]
-             (requestedReviewer "... on User { id }\n"))
-          (  comments [(:edges t)]
-             id
-             databaseId
-             (author login)
-             createdAt
-             updatedAt
-             body)
-          (  labels [(:edges t)] id))
        (  issueTemplates
           name
           filename
@@ -228,7 +237,12 @@
           filename)))
 
 (defconst forge--github-repository-query
-  `(query (repository ,@forge--github-repository-fragment)))
+  `(query (repository [(owner $owner String!)
+                       (name  $name  String!)]
+                      ,@forge--github-repository-fragment
+                      ,@forge--github-discussions-fragment
+                      ,@forge--github-issues-fragment
+                      ,@forge--github-pullreqs-fragment)))
 
 (defconst forge--github-issue-template-config-fragment
   '((("issueTemplateConfigA" object)
@@ -274,6 +288,9 @@
         `(query
           (repository
            ,@forge--github-repository-fragment
+           ,@forge--github-discussions-fragment
+           ,@forge--github-issues-fragment
+           ,@forge--github-pullreqs-fragment
            ,@forge--github-issue-template-config-fragment)
           (("configRepository" repository)
            [(owner $owner)
