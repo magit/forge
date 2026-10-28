@@ -259,21 +259,13 @@
   (forge--msg repo t nil "Pulling REPO")
   (pcase-let ((buf (current-buffer))
               ((eieio owner name remote) repo))
-    (forge--query repo
-      `(query
-        (repository
-         ,@forge--github-repository-fragment
-         ,@(and (not (oref repo selective-p))
-                (append forge--github-discussions-fragment
-                        forge--github-issues-fragment
-                        forge--github-pullreqs-fragment))
-         ,@forge--github-issue-template-config-fragment)
-        (("configRepository" repository)
-         [(owner $owner)
-          (name ".github")]
-         ,@forge--github-issue-template-config-fragment))
-      `((owner . ,owner)
-        (name  . ,name))
+    (forge-repo-query repo
+      (append forge--github-repository-fragment
+              (and (not (oref repo selective-p))
+                   (append forge--github-discussions-fragment
+                           forge--github-issues-fragment
+                           forge--github-pullreqs-fragment))
+              forge--github-issue-template-config-fragment)
       :callback
       (lambda (data)
         (forge--msg repo t t   "Pulling REPO")
@@ -306,6 +298,14 @@
         (cond (callback (funcall callback repo))
               ((oref repo selective-p))
               ((forge--maybe-git-fetch repo buf))))
+      ;; Issue links are omitted from the API and instead we have to
+      ;; get files using the generic Git object API, including files
+      ;; from the "ACCOUNT/.github" repository.
+      :other-fragments
+      `(("configRepository" repository)
+        [(owner $owner)
+         (name ".github")]
+        ,@forge--github-issue-template-config-fragment)
       ;; If the only error is about the "ACCOUNT/.github" repository
       ;; not being found, simply drop that, as this is expected.
       :noerror (lambda (errors)
@@ -431,14 +431,11 @@
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (number number)
                                  &optional callback)
-  (forge--query repo
-    (forge--prepare-repo-query
-     (nconc
-      (forge--singularize-fragment forge--github-discussions-fragment number)
-      (forge--singularize-fragment forge--github-issues-fragment number)
-      (forge--singularize-fragment forge--github-pullreqs-fragment number)))
-    `((owner . ,(oref repo owner))
-      (name  . ,(oref repo name)))
+  (forge-repo-query repo
+    (nconc
+     (forge--singularize-fragment forge--github-discussions-fragment number)
+     (forge--singularize-fragment forge--github-issues-fragment number)
+     (forge--singularize-fragment forge--github-pullreqs-fragment number))
     :noerror t
     :callback (lambda (data)
                 (let-alist data
@@ -455,33 +452,31 @@
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-discussion)
                                  &optional _)
-  (forge--pull-topic-1 repo #'forge--update-discussion
+  (forge-repo-query repo
     (forge--singularize-fragment forge--github-discussions-fragment
-                                 (oref topic number))))
+                                 (oref topic number))
+    :callback (forge--pull-topic-callback repo #'forge--update-discussion)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-issue)
                                  &optional _)
-  (forge--pull-topic-1 repo #'forge--update-issue
+  (forge-repo-query repo
     (forge--singularize-fragment forge--github-issues-fragment
-                                 (oref topic number))))
+                                 (oref topic number))
+    :callback (forge--pull-topic-callback repo #'forge--update-issue)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-pullreq)
                                  &optional _)
-  (forge--pull-topic-1 repo #'forge--update-pullreq
+  (forge-repo-query repo
     (forge--singularize-fragment forge--github-pullreqs-fragment
-                                 (oref topic number))))
+                                 (oref topic number))
+    :callback (forge--pull-topic-callback repo #'forge--update-pullreq)))
 
-(cl-defun forge--pull-topic-1 (repo update fragment)
-  (declare (indent defun))
-  (forge--query repo
-    (forge--prepare-repo-query (list fragment))
-    `((owner . ,(oref repo owner))
-      (name  . ,(oref repo name)))
-    :callback (lambda (data)
-                (funcall update repo (cdr (cadr (cadr data))))
-                (forge-refresh-buffer))))
+(defun forge--pull-topic-callback (repo update)
+  (lambda (data)
+    (funcall update repo (cdr (cadr (cadr data))))
+    (forge-refresh-buffer)))
 
 (cl-defmethod forge--update-status ((repo forge-github-repository)
                                     topic data bump initial-pull)

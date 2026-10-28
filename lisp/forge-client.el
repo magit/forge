@@ -44,6 +44,18 @@
      :callback ,callback :errorback ,errorback :noerror ,noerror
      :narrow ,narrow :until ,until))
 
+(cl-defun forge-repo-query ( obj fragments
+                             &key callback errorback noerror narrow until
+                             other-fragments)
+  (declare (indent defun))
+  (forge--query obj
+    (nconc (forge--prepare-repo-query fragments)
+           (and other-fragments (list other-fragments)))
+    `((owner . ,(oref obj owner))
+      (name  . ,(oref obj name)))
+    :callback callback :errorback errorback :noerror noerror
+    :narrow narrow :until until))
+
 (defun forge--prepare-repo-query (fragments)
   `(query (repository [(owner $owner String!)
                        (name  $name  String!)]
@@ -144,11 +156,9 @@
        ;; See comment in `forge--update-status'.
        (let ((status (oref topic status)))
          (lambda (&rest _)
-           (forge--query repo
+           (forge-repo-query repo
              (forge--singularize-fragment forge--github-discussions-fragment
                                           (oref topic number))
-             `((owner . ,(oref repo owner))
-               (name  . ,(oref repo name)))
              :callback (lambda (data)
                          (forge--update-discussion repo (cdr (cadr (cadr data))))
                          (oset topic status status)
