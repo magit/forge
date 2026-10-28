@@ -451,11 +451,12 @@
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-discussion)
-                                 &optional _)
+                                 &optional callback)
   (forge-repo-query repo
     (forge--singularize-fragment forge--github-discussions-fragment
                                  (oref topic number))
-    :callback (forge--pull-topic-callback repo #'forge--update-discussion)))
+    :callback (forge--pull-topic-callback repo #'forge--update-discussion
+                                          callback)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-issue)
@@ -473,9 +474,11 @@
                                  (oref topic number))
     :callback (forge--pull-topic-callback repo #'forge--update-pullreq)))
 
-(defun forge--pull-topic-callback (repo update)
+(defun forge--pull-topic-callback (repo update &optional callback)
   (lambda (data)
     (funcall update repo (cdr (cadr (cadr data))))
+    (when callback
+      (funcall callback))
     (forge-refresh-buffer)))
 
 (cl-defmethod forge--update-status ((repo forge-github-repository)

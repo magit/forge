@@ -156,13 +156,8 @@
        ;; See comment in `forge--update-status'.
        (let ((status (oref topic status)))
          (lambda (&rest _)
-           (forge-repo-query repo
-             (forge--singularize-fragment forge--github-discussions-fragment
-                                          (oref topic number))
-             :callback (lambda (data)
-                         (forge--update-discussion repo (cdr (cadr (cadr data))))
-                         (oset topic status status)
-                         (forge-refresh-buffer))))))
+           (forge--pull-topic (forge-get-repository topic) topic
+                              (lambda () (oset topic status status))))))
       ((lambda (&rest _)
          (forge--pull-topic (forge-get-repository topic) topic))))))
 
