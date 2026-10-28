@@ -166,68 +166,68 @@
      (  labels [(:edges t)] id))))
 
 (defconst forge--github-repository-fragment
-  `(   (owner login)
-       name
+  `((owner login)
+    name
+    id
+    createdAt
+    updatedAt
+    nameWithOwner
+    (parent nameWithOwner)
+    description
+    homepageUrl
+    (defaultBranchRef name)
+    isArchived
+    isFork
+    isLocked
+    isMirror
+    isPrivate
+    hasDiscussionsEnabled
+    hasIssuesEnabled
+    hasWikiEnabled
+    (licenseInfo name)
+    (stargazers totalCount)
+    (watchers totalCount)
+    (  assignableUsers [(:edges t)]
        id
+       login
+       name)
+    (  discussionCategories [(:edges t)]
+       id
+       name
+       emoji
+       isAnswerable
+       description)
+    ;; Disabled for now because likely too expensive.
+    ;; (  forks [(:edges t)]
+    ;;    id
+    ;;    (owner login)
+    ;;    name)
+    (  labels [(:edges t) (:singular label id)]
+       id
+       name
+       color
+       description)
+    (  milestones [(:edges t) (:singular milestone id)]
+       id
+       number
+       title
        createdAt
        updatedAt
-       nameWithOwner
-       (parent nameWithOwner)
-       description
-       homepageUrl
-       (defaultBranchRef name)
-       isArchived
-       isFork
-       isLocked
-       isMirror
-       isPrivate
-       hasDiscussionsEnabled
-       hasIssuesEnabled
-       hasWikiEnabled
-       (licenseInfo name)
-       (stargazers totalCount)
-       (watchers totalCount)
-       (  assignableUsers [(:edges t)]
-          id
-          login
-          name)
-       (  discussionCategories [(:edges t)]
-          id
-          name
-          emoji
-          isAnswerable
-          description)
-       ;; Disabled for now because likely too expensive.
-       ;; (  forks [(:edges t)]
-       ;;    id
-       ;;    (owner login)
-       ;;    name)
-       (  labels [(:edges t) (:singular label id)]
-          id
-          name
-          color
-          description)
-       (  milestones [(:edges t) (:singular milestone id)]
-          id
-          number
-          title
-          createdAt
-          updatedAt
-          dueOn
-          closedAt
-          description)
-       (  issueTemplates
-          name
-          filename
-          about
-          title
-          body
-          (  type name )
-          (  assignees [(:edges t)] login)
-          (  labels [(:edges t)] name))
-       (  pullRequestTemplates
-          body
-          filename)))
+       dueOn
+       closedAt
+       description)
+    (  issueTemplates
+       name
+       filename
+       about
+       title
+       body
+       (  type name )
+       (  assignees [(:edges t)] login)
+       (  labels [(:edges t)] name))
+    (  pullRequestTemplates
+       body
+       filename)))
 
 (defconst forge--github-repository-query
   `(query (repository [(owner $owner String!)
