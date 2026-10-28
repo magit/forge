@@ -49,6 +49,11 @@
                        (name  $name  String!)]
                       ,@fragments)))
 
+(defun forge--singularize-fragment (fragment value)
+  (pcase-let* ((`((,_plural ,args . ,fields) . ,rest) fragment)
+               (`(,_ ,singular ,arg) (assq :singular (append args ()))))
+    `((,singular [(,arg ,value)] . ,fields) . ,rest)))
+
 (cl-defmacro forge-mutate ( obj-or-host mutation variables
                             &key callback errorback noerror)
   (declare (indent defun))
@@ -140,9 +145,8 @@
        (let ((status (oref topic status)))
          (lambda (&rest _)
            (forge--query repo
-             (ghub--graphql-prepare-query
-              forge--github-repository-query
-              `(repository discussions (discussion . ,(oref topic number))))
+             (forge--singularize-fragment forge--github-discussions-fragment
+                                          (oref topic number))
              `((owner . ,(oref repo owner))
                (name  . ,(oref repo name)))
              :callback (lambda (data)

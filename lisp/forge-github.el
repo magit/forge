@@ -220,14 +220,6 @@
        body
        filename)))
 
-(defconst forge--github-repository-query
-  `(query (repository [(owner $owner String!)
-                       (name  $name  String!)]
-                      ,@forge--github-repository-fragment
-                      ,@forge--github-discussions-fragment
-                      ,@forge--github-issues-fragment
-                      ,@forge--github-pullreqs-fragment)))
-
 (defconst forge--github-issue-template-config-fragment
   '((("issueTemplateConfigA" object)
      [(expression "HEAD:.github/ISSUE_TEMPLATE/config.yml")]
@@ -441,16 +433,10 @@
                                  &optional callback)
   (forge--query repo
     (forge--prepare-repo-query
-     (list
-      (caddr (caddr (ghub--graphql-prepare-query
-                     forge--github-repository-query
-                     `(repository discussions (discussion . ,number)))))
-      (caddr (caddr (ghub--graphql-prepare-query
-                     forge--github-repository-query
-                     `(repository issues (issue . ,number)))))
-      (caddr (caddr (ghub--graphql-prepare-query
-                     forge--github-repository-query
-                     `(repository pullRequests (pullreq . ,number)))))))
+     (nconc
+      (forge--singularize-fragment forge--github-discussions-fragment number)
+      (forge--singularize-fragment forge--github-issues-fragment number)
+      (forge--singularize-fragment forge--github-pullreqs-fragment number)))
     `((owner . ,(oref repo owner))
       (name  . ,(oref repo name)))
     :noerror t
@@ -470,24 +456,27 @@
                                  (topic forge-discussion)
                                  &optional _)
   (forge--pull-topic-1 repo #'forge--update-discussion
-    `(repository discussions (discussion . ,(oref topic number)))))
+    (forge--singularize-fragment forge--github-discussions-fragment
+                                 (oref topic number))))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-issue)
                                  &optional _)
   (forge--pull-topic-1 repo #'forge--update-issue
-    `(repository issues (issue . ,(oref topic number)))))
+    (forge--singularize-fragment forge--github-issues-fragment
+                                 (oref topic number))))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (topic forge-pullreq)
                                  &optional _)
   (forge--pull-topic-1 repo #'forge--update-pullreq
-    `(repository pullRequests (pullRequest . ,(oref topic number)))))
+    (forge--singularize-fragment forge--github-pullreqs-fragment
+                                 (oref topic number))))
 
-(cl-defun forge--pull-topic-1 (repo update narrow)
+(cl-defun forge--pull-topic-1 (repo update fragment)
   (declare (indent defun))
   (forge--query repo
-    (ghub--graphql-prepare-query forge--github-repository-query narrow)
+    (forge--prepare-repo-query (list fragment))
     `((owner . ,(oref repo owner))
       (name  . ,(oref repo name)))
     :callback (lambda (data)
@@ -851,20 +840,12 @@
                  `((,alias repository)
                    [(name ,name)
                     (owner ,owner)]
-                   ,@(cddr
-                      (caddr
-                       (ghub--graphql-prepare-query
-                        forge--github-repository-query
-                        (pcase type
-                          ('discussion `(repository
-                                         discussions
-                                         (discussion . ,number)))
-                          ('issue      `(repository
-                                         issues
-                                         (issue . ,number)))
-                          ('pullreq    `(repository
-                                         pullRequest
-                                         (pullRequest . ,number))))))))
+                   ,@(forge--singularize-fragment
+                      (pcase type
+                        ('discussion forge--github-discussions-fragment)
+                        ('issue      forge--github-issues-fragment)
+                        ('pullreq    forge--github-pullreqs-fragment))
+                      number))
                  repo type data)))))
 
 (defun forge--ghub-update-notifications (notifs topics initial-pull)
