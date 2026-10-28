@@ -81,8 +81,8 @@ Takes the pull-request as only argument and must return a directory."
      :description (lambda () (let ((repo (forge-get-repository :stub?)))
                           (if (or (not repo)
                                   (eq (oref repo condition) :tracked))
-                              "track some repo"
-                            "track this repository"))))
+                              "track another repository"
+                            "track a repository"))))
     ("c f" "fork this repository" forge-fork
      :if-not (##forge-get-repository :tracked?))
     ("/ M" "merge with api" forge-merge
