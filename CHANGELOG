@@ -1,4 +1,40 @@
 # -*- mode: org -*-
+* v0.7.0    UNRELEASED
+
+- When the user changed the value of Git variable ~forge.remote~, the
+  old value continued to be used in existing Magit buffers.  eba76a5a
+
+- ~forge-pull-topic~ is now more helpful when reading a topic from the
+  user.  e604ec23
+
+- Topics can now be pulled individually from Gitlab too.  #595
+
+- ~bug-reference-mode~ is again enabled in ~forge-topics-mode~ and
+  ~forge-notifications-mode~.  f4942526
+
+- On topic references in Magit buffers, commands such as ~browse-url~
+  and ~bug-reference-push-button~, now visit the topic in a Forge buffer
+  instead of in a browser.  3662e218 ff
+
+- In file-visiting buffers as well, ~bug-reference-push-button~ et al.
+  can now be taught to use Forge when following topic references, by
+  adding ~("CHANGELOG" (nil (eval .  (forge-bug-reference-setup))~, or
+  similar, to ~.dir-locals-2.el~.  d6ce851d
+
+- When upstream renames or moves a repository, that is now handled
+  gracefully.  #239
+
+- ~forge-browse~ can now visit the repository at point.  74f3d04e
+
+- For Github, topic templates are now fetched using the API, instead
+  of being retrieved from template files in the local repository, so
+  topics templates are now available, even when the repository hasn't
+  been cloned, and organization templates are no longer ignored.  #850
+
+- When only selectively tracking some topics of a  repository, all
+  other API data is now fetched as for fully tracked repositories.
+  f2670d32
+
 * v0.6.9    2026-09-01
 
 - ~forge-visit-topic-from-url~ learned to first fetch the requested
