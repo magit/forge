@@ -215,6 +215,8 @@
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((issue-id (forge--object-id 'forge-issue repo .iid))
+             (saved-p (and$ (forge-get-issue .iid)
+                            (oref $ saved-p)))
              (issue
               (forge-issue
                :id           issue-id
@@ -236,6 +238,7 @@
                ;; at least can serve as a boolean.
                :closed       (or .closed_at (and (equal .state "closed") 1))
                :locked-p     .discussion_locked
+               :saved-p      saved-p
                :milestone    .milestone.iid
                :body         (forge--sanitize-string .description))))
         (closql-insert (forge-db) issue t)
@@ -346,6 +349,8 @@
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((pullreq-id (forge--object-id 'forge-pullreq repo .iid))
+             (saved-p (and$ (forge-get-pullreq .iid)
+                            (oref $ saved-p)))
              (pullreq
               (forge-pullreq
                :id           pullreq-id
@@ -374,6 +379,7 @@
                :editable-p   .allow_maintainer_to_push
                :cross-repo-p (not (equal .source_project_id
                                          .target_project_id))
+               :saved-p      saved-p
                :base-ref     .target_branch
                :base-rev     .diff_refs.start_sha
                :base-repo    .target_project.path_with_namespace

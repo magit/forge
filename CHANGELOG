@@ -35,6 +35,9 @@
   other API data is now fetched as for fully tracked repositories.
   f2670d32
 
+- Pulling topics of a Gitlab repository discarded the value of topics'
+  ~saved-p~ field.  #880
+
 * v0.6.9    2026-09-01
 
 - ~forge-visit-topic-from-url~ learned to first fetch the requested
