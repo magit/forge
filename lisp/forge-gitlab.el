@@ -504,14 +504,15 @@
     (oset repo topic-templates
           (mapcan
            (pcase-lambda (`(,type . ,dir))
-             (seq-keep (lambda (file)
-                         (let* ((file (file-name-nondirectory file))
+             (seq-keep (lambda (path)
+                         (let* ((file (file-name-nondirectory path))
                                 (name (file-name-sans-extension file)))
                            (and (equal (file-name-extension file) "md")
                                 (list (forge--object-id repoid name)
                                       type file name nil nil
                                       (with-temp-buffer
-                                        (insert-file-contents file)
+                                        (magit-git-insert "cat-file" "-p"
+                                                          (concat branch ":" path))
                                         (buffer-str))
                                       nil nil nil nil nil))))
                        (magit-git-items "ls-tree" "-z" "--full-tree"
