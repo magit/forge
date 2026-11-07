@@ -70,7 +70,7 @@
                             &key callback errorback noerror)
   (declare (indent defun))
   `(forge--query ,obj-or-host
-     ',(ghub--prepare-mutation mutation)
+     ',(forge--prepare-mutation mutation)
      (list (cons 'input ,(forge--prepare-variables variables)))
      :callback ,callback :errorback ,errorback :noerror ,noerror))
 
@@ -78,7 +78,7 @@
   (declare (indent defun))
   `(let ((topic ,topic))
      (forge--query topic
-       ',(ghub--prepare-mutation mutation)
+       ',(forge--prepare-mutation mutation)
        (list (cons 'input ,(forge--prepare-variables variables)))
        :callback (forge--set-field-callback topic))))
 
@@ -121,7 +121,7 @@
                  ('forge-gitlab-repository 'gitlab)
                  (_ 'github)))))
 
-(defun ghub--prepare-mutation (mutation &optional var)
+(defun forge--prepare-mutation (mutation &optional var)
   `(mutation
     (,mutation
      [(input ,(if var (intern (format "$%s" var)) '$input)
