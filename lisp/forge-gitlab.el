@@ -215,7 +215,7 @@
   (closql-with-transaction (forge-db)
     (let-alist data
       (let* ((issue-id (forge--object-id 'forge-issue repo .iid))
-             (saved-p (and$ (forge-get-issue .iid)
+             (saved-p (and$ (forge-get-issue issue-id)
                             (oref $ saved-p)))
              (issue
               (forge-issue
