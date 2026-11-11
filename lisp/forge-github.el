@@ -486,8 +486,8 @@
       (funcall callback))
     (forge-refresh-buffer)))
 
-(cl-defmethod forge--update-status ((_repo forge-github-repository)
-                                    topic data)
+(cl-defmethod forge--update-topic-status ((_repo forge-github-repository)
+                                          topic data)
   (let-alist data
     (let ((updated (or .updatedAt .createdAt))
           (current-status (oref topic status)))
@@ -605,7 +605,7 @@
                     :updated    .updatedAt
                     :body       (forge--sanitize-string .body))
                    t))))))
-        (forge--update-status repo discussion data))
+        (forge--update-topic-status repo discussion data))
       (forge--set-connections repo discussion 'labels .labels)
       discussion)))
 
@@ -658,7 +658,7 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo issue data))
+        (forge--update-topic-status repo issue data))
       (forge--set-connections repo issue 'assignees .assignees)
       (forge--set-connections repo issue 'labels .labels))
     issue))
@@ -720,7 +720,7 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo pullreq data))
+        (forge--update-topic-status repo pullreq data))
       (forge--set-connections repo pullreq 'assignees .assignees)
       (forge--set-connections repo pullreq 'review-requests
                               (mapcar (##alist-get 'requestedReviewer %)
