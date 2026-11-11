@@ -287,10 +287,16 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
       (forge--maybe-restore-winconf winconf)
       (with-current-buffer
           (if (buffer-live-p prevbuf) prevbuf (current-buffer))
-        (if (or (not full-pull)
-                (oref repo selective-p))
-            (forge--pull-topic repo (or topic (alist-get 'number value)))
-          (forge--pull repo))))))
+        (let-alist value
+          (cond-let
+            ((and full-pull (not (oref repo selective-p)))
+             (forge--pull repo))
+            ([number .number]
+             (forge--pull-topic repo number))
+            ;; Gitlab:
+            ((equal .issue_type "issue")
+             (forge--pull-topic repo (format "#%i" .iid)))
+            ((forge--pull-topic repo (format "!%i" .iid)))))))))
 
 (defun forge--post-submit-errorback ()
   (lambda (error &rest _)

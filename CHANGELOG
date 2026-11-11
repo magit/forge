@@ -38,6 +38,9 @@
 - Pulling topics of a Gitlab repository discarded the value of topics'
   ~saved-p~ field.  #880
 
+- After creating a new topic on Gitlab, immediately fetching it
+  failed.  #879
+
 * v0.6.9    2026-09-01
 
 - ~forge-visit-topic-from-url~ learned to first fetch the requested
