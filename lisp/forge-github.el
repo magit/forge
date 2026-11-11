@@ -477,6 +477,8 @@
                                  (oref topic number))
     :callback (forge--pull-topic-callback repo #'forge--update-pullreq)))
 
+(defvar forge--initial-topic-pull nil)
+
 (defun forge--pull-topic-callback (repo update &optional callback)
   (lambda (data)
     (funcall update repo (cdr (cadr (cadr data))))
@@ -485,7 +487,7 @@
     (forge-refresh-buffer)))
 
 (cl-defmethod forge--update-status ((_repo forge-github-repository)
-                                    topic data initial-pull)
+                                    topic data)
   (let-alist data
     (let ((updated (or .updatedAt .createdAt))
           (current-status (oref topic status)))
@@ -510,7 +512,7 @@
           ;; The callback kludge is not needed for all mutations.  Some
           ;; mutations (e.g., setting labels) do not cause `updated_at'
           ;; to be bumped; this second defect cancels out the first.
-          (cond (initial-pull
+          (cond (forge--initial-topic-pull
                  (oset topic status 'done))
                 ((null current-status)
                  (oset topic status 'unread))
@@ -518,7 +520,7 @@
                  (oset topic status 'unread)))
         (cond ((not .isReadByViewer)
                (oset topic status 'unread))
-              (initial-pull
+              (forge--initial-topic-pull
                (oset topic status 'done))
               ((null current-status)
                (oset topic status 'pending))
@@ -538,13 +540,11 @@
 
 (cl-defmethod forge--update-discussions ((repo forge-github-repository) data)
   (closql-with-transaction (forge-db)
-    (let ((initial-pull (not (oref repo discussions-until))))
-      (dolist (elt data)
-        (forge--update-discussion repo elt initial-pull)))
+    (let ((forge--initial-topic-pull (not (oref repo discussions-until))))
+      (mapc (##forge--update-discussion repo %) data))
     (oset repo discussions-until (forge--topics-until repo 'discussion))))
 
-(cl-defmethod forge--update-discussion ((repo forge-github-repository) data
-                                        &optional initial-pull)
+(cl-defmethod forge--update-discussion ((repo forge-github-repository) data)
   (let ((repo-id (oref repo id))
         discussion-id discussion)
     (let-alist data
@@ -605,7 +605,7 @@
                     :updated    .updatedAt
                     :body       (forge--sanitize-string .body))
                    t))))))
-        (forge--update-status repo discussion data initial-pull))
+        (forge--update-status repo discussion data))
       (forge--set-connections repo discussion 'labels .labels)
       discussion)))
 
@@ -613,13 +613,11 @@
 
 (cl-defmethod forge--update-issues ((repo forge-github-repository) data)
   (closql-with-transaction (forge-db)
-    (let ((initial-pull (not (oref repo issues-until))))
-      (dolist (elt data)
-        (forge--update-issue repo elt initial-pull)))
+    (let ((forge--initial-topic-pull (not (oref repo issues-until))))
+      (mapc (##forge--update-issue repo %) data))
     (oset repo issues-until (forge--topics-until repo 'issue))))
 
-(cl-defmethod forge--update-issue ((repo forge-github-repository) data
-                                   &optional initial-pull)
+(cl-defmethod forge--update-issue ((repo forge-github-repository) data)
   (let ((repo-id (oref repo id))
         issue-id issue)
     (let-alist data
@@ -660,7 +658,7 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo issue data initial-pull))
+        (forge--update-status repo issue data))
       (forge--set-connections repo issue 'assignees .assignees)
       (forge--set-connections repo issue 'labels .labels))
     issue))
@@ -669,13 +667,11 @@
 
 (cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data)
   (closql-with-transaction (forge-db)
-    (let ((initial-pull (not (oref repo pullreqs-until))))
-      (dolist (elt data)
-        (forge--update-pullreq repo elt initial-pull)))
+    (let ((forge--initial-topic-pull (not (oref repo pullreqs-until))))
+      (mapc (##forge--update-pullreq repo %) data))
     (oset repo pullreqs-until (forge--topics-until repo 'pullreq))))
 
-(cl-defmethod forge--update-pullreq ((repo forge-github-repository) data
-                                     &optional initial-pull)
+(cl-defmethod forge--update-pullreq ((repo forge-github-repository) data)
   (let ((repo-id (oref repo id))
         pullreq-id pullreq)
     (let-alist data
@@ -724,7 +720,7 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo pullreq data initial-pull))
+        (forge--update-status repo pullreq data))
       (forge--set-connections repo pullreq 'assignees .assignees)
       (forge--set-connections repo pullreq 'review-requests
                               (mapcar (##alist-get 'requestedReviewer %)
@@ -855,12 +851,13 @@
     (pcase-dolist (`(,alias ,id ,_query ,repo ,type ,data) notifs)
       (let-alist data
         (when-let*
-            ((topic-data (cdr (cadr (assq alias topics))))
+            ((forge--initial-batch-pull initial-pull)
+             (topic-data (cdr (cadr (assq alias topics))))
              (topic (funcall (pcase-exhaustive type
                                ('discussion #'forge--update-discussion)
                                ('issue      #'forge--update-issue)
                                ('pullreq    #'forge--update-pullreq))
-                             repo topic-data initial-pull))
+                             repo topic-data))
              (notif (or (forge-get-notification id)
                         (closql-insert (forge-db)
                                        (forge-notification
