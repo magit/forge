@@ -288,9 +288,9 @@
             (forge--update-labels      repo .labels)
             (forge--update-milestones  repo .milestones)
             (forge--update-discussion-categories repo .discussionCategories)
-            (forge--update-discussions repo .discussions t)
-            (forge--update-issues      repo .issues t)
-            (forge--update-pullreqs    repo .pullRequests t)
+            (forge--update-discussions repo .discussions)
+            (forge--update-issues      repo .issues)
+            (forge--update-pullreqs    repo .pullRequests)
             (forge--update-revnotes    repo .commitComments)
             (forge--update-templates   repo data))
           (oset repo condition :tracked))
@@ -533,11 +533,11 @@
 
 ;;;; Discussions
 
-(cl-defmethod forge--update-discussions ((repo forge-github-repository) data bump)
+(cl-defmethod forge--update-discussions ((repo forge-github-repository) data)
   (closql-with-transaction (forge-db)
     (let ((initial-pull (not (oref repo discussions-until))))
       (dolist (elt data)
-        (forge--update-discussion repo elt bump initial-pull)))))
+        (forge--update-discussion repo elt t initial-pull)))))
 
 (cl-defmethod forge--update-discussion ((repo forge-github-repository) data
                                         &optional bump initial-pull)
@@ -607,12 +607,11 @@
 
 ;;;; Issues
 
-(cl-defmethod forge--update-issues ((repo forge-github-repository) data
-                                    &optional bump)
+(cl-defmethod forge--update-issues ((repo forge-github-repository) data)
   (closql-with-transaction (forge-db)
     (let ((initial-pull (not (oref repo issues-until))))
       (dolist (elt data)
-        (forge--update-issue repo elt bump initial-pull)))))
+        (forge--update-issue repo elt t initial-pull)))))
 
 (cl-defmethod forge--update-issue ((repo forge-github-repository) data
                                    &optional bump initial-pull)
@@ -663,12 +662,11 @@
 
 ;;;; Pullreqs
 
-(cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data
-                                      &optional bump)
+(cl-defmethod forge--update-pullreqs ((repo forge-github-repository) data)
   (closql-with-transaction (forge-db)
     (let ((initial-pull (not (oref repo pullreqs-until))))
       (dolist (elt data)
-        (forge--update-pullreq repo elt bump initial-pull)))))
+        (forge--update-pullreq repo elt t initial-pull)))))
 
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data
                                      &optional bump initial-pull)
