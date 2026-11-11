@@ -489,8 +489,12 @@
 (cl-defmethod forge--update-topic-status ((_repo forge-github-repository)
                                           topic data)
   (let-alist data
-    (let ((updated (or .updatedAt .createdAt))
-          (current-status (oref topic status)))
+    (let ((previous (oref topic status))
+          (updated
+           (string< (or (oref topic updated) "0")
+                    ;; Set this here, so that the previous date is
+                    ;; still available to be used in this comparison.
+                    (oset topic updated (or .updatedAt .createdAt)))))
       (if (forge-discussion-p topic)
           ;; Discussions lack `isReadByViewer', so we have to use a
           ;; heuristic, which is even worse than what we use for other
@@ -514,19 +518,18 @@
           ;; to be bumped; this second defect cancels out the first.
           (cond (forge--initial-topic-pull
                  (oset topic status 'done))
-                ((null current-status)
+                ((null previous)
                  (oset topic status 'unread))
-                ((string> updated (oref topic updated))
+                (updated
                  (oset topic status 'unread)))
         (cond ((not .isReadByViewer)
                (oset topic status 'unread))
               (forge--initial-topic-pull
                (oset topic status 'done))
-              ((null current-status)
+              ((null previous)
                (oset topic status 'pending))
-              ((string> updated (oref topic updated))
-               (oset topic status 'pending))))
-      (oset topic updated updated))))
+              (updated
+               (oset topic status 'pending)))))))
 
 (defun forge--topics-until (repo table)
   (forge-sql1 [:select [t:updated t:updated] :from (as $i1 t)

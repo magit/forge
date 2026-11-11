@@ -42,7 +42,7 @@
    (author               :initarg :author)
    (title                :initarg :title)
    (created              :initarg :created)
-   (updated              :initarg :updated)
+   (updated              :initarg :updated :initform nil)
    (closed               :initarg :closed)
    (status               :initarg :status :initform nil)
    (locked-p             :initarg :locked-p :initform nil)
