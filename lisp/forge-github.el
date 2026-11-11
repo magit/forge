@@ -804,12 +804,12 @@
         (cb)))))
 
 (defun forge--ghub-notifications-since (forge)
-  (forge-sql1 [:select :distinct [notification:updated]
-               :from [notification repository]
-               :where (and (= repository:forge $s1)
-                           (= repository:id notification:repository))
-               :order-by [(desc notification:updated)]]
-              forge))
+  (forge-sql [:select n:updated :from (as notification n)
+              :join repository :on (= n:repository repository:id)
+              :where (= repository:forge $s1)
+              :order-by [(desc n:updated)]
+              :limit 1]
+             forge))
 
 (defun forge--ghub-massage-notification (data githost)
   (let-alist data
