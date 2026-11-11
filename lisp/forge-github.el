@@ -317,6 +317,9 @@
       :until
       ;; Keys have the form `FIELD-until', where FIELD is the name of a
       ;; field of Repository objects.  See `ghub--graphql-walk-response'.
+      ;; We cannot just use `forge--topics-until' directly because then
+      ;; we could not know whether there are gaps (because topics were
+      ;; pulled individually).
       `((discussions-until  . ,(or since (oref repo discussions-until)))
         (issues-until       . ,(or since (oref repo issues-until)))
         (pullRequests-until . ,(or since (oref repo pullreqs-until)))))))
@@ -481,8 +484,8 @@
       (funcall callback))
     (forge-refresh-buffer)))
 
-(cl-defmethod forge--update-status ((repo forge-github-repository)
-                                    topic data bump initial-pull)
+(cl-defmethod forge--update-status ((_repo forge-github-repository)
+                                    topic data initial-pull)
   (let-alist data
     (let ((updated (or .updatedAt .createdAt))
           (current-status (oref topic status)))
@@ -521,15 +524,15 @@
                (oset topic status 'pending))
               ((string> updated (oref topic updated))
                (oset topic status 'pending))))
-      (oset topic updated updated)
-      (when bump
-        (let* ((slot (cl-typecase topic
-                       (forge-discussion 'discussions-until)
-                       (forge-issue      'issues-until)
-                       (forge-pullreq    'pullreqs-until)))
-               (until (eieio-oref repo slot)))
-          (when (or (not until) (string> updated until))
-            (eieio-oset repo slot updated)))))))
+      (oset topic updated updated))))
+
+(defun forge--topics-until (repo table)
+  (forge-sql1 [:select [t:updated t:updated] :from (as $i1 t)
+               :join repository :on (= t:repository repository:id)
+               :where (= repository:id $s2)
+               :order-by [(desc t:updated)]
+               :limit 1]
+              table (oref repo id)))
 
 ;;;; Discussions
 
@@ -537,10 +540,11 @@
   (closql-with-transaction (forge-db)
     (let ((initial-pull (not (oref repo discussions-until))))
       (dolist (elt data)
-        (forge--update-discussion repo elt t initial-pull)))))
+        (forge--update-discussion repo elt initial-pull)))
+    (oset repo discussions-until (forge--topics-until repo 'discussion))))
 
 (cl-defmethod forge--update-discussion ((repo forge-github-repository) data
-                                        &optional bump initial-pull)
+                                        &optional initial-pull)
   (let ((repo-id (oref repo id))
         discussion-id discussion)
     (let-alist data
@@ -601,7 +605,7 @@
                     :updated    .updatedAt
                     :body       (forge--sanitize-string .body))
                    t))))))
-        (forge--update-status repo discussion data bump initial-pull))
+        (forge--update-status repo discussion data initial-pull))
       (forge--set-connections repo discussion 'labels .labels)
       discussion)))
 
@@ -611,10 +615,11 @@
   (closql-with-transaction (forge-db)
     (let ((initial-pull (not (oref repo issues-until))))
       (dolist (elt data)
-        (forge--update-issue repo elt t initial-pull)))))
+        (forge--update-issue repo elt initial-pull)))
+    (oset repo issues-until (forge--topics-until repo 'issue))))
 
 (cl-defmethod forge--update-issue ((repo forge-github-repository) data
-                                   &optional bump initial-pull)
+                                   &optional initial-pull)
   (let ((repo-id (oref repo id))
         issue-id issue)
     (let-alist data
@@ -655,7 +660,7 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo issue data bump initial-pull))
+        (forge--update-status repo issue data initial-pull))
       (forge--set-connections repo issue 'assignees .assignees)
       (forge--set-connections repo issue 'labels .labels))
     issue))
@@ -666,10 +671,11 @@
   (closql-with-transaction (forge-db)
     (let ((initial-pull (not (oref repo pullreqs-until))))
       (dolist (elt data)
-        (forge--update-pullreq repo elt t initial-pull)))))
+        (forge--update-pullreq repo elt initial-pull)))
+    (oset repo pullreqs-until (forge--topics-until repo 'pullreq))))
 
 (cl-defmethod forge--update-pullreq ((repo forge-github-repository) data
-                                     &optional bump initial-pull)
+                                     &optional initial-pull)
   (let ((repo-id (oref repo id))
         pullreq-id pullreq)
     (let-alist data
@@ -718,7 +724,7 @@
               :updated .updatedAt
               :body    (forge--sanitize-string .body))
              t)))
-        (forge--update-status repo pullreq data bump initial-pull))
+        (forge--update-status repo pullreq data initial-pull))
       (forge--set-connections repo pullreq 'assignees .assignees)
       (forge--set-connections repo pullreq 'review-requests
                               (mapcar (##alist-get 'requestedReviewer %)
@@ -854,7 +860,7 @@
                                ('discussion #'forge--update-discussion)
                                ('issue      #'forge--update-issue)
                                ('pullreq    #'forge--update-pullreq))
-                             repo topic-data nil initial-pull))
+                             repo topic-data initial-pull))
              (notif (or (forge-get-notification id)
                         (closql-insert (forge-db)
                                        (forge-notification
