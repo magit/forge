@@ -145,18 +145,6 @@
                                   `(and ,cond (cons ',var ,val)))))
                              variables))))
 
-(defun forge--set-field-callback (topic)
-  (let ((repo (forge-get-repository topic)))
-    (cond
-      ((forge-discussion--eieio-childp topic)
-       ;; See comment in `forge--update-status'.
-       (let ((status (oref topic status)))
-         (lambda (&rest _)
-           (forge--pull-topic (forge-get-repository topic) topic
-                              (lambda () (oset topic status status))))))
-      ((lambda (&rest _)
-         (forge--pull-topic (forge-get-repository topic) topic))))))
-
 ;;; _
 ;; Local Variables:
 ;; read-symbol-shorthands: (

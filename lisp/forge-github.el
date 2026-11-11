@@ -427,9 +427,8 @@
 ;;;; Topics
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
-                                 (id string)
-                                 &optional callback)
-  (forge--pull-topic repo (forge-get-topic id) callback))
+                                 (id string))
+  (forge--pull-topic repo (forge-get-topic id)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
                                  (number number)
@@ -453,38 +452,40 @@
                   (forge-refresh-buffer)))))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
-                                 (topic forge-discussion)
-                                 &optional callback)
+                                 (topic forge-discussion))
   (forge-repo-query repo
     (forge--singularize-fragment forge--github-discussions-fragment
                                  (oref topic number))
-    :callback (forge--pull-topic-callback repo #'forge--update-discussion
-                                          callback)))
+    :callback (forge--pull-topic-callback repo #'forge--update-discussion)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
-                                 (topic forge-issue)
-                                 &optional _)
+                                 (topic forge-issue))
   (forge-repo-query repo
     (forge--singularize-fragment forge--github-issues-fragment
                                  (oref topic number))
     :callback (forge--pull-topic-callback repo #'forge--update-issue)))
 
 (cl-defmethod forge--pull-topic ((repo forge-github-repository)
-                                 (topic forge-pullreq)
-                                 &optional _)
+                                 (topic forge-pullreq))
   (forge-repo-query repo
     (forge--singularize-fragment forge--github-pullreqs-fragment
                                  (oref topic number))
     :callback (forge--pull-topic-callback repo #'forge--update-pullreq)))
 
 (defvar forge--initial-topic-pull nil)
+(defvar forge--inhibit-unread-discussion-status nil)
 
-(defun forge--pull-topic-callback (repo update &optional callback)
-  (lambda (data)
-    (funcall update repo (cdr (cadr (cadr data))))
-    (when callback
-      (funcall callback))
-    (forge-refresh-buffer)))
+(defun forge--pull-topic-callback (repo update)
+  (let ((inhibit-unread forge--inhibit-unread-discussion-status))
+    (lambda (data)
+      (let ((forge--inhibit-unread-discussion-status inhibit-unread))
+        (funcall update repo (cdr (cadr (cadr data)))))
+      (forge-refresh-buffer))))
+
+(defun forge--set-field-callback (topic)
+  (lambda (&rest _)
+    (let ((forge--inhibit-unread-discussion-status t))
+      (forge--pull-topic (forge-get-repository topic) topic))))
 
 (cl-defmethod forge--update-topic-status ((_repo forge-github-repository)
                                           topic data)
@@ -501,22 +502,18 @@
           ;; topic types.  Except during the repository's initial pull,
           ;; all new discussions start out as `unread'.
           ;;
-          ;; If we pull a discussion after the user mutated it, setting
-          ;; the status to `unread' is highly undesirable (since they made
-          ;; the mutation, they have already "read" it), yet that is what
-          ;; we do here.  However, the callback used by the discussion
-          ;; method of `forge--pull-topic', afterwards resets the status
-          ;; to the previous value.
+          ;; When pulling a discussion after the user mutated
+          ;; it, the status should not be changed/set to `unread'; while
+          ;; doing it, the user also read it.  In this situation
+          ;; `forge--inhibit-unread-discussion-status' is non-nil.
           ;;
           ;; Of course it is possible that we pull other changes by other
           ;; people at the same time, but we have no (reasonable) way of
-          ;; knowing that.  So in that case too the status sadly doesn't
+          ;; knowing that.  So in that case too, the status sadly doesn't
           ;; end up as `unread'.
-          ;;
-          ;; The callback kludge is not needed for all mutations.  Some
-          ;; mutations (e.g., setting labels) do not cause `updated_at'
-          ;; to be bumped; this second defect cancels out the first.
-          (cond (forge--initial-topic-pull
+          (cond (forge--inhibit-unread-discussion-status
+                 )
+                (forge--initial-topic-pull
                  (oset topic status 'done))
                 ((null previous)
                  (oset topic status 'unread))
