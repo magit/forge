@@ -144,7 +144,7 @@
               'forge-pullreq))
 
 (cl-defmethod forge-get-pullreq ((number integer))
-  (and$ (forge-get-repository :tracked nil 'notatpt)
+  (and$ (forge-get-repository :tracked? nil 'notatpt)
         (forge-get-pullreq $ number)))
 
 (cl-defmethod forge-get-pullreq ((id string))
