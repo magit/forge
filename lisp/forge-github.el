@@ -27,6 +27,8 @@
 (require 'forge-issue)
 (require 'forge-pullreq)
 
+(defvar forge--initial-batch-pull)
+
 ;;; Class
 
 (defclass forge-github-repository (forge-repository)
@@ -851,13 +853,13 @@
     (pcase-dolist (`(,alias ,id ,_query ,repo ,type ,data) notifs)
       (let-alist data
         (when-let*
-            ((forge--initial-batch-pull initial-pull)
-             (topic-data (cdr (cadr (assq alias topics))))
-             (topic (funcall (pcase-exhaustive type
-                               ('discussion #'forge--update-discussion)
-                               ('issue      #'forge--update-issue)
-                               ('pullreq    #'forge--update-pullreq))
-                             repo topic-data))
+            ((topic-data (cdr (cadr (assq alias topics))))
+             (topic (let ((forge--initial-batch-pull initial-pull))
+                      (funcall (pcase-exhaustive type
+                                 ('discussion #'forge--update-discussion)
+                                 ('issue      #'forge--update-issue)
+                                 ('pullreq    #'forge--update-pullreq))
+                               repo topic-data)))
              (notif (or (forge-get-notification id)
                         (closql-insert (forge-db)
                                        (forge-notification
