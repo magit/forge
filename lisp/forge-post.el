@@ -20,6 +20,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements support for editing posts.  Posts are replies
+;; to topics.  Topics themselves are also posts.
+
 ;;; Code:
 
 (require 'markdown-mode)

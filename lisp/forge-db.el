@@ -20,6 +20,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements low-level database support and defines the
+;; database schemata.
+
 ;;; Code:
 
 (require 'closql)

@@ -20,6 +20,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements low-level features that are required by
+;; multiple other libraries.  This includes generic functions (the
+;; methods being defined elsewhere), functions dealing with object
+;; IDs, `forge-refresh-buffer', and assorted utility functions.
+
 ;;; Code:
 
 (require 'magit)

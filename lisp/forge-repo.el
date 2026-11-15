@@ -20,6 +20,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements support for identifying repositories, i.e.,
+;; for linking Git repositories to projects on a Forge.
+
 ;;; Code:
 
 (require 'forge)

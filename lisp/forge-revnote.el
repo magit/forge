@@ -20,6 +20,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library defines the `forge-revnote' class.  Revnotes are "comments
+;; on commits".  Forge downloads these comments and stores them in the
+;; database, but currently doesn't do anything with this data.
+
 ;;; Code:
 
 (require 'forge)

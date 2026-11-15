@@ -20,6 +20,11 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements many commands that have no more naturally
+;; place in another library.
+
 ;;; Code:
 
 (require 'forge)

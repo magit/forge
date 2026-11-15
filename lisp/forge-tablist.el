@@ -20,6 +20,14 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements low-level `tabulated-list' list tooling.
+;; Nowadays tabulated lists are only used to list repositories, but
+;; in the past they were also used to list notifications, which is
+;; why this exists as a separate library.  This might be folded into
+;; "forge-repos.el" at some point.
+
 ;;; Code:
 
 (require 'tabulated-list)

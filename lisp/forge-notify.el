@@ -1,4 +1,4 @@
-;;; forge-notify.el --- Notify support  -*- lexical-binding:t -*-
+;;; forge-notify.el --- Notification support  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2018-2026 Jonas Bernoulli
 
@@ -19,6 +19,19 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This library implements support for notifications.
+
+;; Only Github is supported.  Note however that Github's notification
+;; API is abysmal.  It is, to mention just one defect, not possibly to
+;; reliably determine whether a topic has unread changes.  In the absense
+;; of a adequate API, we are forced to fall back to faulty heuristics.
+
+;; Dealing with Github notifications was so painful, I refuse to go throuh
+;; that process again for Gitlab.  I have not studied their respective API
+;; in detail, but it also looks highly inadequate.
 
 ;;; Code:
 

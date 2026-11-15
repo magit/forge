@@ -20,6 +20,14 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements support for the REST and GraphQL APIs of
+;; supported forges.  The functions defined here wrap functions defined
+;; in the Ghub package.  They provide more convenient interfaces, and
+;; could be moved to Ghub, but because breaking changes are still likely
+;; and Ghub is used by third-party packages, they are kept here for now.
+
 ;;; Code:
 
 (require 'forge)
