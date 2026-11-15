@@ -20,6 +20,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Rudimentary support for Bitbucket.  Visiting webpages with
+;; `forge-browse' et al. is supported, everything else is not.
+
+;; Full support is not planned.  Complete removal is more likely.
+
 ;;; Code:
 
 (require 'forge)

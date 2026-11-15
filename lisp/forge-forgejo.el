@@ -20,6 +20,17 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Rudimentary support for Forgejo instances, including
+;; https://codeberg.org.  Visiting webpages with `forge-browse' et al.
+;; is supported, everything else is not.
+
+;; Full support has been planned for a long time and is still on the
+;; table.  But it is also possible that I will write a new package
+;; instead, or start using and recommending a package implemented by
+;; someone else.  See also https://github.com/magit/forge/discussions/771.
+
 ;;; Code:
 
 (require 'forge)

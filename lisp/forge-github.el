@@ -20,6 +20,12 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Support for Github instances, including https://github.com and private
+;; instances.  Not all Github features are supported, but Github is the
+;; best supported forge.
+
 ;;; Code:
 
 (require 'forge-client)

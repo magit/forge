@@ -20,6 +20,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Rudimentary support for Cgit and similar Git hosting solutions.
+;; Most of these do not support issues and pull-requests in a way
+;; comparable to Github and Codeberg, so all that is (and can be)
+;; supported is visiting webpages with `forge-browse' et al..
+
 ;;; Code:
 
 (require 'forge)

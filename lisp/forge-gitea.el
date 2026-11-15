@@ -20,6 +20,15 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; Rudimentary support for Gitea instances.  Visiting webpages with
+;; `forge-browse' et al. is supported, everything else is not.
+
+;; Full support is not planned.  Maybe once Forgejo is supported well,
+;; Gitea support could also be improved, given the ancestry.  See also
+;; "forge-forgejo.el".
+
 ;;; Code:
 
 (require 'forge)
