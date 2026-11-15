@@ -20,6 +20,13 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements support for listing topics in a Magit buffer.
+
+;; Code concerning individual topics can be found in "forge-topic.el" and
+;; "forge-TYPE.el".
+
 ;;; Code:
 
 (require 'forge-topic)

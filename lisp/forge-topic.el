@@ -20,6 +20,15 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;; This library implements functionality useful for all or more than one
+;; of the supported topic types (discussions, issues and pull-requests).
+
+;; Methods and functions such as `forge-read-TYPE' tend to be defined in
+;; "forge-TYPE.el" instead.  Support for listing topics is implmented in
+;; "forge-topics.el".
+
 ;;; Code:
 
 (require 'bookmark)

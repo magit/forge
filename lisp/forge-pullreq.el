@@ -1,4 +1,4 @@
-;;; forge-pullreq.el --- Pullreq support  -*- lexical-binding:t -*-
+;;; forge-pullreq.el --- Pull-request support  -*- lexical-binding:t -*-
 
 ;; Copyright (C) 2018-2026 Jonas Bernoulli
 
@@ -19,6 +19,12 @@
 ;;
 ;; You should have received a copy of the GNU General Public License
 ;; along with this file.  If not, see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; Pull-request methods and other pull-request-specific functions are
+;; defined here.  Funtionality shared with other topic types is defined
+;; in "forge-topic.el", "forge-topics.el" and elsewhere.
 
 ;;; Code:
 
