@@ -75,10 +75,10 @@
     `((,singular [(,arg ,value)] . ,fields) . ,rest)))
 
 (cl-defmacro forge-mutate ( obj-or-host mutation variables
-                            &key callback errorback noerror)
+                            &key query callback errorback noerror)
   (declare (indent defun))
   `(forge--query ,obj-or-host
-     ',(forge--prepare-mutation mutation)
+     ',(forge--prepare-mutation mutation query)
      (list (cons 'input ,(forge--prepare-variables variables)))
      :callback ,callback :errorback ,errorback :noerror ,noerror))
 
@@ -129,7 +129,7 @@
                  ('forge-gitlab-repository 'gitlab)
                  (_ 'github)))))
 
-(defun forge--prepare-mutation (mutation &optional var)
+(defun forge--prepare-mutation (mutation &optional query var)
   `(mutation
     (,mutation
      [(input ,(if var (intern (format "$%s" var)) '$input)
@@ -137,12 +137,11 @@
                 (intern (format "%s%sInput!"
                                 (upcase (substring name 0 1))
                                 (substring name 1)))))]
-     ;; We ignore the payload, but GraphQL requires that at least one
-     ;; field is specified.  On Github this field is available for all
-     ;; mutations.  On Gitlab there is no field that is available for
-     ;; all mutations, but luckily using an invalid fields does not
-     ;; result in an error.
-     clientMutationId)))
+     ;; GraphQL requires that at least one field is specified.  On Github
+     ;; this field is available for all mutations.  On Gitlab there is no
+     ;; field that is available for all mutations, but luckily using an
+     ;; invalid fields does not result in an error.
+     ,@(or query '(clientMutationId)))))
 
 (defun forge--prepare-variables (variables)
   `(delq nil (list ,@(mapcar (lambda (binding)
