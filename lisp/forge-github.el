@@ -1025,6 +1025,7 @@
        (categoryId (forge--their-id forge--buffer-category 'category repo))
        (title title)
        (body  body))
+      :query     ((discussion number))
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
@@ -1043,6 +1044,7 @@
        (and forge--buffer-assignees
             (assigneeIds
              (vconcat (forge--their-id forge--buffer-assignees 'assignees repo)))))
+      :query     ((issue number))
       :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
