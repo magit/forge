@@ -1025,7 +1025,7 @@
        (categoryId (forge--their-id forge--buffer-category 'category repo))
        (title title)
        (body  body))
-      :callback  (forge--post-submit-callback t)
+      :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-issue ((repo forge-github-repository) _)
@@ -1043,7 +1043,7 @@
        (and forge--buffer-assignees
             (assigneeIds
              (vconcat (forge--their-id forge--buffer-assignees 'assignees repo)))))
-      :callback  (forge--post-submit-callback t)
+      :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--create-pullreq-from-issue
@@ -1085,7 +1085,7 @@
                 (concat (oref head-repo owner) ":" head-branch)))
        (draft forge--buffer-draft-p)
        (maintainer_can_modify t))
-      :callback  (forge--post-submit-callback t)
+      :callback  (forge--post-submit-callback)
       :errorback (forge--post-submit-errorback))))
 
 (cl-defmethod forge--submit-create-post

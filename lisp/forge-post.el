@@ -272,7 +272,7 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
         (cons (string-trim title)
               (string-trim body))))))
 
-(defun forge--post-submit-callback (&optional full-pull)
+(defun forge--post-submit-callback ()
   (let* ((file    buffer-file-name)
          (winconf forge--pre-post-winconf)
          (editbuf (current-buffer))
@@ -293,15 +293,16 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
       (with-current-buffer
           (if (buffer-live-p prevbuf) prevbuf (current-buffer))
         (let-alist value
-          (cond-let
-            ((and full-pull (not (oref repo selective-p)))
-             (forge--pull repo))
+          (cond
+            (topic
+             (forge--pull-topic repo topic))
+            ((forge--childp repo 'forge-gitlab-repository)
+             (forge--pull-topic
+              repo
+              (format "%s%i" (if (equal .issue_type "issue") "#" "!") .iid)))
             ([number .number]
              (forge--pull-topic repo number))
-            ;; Gitlab:
-            ((equal .issue_type "issue")
-             (forge--pull-topic repo (format "#%i" .iid)))
-            ((forge--pull-topic repo (format "!%i" .iid)))))))))
+            ((forge--pull repo))))))))
 
 (defun forge--post-submit-errorback ()
   (lambda (error &rest _)
