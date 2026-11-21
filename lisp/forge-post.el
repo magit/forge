@@ -293,15 +293,18 @@ Insert the value of `branch.BRANCH.description' of the source BRANCH."
       (with-current-buffer
           (if (buffer-live-p prevbuf) prevbuf (current-buffer))
         (let-alist value
-          (forge--pull-topic
-           repo
-           (cond (topic) ; Creating new post on existing topic.
-                 ((forge--childp repo 'forge-gitlab-repository)
-                  (format "%s%i" (if (equal .issue_type "issue") "#" "!") .iid))
-                 ((or .createDiscussion.discussion.number
-                      .createIssue.issue.number
-                      ;; Creating Github pullreq using REST.
-                      .number)))))))))
+          (let ((forge--inhibit-unread-discussion-status
+                 (and (not topic) 'create)))
+            (forge--pull-topic
+             repo
+             (cond
+               (topic) ; Creating new post on existing topic.
+               ((forge--childp repo 'forge-gitlab-repository)
+                (format "%s%i" (if (equal .issue_type "issue") "#" "!") .iid))
+               ((or .createDiscussion.discussion.number
+                    .createIssue.issue.number
+                    ;; Creating Github pullreq using REST.
+                    .number))))))))))
 
 (defun forge--post-submit-errorback ()
   (lambda (error &rest _)
